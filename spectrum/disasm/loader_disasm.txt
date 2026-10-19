@@ -1,0 +1,65 @@
+=== LOADER AT $FC00-$FEFF (decrypted) ===
+
+=== Self-decrypt header ($FC00-$FC12) ===
+$FC00: LD BC,0x29d                       ; 019d02
+$FC03: LD HL,0xfc13                      ; 2113fc
+$FC06: LD DE,0xfc14                      ; 1114fc
+$FC09: LD A,(DE)                         ; 1a
+$FC0A: XOR (HL)                          ; ae
+$FC0B: LD (HL),A                         ; 77
+$FC0C: INC HL                            ; 23
+$FC0D: INC DE                            ; 13
+$FC0E: DEC BC                            ; 0b
+$FC0F: LD A,B                            ; 78
+$FC10: OR C                              ; b1
+$FC11: JR nz,0xfc09                      ; 20f6
+$FC13: JP 0xfe3a                         ; c33afe
+
+=== Entry point $FE3A (after self-decrypt) ===
+$FE3A: DI                                ; f3
+$FE3B: LD HL,0x5800                      ; 210058
+$FE3E: LD DE,0x5801                      ; 110158
+$FE41: LD BC,0x2ff                       ; 01ff02
+$FE44: LD (HL),0                         ; 3600
+$FE46: LDIR                              ; edb0
+$FE48: CALL 0xfe7e                       ; cd7efe
+$FE4B: CALL 0x8001                       ; cd0180
+$FE4E: CALL 0xfe7e                       ; cd7efe
+$FE51: LD HL,0xfe5f                      ; 215ffe
+$FE54: LD DE,0x5b00                      ; 11005b
+$FE57: LD BC,0x1f                        ; 011f00
+$FE5A: LDIR                              ; edb0
+$FE5C: JP 0x5b00                         ; c3005b
+$FE5F: LD HL,0xfbff                      ; 21fffb
+$FE62: LD DE,0xffff                      ; 11ffff
+$FE65: LD BC,0x9afc                      ; 01fc9a
+$FE68: LDDR                              ; edb8
+$FE6A: LD HL,0x6104                      ; 210461
+$FE6D: LD DE,0x6105                      ; 110561
+$FE70: LD (HL),0                         ; 3600
+$FE72: LD BC,0x3ff                       ; 01ff03
+$FE75: LDIR                              ; edb0
+$FE77: LD SP,0x61a8                      ; 31a861
+$FE7A: EI                                ; fb
+$FE7B: JP 0x6504                         ; c30465
+$FE7E: XOR A                             ; af
+$FE7F: LD (0xfc1a),A                     ; 321afc
+$FE82: LD IX,0xfc21                      ; dd2121fc
+$FE86: LD DE,0x11                        ; 111100
+$FE89: XOR A                             ; af
+$FE8A: SCF                               ; 37
+$FE8B: CALL 0xfc8a                       ; cd8afc
+$FE8E: JR nc,0xfe7e                      ; 30ee
+$FE90: LD A,(0xfc21)                     ; 3a21fc
+$FE93: CP 0x2a                           ; fe2a
+$FE95: JR nz,0xfe7e                      ; 20e7
+$FE97: CALL 0xfe0f                       ; cd0ffe
+$FE9A: LD A,1                            ; 3e01
+$FE9C: LD (0xfc1a),A                     ; 321afc
+$FE9F: LD IX,(0xfc2e)                    ; dd2a2efc
+$FEA3: LD DE,(0xfc2c)                    ; ed5b2cfc
+$FEA7: LD A,0xff                         ; 3eff
+$FEA9: SCF                               ; 37
+$FEAA: CALL 0xfc8a                       ; cd8afc
+$FEAD: JR nc,0xfe7e                      ; 30cf
+$FEAF: RET                               ; c9

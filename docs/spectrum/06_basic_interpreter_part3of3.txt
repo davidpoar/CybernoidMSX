@@ -1,0 +1,573 @@
+# Spectrum ROM Disassembly - Basic Line And Command Interpretation
+Part 3/3
+
+---
+
+
++31 .duplicate 
+
+Z, G/A, G/A 
+
+DEFB 
+
++A2,stk-half 
+
+Z, G/A, G/A, 0.5 
+
+DEFB 
+
++04, multiply 
+
+Z, G/A, G/2*A 
+
+DEFB 
+
++1 F,sin 
+
+Z, G/A, SIN (G/2*A) 
+
+DEFB 
+
++C1 ,st-mem-1 
+
+(SIN (G/2*A) is copied to 
+mem-1). 
+
+DEFB 
+
++01 .exchange 
+
+Z, SIN (G/2*A), G/A 
+
+DEFB 
+
++C0,st-mem-0 
+
+(G/A is copied to mem-0). 
+
+DEFB 
+
++02, delete 
+
+Z, SIN (G/2*A) = S 
+
+DEFB 
+
++31, duplicate 
+
+Z, S, S 
+
+DEFB 
+
++04, multiply 
+
+Z, S*S 
+
+DEFB 
+
++31 .duplicate 
+
+z, s*s, s*s 
+
+DEFB 
+
++0F, addition 
+
+Z, 2*S*S 
+
+DEFB 
+
++A1,stk-one 
+
+Z, 2*S*S, 1 
+
+DEFB 
+
++03, subtract 
+
+Z, 2*S*S - 1 
+
+DEFB 
+
++1 B, negate 
+
+Z, 1 - 2*S*S = COS (G/A) 
+
+DEFB 
+
++C3,st-mem-3 
+
+(COS (G/A) is copied to mem-3). 
+
+DEFB 
+
++02, delete 
+
+Z 
+
+DEFB 
+
++38, end-calc 
+
+
+POP 
+
+BC 
+
+Restore the arc-count to B. 
+
+RET 
+
+
+Finished. 
+
+THE LINE-DRAWING SUBROUTINE 
+
+
+This subroutine is called by DRAW to draw an approximation to a straight line from the point XO, YO held in COORDS to the point 
+XO+X, YO+Y, where the increments X and Y are on the top of the calculator stack. The subroutine was originally intended for the ZX80 
+and ZX81 8K ROM, and it is described in a BASIC program on page 121 of the ZX81 manual. It is also illustrated here in the Circle 
+
+program in the appendix. 
+
+
+
+The method is to intersperse as many horizontal or vertical steps as are needed among a basic set of diagonal steps, using an 
+algorithm that spaces the horizontal or vertical steps as evenly as possible. 
+
+24B7 DRAW-LINE CALL 
+
+2307.STK-TO-BC 
+
+ABS Y to B; ABS X to C; 
+
+SGN Y to D; SGN X to E. 
+
+LD 
+
+A,C 
+
+Jump if ABS X is greater than 
+
+CP 
+
+B 
+
+or equal to ABS Y, so that the 
+
+
+124 
+
+
+
+JR 
+
+NC,24C4, DL-X-GE-Y 
+
+smaller goes to L, and the 
+
+LD 
+
+L,C 
+
+larger (later) goes to H. 
+
+PUSH 
+
+DE 
+
+Save diag. step (±1,±1) in DE. 
+
+XOR 
+
+A 
+
+Insert a vertical step (±1 , 0) 
+
+LD 
+
+E,A 
+
+into DE (D holds SGN Y). 
+
+JR 
+
+24CB, DL-LARGER 
+
+Now jump to set H. 
+
+DL-X-GE-Y OR 
+
+C 
+
+Return if ABS X and ABS Y 
+
+RET 
+
+Z 
+
+are both zero. 
+
+LD 
+
+L,B 
+
+The smaller (ABS Y here) goes 
+
+
+
+to L. 
+
+LD 
+
+B,C 
+
+ABS X to B here, for H. 
+
+PUSH 
+
+DE 
+
+Save the diagonal step here too. 
+
+LD 
+
+D,+00 
+
+Hor. step (0, ±1) to DE here. 
+
+DL-LARGER LD 
+
+H,B 
+
+Larger of ABS X, ABS Y to H 
+
+
+
+now. 
+
+
+The algorithm starts here. The larger of ABS X and ABS Y, say H, is put into A and reduced to INT (H/2). The H - L horizontal or vertical 
+steps and L diagonal steps are taken (where L is the smaller of ABS X and ABS Y) in this way: L is added to A: if A now equals or 
+exceeds H, it is reduced by H and a diagonal step is taken; otherwise a horizontal or vertical step is taken. This is repeated H times (B 
+also holds H). Note that meanwhile the exchange registers H' and L' are used to hold COORDS. 
+
+
+
+
+LD 
+
+A,B 
+
+B to A as well as to H. 
+
+
+
+RRA 
+
+
+A starts at INT (H/2). 
+
+24CE 
+
+D-L-LOOP 
+
+ADD 
+
+A,L 
+
+L is added to A. 
+
+
+
+JR 
+
+C,24D4, D-L-DIAG 
+
+If 256 or more, jump - diag. 
+step. 
+
+
+
+CP 
+
+H 
+
+If A is less than H, jump for 
+
+
+
+JR 
+
+C,24DB, D-L-HR-VT 
+
+horizontal or vertical step. 
+
+24D4 
+
+D-L-DIAG 
+
+SUB 
+
+H 
+
+Reduce A by H. 
+
+
+
+LD 
+
+C,A 
+
+Restore it to C. 
+
+
+
+EXX 
+
+
+Now use the exchange resisters. 
+
+
+
+POP 
+
+BC 
+
+Diag. step to B'C'. 
+
+
+
+PUSH 
+
+BC 
+
+Save it too. 
+
+
+
+JR 
+
+24DF, D-L-STEP 
+
+Jump to take the step. 
+
+24DB 
+
+D-L-HR-VT 
+
+LD 
+
+C,A 
+
+Save A (unreduced) in C. 
+
+
+
+PUSH 
+
+DE 
+
+Step to stack briefly. 
+
+
+
+EXX 
+
+
+Get exchange registers. 
+
+
+
+POP 
+
+BC 
+
+Step to B'C' now. 
+
+24DF 
+
+D-L-STEP 
+
+LD 
+
+HL, (COORDS) 
+
+Now take the step: first, 
+COORDS to H'L' as the start 
+
+
+
+
+
+point. 
+
+
+
+LD 
+
+A,B 
+
+Y-step from B' to A. 
+
+
+
+ADD 
+
+A,H 
+
+Add in H'. 
+
+
+
+LD 
+
+B,A 
+
+Result to B' 
+
+
+
+LD 
+
+A,C 
+
+Now the X-step; it will be tested 
+
+
+
+INC 
+
+A 
+
+for range (Y will be tested in 
+PLOT). 
+
+
+
+ADD 
+
+A,L 
+
+Add L' to C' in A, jump on 
+
+
+
+JR 
+
+C,24F7,D-L-RANGE 
+
+carry for further test. 
+
+
+
+JR 
+
+Z,24F9,REPORT-B 
+
+Zero after no carry denotes 
+X-position -1 , out of range. 
+
+24EC 
+
+D-L-PLOT 
+
+DEC 
+
+A 
+
+Restore true value to A. 
+
+
+
+LD 
+
+C,A 
+
+Value to C' for plotting. 
+
+
+
+CALL 
+
+22E5, PLOT-SUB 
+
+Plot the step. 
+
+
+
+EXX 
+
+
+Restore main registers. 
+
+
+
+LD 
+
+A,C 
+
+C back to A to continue 
+algorithm. 
+
+
+
+DJNZ 
+
+24CE, D-L-LOOP 
+
+Loop back for 8 steps (i.e. H 
+steps). 
+
+
+
+POP 
+
+DE 
+
+Clear machine stack. 
+
+
+
+RET 
+
+
+Finished. 
+
+
+125 
+
+
+
+24F7 D-L-RANGE 
+
+JR 
+
+Z,24EC,D-L-PLOT 
+
+Zero after carry denotes X. 
+position 255, in range. 
+
+Report B - Integer out of range 
+
+
+
+24F9 REPORT-B 
+
+RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+
+DEFB 
+
++0A 
+
+routine. 
+
+
+126 
+
+

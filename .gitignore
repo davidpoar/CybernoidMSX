@@ -1,0 +1,23 @@
+# Build output
+msx/build/
+msx/build/tmp/
+msx/test/bin/
+msx/test/obj/
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+Desktop.ini
+
+# Large binaries that can be regenerated with tools/run_all.py + msx/scripts/build.py
+# (uncomment if you prefer not to track them)
+# original/Cybernoid.tzx
+# spectrum/cybernoid_after_lddr.bin
+# spectrum/cybernoid_before_lddr.bin
+# docs/ula/00_spectrum_ula_full.txt

@@ -1,0 +1,6004 @@
+# Spectrum ROM Disassembly - The Cassette Handling Routines
+Part 1/3
+
+---
+
+THE CASSETTE HANDLING ROUTINES 
+
+
+The 1 6K monitor program has an extensive set of routines for handling the cassette interface. In effect these routines form the SAVE. 
+LOAD, VERIFY & MERGE command routines. 
+
+The entry point to the routines is at SAVE-ETC (0605). However before this point are the subroutines concerned with the actual 
+SAVEing and LOADing (or VERIFYing) of bytes. 
+
+In all cases the bytes to be handled by these subroutines are described by the DE register pair holding the 'length' of the block, the IX 
+register pair holding the 'base address' and the A register holding +00 for a header block, or +FF for a program/data block. 
+
+
+THE 'SA-BYTES' SUBROUTINE 
+
+This subroutine is called to SAVE the header information (from 09BA) and later the actual program/data block (from 099E). 
+
+
+04C2 
+
+
+04D0 
+
+
+SA-BYTES 
+
+
+SA-FLAG 
+
+
+LD 
+
+HL.+053F 
+
+PUSH 
+
+HL 
+
+LD 
+
+HL.+1F80 
+
+BIT 
+
+7, A 
+
+JR 
+
+Z,04D0, SA-FLAG 
+
+LD 
+
+HL.+0C98 
+
+EX 
+
+AF,A'F’ 
+
+INC 
+
+DE 
+
+DEC 
+
+IX 
+
+Dl 
+
+LD 
+
+A, +02 
+
+LD 
+
+B,A 
+
+
+Pre-load the machine stack with 
+the address - SA/LD-RET. 
+
+This constant will give a leader 
+of about 5 secs, for a 'header'. 
+Jump forward if SAVEing a 
+header. 
+
+This constant will give a leader 
+of about 2 secs, for a program/ 
+data block. 
+
+The flag is saved. 
+
+The ’length' is incremented 
+and the 'base address' reduced 
+to allow for the flag. 
+
+The maskable interrupt is 
+disabled during the SAVE. 
+Signal 'MIC on' and border to 
+be RED. 
+
+Give a value to B. 
+
+
+A loop is now entered to create the pulses of the leader. Both the 'MIC on' and the 'MIC off pulses are 2,168 T states in length. The 
+colour of the border changes from RED to CYAN with each 'edge'. 
+
+Note: An 'edge' will be a transition either from 'on' to 'off, or from 'off to 'on'. 
+
+
+04D8 
+
+SA-LEADER 
+
+DJNZ 
+
+04D8, SA-LEADER 
+
+The main timing period. 
+
+
+
+OUT 
+
+(+FE),A 
+
+MIC on/off, border RED/CYAN, 
+
+
+
+XOR 
+
++0F 
+
+on each pass. 
+
+
+
+LD 
+
+B,+A4 
+
+The main timing constant. 
+
+
+
+DEC 
+
+L 
+
+Decrease the low counter. 
+
+
+
+JR 
+
+NZ,04D8, SA-LEADER 
+
+Jump back for another pulse. 
+
+
+
+DEC 
+
+B 
+
+Allow for the longer path 
+(-reduce by 13 T states). 
+
+
+
+DEC 
+
+H 
+
+Decrease the high counter. 
+
+
+
+JP 
+
+P,04D8, SA-LEADER 
+
+Jump back for another pulse 
+until completion of the leader. 
+
+A sync pulse is now sent. 
+
+
+
+
+
+LD 
+
+B,+2F 
+
+
+04EA 
+
+SA-SYNC-1 
+
+DJNZ 
+
+04EA, SA-SYNC-1 
+
+MIC off for 667 T states from 
+’OUT to OUT'. 
+
+
+
+OUT 
+
+(+FE),A 
+
+MIC on and RED. 
+
+
+
+LD 
+
+A,+0D 
+
+Signal 'MIC off & CYAN'. 
+
+
+
+LD 
+
+B,+37 
+
+MIC on for 735 T States from 
+
+04F2 
+
+SA-SYNC-2 
+
+DJNZ 
+
+04F2, SA-SYNC-2 
+
+'OUT to OUT'. 
+
+
+
+OUT 
+
+(+FE),A 
+
+Now MIC off & border CYAN. 
+
+
+The header v. program/data flag will be the first byte to be SAVEd. 
+
+
+15 
+
+
+
+LD 
+
+BC,+3B0E 
+
+EX 
+
+AF,A'F' 
+
+LD 
+
+L,A 
+
+JP 
+
+0507,SA-START 
+
+
++3B is a timing constant; +0E 
+signals 'MIC off & YELLOW'. 
+Fetch the flag and pass it to the 
+L register for 'sending'. 
+
+Jump forward into the SAVEing 
+loop. 
+
+
+The byte SAVEing loop is now entered. The first byte to be SAVEd is the flag; this is followed by the actual data byte and the final byte 
+sent is the parity byte that is built up by considering the values of all the earlier bytes. 
+
+
+04FE 
+
+SA-LOOP 
+
+LD 
+
+A,D 
+
+The 'length' counter is tested 
+
+
+
+OR 
+
+E 
+
+and the jump taken when it 
+
+
+
+JR 
+
+Z,050E, SA-PARITY 
+
+has reached zero. 
+
+
+
+LD 
+
+L,(IX+00) 
+
+Fetch the next byte that is to 
+be SAVEd. 
+
+0505 
+
+SA-LOOP-P 
+
+LD 
+
+A, FI 
+
+Fetch the current 'parity'. 
+
+
+
+XOR 
+
+L 
+
+Include the present byte. 
+
+0507 
+
+SA-START 
+
+LD 
+
+FI, A 
+
+Restore the 'parity'. Note that 
+on entry here the 'flag' value 
+initialises ’parity’. 
+
+
+
+LD 
+
+A, +01 
+
+Signal 'MIC on & BLUE 1 . 
+
+
+
+SCF 
+
+
+Set the carry flag. This will act 
+as a 'marker' for the 8 bits of a 
+
+
+
+
+
+byte. 
+
+
+
+JP 
+
+0525,SA-8-BITS 
+
+Jump forward. 
+
+
+When it is time to send the ’parity’ byte then it is transferred to the L register for SAVEing. 
+
+050E SA-PARITY LD L,H Get final ’parity' value. 
+
+JR 0505,SA-LOOP-P Jump back. 
+
+The following inner loop produces the actual pulses. The loop is entered at SA-BIT-1 with the type of the bit to be SAVEd indicated by 
+the carry flag. Two passes of the loop are made for each bit thereby making an 'off pulse' and an 'on pulse'. The pulses for a reset bit 
+are shorter by 855 T states. 
+
+
+0511 
+
+SA-BIT-2 
+
+LD 
+
+A,C 
+
+Come here on the second pass 
+and fetch 'MIC off & YELLOW'. 
+
+
+
+BIT 
+
+7,B 
+
+Set the zero flag to show 
+'second pass’. 
+
+0514 
+
+SA-BIT-1 
+
+DJNZ 
+
+051 4, SA-BIT-1 
+
+The main timing loop; always 
+801 T states on a 2nd. pass. 
+
+
+
+JR 
+
+NC, 051 C, SA-OUT 
+
+Jump, taking the shorter path, if 
+SAVEing a 'O'. 
+
+
+
+LD 
+
+B.+42 
+
+Flowever if SAVEing a '1 ' then 
+
+051 A 
+
+SA-SET 
+
+DJNZ 
+
+051A, SA-SET 
+
+add 855 T states. 
+
+051 C 
+
+SA-OUT 
+
+OUT 
+
+(+FE),A 
+
+On the 1st. pass 'MIC on & 
+BLUE' and on the 2nd. pass 
+'MIC off & YELLOW'. 
+
+
+
+LD 
+
+B,+3E 
+
+Set the timing constant for 
+the second pass. 
+
+
+
+JR 
+
+NZ, 0511, SA-BIT-2 
+
+Jump back at the end of the 
+
+
+
+DEC 
+
+B 
+
+first pass; otherwise reclaim 
+
+1 3 T states. 
+
+
+
+XOR 
+
+A 
+
+Clear the carry flag and set 
+
+
+
+INC 
+
+A 
+
+A to hold +01 (MIC on & BLUE} 
+
+
+before continuing into the 
+’8 bit loop’. 
+
+
+The '8 bit loop' is entered initially with the whole byte in the L register and the carry flag set. Plowever it is re-entered after each bit has 
+been SAVEd until the point is reached when the 'marker' passes to the carry flag leaving the L register empty. 
+
+0525 SA-8-BITS RL L Move bit 7 to the carry and the 
+
+'marker' leftwards. 
+
+
+16 
+
+
+
+JP 
+
+NZ.0514.SA-BIT-1 
+
+SAVE the bit unless finished 
+
+DEC 
+
+DE 
+
+with the byte. 
+
+Decrease the 'counter'. 
+
+INC 
+
+IX 
+
+Advance the 'base address'. 
+
+LD 
+
+B.+31 
+
+Set the timing constant for the 
+
+LD 
+
+A.+7F 
+
+first bit of the next byte. 
+
+Return (to SA/LD-RET) if the 
+
+IN 
+
+A,(+FE) 
+
+BREAK key is being pressed. 
+
+RRA 
+
+RET 
+
+NC 
+
+
+LD 
+
+A.D 
+
+Otherwise test the 'counter 
+
+INC 
+
+A 
+
+and jump back even if it has 
+
+JP 
+
+NZ,04FE,SA-LOOP 
+
+reached zero (so as to send tt 
+
+LD 
+
+B,+3B 
+
+'parity' byte). 
+
+Exit when the 'counter 
+
+SA-DELAY DJNZ 
+
+053C, SA-DELAY 
+
+reaches +FFFF. But first 
+
+RET 
+
+
+give a short delay. 
+
+
+Note: A reset bit will give a 'MIC off' pulse of 855 T states followed by a 'MIC on' pulse of 855 T states. Whereas a Set bit will give 
+pulses of exactly twice as long. Note also that there are no gaps either between the sync pulse and the first bit of the flag, or between 
+bytes. 
+
+THE 'SA/LD-RET' SUBROUTINE 
+
+This subroutine is common to both SAVEing and LOADing. 
+
+The border is set to its original colour and the BREAK key tested for a last time. 
+
+
+053 F 
+
+SA/LD-RET 
+
+PUSH 
+
+AF 
+
+Save the carry flag. (It is reset 
+after a LOADing error.) 
+
+
+
+LD 
+
+A,(BORDCR) 
+
+Fetch the original border colour 
+
+
+
+AND 
+
++38 
+
+from its system variable. 
+
+
+
+RRCA 
+
+
+Move the border colour 
+
+
+
+RRCA 
+
+RRCA 
+
+
+to bits 2, 1 & 0. 
+
+
+
+OUT 
+
+(+FE),A 
+
+Set the border to its original 
+colour. 
+
+
+
+LD 
+
+A.+7F 
+
+Read the BREAK key for a 
+
+
+
+IN 
+
+A,(+FE) 
+
+last time. 
+
+
+
+RRA 
+
+
+
+
+
+El 
+
+
+Enable the maskable interrupt. 
+
+
+
+JR 
+
+C, 0554, SA/LD-END 
+
+Jump unless a break is to be 
+made. 
+
+Report D 
+
+- BREAK-CONT repeats 
+
+
+
+0552 
+
+REPORT-D 
+
+RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+
+
+DEFB 
+
++0C 
+
+routine. 
+
+Continue here. 
+
+
+
+
+0554 
+
+SA/LD-END 
+
+POP 
+
+AF 
+
+Retrieve the carry flag. 
+
+
+
+RET 
+
+
+Return to the calling routine. 
+
+
+THE 'LD-BYTES' SUBROUTINE 
+
+This subroutine is called to LOAD the header information (from 07BE) and later LOAD, or VERIFY, an actual block of data (from 0802). 
+
+0556 LD-BYTES INC D This resets the zero flag. (D 
+
+cannot hold +FF.) 
+
+EX AF.A'F’ The A register holds +00 for a 
+
+header and +FF for a block of 
+data. 
+
+The carry flag is reset for 
+VERIFYing and set for 
+LOADing. 
+
+DEC D Restore D to its original value. 
+
+
+17 
+
+
+
+Dl 
+
+
+The maskable interrupt is now 
+disabled. 
+
+LD 
+
+A,+0F 
+
+The border is made WHITE. 
+
+OUT 
+
+(+FE),A 
+
+
+LD 
+
+HL,+053F 
+
+Preload the machine stack 
+
+PUSH 
+
+HL 
+
+with the address - SA/LD-RET. 
+
+IN 
+
+A,(+FE) 
+
+Make an initial read of port '254' 
+
+RRA 
+
+
+Rotate the byte obtained but 
+
+AND 
+
++20 
+
+keep only the EAR bit, 
+
+OR 
+
++02 
+
+Signal 'RED' border. 
+
+LD 
+
+C,A 
+
+Store the value in the C register. - 
+(+22 for 'off and +02 for 'on' 
+
+
+
+- the present EAR state.) 
+
+CP 
+
+A 
+
+Set the zero flag. 
+
+The first stage of reading a tape involves showing that a pulsing signal actually exist (i.e. 'On/off or 'off/on' edges.) 
+
+056B LD-BREAK RET 
+
+NZ 
+
+Return if the BREAK key is 
+being pressed. 
+
+056C LD-START CALL 
+
+05E7,LD-EDGE-1 
+
+Return with the carry flag reset 
+
+JR 
+
+NC,056B, LD-BREAK 
+
+if there is no 'edge' within 
+approx. 14,000 T states. But if 
+an 'edge' is found the border 
+will go CYAN. 
+
+The next stage involves waiting a while and then showing that the signal is still pulsing. 
+
+LD 
+
+HL,+041 5 
+
+The length of this waiting 
+
+0574 LD-WAIT DJNZ 
+
+0574, LD-WAIT 
+
+period will be almost one 
+
+DEC 
+
+HL 
+
+second in duration. 
+
+LD 
+
+A,H 
+
+
+OR 
+
+L 
+
+
+JR 
+
+NZ, 0574, LD-WAIT 
+
+
+CALL 
+
+05E3,LD-EDGE-2 
+
+Continue only if two edges are 
+
+JR 
+
+NC,056B, LD-BREAK 
+
+found within the allowed time 
+period. 
+
+Now accept only a 'leader signal'. 
+
+
+
+0580 LD-LEADER LD 
+
+B,+9C 
+
+The timing constant, 
+
+CALL 
+
+05E3,LD-EDGE-2 
+
+Continue only if two edges are 
+
+JR 
+
+NC,056B, LD-BREAK 
+
+found within the allowed time 
+period. 
+
+LD 
+
+A,+C6 
+
+However the edges must have 
+
+CP 
+
+B 
+
+been found within about 
+
+JR 
+
+NC,056C, LD-START 
+
+3,000 T states of each other 
+
+INC 
+
+H 
+
+Count the pair of edges in the H 
+
+JR 
+
+NZ, 0580, LD-LEADER 
+
+register until '256' pairs have 
+been found. 
+
+After the leader come the 'off and 'on' 
+
+part’s of the sync pulse. 
+
+
+058 F LD-SYNC LD 
+
+B,+9C 
+
+The timing constant. 
+
+CALL 
+
+05E7,LD-EDGE-1 
+
+Every edge is considered until 
+
+JR 
+
+NC,056B, LD-BREAK 
+
+two edges are found close 
+
+LD 
+
+A,B 
+
+together - these will be the 
+
+CP 
+
++D4 
+
+start and finishing edges of 
+
+JR 
+
+NC,058F, LD-SYNC 
+
+the 'off' sync pulse. 
+
+CALL 
+
+05E7,LD-EDGE-1 
+
+The finishing edge of the 
+
+RET 
+
+NC 
+
+'on' pulse must exist. 
+
+(Return carry flag reset.) 
+
+The bytes of the header or the program/data block can now be LOADed or VERIFied. But the first byte is the type 
+
+LD 
+
+A,C 
+
+The border colours from now 
+
+XOR 
+
++03 
+
+on will be BLUE & YELLOW. 
+
+
+18 
+
+
+
+LD 
+
+C,A 
+
+
+LD 
+
+FI, +00 
+
+Initialise the 'parity matching’ 
+byte to zero. 
+
+LD 
+
+B,+B0 
+
+Set the timing constant for the 
+flag byte. 
+
+JR 
+
+05C8.LD-MARKER 
+
+Jump forward into the byte 
+LOADING loop. 
+
+
+The byte LOADing loop is used to fetch the bytes one at a time. The flag byte is first. This is followed by the data bytes and the last byte 
+is the 'parity' byte. 
+
+
+05A9 LD-LOOP 
+
+
+05B3 LD-FLAG 
+
+
+EX 
+
+AF,A'F 
+
+JR 
+
+NZ,05B3, LD-FLAG 
+
+JR 
+
+NC,05BD,LD-VERIFY 
+
+LD 
+
+(IX+00),L 
+
+JR 
+
+05C2.LD-NEXT 
+
+RL 
+
+C 
+
+XOR 
+
+L 
+
+RET 
+
+NZ 
+
+LD 
+
+RRA 
+
+A,C 
+
+LD 
+
+C,A 
+
+INC 
+
+DE 
+
+JR 
+
+05CA.LD-DEC 
+
+
+Fetch the flags. 
+
+Jump forward only when 
+handling the first byte. 
+
+Jump forward if VERIFYing a 
+tape. 
+
+Make the actual LOAD when 
+required. 
+
+Jump forward to LOAD the 
+next byte. 
+
+Keep the carry flag in a safe 
+place temporarily. 
+
+Return now if the type flag does 
+not match the first byte on the 
+tape. (Carry flag reset.) 
+
+Restore the carry flag now. 
+
+
+Increase the counter to 
+compensate for its 'decrease' 
+after the jump. 
+
+
+If a data block is being verified then the freshly loaded byte is tested against the original byte. 
+
+
+05BD 
+
+LD-VERIFY 
+
+LD 
+
+A,(IX+00) 
+
+Fetch the original byte. 
+
+
+
+XOR 
+
+L 
+
+Match it against the new byte. 
+
+
+
+RET 
+
+NZ 
+
+Return if 'no match’. (Carry 
+flag reset.) 
+
+A new 
+
+byte can now be collected from the tape. 
+
+
+05C2 
+
+LD-NEXT 
+
+INC 
+
+IX 
+
+Increase the 'destination'. 
+
+05C4 
+
+LD-DEC 
+
+DEC 
+
+DE 
+
+Decrease the 'counter'. 
+
+
+
+EX 
+
+AF,A'F' 
+
+Save the flags. 
+
+
+
+LD 
+
+B,+B2 
+
+Set the timing constant. 
+
+05C8 
+
+LD-MARKER 
+
+LD 
+
+L.+01 
+
+Clear the 'object' register apart 
+from a 'marker' bit. 
+
+The 'LD-8-BITS' loop is 
+
+used to build up a byte in the L register. 
+
+
+05CA 
+
+LD-8-BITS 
+
+CALL 
+
+05E3.LD-EDGE-2 
+
+Find the length of the 'off 
+and 'on' pulses of the next bit. 
+
+
+
+RET 
+
+NC 
+
+Return if the time period is 
+exceeded. (Carry flag reset.) 
+
+
+
+LD 
+
+A.+C5 
+
+Compare the length against 
+approx. 2,400 T states; resetting 
+
+
+
+CP 
+
+B 
+
+the carry flag for a '0' and 
+setting it fore T. 
+
+
+
+RL 
+
+L 
+
+Include the new bit in the L 
+register. 
+
+
+
+LD 
+
+B,+B0 
+
+Set the timing constant for the 
+next bit. 
+
+
+
+JP 
+
+NC,05CA,LD-8-BITS 
+
+Jump back whilst there are still 
+bits to be fetched. 
+
+
+The 'parity matching’ byte has to be updated with each new byte. 
+
+
+19 
+
+
+
+LD 
+
+A,H 
+
+Fetch the 'parity matching’ 
+
+XOR 
+
+L 
+
+byte and include the new byte. 
+
+LD 
+
+H,A 
+
+Save it once again. 
+
+
+Passes round the loop are made until the 'counter' reaches zero. At that point the 'parity matching' byte should be holding zero. 
+
+
+LD 
+
+A,D 
+
+Make a further pass if the DE 
+
+OR 
+
+E 
+
+register pair does not hold 
+
+JR 
+
+NZ,05A9,LD-LOOP 
+
+zero. 
+
+LD 
+
+A,H 
+
+Fetch the 'parity matching' 
+byte. 
+
+CP 
+
+RET 
+
++01 
+
+Return with the carry flat set 
+if the value is zero. 
+
+(Carry flag reset if in error.) 
+
+
+THE 'LD-EDGE-2' AND 'LD-EDGE-1' SUBROUTINES 
+
+These two subroutines form the most important part of the LOAD/VERIFY operation. 
+
+The subroutines are entered with a timing constant in the B register, and the previous border colour and 'edge-type' in the C register. 
+The subroutines return with the carry flag set if the required number of 'edges' have been found in the time allowed; and the change 
+to the value in the B register shows just how long it took to find the 'edge(s)'. 
+
+The carry flag will be reset if there is an error. The zero flag then signals 'BREAK pressed' by being reset, or 'time-up' by being set. 
+The entry point LD-EDGE-2 is used when the length of a complete pulse is required and LD-EDGE-1 is used to find the time before 
+the next 'edge'. 
+
+
+LD-EDGE-2 
+
+CALL 
+
+05E7, LD-EDGE-1 
+
+In effect call LD-EDGE-1 twice; 
+
+
+RET 
+
+NC 
+
+returning in between if there 
+
+
+
+
+is an error. 
+
+LD-EDGE-1 
+
+LD 
+
+A, +16 
+
+Wait 358 T states before 
+
+LD-DELAY 
+
+DEC 
+
+A 
+
+entering the sampling loop. 
+
+
+JR 
+
+NZ.05E9, LD-DELAY 
+
+
+
+AND 
+
+A 
+
+
+
+The sampling loop is now entered. The value in the B register is incremented for each pass; 'time-up' is given when B reaches zero. 
+
+
+05ED 
+
+
+LD-SAMPLE INC 
+
+B 
+
+Count each pass. 
+
+RET 
+
+Z 
+
+Return carry reset & zero set if 
+'time-up'. 
+
+LD 
+
+A,+7F 
+
+Read from port +7FFE. 
+
+IN 
+
+A,(+FE) 
+
+i.e. BREAKS. EAR. 
+
+RRA 
+
+
+Shift the byte. 
+
+RET 
+
+NC 
+
+Return carry reset 8. zero reset 
+if BREAK was pressed. 
+
+XOR 
+
+C 
+
+Now test the byte against the 
+
+AND 
+
++20 
+
+'last edge-type'; jump back 
+
+JR 
+
+Z,05ED, LD-SAMPLE 
+
+unless it has changed. 
+
+
+A new 'edge' has been found within the time period allowed for the search. So change the border colour and set the carry flag. 
+
+
+LD 
+
+A,C 
+
+Change the 'last edge-type’ 
+
+CPL 
+
+
+and border colour. 
+
+LD 
+
+C,A 
+
+
+AND 
+
++07 
+
+Keep only the border colour. 
+
+OR 
+
++08 
+
+Signal 'MIC off. 
+
+OUT 
+
+(+FE),A 
+
+Change the border colour (RED/ 
+CYAN or BLUE/YELLOW). 
+
+SCF 
+
+
+Signal the successful search 
+
+RET 
+
+
+before returning. 
+
+
+Note: The LD-EDGE-1 subroutine takes 465 T states, plus an additional 58 T states for each unsuccessful pass around the sampling 
+loop. 
+
+
+20 
+
+
+
+For example, therefore, when awaiting the sync pulse (see LD-SYNC at 058F) allowance is made for ten additional passes through the 
+sampling loop. The search is thereby for the next edge to be found within, roughly, 1 ,100 T states (465 + 10 * 58 + overhead). This will 
+prove successful for the sync 'off' pulse that comes after the long 'leader pulses'. 
+
+THE 'SAVE, LOAD, VERIFY & MERGE' COMMAND ROUTINES 
+
+The entry point SAVE-ETC is used for all four commands. The value held in T-ADDR however distinguishes between the four 
+commands. The first part of the following routine is concerned with the construction of the 'header information' in the work space. 
+
+
+0605 SAVE-ETC POP 
+
+AF 
+
+Drop the address - SCAN-LOOP. 
+
+LD 
+
+A.(T-ADDR-lo) 
+
+Reduce T-ADDR-lo by +E0; 
+
+SUB 
+
++E0 
+
+giving +00 for SAVE, +01 for 
+
+LD 
+
+(T-ADDR-lo).A 
+
+LOAD, +02 for VERIFY and 
++03 for MERGE. 
+
+CALL 
+
+1C8C,EXPT-EXP 
+
+Pass the parameters of the 
+'name' to the calculator stack. 
+
+CALL 
+
+2530,SYNTAX-Z 
+
+Jump forward if checking 
+
+JR 
+
+Z, 0652, SA- DATA 
+
+syntax. 
+
+LD 
+
+BC.+001 1 
+
+Allow seventeen locations 
+
+LD 
+
+A,(T-ADDR-lo) 
+
+for the header of a SAVE but 
+
+AND 
+
+A 
+
+thirty four for the other 
+
+JR 
+
+Z, 0621, SA-SPACE 
+
+commands. 
+
+LD 
+
+C,+22 
+
+
+0621 SA-SPACE RST 
+
+0030,BC-SPACES 
+
+The required amount of space is 
+made in the work space. 
+
+PUSH 
+
+DE 
+
+Copy the start address to the 
+
+POP 
+
+IX 
+
+IX register pair. 
+
+LD 
+
+B,+0B 
+
+A program name can have 
+
+LD 
+
+A, +20 
+
+up to ten characters but 
+
+0629 SA-BLANK LD 
+
+(DE),A 
+
+first enter eleven space 
+
+INC 
+
+DE 
+
+characters into the prepared 
+
+DJNZ 
+
+0629, SA-BLANK 
+
+area. 
+
+LD 
+
+(IX+01),+FF 
+
+A null name is +FF only. 
+
+CALL 
+
+2BF1 ,STK-FETCH 
+
+The parameters of the name 
+are fetched and its length is 
+tested. 
+
+LD 
+
+HL.+FFF6 
+
+This is '-10'. 
+
+DEC 
+
+BC 
+
+In effect jump forward if the 
+
+ADD 
+
+HL,BC 
+
+length of the name is not 
+
+INC 
+
+BC 
+
+too long. (i.e. No more than 
+
+JR 
+
+NC,064B, SA-NAME 
+
+ten characters.) 
+
+LD 
+
+A.(T-ADDR-lo) 
+
+But allow for the LOADing, 
+
+AND 
+
+A 
+
+VERIFYing and MERGEing of 
+
+JR 
+
+NZ, 0644, SA-NULL 
+
+programs with 'null 1 names or 
+extra long names. 
+
+Report F - Invalid file name 
+
+0642 REPORT-F RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++0E 
+
+routine. 
+
+Continue to handle the name of 
+
+the program. 
+
+
+0644 SA-NULL LD 
+
+A,B 
+
+Jump forward if the name 
+
+OR 
+
+C 
+
+has a 'null' length. 
+
+JR 
+
+Z, 0652, SA- DATA 
+
+
+LD 
+
+BC.+000A 
+
+But truncate longer names. 
+
+The name is now transferred to the work space (second location onwards). 
+
+064B SA-NAME PUSH 
+
+IX 
+
+Copy the start address to the 
+
+POP 
+
+HL 
+
+HL register pair. 
+
+INC 
+
+HL 
+
+Step to the second location. 
+
+EX 
+
+DE.HL 
+
+Switch the pointers over and 
+
+LDIR 
+
+
+copy the name. 
+
+
+21 
+
+
+
+The many different parameters, if any, that follow the command are now considered. Start by handling 'xxx "name" DATA'. 
+
+
+0652 SA-DATA RST 
+
+001 8, GET-CHAR 
+
+Is the present code the 
+
+CP 
+
++E4 
+
+token 'DATA'? 
+
+JR 
+
+NZ,06A0,SA-SCR$ 
+
+Jump if not. 
+
+LD 
+
+A,(T-ADDR-lo) 
+
+However it is not possible 
+
+CP 
+
++03 
+
+to have ’MERGE name DATA'. 
+
+JP 
+
+Z,1C8A,REPORT-C 
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD. 
+
+CALL 
+
+28B2,LOOK-VARS 
+
+Look in the variables area for 
+
+SET 
+
+7,C 
+
+the array. 
+
+Set bit 7 of the array's name. 
+
+JR 
+
+NC, 0672, SA-V-OLD 
+
+Jump if handling an existing 
+
+LD 
+
+HL,+0000 
+
+array. 
+
+Signal 'using a new array’. 
+
+LD 
+
+A,(T-ADDR-lo) 
+
+Consider the value in T-ADDR 
+
+DEC 
+
+A 
+
+and give an error if trying to 
+
+JR 
+
+Z, 0685, SA-V-NEW 
+
+SAVE or VERIFY a new array. 
+
+Report 2 - Variable not found 
+
+0670 REPORT-2 RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++01 
+
+routine. 
+
+Continue with the handling of an existing array. 
+
+
+0672 SA-V-OLD JP 
+
+NZ,1C8A,REPORT-C 
+
+Note: This fails to exclude 
+
+CALL 
+
+2530,SYNTAX-Z 
+
+simple strings. 
+
+Jump forward if checking 
+
+JR 
+
+Z , 0692 , SA- D ATA- 1 
+
+syntax. 
+
+INC 
+
+HL 
+
+Point to the 'low length' of the 
+
+LD 
+
+A,(HL) 
+
+variable. 
+
+The low length byte goes into 
+
+LD 
+
+(IX+0B),A 
+
+the work space; followed by 
+
+INC 
+
+HL 
+
+the high length byte. 
+
+LD 
+
+A,(HL) 
+
+
+LD 
+
+(IX+0C),A 
+
+
+INC 
+
+HL 
+
+Step past the length bytes. 
+
+The next part is common to both 'old' 
+
+and 'new' arrays. Note: Syntax path error. 
+
+0685 SA-V-NEW LD 
+
+(IX+0E),C 
+
+Copy the array's name. 
+
+LD 
+
+A, +01 
+
+Assume an array of numbers. 
+
+BIT 
+
+6,C 
+
+Jump if it is so. 
+
+JR 
+
+Z,068F, SA-V-TYPE 
+
+
+INC 
+
+A 
+
+It is an array of characters. 
+
+068 F SA-V-TYPE LD 
+
+(IX+00),A 
+
+Save the 'type' in the first 
+
+
+location of the header area. 
+
+
+The last part of the statement is examined before joining the other pathways. 
+
+
+0692 
+
+SA-DATA-1 
+
+EX 
+
+DE,HL 
+
+Save the pointer in DE. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Is the next character 
+
+
+
+CP 
+
++29 
+
+a')'? 
+
+
+
+JR 
+
+NZ, 0672, SA-V-OLD 
+
+Give report C if it is not. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD. 
+
+
+
+CALL 
+
+1BEE, CHECK-END 
+
+Move on to the next statement 
+if checking syntax. 
+
+
+
+EX 
+
+DE,HL 
+
+Return the pointer to the HL 
+
+
+
+JP 
+
+075A,SA-ALL 
+
+register pair before jumping 
+forward. (The pointer indicates 
+the start of an existing array's 
+contents.) 
+
+Now consider 'SCREENS'. 
+
+
+
+06A0 
+
+SA-SCRS 
+
+CP 
+
++AA 
+
+Is the present code the 
+token SCREENS'. 
+
+
+22 
+
+
+
+JR 
+
+NZ,06C3,SA-CODE 
+
+Jump if not. 
+
+LD 
+
+A.(T-ADDR-lo) 
+
+However it is not possible to 
+
+CP 
+
++03 
+
+have 'MERGE name SCREENS'. 
+
+JP 
+
+Z,1C8A,REPORT-C 
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD. 
+
+CALL 
+
+1BEE, CHECK-END 
+
+Move on to the next statement 
+if checking syntax. 
+
+LD 
+
+(IX+0B),+00 
+
+The display area and the 
+
+LD 
+
+(IX+0C),+1B 
+
+attribute area occupy +1800 
+locations and these locations 
+
+LD 
+
+HL,+4000 
+
+start at +4000; these details 
+
+LD 
+
+(IX+0D),L 
+
+are passed to the header area 
+
+LD 
+
+(IX+0E),H 
+
+in the work space. 
+
+JR 
+
+0710,SA-TYPE-3 
+
+Jump forward. 
+
+
+Now consider 'CODE'. 
+
+
+06C3 
+
+SA-CODE 
+
+CP 
+
++AF 
+
+Is the present code the token 
+’CODE'? 
+
+
+
+JR 
+
+NZ.0716.SA-LINE 
+
+Jump if not. 
+
+
+
+LD 
+
+A.(T-ADDR-lo) 
+
+However it is not possible to 
+
+
+
+CP 
+
++03 
+
+have 'MERGE name CODE'. 
+
+
+
+JP 
+
+Z,1C8A,REPORT-C 
+
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD. 
+
+
+
+CALL 
+
+2048.PR-ST-END 
+
+Jump forward if the statement 
+
+
+
+JR 
+
+NZ.06E1, SA-CODE-1 
+
+has not finished. 
+
+
+
+LD 
+
+A.(T-ADDR-lo) 
+
+However it is not possible to 
+
+
+
+AND 
+
+A 
+
+have 'SAVE name CODE' by 
+
+
+
+JP 
+
+Z,1C8A,REPORT-C 
+
+itself. 
+
+
+
+CALL 
+
+1CE6, USE-ZERO 
+
+Put a zero on the calculator 
+stack - for the 'start'. 
+
+
+
+JR 
+
+06F0, SA-CODE-2 
+
+Jump forward. 
+
+Look for a 'starting address'. 
+
+
+
+06E1 
+
+SA-CODE-1 
+
+CALL 
+
+1C82.EXPT-1NUM 
+
+Fetch the first number. 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Is the present character a ',' 
+
+
+
+CP 
+
++2C 
+
+or not? 
+
+
+
+JR 
+
+Z.06F5, SA-CODE-3 
+
+Jump if it is - the number was 
+a 'starting address'. 
+
+
+
+LD 
+
+A.(T-ADDR-lo) 
+
+However refuse 'SAVE name 
+
+
+
+AND 
+
+A 
+
+CODE' that does not have a 
+
+
+
+JP 
+
+Z,1C8A,REPORT-C 
+
+'start' and a 'length'. 
+
+06F0 
+
+SA-CODE-2 
+
+CALL 
+
+1CE6, USE-ZERO 
+
+Put a zero on the calculator 
+stack - for the 'length'. 
+
+
+
+JR 
+
+06F9, SA-CODE-4 
+
+Jump forward. 
+
+Fetch the 
+
+'length' as it was specified. 
+
+
+
+06F5 
+
+SA-CODE-3 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD. 
+
+
+
+CALL 
+
+1C82.EXPT-1NUM 
+
+Fetch the 'length'. 
+
+The parameters are now stored in the header area of the work space. 
+
+
+06F9 
+
+SA-CODE-4 
+
+CALL 
+
+1BEE, CHECK-END 
+
+But move on to the next state- 
+ment now if checking syntax. 
+
+
+
+CALL 
+
+1 E99.FIND-INT2 
+
+Compress the 'length' into 
+
+
+
+LD 
+
+(IX+0B),C 
+
+the BC register pair and 
+
+
+
+LD 
+
+(IX+0C),B 
+
+store it. 
+
+
+
+CALL 
+
+1 E99.FIND-INT2 
+
+Compress the 'starting address' 
+
+
+
+LD 
+
+(IX+0D),C 
+
+into the BC register pair 
+
+
+
+LD 
+
+(IX+0E) , B 
+
+and store it. 
+
+
+
+LD 
+
+H,B 
+
+Transfer the 'pointer' to the 
+
+
+
+LD 
+
+L,C 
+
+HL register pair as usual. 
+
+'SCREENS' and ’CODE’ are both of type 3. 
+
+
+0710 
+
+SA-TYPE-3 
+
+LD 
+
+(IX+00),+03 
+
+Enter the 'type' number. 
+
+
+23 
+
+
+
+JR 
+
+075A.SA-ALL 
+
+Rejoin the other pathways. 
+
+Now consider 'LINE'; and 'no further parameters'. 
+
+
+0716 SA-LINE CP 
+
++CA 
+
+Is the present code the token 
+'LINE'? 
+
+JR 
+
+Z, 0723, SA-LINE-1 
+
+Jump if it is. 
+
+CALL 
+
+1BEE, CHECK-END 
+
+Move on to the next statement 
+if checking syntax. 
+
+LD 
+
+(IX+0E),+80 
+
+When there are no further 
+parameters an +80 is entered. 
+
+JR 
+
+073A, SA-TYPE-0 
+
+Jump forward. 
+
+Fetch the 'line number' that must follow 
+
+'LINE'. 
+
+
+0723 SA-LINE-1 LD 
+
+A,(T-ADDR-lo) 
+
+However only allow 'SAVE 
+
+AND 
+
+A 
+
+name LINE number'. 
+
+JP 
+
+NZ,1C8A,REPORT-C 
+
+
+RST 
+
+0020,NEXT-Char 
+
+Advance CH-ADD. 
+
+CALL 
+
+1C82.EXPT-1NUM 
+
+Pass the number to the 
+calculator stack. 
+
+CALL 
+
+1BEE, CHECK-END 
+
+Move on to the next statement 
+if checking syntax. 
+
+CALL 
+
+1 E99.FIND-INT2 
+
+Compress the ’line number' 
+
+LD 
+
+(IX+OD), C 
+
+into the BC register pair 
+
+LD 
+
+(IX+0E),B 
+
+and store it. 
+
+LINE' and 'no further parameters' are both of type 0. 
+
+
+073A SA-TYPE-0 LD 
+
+(IX+00), +00 
+
+Enter the 'type' number. 
+
+
+The parameters that describe the program, and its variables, are found and stored in the header area of the work space. 
+
+
+LD 
+
+HL, (E-LINE) 
+
+The pointer to the end of the 
+variables area. 
+
+LD 
+
+DE,(PROG) 
+
+The pointer to the start of the 
+BASIC program. 
+
+SCF 
+
+
+Now perform the subtraction 
+
+SBC 
+
+HL.DE 
+
+to find the length of the 
+
+LD 
+
+(IX+OB), L 
+
+'program + variables'; store 
+
+LD 
+
+(IX+OC), H 
+
+the result. 
+
+LD 
+
+HL,(VARS) 
+
+Repeat the operation but this 
+
+SBC 
+
+HL,DE 
+
+time storing the length of the 
+
+LD 
+
+(IX+0F) , L 
+
+'program' only. 
+
+LD 
+
+(IX+1 0), H 
+
+
+EX 
+
+DE,HL 
+
+Transfer the 'pointer' to the 
+HL register pair as usual. 
+
+
+In all cases the header information has now been prepared. 
+
+The location 'IX+00' holds the type number. 
+
+Locations 'IX+01 to IX+OA' holds the name (+FF in 'IX+OT if null). 
+
+Locations 'IX+OB & IX+OC’ hold the number of bytes that are to be found in the 'data block'. 
+
+Locations 'IX+OD to IX+1 0’ hold a variety of parameters whose exact interpretation depends on the 'type'. 
+
+The routine continues with the first task being to separate SAVE from LOAD, VERIFY and MERGE. 
+
+
+075A 
+
+SA-ALL 
+
+LD 
+
+A,(T-ADDR-lo) 
+
+Jump forward when handling 
+
+
+
+AND 
+
+A 
+
+a SAVE command. 
+
+
+
+JP 
+
+Z,0970,SA-CONTRL 
+
+
+
+In the case of a LOAD, VERIFY or MERGE command the first seventeen bytes of the 'header area' in the work space hold the prepared 
+information, as detailed above; and it is now time to fetch a 'header' from the tape. 
+
+PUSFI FHL Save the 'destination' pointer. 
+
+
+24 
+
+
+
+LD 
+
+BC.+001 1 
+
+Form in the IX register pair 
+
+ADD 
+
+IX, BC 
+
+the base address of the 'second 
+header area'. 
+
+Now enter a loop: leaving it only when a 'header' has been LOADed. 
+
+
+0767 LD-LOOK-H PUSH 
+
+IX 
+
+Make a copy of the base address. 
+
+LD 
+
+DE,+001 1 
+
+LOAD seventeen bytes. 
+
+XOR 
+
+A 
+
+Signal 'header'. 
+
+SCF 
+
+
+Signal 'LOAD'. 
+
+CALL 
+
+0556,LD-BYTES 
+
+Now look for a header. 
+
+POP 
+
+IX 
+
+Retrieve the base address. 
+
+JR 
+
+NC, 0767, LD-LOOK-H 
+
+Go round the loop until 
+successful. 
+
+
+The new 'header' is now displayed on the screen but the routine will only proceed if the ’new' header matches the 'old' header. 
+
+
+
+
+LD 
+
+A,+FE 
+
+Ensure that channel 'S' 
+
+
+
+CALL 
+
+1601, CHAN-OPEN 
+
+is open. 
+
+
+
+LD 
+
+(SCR-CT),+03 
+
+Set the scroll counter. 
+
+
+
+LD 
+
+C,+80 
+
+Signal 'names do not match' 
+
+
+
+LD 
+
+A,(IX+00) 
+
+Compare the 'new' type 
+
+
+
+CP 
+
+(IX- 1 1 ) 
+
+against the 'old' type. 
+
+
+
+JR 
+
+NZ.078A, LD-TYPE 
+
+Jump if the 'types' do not 
+match. 
+
+
+
+LD 
+
+C,+F6 
+
+But if they do: signal 'ten 
+characters are to match'. 
+
+078A 
+
+LD-TYPE 
+
+CP 
+
++04 
+
+Clearly the 'header' is 
+
+
+
+JR 
+
+NC, 0767, LD-LOOK-H 
+
+nonsense if ’type 4 or more'. 
+
+
+The appropriate message - 'Program:', 'Number array:', 'Character array:’ or 'Bytes:' is printed. 
+
+
+LD 
+
+DE,+09C0 
+
+The base address of the message 
+block. 
+
+PUSH 
+
+BC 
+
+Save the C register whilst 
+
+CALL 
+
+0C0A.PO-MSG 
+
+the appropriate message is 
+
+POP 
+
+BC 
+
+printed. 
+
+
+The 'new name' is printed and as this is done the ’old' and the 'new' names are compared. 
+
+
+PUSH 
+
+IX 
+
+Make the DE register pair 
+
+POP 
+
+DE 
+
+point to the 'new type' and 
+
+LD 
+
+HL.+FFF0 
+
+the HL register pair to the 
+
+ADD 
+
+HL,DE 
+
+’old name’. 
+
+LD 
+
+B,+0A 
+
+Ten characters are to be 
+considered. 
+
+LD 
+
+A,(HL) 
+
+Jump forward if the match is 
+
+INC 
+
+A 
+
+to be against an actual name. 
+
+JR 
+
+NZ,07A6,LD-NAME 
+
+
+LD 
+
+A,C 
+
+But if the 'old name' is 'null' 
+
+ADD 
+
+A,B 
+
+then signal 'ten characters 
+
+LD 
+
+C,A 
+
+already match'. 
+
+
+A loop is entered to print the characters of the 'new name'. The name will be accepted if the 'counter' reaches zero, at least. 
+
+
+07A6 
+
+LD-NAME 
+
+INC 
+
+DE 
+
+Consider each character of the 
+
+
+
+LD 
+
+A,(DE) 
+
+'new name' in turn. 
+
+
+
+CP 
+
+(HL) 
+
+Match it against the appropriate 
+
+
+
+INC 
+
+HL 
+
+character of the 'old name'. 
+
+
+
+JR 
+
+NZ.07AD, LD-CH-PR 
+
+Do not count it if it does not 
+
+
+
+INC 
+
+C 
+
+does not match. 
+
+07AD 
+
+LD-CH-PR 
+
+RST 
+
+0010,PRINT-A-1 
+
+Print the 'new' character. 
+
+
+
+DJNZ 
+
+07A6, LD-NAME 
+
+Loop for ten characters. 
+
+
+
+BIT 
+
+7,C 
+
+Accept the name only if the 
+
+
+
+JR 
+
+NZ, 0767, LD-LOOK-H 
+
+counter has reached zero. 
+
+
+25 
+
+
+
+LD 
+
+RST 
+
+
+A,+OD 
+
+0010,PRINT-A-1 
+
+
+Follow the 'new name' with 
+a 'carriage return'. 
+
+
+The correct header has been found and the time has come to consider the three commands LOAD, VERIFY, & MERGE separately. 
+
+
+POP 
+
+HL 
+
+Fetch the pointer. 
+
+LD 
+
+A,(IX+00) 
+
+'SCREENS and CODE' are 
+
+CP 
+
++03 
+
+handled with VERIFY. 
+
+JR 
+
+Z,07CB,VR-CONTRL 
+
+
+LD 
+
+A,(T-ADDR-lo) 
+
+Jump forward if using a 
+
+DEC 
+
+A 
+
+LOAD command. 
+
+JP 
+
+Z,0808,LD-CONTRL 
+
+
+CP 
+
++02 
+
+Jump forward if using a MERGE 
+
+JP 
+
+Z,08B6,ME-CONTRL 
+
+command; continue with a 
+VERIFY command. 
+
+
+THE 'VERIFY' CONTROL ROUTINE 
+
+The verification process involves the LOADing of a block of data, a byte at a time, but the bytes are not stored - only checked. This 
+routine is also used to LOAD blocks of data that have been described with 'SCREENS & CODE 1 . 
+
+
+07CB 
+
+VR-CONTRL PUSH 
+
+HL 
+
+Save the 'pointer'. 
+
+
+LD 
+
+L,(IX-06) 
+
+Fetch the 'number of bytes' 
+
+
+LD 
+
+H,(IX-05) 
+
+as described in the 'old' header. 
+
+
+LD 
+
+E,(IX+0B) 
+
+Fetch also the number from the 
+
+
+LD 
+
+D,(IX+0C) 
+
+'new' header. 
+
+
+LD 
+
+A,H 
+
+Jump forward if the 'length' is 
+
+
+OR 
+
+L 
+
+unspecified. 
+
+
+JR 
+
+Z.07E9, VR-CONT-1 
+
+e.g. 'LOAD name CODE' only. 
+
+
+SBC 
+
+HL,DE 
+
+Give report R if attempting 
+
+
+JR 
+
+C,0806,REPORT-R 
+
+to LOAD a larger block than has 
+been requested. 
+
+
+JR 
+
+Z,07E9, VR-CONT-1 
+
+Accept equal 'lengths’. 
+
+
+LD 
+
+A,(IX+00) 
+
+Also give report R if trying 
+
+
+CP 
+
++03 
+
+to VERIFY blocks that are of 
+
+
+JR 
+
+NZ,0806,REPORT-R 
+
+unequal size. ('Old length' 
+greater than 'new length'.) 
+
+The routine continues by considering the 'destination pointer'. 
+
+
+07E9 
+
+VR-CONT-1 POP 
+
+HL 
+
+Fetch the 'pointer', i.e. the 
+’start'. 
+
+
+LD 
+
+A,H 
+
+This 'pointer' will be used 
+
+
+OR 
+
+L 
+
+unless it is zero, in which 
+
+
+JR 
+
+NZ,07F4,VR-CONT-2 
+
+case the 'start' found in 
+
+
+LD 
+
+L,(IX+0D) 
+
+the ’new’ header will be used 
+
+
+LD 
+
+H,(IX+0E) 
+
+instead. 
+
+
+The VERIFY/LOAD flag is now considered and the actual LOAD made. 
+
+
+07F4 
+
+VR-CONT-2 PUSH 
+
+HL 
+
+Move the 'pointer' to the 
+
+
+POP 
+
+IX 
+
+IX register pair. 
+
+
+LD 
+
+A.(T-ADDR-lo) 
+
+Jump forward unless using 
+
+
+CP 
+
++02 
+
+the VERIFY command; with 
+
+
+SCF 
+
+
+the carry flag signalling 
+
+
+JR 
+
+NZ, 0800, VR-CONT-3 
+
+'LOAD' 
+
+
+AND 
+
+A 
+
+Signal 'VERIFY'. 
+
+0800 
+
+VR-CONT-3 LD 
+
+A,+FF 
+
+Signal 'accept data block only' 
+before LOADing the block. 
+
+
+THE 'LOAD A DATA BLOCK' SUBROUTINE 
+
+This subroutine is common to all the 'LOADing' routines. In the case of LOAD & VERIFY it acts as a full return from the cassette 
+handling routines but in the case of MERGE the data block has yet to be 'MERGEd'. 
+
+0802 LD-BLOCK CALL 0556.LD-BYTES LOAD/VERIFY a data block. 
+
+RET C Return unless an error. 
+
+
+26 
+
+
+
+Report R - Tape loading error 
+
+
+0806 REPORT-R RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++1 A 
+
+routine. 
+
+THE 'LOAD' CONTROL ROUTINE 
+
+This routine controls the LOADing of a BASIC program, and its variables, or an array. 
+
+0808 LD-CONTRL LD 
+
+E,(IX+0B) 
+
+Fetch the 'number of bytes' 
+
+LD 
+
+D,(IX+0C) 
+
+as given in the 'new header'. 
+
+PUSH 
+
+HL 
+
+Save the 'destination pointer’. 
+
+LD 
+
+A,H 
+
+Jump forward unless trying 
+
+OR 
+
+L 
+
+to LOAD a previously 
+
+JR 
+
+NZ, 0819, LD-CONT-1 
+
+undeclared array. 
+
+INC 
+
+DE 
+
+Add three bytes to the 
+
+INC 
+
+DE 
+
+length - for the name, the 
+
+INC 
+
+DE 
+
+low length & the high length 
+
+EX 
+
+DE,HL 
+
+of a new variable. 
+
+JR 
+
+0825, LD-CONT-2 
+
+Jump forward. 
+
+Consider now if there is enough room in 
+
+memory for the new data block. 
+
+0819 LD-CONT-1 LD 
+
+L,(IX-06) 
+
+Fetch the size of the existing 
+
+LD 
+
+H,(IX-05) 
+
+'program+variables or array'. 
+
+EX 
+
+DE,HL 
+
+
+SCF 
+
+
+Jump forward if no extra 
+
+SBC 
+
+HL,DE 
+
+room will be required; taking 
+
+JR 
+
+C,082E, LD-DATA 
+
+into account the reclaiming of 
+the presently used memory. 
+
+Make the actual test for room. 
+
+0825 LD-CONT-2 LD 
+
+DE.+0005 
+
+Allow an overhead of five 
+
+ADD 
+
+HL,DE 
+
+bytes. 
+
+LD 
+
+B,H 
+
+Move the result to the 
+
+LD 
+
+C,L 
+
+BC register pair and make 
+
+CALL 
+
+1 F05, TEST-ROOM 
+
+the test. 
+
+Now deal with the LOADing of arrays. 
+
+082 E LD-DATA POP 
+
+HL 
+
+Fetch the 'pointer' anew. 
+
+LD 
+
+A,(IX+00) 
+
+Jump forward if LOADing 
+
+AND 
+
+A 
+
+a BASIC program. 
+
+JR 
+
+Z,0873,LD-PROG 
+
+
+LD 
+
+A,H 
+
+Jump forward if LOADing a 
+
+OR 
+
+L 
+
+new array. 
+
+JR 
+
+Z,084C,LD-DATA-1 
+
+
+DEC 
+
+HL 
+
+Fetch the 'length' of the 
+
+LD 
+
+B,(HL) 
+
+existing array by collecting 
+
+DEC 
+
+HL 
+
+the length bytes from the 
+
+LD 
+
+C,(HL) 
+
+variables area. 
+
+DEC 
+
+HL 
+
+Point to its old name. 
+
+INC 
+
+BC 
+
+Add three bytes to the 
+
+INC 
+
+BC 
+
+length - one for the name 
+
+INC 
+
+BC 
+
+and two for the 'length'. 
+
+LD 
+
+(X-PTR),IX 
+
+Save the IX register pair 
+
+CALL 
+
+19E8, RECLAIM-2 
+
+temporarily whilst the old 
+
+LD 
+
+IX,(X-PTR) 
+
+array is reclaimed. 
+
+
+Space is now made available for the new array - at the end of the present variables area. 
+
+
+084C LD-DATA- 1 LD 
+
+HL, (E-LINE) 
+
+Find the pointer to the 
+
+DEC 
+
+HL 
+
+end-marker of the variables 
+
+
+
+area - the '80-byte'. 
+
+LD 
+
+C,(IX+0B) 
+
+Fetch the 'length' of the 
+
+LD 
+
+B,(IX+0C) 
+
+new array. 
+
+PUSH 
+
+BC 
+
+Save this 'length'. 
+
+
+27 
+
+
+
+INC 
+
+BC 
+
+INC 
+
+BC 
+
+INC 
+
+BC 
+
+LD 
+
+A,(IX-03) 
+
+PUSH 
+
+AF 
+
+CALL 
+
+1655, MAKE-ROOM 
+
+INC 
+
+HL 
+
+POP 
+
+AF 
+
+LD 
+
+(HL),A 
+
+POP 
+
+DE 
+
+INC 
+
+HL 
+
+LD 
+
+(HL),E 
+
+INC 
+
+HL 
+
+LD 
+
+(HL),D 
+
+INC 
+
+HL 
+
+
+PUSH 
+
+HL 
+
+POP 
+
+IX 
+
+SCF 
+
+
+LD 
+
+A,+FF 
+
+JP 
+
+0802, L 
+
+
+Now deal with the LOADing of a BASIC program and its variables 
+
+
+0873 
+
+
+LD-PROG 
+
+
+EX 
+
+DE,HL 
+
+LD 
+
+HL, (E-LINE) 
+
+DEC 
+
+HL 
+
+LD 
+
+(X-PTR),IX 
+
+LD 
+
+C,(IX+0B) 
+
+LD 
+
+B,(IX+0C) 
+
+PUSH 
+
+BC 
+
+CALL 
+
+19E5, RECLAIM-1 
+
+POP 
+
+BC 
+
+PUSH 
+
+HL 
+
+PUSH 
+
+BC 
+
+CALL 
+
+1655, MAKE-ROOM 
+
+
+LD 
+
+IX,(X-PTR) 
+
+INC 
+
+HL 
+
+LD 
+
+C,(IX+0F) 
+
+LD 
+
+B,(IX+1 0) 
+
+ADD 
+
+HL,BC 
+
+LD 
+
+(VARS).HL 
+
+LD 
+
+H, (IX+OE) 
+
+LD 
+
+A,H 
+
+AND 
+
++C0 
+
+JR 
+
+NZ,08AD,LD-PROG-1 
+
+LD 
+
+L,(IX+0D) 
+
+LD 
+
+(NEWPPC), HL 
+
+LD 
+
+(NSPPC), +00 
+
+
+The data block can now be LOADed. 
+
+
+08AD 
+
+LD-PROG-1 POP 
+
+DE 
+
+
+POP 
+
+IX 
+
+
+SCF 
+
+
+
+LD 
+
+A,+FF 
+
+
+JP 
+
+0802,LD-BLOCK 
+
+
+Add three bytes - one for 
+the name and two for the 
+'length'. 
+
+'IX+OE' of the old header 
+gives the name of the array. 
+
+The name is saved whilst the 
+appropriate amount of room is 
+made available. In effect 'BC' 
+spaces before the ’new 80-byte’. 
+The name is entered. 
+
+The ’length' is fetched and 
+its two bytes are also 
+entered. 
+
+
+HL now points to the first 
+location that is to be filled 
+with data from the tape. 
+
+This address is moved to the 
+IX register pair; the carry 
+flag set; 'data block' is 
+signalled; and the block 
+LOADed. 
+
+
+Save the 'destination pointer'. 
+Find the address of the 
+end-marker of the current 
+variables area - the '80-byte'. 
+Save IX temporarily. 
+
+Fetch the 'length' of the 
+new data block. 
+
+Keep a copy of the 'length' 
+whilst the present program and 
+variables areas are reclaimed. 
+Save the pointer to the program 
+area and the length of the new 
+data block. 
+
+Make sufficient room available 
+for the new program and its 
+variables. 
+
+Restore the IX register pair. 
+
+The system variable VARS 
+has also to be set for the 
+new program. 
+
+
+If a line number was 
+specified then it too has to 
+be considered. 
+
+Jump if ’no number'; otherwise 
+set NEWPPC & NSPPC. 
+
+
+Fetch the 'length'. 
+
+Fetch the 'start'. 
+
+Signal 'LOAD'. 
+
+Signal 'data block' only. 
+Now LOAD it. 
+
+
+28 
+
+
+
+THE 'MERGE' CONTROL ROUTINE 
+
+There are three main parts to this routine. 
+
+
+I. LOAD the data block into the work space. 
+
+II. MERGE the lines of the new program into the old program. 
+
+III. MERGE the new variables into the old variables. 
+
+
+Start therefore with the LOADing of the data block. 
+
+
+08B6 
+
+ME-CONTRL 
+
+LD 
+
+C,(IX+0B) 
+
+Fetch the 'length' of the 
+
+
+
+LD 
+
+B,(IX+0C) 
+
+data block. 
+
+
+
+PUSH 
+
+BC 
+
+Save a copy of the ’length'. 
+
+
+
+INC 
+
+BC 
+
+Now made ’length+1' locations 
+
+
+
+RST 
+
+0030,BC-SPACES 
+
+available in the work space. 
+
+
+
+LD 
+
+(HL),+80 
+
+Place an end-marker in the 
+extra location. 
+
+
+
+EX 
+
+DE,HL 
+
+Move the 'start' pointer to the 
+HL register pair. 
+
+
+
+POP 
+
+DE 
+
+Fetch the original 'length'. 
+
+
+
+PUSH 
+
+HL 
+
+Save a copy of the 'start'. 
+
+
+
+PUSH 
+
+HL 
+
+Now set the IX register pair 
+
+
+
+POP 
+
+IX 
+
+for the actual LOAD. 
+
+
+
+SCF 
+
+
+Signal 'LOAD'. 
+
+
+
+LD 
+
+A,+FF 
+
+Signal 'data block only'. 
+
+
+
+CALL 
+
+0802,LD-BLOCK 
+
+LOAD the data block. 
+
+The lines of the new program are MERGEd with the lines of the old program. 
+
+
+
+POP 
+
+HL 
+
+Fetch the 'start' of the new 
+program. 
+
+
+
+LD 
+
+DE,(PROG) 
+
+Initialise DE to the 'start' of 
+the old program. 
+
+Enter a 
+
+loop to deal with the lines of the new program. 
+
+
+08D2 
+
+ME-NEW-LP 
+
+LD 
+
+A,(HL) 
+
+Fetch a line number and test 
+
+
+
+AND 
+
++C0 
+
+it. 
+
+
+
+JR 
+
+NZ.08F0, ME-VAR-LP 
+
+Jump when finished with all 
+the lines. 
+
+Now enter an inner loop to deal with the lines of the old program. 
+
+
+08D7 
+
+ME-OLD-LP 
+
+LD 
+
+A,(DE) 
+
+Fetch the high line number 
+
+
+
+INC 
+
+DE 
+
+byte and compare it. 
+
+
+
+CP 
+
+(HL) 
+
+Jump forward if it does not 
+
+
+
+INC 
+
+HL 
+
+match but in any case advance 
+
+
+
+JR 
+
+NZ,08DF,ME-OLD-L1 
+
+both pointers. 
+
+
+
+LD 
+
+A,(DE) 
+
+Repeat the comparison for the 
+
+
+
+CP 
+
+(HL) 
+
+low line number bytes. 
+
+08DF 
+
+ME-OLD-L1 
+
+DEC 
+
+DE 
+
+Now retreat the pointers. 
+
+
+
+DEC 
+
+HL 
+
+
+
+
+JR 
+
+NC,08EB,ME-NEW-L2 
+
+Jump forward if the correct 
+place has been found for a line 
+of the new program. 
+
+
+
+PUSH 
+
+HL 
+
+Otherwise find the address of 
+
+
+
+EX 
+
+DE.HL 
+
+the start of the next old line. 
+
+
+
+CALL 
+
+19B8, NEXT-ONE 
+
+
+
+
+POP 
+
+HL 
+
+
+
+
+JR 
+
+08D7, ME-OLD-LP 
+
+Go round the loop for each of 
+the 'old lines'. 
+
+08EB 
+
+ME-NEW-L2 
+
+CALL 
+
+092C.ME-ENTER 
+
+Enter the 'new line' and go 
+
+
+
+JR 
+
+08D2, ME-NEW-LP 
+
+round the outer loop again. 
+
+
+In a similar manner the variables of the new program are MERGEd with the variables of the old program. 
+A loop is entered to deal with each of the new variables in turn. 
+
+08F0 ME-VAR-LP LD A,(HL) Fetch each variable name in 
+
+
+29 
+
+
+
+
+
+LD 
+
+C,A 
+
+turn and test it. 
+
+
+
+CP 
+
++80 
+
+Return when all the variables 
+
+
+
+RET 
+
+Z 
+
+have been considered. 
+
+
+
+PUSH 
+
+HL 
+
+Save the current new pointer. 
+
+
+
+LD 
+
+HL.(VARS) 
+
+Fetch VARS (for the old 
+program). 
+
+Now enter an inner loop to search the existing variables area. 
+
+
+08F9 
+
+ME-OLD-VP 
+
+LD 
+
+A,(HL) 
+
+Fetch each variable name and 
+
+
+
+CP 
+
++80 
+
+test it. 
+
+
+
+JR 
+
+Z,0923,ME-VAR-L2 
+
+Jump forward once the end 
+marker is found. (Make an 
+'addition'.) 
+
+
+
+CP 
+
+c 
+
+Compare the names 0 st. bytes). 
+
+
+
+JR 
+
+Z,0909,ME-OLD-v2 
+
+Jump forward to consider it 
+further; returning here if it 
+proves not to match fully. 
+
+0901 
+
+ME-OLD-V1 
+
+PUSH 
+
+BC 
+
+Save the new variable's name 
+
+
+
+CALL 
+
+19B8, NEXT-ONE 
+
+whilst the next 'old variable' 
+
+
+
+POP 
+
+BC 
+
+is located. 
+
+
+
+EX 
+
+DE,HL 
+
+Restore the pointer to the 
+
+
+
+JR 
+
+08F9, ME-OLD-VP 
+
+D E register pair and go round 
+
+
+the loop again. 
+
+The old and new variables match with respect to their first bytes but variables with long names will need to be matched fully. 
+
+
+0909 
+
+ME-OLD-V2 
+
+AND 
+
++E0 
+
+Consider bits 7, 6 & 5 only. 
+
+
+
+CP 
+
++A0 
+
+Accept all the variable types 
+
+
+
+JR 
+
+NZ,0921,ME-VAR-L1 
+
+except 'long named variables'. 
+
+
+
+POP 
+
+DE 
+
+Make DE point to the first 
+
+
+
+PUSH 
+
+DE 
+
+character of the 'new name'. 
+
+
+
+PUSH 
+
+HL 
+
+Save the pointer to the 'old 
+name’. 
+
+Enter a loop to compare the letters of the long names. 
+
+
+0912 
+
+ME-OLD-V3 
+
+INC 
+
+HL 
+
+Update both the ’old' and the 
+
+
+
+INC 
+
+DE 
+
+'new' pointers. 
+
+
+
+LD 
+
+A,(DE) 
+
+Compare the two letters 
+
+
+
+CP 
+
+(HL) 
+
+
+
+
+JR 
+
+NZ,091 E.ME-OLD-V4 
+
+Jump forward if the match 
+fails. 
+
+
+
+RLA 
+
+
+Go round the loop until the 
+
+
+
+JR 
+
+NC,091 2.ME-OLD-V3 
+
+'last character' is found. 
+
+
+
+POP 
+
+HL 
+
+Fetch the pointer to the 
+start of the 'old' name and 
+
+
+
+JR 
+
+0921.ME-VAR-L1 
+
+jump forward - successful. 
+
+091 E 
+
+ME-OLD-V4 
+
+POP 
+
+HL 
+
+Fetch the pointer and jump 
+
+
+
+JR 
+
+0901.ME-OLD-V1 
+
+back - unsuccessful. 
+
+Come here if the match was found. 
+
+
+
+0921 
+
+ME-VAR-L1 
+
+LD 
+
+A,+FF 
+
+Signal 'replace' variable. 
+
+And here if not. (A holds 
+
++80 - variable to be 'added'.) 
+
+
+0923 
+
+ME-VAR-L2 
+
+POP 
+
+DE 
+
+Fetch pointer to 'new' name. 
+
+
+
+EX 
+
+DE,HL 
+
+Switch over the registers. 
+
+
+
+INC 
+
+A 
+
+The zero flag is to be set if there 
+is to be a 'replacement'; reset 
+for an 'addition'. 
+
+
+
+SCF 
+
+
+Signal 'handling variables'. 
+
+
+
+CALL 
+
+092C.ME-ENTER 
+
+Now make the entry. 
+
+
+
+JR 
+
+08F0.ME-VAR-LP 
+
+Go round the loop to consider 
+
+
+the next new variable. 
+
+
+30 
+
+
+
+THE 'MERGE A LINE OR A VARIABLE' SUBROUTINE 
+
+
+This subroutine is entered with the following parameters: 
+
+
+Carry flag reset 
+
+- MERGE a BASIC line. 
+
+
+set 
+
+- MERGE a variable. 
+
+
+Zero 
+
+reset 
+
+- It will be an 'addition 1 . 
+
+
+set 
+
+- It is a 'replacement'. 
+
+HL register pair 
+
+
+- Points to the start of the new entry. 
+
+DE register pair 
+
+
+- Points to where it is to MERGE. 
+
+092C ME-ENTER JR 
+
+NZ.093E, ME-ENT-1 
+
+Jump if handling an 'addition'. 
+
+EX 
+
+AF,A'F 
+
+Save the flags. 
+
+LD 
+
+(X-PTR),HL 
+
+Save the 'new' pointer whilst 
+
+EX 
+
+DE,HL 
+
+the 'old' line or variable 
+
+CALL 
+
+19B8, NEXT-ONE 
+
+is reclaimed. 
+
+CALL 
+
+19E8, RECLAIM-2 
+
+
+EX 
+
+DE,HL 
+
+
+LD 
+
+HL,(X-PTR) 
+
+
+EX 
+
+AF,A'F 
+
+Restore the flags. 
+
+The new entry can now be made. 
+
+093E ME-ENT-1 EX 
+
+AF,A'F 
+
+Save the flags. 
+
+PUSH 
+
+DE 
+
+Make a copy of the 
+
+CALL 
+
+19B8, NEXT-ONE 
+
+'destination' pointer. 
+
+Find the length of the 'new' 
+
+LD 
+
+(X-PTR),HL 
+
+variable/line. 
+
+Save the pointer to the 'new' 
+
+LD 
+
+HL,(PROG) 
+
+variable/line. 
+
+Fetch PROG - to avoid 
+
+EX 
+
+(SP),HL 
+
+corruption. 
+
+Save PROG on the stack and 
+
+PUSH 
+
+BC 
+
+fetch the 'new' pointer. 
+
+Save the length. 
+
+EX 
+
+AF,A'F 
+
+Retrieve the flags. 
+
+JR 
+
+C, 0955, ME-ENT-2 
+
+Jump forward if adding a new 
+
+DEC 
+
+HL 
+
+variable. 
+
+A new line is added before the 
+
+CALL 
+
+1655, MAKE-ROOM 
+
+'destination' location. 
+
+Make the room for the new line. 
+
+INC 
+
+HL 
+
+
+JR 
+
+0958, ME-ENT-3 
+
+Jump forward. 
+
+0955 ME-ENT-2 CALL 
+
+1655, MAKE-ROOM 
+
+Make the room for the new 
+
+0958 ME-ENT-3 INC 
+
+HL 
+
+variable. 
+
+Point to the 1st new location. 
+
+POP 
+
+BC 
+
+Retrieve the length. 
+
+POP 
+
+DE 
+
+Retrieve PROG and store it 
+
+LD 
+
+(PROG).DE 
+
+in its correct place. 
+
+LD 
+
+DE,(X-PTR) 
+
+Also fetch the 'new' pointer. 
+
+PUSH 
+
+BC 
+
+Again save the length and the 
+
+PUSH 
+
+DE 
+
+new' pointer. 
+
+EX 
+
+DE,HL 
+
+Switch the pointers and copy 
+
+LDIR 
+
+
+the 'new' variable/line into the 
+
+The 'new' variable/line has now to be removed from the work space. 
+
+room made for it. 
+
+POP 
+
+HL 
+
+Fetch the 'new' pointer. 
+
+POP 
+
+BC 
+
+Fetch the length. 
+
+PUSH 
+
+DE 
+
+Save the 'old' pointer. (Points 
+
+CALL 
+
+19E8, RECLAIM-2 
+
+to the location after the 'added' 
+variable/line.) 
+
+Remove the variable/line from 
+
+POP 
+
+DE 
+
+the work space. 
+
+Return with the 'old' pointer 
+
+RET 
+
+
+in the DE register pair. 
+
+
+31 
+
+
+
+THE 'SAVE' CONTROL ROUTINE 
+
+The operation of SAVing a program or a block of data is very straightforward. 
+
+
+0970 
+
+SA-CONTRL 
+
+PUSH 
+
+HL 
+
+Save the ’pointer'. 
+
+
+
+LD 
+
+A,+FD 
+
+Ensure that channel 'K' 
+
+
+
+CALL 
+
+1601, CHAN-OPEN 
+
+is open. 
+
+
+
+XOR 
+
+A 
+
+Signal 'first message'. 
+
+
+
+LD 
+
+DE,+09A1 
+
+Print the message - Start tape, 
+
+
+
+CALL 
+
+0C0A,PO-MSG 
+
+then press any key.'. 
+
+
+
+SET 
+
+5, (TV-FLAG) 
+
+Signal 'screen will require to be 
+cleared'. 
+
+
+
+CALL 
+
+15D4, WAIT-KEY 
+
+Wait for a key to be pressed. 
+
+Upon receipt of a keystroke the 'header' is saved. 
+
+
+
+
+PUSH 
+
+IX 
+
+Save the base address of the 
+'header' on the machine stack. 
+
+
+
+LD 
+
+DE,+001 1 
+
+Seventeen bytes are to be 
+SAVEd. 
+
+
+
+XOR 
+
+A 
+
+Signal 'It is a header'. 
+
+
+
+CALL 
+
+04C2.SA-BYTES 
+
+Send the ’header'; with a leading 
+'type' byte and a trailing 'parity' 
+byte. 
+
+There follows a short delay before the program/data block is SAVEd. 
+
+
+
+
+POP 
+
+IX 
+
+Retrieve the pointer to the 
+'header'. 
+
+
+
+LD 
+
+B,+32 
+
+The delay is for fifty 
+
+0991 
+
+SA-1-SEC 
+
+HALT 
+
+DJNZ 
+
+0991 ,SA-1 -SEC 
+
+interrupts, i.e. one second. 
+
+
+
+LD 
+
+E,(IX+0B) 
+
+Fetch the length of the 
+
+
+
+LD 
+
+D,(IX+0C) 
+
+data block that is to be SAVEd. 
+
+
+
+LD 
+
+A,+FF 
+
+Signal 'data block'. 
+
+
+
+POP 
+
+IX 
+
+Fetch the 'start of block 
+
+
+
+JP 
+
+04C2.SA-BYTES 
+
+pointer' and SAVE the block. 
+
+THE CASSETTE MESSAGES 
+
+
+
+Each message is given with the last character inverted (+80 hex.). 
+
+
+09A1 
+
+DEFB +80 
+
+- Initial byte is stepped over. 
+
+
+09A2 
+
+DEFM 
+
+- Start tape, then press any key. 
+
+
+09C1 
+
+DEFM 
+
+- 'carriage return’ - Program: 
+
+
+09CB 
+
+DEFM 
+
+- 'carriage return' - Number array: 
+
+
+09DA 
+
+DEFM 
+
+- 'carriage return' - Character array: 
+
+
+09EC 
+
+DEFM 
+
+- 'carriage return' - Bytes: 
+
+
+
+32 
+
+
+
+THE SCREEN & PRINTER HANDLING ROUTINES 
+
+THE 'PRINT-OUT' ROUTINES 
+
+All of the printing to the main part of the screen, the lower part of the screen and the printer is handled by this set of routines. 
+The PRINT-OUT routine is entered with the A register holding the code for a control character, a printable character or a token. 
+
+
+09 F4 
+
+PRINT-OUT CALL 
+
+0B03,PO-FETCH 
+
+
+The current print position. 
+
+
+
+CP 
+
++20 
+
+
+If the code represents a 
+
+
+
+JP 
+
+NC,OAD9,PO-ABLE 
+
+
+printable character then jump. 
+
+
+
+CP 
+
++06 
+
+
+Print a question mark for 
+
+
+
+JR 
+
+C,OA69,PO-QUEST 
+
+
+codes in the range +00 - +05. 
+
+
+
+CP 
+
++18 
+
+
+And also for codes +1 8 - +1 F. 
+
+
+
+JR 
+
+NC,OA69,PO-QUEST 
+
+
+
+
+
+LD 
+
+HL,+0A0B 
+
+
+Base of 'control' table. 
+
+
+
+LD 
+
+E,A 
+
+
+Move the code to the 
+
+
+
+LD 
+
+D,+00 
+
+
+DE register pair. 
+
+
+
+ADD 
+
+HL.DE 
+
+
+Index into the table and 
+
+
+
+LD 
+
+E,(HL) 
+
+
+fetch the offset. 
+
+
+
+ADD 
+
+HL,DE 
+
+
+Add the offset and make 
+
+
+
+PUSH 
+
+HL 
+
+
+an indirect jump to the 
+
+
+
+JP 
+
+0B03,PO-FETCH 
+
+
+appropriate subroutine. 
+
+THE 'CONTROL CHARACTER' TABLE 
+
+
+
+address 
+
+offset 
+
+character 
+
+address 
+
+offset 
+
+character 
+
+0A1 1 
+
+4E 
+
+PRINT comma 
+
+0A1A 
+
+4F 
+
+not used 
+
+0A1 2 
+
+57 
+
+EDIT 
+
+0A1B 
+
+5F 
+
+INK control 
+
+0A1 3 
+
+10 
+
+cursor left 
+
+0A1C 
+
+5E 
+
+PAPER control 
+
+0A14 
+
+29 
+
+cursor right 
+
+0A1D 
+
+5D 
+
+FLASH control 
+
+0A1 5 
+
+54 
+
+cursor down 
+
+0A1E 
+
+5C 
+
+BRIGHT control 
+
+0A1 6 
+
+53 
+
+cursor up 
+
+0A1F 
+
+5B 
+
+INVERSE control 
+
+0A1 7 
+
+52 
+
+DELETE 
+
+0A20 
+
+5A 
+
+OVER control 
+
+0A1 8 
+
+37 
+
+ENTER 
+
+0A21 
+
+54 
+
+AT control 
+
+0A1 9 
+
+50 
+
+not used 
+
+0A22 
+
+53 
+
+TAB control 
+
+
+THE 'CURSOR LEFT' SUBROUTINE 
+
+The subroutine is entered with the B register holding the current line number and the C register with the current column number. 
+
+
+0A23 
+
+PO-BACK-1 
+
+INC 
+
+C 
+
+Move leftwards by one column. 
+
+
+
+LD 
+
+A, +22 
+
+Accept the change unless 
+
+
+
+CP 
+
+C 
+
+up against the lefthand side. 
+
+
+
+JR 
+
+NZ,0A3A, PO-BACK-3 
+
+
+
+
+BIT 
+
+1, (FLAGS) 
+
+If dealing with the printer 
+
+
+
+JR 
+
+NZ,0A38, PO-BACK-2 
+
+jump forward. 
+
+
+
+INC 
+
+B 
+
+Go up one line. 
+
+
+
+LD 
+
+C,+02 
+
+Set column value. 
+
+
+
+LD 
+
+A, +18 
+
+Test against top line. 
+
+
+
+CP 
+
+B 
+
+Note: This ought to be +19. 
+
+
+
+JR 
+
+NZ,0A3A, PO-BACK-3 
+
+Accept the change unless at 
+the top of the screen. 
+
+
+
+DEC 
+
+B 
+
+Unacceptable so down a line. 
+
+0A38 
+
+PO-BACK-2 
+
+LD 
+
+C,+21 
+
+Set to lefthand column. 
+
+0A3A 
+
+PO-BACK-3 
+
+JP 
+
+0DD9,CL-SET 
+
+Make an indirect return via 
+CL-SET & PO-STORE. 
+
+
+THE 'CURSOR RIGHT' SUBROUTINE 
+
+This subroutine performs an operation identical to the BASIC statement - PRINT OVER 1 ;CHR$ 32; -. 
+
+
+0A3D PO-RIGHT LD 
+
+PUSH 
+
+
+A.(P-FLAG) 
+
+AF 
+
+
+Fetch P-FLAG and save it on 
+the machine stack. 
+
+
+33 
+
+
+
+LD 
+
+(P-FLAG),+01 
+
+Set P-FLAG to OVER 1 
+
+LD 
+
+A, +20 
+
+A 'space'. 
+
+CALL 
+
+OB65,PO-CHAR 
+
+Print the character. 
+
+POP 
+
+AF 
+
+Fetch the old value of 
+
+LD 
+
+(P-FLAG),A 
+
+P-FLAG. 
+
+RET 
+
+
+Finished. 
+
+
+Note: The programmer has 
+forgotten to exit via PO-STORE. 
+
+THE 'CARRIAGE RETURN' SUBROUTINE 
+
+If the printing being handled is going to the printer then a carriage return character leads to the printer buffer being emptied. If the 
+printing is to the screen then a test for 'scroll?' is made before decreasing the line number. 
+
+
+0A4F 
+
+PO-ENTER BIT 
+
+1, (FLAGS) 
+
+Jump forward if handling 
+
+
+JP 
+
+NZ, OECD, COPY-BUFF 
+
+the printer. 
+
+
+LD 
+
+C.+21 
+
+Set to lefthand column. 
+
+
+CALL 
+
+OC55.PO-SCR 
+
+Scroll if necessary. 
+
+
+DEC 
+
+B 
+
+Now down a line. 
+
+
+JP 
+
+0DD9,CL-SET 
+
+Make an indirect return via 
+CL-SET & PO-STORE. 
+
+
+THE 'PRINT COMMA' SUBROUTINE 
+
+The current column value is manipulated and the A register set to hold +00 (for TAB 0) or +10 (for TAB 16). 
+
+
+0A5F 
+
+
+PO-COMMA CALL 
+
+0B03,PO-FETCH 
+
+Why again? 
+
+LD 
+
+A,C 
+
+Current column number. 
+
+DEC 
+
+A 
+
+Move rightwards by two 
+
+DEC 
+
+A 
+
+columns and then test. 
+
+AND 
+
++10 
+
+The A register will be +0( 
++10. 
+
+JR 
+
+OAC3,PO-FILL 
+
+Exit via PO-FILL. 
+
+
+THE 'PRINT A QUESTION MARK' SUBROUTINE 
+
+A question mark is printed whenever an attempt is made to print an unprintable code. 
+
+0A69 PO-QUEST LD A,+3F The character '?’. 
+
+JR OAD9.PO-ABLE Now print this character instead. 
+
+THE 'CONTROL CHARACTERS WITH OPERANDS' ROUTINE 
+
+The control characters from INK to OVER require a single operand whereas the control characters AT & TAB are required to be 
+followed by two operands. 
+
+The present routine leads to the control character code being saved in TVDATA-lo, the first operand in TVDATA-hi or the A register if 
+there is only a single operand required, and the second operand in the A register. 
+
+
+0A6D PO-TV-2 
+
+LD 
+
+DE,+0A87 
+
+Save the first operand in 
+
+
+LD 
+
+(TVDATA-hi), A 
+
+TVDATA-hi and change the 
+
+
+JR 
+
+0A80,PO-CHANGE 
+
+address of the 'output' routine 
+to PO-CONT (+0A87). 
+
+
+Enter here when handling the characters AT & TAB. 
+
+0A75 PO-2-OPER LD DE,+0A6D The character code will be 
+
+JR OA7D.PO-TV-1 saved in TVDATA-lo and the 
+
+address of the 'output' routine 
+changed to PO-TV-2 (+0A6D). 
+
+Enter here when handling the colour items - INK to OVER. 
+
+
+0A7A 
+
+PO-1-OPER LD 
+
+DE,+0A87 
+
+0A7D 
+
+PO-TV-1 LD 
+
+(TVDATA-lo), A 
+
+
+The current 'output' routine address is changed temporarily. 
+
+
+The 'output' routine is to be 
+changed to PO-CONT (+0A87). 
+Save the control character code. 
+
+
+34 
+
+
+
+0A80 PO-CHANGE LD 
+
+HL,(CURCHL) 
+
+HL will point to the 'output' 
+routine address. 
+
+LD 
+
+(HL),E 
+
+Enter the new ’output’ 
+
+INC 
+
+HL 
+
+routine address and thereby 
+
+LD 
+
+(HL),D 
+
+force the next character code 
+
+RET 
+
+
+to be considered as an operand. 
+
+Once the operands have been collected the routine continues. 
+
+
+0A87 PO-CONT LD 
+
+DE.+09F4 
+
+Restore the original address 
+
+CALL 
+
+0A80, PO-CHANGE 
+
+for PRINT-OUT (+09F4). 
+
+LD 
+
+HL.(TVDATA) 
+
+Fetch the control code and the 
+first operand if there are indeed 
+two operands. 
+
+LD 
+
+D,A 
+
+The ’last’ operand and the 
+
+LD 
+
+A,L 
+
+control code are moved. 
+
+CP 
+
++16 
+
+Jump forward if handling 
+
+JP 
+
+C, 221 1 , CO-TEMPS 
+
+INK to OVER. 
+
+JR 
+
+NZ.0AC2, PO-TAB 
+
+Jump forward if handling TAB. 
+
+Now deal with the AT control character. 
+
+LD 
+
+B,H 
+
+The line number. 
+
+LD 
+
+C,D 
+
+The column number. 
+
+LD 
+
+A,+1F 
+
+Reverse the column number; 
+
+SUB 
+
+C 
+
+i.e. +00 - +1 F becomes +1 F - 
++00. 
+
+JR 
+
+C,0AAC, PO-AT-ERR 
+
+Must be in range. 
+
+ADD 
+
+A, +02 
+
+Add in the offset to give 
+
+LD 
+
+C,A 
+
+C holding +21 - +22. 
+
+BIT 
+
+1, (FLAGS) 
+
+Jump forward if handling the 

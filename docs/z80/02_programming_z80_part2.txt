@@ -1,0 +1,9149 @@
+# Programming the Z80 - Part 2/4
+
+---
+
+
+$=0300 
+X=O000 
+§=0300 
+X=0000 
+§=0300 
+X=O000 
+$=0300 
+X=0000 
+$=0300 
+X=0000 
+$=0300 
+X=0000 
+§=0300 
+X=0000 
+$20500 
+X=0000 
+§=O300 
+X=0000 
+S=0300 
+X=0000 
+8=03500 
+X=0000 
+§=0300 
+X=0000 
+S=0700 
+X=0000 
+$=9300 
+X=O000 
+5=0300 
+X=0000 
+§=0300 
+X=0000 
+S=0300 
+X=0000 
+S=0306 
+Xx=0000 
+$=0300 
+X=0000 
+5=0300 
+X=0000 
+S=0300 
+X=0000 
+$=9360 
+X=0000 
+S=03500 
+X=0000 
+$=0390 
+X=0006 
+S=0300 
+x=0000 
+
+
+F=0111 
+¥=0000 
+P=O114 
+¥=0G00 
+F2OL16 
+Y=0000 
+F=0118 
+Y=6000 
+P=O119 
+Y=0000 
+F=O10F 
+1=0000 
+F=OLil 
+¥=0000 
+P=OLL4 
+Y¥=0000 
+P=OL14 
+Y=0000 
+FP=0119 
+Y¥=0000 
+FeOi19 
+Y¥=0000 
+F=OLOF 
+¥=0000 
+F=OiLi 
+¥=0000 
+PeQii4 
+¥=0000 
+P=OL16 
+Y=90000 
+P=O011¢8 
+Y=0000 
+P=2O119 
+¥=0000 
+P=010F 
+¥=09000 
+P2OiLl 
+¥=0000 
+PrO1L4 
+Y=0000 
+F=0116 
+Y=0000 
+F=0118 
+Y¥=09000 
+P=QO119 
+Y¥=0000 
+FaQ1it 
+y=0000 
+P=O11F 
+Y¥=0000 
+
+
+OLLL’ JR 
+T=00 
+O114/° SLA 
+T=00 
+0114’ RL 
+1=00 
+O118’ DEC 
+I=00 
+0119" JF 
+T=00 
+OLOF’ SRL 
+I=00 
+O112° JR 
+[=00 
+0114’ SLA 
+L=00 
+0116’ RL 
+T=00 
+0119" DEC 
+I=00 
+O119¢ JF 
+T=0Q 
+O10F’ SRL 
+T=00 
+O111° JR 
+T=00 
+6114’ SLA 
+T=00 
+0116° RL 
+T=00 
+01187? DEC 
+T=00 
+0119? JF 
+T2090 
+O10F° SRL 
+T=00 
+O111’° JR 
+T=00 
+0114’ SLA 
+T=00 
+O116° RL 
+T=00 
+0118° DEC 
+f=00 
+0119° JF 
+T=00 
+ol1C’ Lo 
+I=00 
+O11F° NOF 
+
+
+t=00 
+
+
+NCrOL14 
+CO11475 
+
+
+IE 
+si) 
+E 
+NZ? OLGOF 
+COLOF') 
+Cc 
+NC rO1i14 
+CO114%3 
+E 
+I 
+E 
+NZ yr OLOF 
+COLQF’ > 
+Cc 
+NC rO114 
+(O1147) 
+E 
+1] 
+it 
+NZ O10F 
+CO1LOF %) 
+C 
+NC 0144 
+(O1147) 
+E 
+tr 
+BE 
+NZ»O10F 
+COLOF *) 
+
+
+(0204) rH 
+(02047) 
+
+
+Fig. 3.39: Multiplication: A Complete Trace (continued) 
+
+
+BASIC PROGRAMMING TECHNIQUES 
+
+
+ANSWERS TO EXERCISE 3.18 (MULTIPLICATION): 
+
+
+CROMEMCD ChOS 499 ASSCMELER versio0n OF. 1 PAGE OOO! 
+
+0000" 0001 ORG 9100H 
+
+€0200) 0002 MPRAL CL 0200H 
+
+(9202) 0003 MFDAL CL 0202H 
+
+(0204) 0004 RESAL nl 02044 
+
+9005 : 
+
+0100 EL4AROOO. 0004 MF488 Li PCr (HPRAB) *LOAD AULT IELIER INTO © 
+0104 04609 9007 Lo , *h TS RIT COUNTER 
+0104 EDSRO?02 0008 Lu DE» (MP DAT 7LOAN MUTTFLICAND INTO € 
+010A 1600 000? LO Ded PCLEAK DB 
+O10C 210000 0010 Ltt NL +O #SET RESULT TO 9 
+Q1OF CBS? COLL MULT SRL C SSHTET MULTTPLIER Ult TUTO CARRY 
+0111 S001 0012 JR HC rNOADL PTEST CARKY 
+O113 #197 O013 ALL itl.» UE FALL HPO TO RESULT 
+0114 CBh29 0014 NOARD SiA & #SHIFT MED LEFT 
+0115 CEIz 0015 RL it) sSAVE LIT IM bo 
+0118 OF O0LS De u SDECREMEANY SHIET COUNTER 
+QiL? C2QFOL O01? JF 2rMULT ‘DD ET AGATN LF COMMIFER .° Oo 
+O11C 62204902 oole Lis CRESAD) rR FSTOkKE KESULT 
+OLLF (d000) Q019 ENT 
+Errors c] 
+
+
+Fig. 3.40: The Multiplication Program (Hex) 
+
+
+pate 
+
+
+00 
+LD BC, (0200) 0 00 
+
+LD B, 08 0 00 
+
+| LD DE, (0202) 0 00 
+
+LD D, 00 0 00 
+
+LD HL,0000 0 00 
+
+MULT | SRLC 1 | 00 00 
+JRNC,O114 1 | 00 00 
+
+ADD HL,DE 1 | 00 05 
+
+NOADD | SLAE o | 00 05 
+RLD 0 | 00 05 
+
+DEC B o | 00 05 
+
+JP NZ,O10F 0 | 00 05 
+
+MULT | SRLC 1 | 00 05 
+JRNC,O114 1 | 00 05 
+
+ADD HL,DE o | 00 OF 
+
+NO ADD | SLA E o | oo OF 
+RL D o | 00 OF 
+
+DEC B o | 00 OF 
+
+JP NZ,O10F 0 | 00 OF 
+
+
+Fig. 3.41: Two Iterations Through the Loop 
+
+
+153 
+
+
+4 
+THE Z80 INSTRUCTION SET 
+
+
+INTRODUCTION 
+
+
+This chapter will first analyze the various classes of instructions 
+which should be available in a general-purpose computer, It will then 
+analyze one by one all of the instructions available for the Z80, and ex- 
+plain in detail their purpose and the manner in which they affect flags 
+or can be used in conjunction with various addressing modes. A de- 
+tailed discussion of addressing techniques will be presented in Chapter 
+5. 
+
+
+CLASSES OF INSTRUCTIONS 
+
+
+Instructions may be classified in many ways, and there is no stan- 
+dard. We will here distinguish five main categories of instructions: 
+
+
+1—data transfers 
+2—data processing 
+3—test and branch 
+4—input/output 
+5—control 
+
+
+Let us now examine each of these classes of instructions in turn. 
+
+
+Data Transfers 
+
+
+Data transfer instructions will transfer data between registers, or be- 
+tween a register and memory, or between a register and an input/output 
+device. Specialized transfer instructions may exist for registers which 
+play a specific role. For example, push and _ pop operations 
+are provided for efficient stack operation. They will move a word of 
+
+
+154 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+data between the top of the stack and the accumulator in a single in- 
+struction, while automatically updating the stack-pointer register. 
+
+
+Data Processing 
+
+
+Data processing instructions fall into five general categories: 
+
+
+1—arithmetic operations (such as plus/minus) 
+
+2—bit manipulation (set and reset) 
+
+3—increment and decrement 
+
+4— logical operations (such as AND, OR, exclusive OR) 
+5—skew and shift operations (such as shift, rotate) 
+
+
+It should be noted that, for efficient data processing, it is desirable to 
+have powerful arithmetic instructions, such as multiply and divide. 
+Unfortunately, they are not available on most microprocessors. It is 
+also desirable to have powerful shift and skew instructions, such as 
+shift n bits, or a nibble exchange, where the right half and the left half 
+of the byte are exchanged. These are also usually unavailable on most 
+microprocessors. 
+
+Before examining the actual Z80 instructions, let us recall the dif- 
+ference between a shift and a rotation, The shift will move the contents 
+of a register or a memory location by one bit location to the left or to 
+the right. The bit falling out of the register will go into the carry bit. 
+The bit coming in on the other side will be a ‘‘0’’ except in the case of an 
+‘“‘arithmetic shift right,’? where the MSB will be duplicated. 
+
+In the case of a rotation, the bit coming out still goes in the carry. 
+However, the bit coming in is the previous value which was in the carry 
+bit. This corresponds to a 9-bit rotation. It is often desirable to have a 
+true 8-bit rotation where the bit coming in on one side is the one falling 
+from the other side. This is not provided on most microprocessors 
+but is available on the Z80 (see Figure 4.1). 
+
+Finally, when shifting a word to the right, it is convenient to have one 
+more type of shift, called a sign extension or an ‘‘arithmetic shift 
+right.’"* When doing operations on two’s complement numbers, parti- 
+cularly when implementing floating-point routines, it is often necessary 
+to shift a negative number to the right. When shifting a two’s comple- 
+ment number to the right, the bit which must come in on the left side 
+should be a ‘‘1”’ (the sign should get repeated as many times as needed 
+by the successive shifts). This is the arithmetic shift right. 
+
+
+155 
+
+
+PROGRAMMING THE Z80 
+
+
+SHIFT LEFT 
+
+
+CARRY 
+
+
+ROTATE LEFT 
+
+
+Fig. 4.1: Shift and Rotate 
+
+
+Test and Jump 
+
+
+The test instructions will test bits in the specified register for ‘‘0’’ or 
+**1’’, or combinations. At a minimum, it must be possible to test the 
+flags register. It is, therefore, desirable to have as many flags as pos- 
+sible in this register. In addition, it is convenient to be able to test for 
+combinations of such bits with a single instruction. Finally, it is 
+desirable to be able to test any bit position in any register, and to test 
+the value of a register compared to the value of any Other register 
+(greater than, less than, equal). Microprocessor test instructions are 
+usually limited to testing single bits of the flags register. The Z80, how- 
+ever, offers better facilities than most. 
+
+The jump instructions that may be available generally fall into 
+three categories: 
+
+
+I—the jump, which specifies a full 16-bit address 
+
+2—the relative jump, which often is restricted to an 8-bit displace- 
+ment field 
+
+3—the call, which is used with subroutines 
+
+
+156 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+It is convenient to have two- or even three-way jumps, depending, for 
+example, on whether the result of a comparison is ‘‘greater than,’’ “‘less 
+than,”’ or ‘‘equal.’’ It is also convenient to have skip operations, which 
+will jump forward or backwards by a few instructions. However, a 
+“‘skip’’ is equivalent to a ‘‘jump.’’ Finally, in most loops, there is 
+usually a decrement or increment operation at the end, followed by a 
+test-and-branch. The availability of a single-instruction increment/ 
+decrement plus test-and-branch is, therefore, a significant advan- 
+tage for efficient loop implementation, This is not available in most 
+microprocessors. Only simple branches, combined with simple tests,are 
+available. This, naturally, complicates programming and reduces effi- 
+ciency. In the case of the Z80, a ‘‘decrement and jump”’ instruction is 
+available. However, it only tests a specific register (B) for zero. 
+
+
+Input/Output 
+
+
+Input/output instructions are specialized instructions for the hand- 
+ling of input/output devices. In practice, a majority of the 8-bit micro- 
+processors use memory-mapped 1/O: input/output devices are con- 
+nected to the address bus just like memory chips, and addressed as 
+such. They appear to the programmer as memory locations. All 
+memory-type operations normally require 3 bytes and are, therefore, 
+slow. For efficient input/output handling in such an environment, it is 
+desirable to have a short addressing mechanism available so that 1/O 
+devices whose handling speed is crucial may reside in page 0. However, 
+if page 0 addressing is available, it is usually used for RAM memory, 
+which prevents its effective use for input/output devices. The 
+Z80, like the 8080, is equipped with specialized 1/O instructions. As a 
+result, in the case of the Z80, the designer may use either method: in- 
+put/output devices may be addressed as memory devices, or else as in- 
+put/output devices, using the I/O instructions. 
+
+They will be described later in this chapter. 
+
+
+Control Instructions 
+
+
+Control instructions supply synchronization signals and may suspend 
+or interrupt a program. They can also function as a break or a simu- 
+lated interrupt. (Interrupts will be described in Chapter 6 on In- 
+put/Output Techniques.) 
+
+
+157 
+
+
+PROGRAMMING THE Z80 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Introduction 
+
+
+The Z80 microprocessor was designed to be a replacement for the 
+8080, and to offer additional capabilities. As a result of this design 
+philosophy, the Z80 offers all the instructions of the 8080, plus addi- 
+tional instructions. In view of the limited number of bits available in an 
+8-bit opcode, one may wonder how the designers of the Z80 succeeded 
+in impiementing many additional ones. They did so by using a few 
+unused 8080 opcodes and by adding an additional byte to the opcode 
+for indexed operations. This is why some of the Z80 instructions oc- 
+cupy up to five bytes in the memory. 
+
+It is important to remember that any program can be written in many 
+different ways. A thorough knowledge and understanding of the in- 
+struction set is indispensable for achieving efficient programming. 
+However, when iearning how to program, it is not essential to write op- 
+timized programs. During a first reading of this chapter, it is therefore 
+unimportant to remember all the various instructions. Ht is important to 
+remember the categories of instructions and to study typical examples. 
+Then, when writing programs, the reader should consult the Z80 
+instruction-set description, and select the instructions best suited to his 
+needs. The various instructions of the Z80 will therefore be reviewed in 
+this section with the intent of simplifying them and grouping them in 
+logical categories. The reader interested in exploring the capabilities of 
+the various instructions is referred to the individual descriptions of the 
+instructions. 
+
+We will now examine the capabilities provided by the 280 in terms of 
+the five classes of instructions which have been defined at the beginning 
+of this chapter. 
+
+
+Data Transfer Instructions 
+
+
+Data transfer instructions on the Z80 may be classified in four 
+categories: 8-bit transfers, 16-bit transfers, stack operations, and 
+block transfers. Let us examine them. 
+
+
+Eight-Bit Data Transfers 
+
+
+All eight-bit data transfers are accomplished by load instructions. 
+The format is: 
+
+
+LD destination, source 
+
+
+158 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+For example, the accumulator A may be loaded from register B by 
+using the instructions: 
+
+
+LD B,A 
+
+
+Direct transfers may be accomplished between any two of the 
+working registers (ABCDEHL). 
+
+in order to load any of the working registers, except for the accu- 
+mulator, from a memory location, the address of this memory loca- 
+tion must first be ioaded into any register pair, such as registers H 
+and L. 
+
+For example, in order to load register C from memory location 1234, 
+register H and L will first have to be loaded with the value ‘‘1234’’. (A 
+load instruction operating on 16 bits will be used. This is described in 
+the following section.) 
+
+Then, the instruction LD C, (HL) will be used and will accomplish 
+the desired result. 
+
+The accumulator is an exception. It can be loaded directly from any 
+specified memory location. This is called the extended addressing 
+mode. For example, in order to load the accumulator with the contents 
+of memory location 1234, the following instruction will be used: 
+
+
+LD A, (1234H) (Note the use of ‘‘()’’ to denote ‘‘contents of.’’) 
+The instruction will be stored in the memory as follows: 
+
+
+address PC 3A (opcode) 
+PC + 1:34 (low order half of the address) 
+PC + 2:12 (high order half of the address) 
+
+
+Note that the address is stored in ‘‘reverse order’’ in the instruction 
+
+
+itself: 
+
+
+Ail the working registers may also be loaded with any specified eight-bit 
+value, or ‘‘literal,’’ contained in the second byte of the instruction (this 
+is called immediate addressing). An example is: 
+
+
+LD E, 12H 
+
+
+which loads register E with the value 12 hexadecimal. 
+In the memory, the instruction appears as: 
+
+
+PC: 1E (opcode) 
+PC + 1: 12 (literal operand) 
+
+
+159 
+
+
+PROGRAMMING THE 280 
+
+
+As a result of this instruction, the immediate operand, or literal value 
+will be contained in register E. 
+
+The indexed addressing mode is also available for loading register 
+contents, and will be fully described in the next chapter on addressing 
+techniques. Other miscellaneous possibilities exist for loading specific 
+registers, and a table listing all the possibilities is shown in Figure 4.2 
+(tables supplied by Zilog, Inc.). The grey areas show instructions 
+common with the 8080A. 
+
+
+OESTINATION 
+
+
+REG 
+INDIRECT 
+
+
+DD oD 
+0 7 
+d 
+| {e E ob TITTe 
+
+
+8 BIT LOAD GROUP 
+‘LD’ 
+TABLE 5.3—1 
+
+
+Fig. 4.2: Eight-Bit Load Group—‘LD’ 
+
+
+16-Bit Data Transfers 
+
+
+Basically, any of the 16-bit register pairs, BC, DE, HL, SP, IX, IY, 
+may be loaded with a literal 16-bit operand, or from a specified 
+memory address (extended addressing), or from the top of the stack, 
+i.e., from the address contained in IP. Conversely, the contents of these 
+
+
+160 
+
+
+THE 280 INSTRUCTION SET 
+
+
+register pairs may be stored in the same manner at a specified memory 
+address or on top of the stack. Additionally, the SP register may be 
+loaded from HL, IX, and IY. This facilitates creating multiple stacks. 
+The register pair AF may also be pushed on top of the stack. 
+
+The table listing all the possibilities is shown in Figure 4.3. The stack 
+push and pop operations are included as parts of the 16-bit data 
+transfers. All stack operations transfer the contents of a register pair to 
+or from the stack. Note that there are no single push and pop instruc- 
+tions for saving individual eight-bit registers. 
+
+
+SOURCE 
+
+
+REGISTER 
+
+
+DESTINATION 
+
+
+PUSH z 
+INSTRUCTIONS 
+
+
+NOTE: Tha Push & Pop Instructions adlust 
+the SP efter every execution 
+
+
+PoP 
+INSTRUCTIONS 
+Fig. 4.3: 16-Bit Load Group—‘LD’, ‘PUSH’ and ‘POP’ 
+
+
+A double-byte push or pop is always executed on a register pair: AF, 
+BC, DE, HL, IX, IY (see the bottom row and right-most column in 
+Figure: 4.3). 
+
+When operating on AF, BC, DE, HL, a single-byte is required for the 
+instruction, resulting in good efficiency. For example, assume that the 
+
+
+161 
+
+
+PROGRAMMING THE Z80 
+
+
+stack pointer SP contains the value ‘‘0100’’. The foilowing instruc- 
+tion is executed: 
+
+
+PUSH AF 
+
+
+When pushing the contents of the register pair on the stack, the stack 
+pointer SP is first decremented, then the contents of register A are de- 
+posited on top of the stack. Then the SP is decremented again, and the 
+contents of F are deposited on the stack. At the end of the stack trans- 
+fer, SP points to the top element of the stack, which in our example 
+is the value of F. 
+
+It is important to remember that, in the case of the Z80, the SP 
+points to the top of the stack and the SP is decremented whenever a 
+register pair is pushed. Other conventions are often used in other pro- 
+cessors, and this may be a source of confusion. 
+
+
+The effect of this instruction is illustrated by the following diagram: 
+
+
+IMPLIED ADDRESSING 
+
+
+| ar’ jec.oe ane | He | x | ty | 
+
+
+Fig. 4.4: Exchanges ‘EX’ and ‘EXX’ 
+
+
+Exchange Instructions 
+
+
+Additionally, a specialized mnemonic EX has been reserved for ex- 
+change operations. EX is not a simple data transfer, but a dual data 
+transfer. It actually changes the contents of wo specified locations. EX 
+
+
+162 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+may be used to exchange the top of the stack with HL, LX, IY and also 
+to swap the contents of DE and HL and AF and AF’ (remember that 
+AF’ stands for the other AF register pair available in the Z80). 
+Finally, a special EXX instruction is available to exchange the con- 
+tents of BC, DE, HL with the contents of the corresponding registers in 
+the second register bank of the Z80. 
+The possible exchanges are summarized in Figure 4.4. 
+
+
+SOURCE 
+
+
+*LDI' — Load (DE )-a—— (HL) 
+Inc HL & DE, Dec BC 
+
+
+ED 
+
+AQ 
+
+EOD *LDIR,’ — Load (DE}~<—(HL) 
+
+BO Inc HL & DE, Dee BC, Repeat until BC = 0 
+DESTINATION 
+
+
+*L DD’ — Load (DE)<«—(HL} 
+Dec HL & DE, Dec BC 
+
+
+ED ‘LDDR’ -- Load (DE}@—(HL) 
+B& Dec HL & DE, Dec BC, Repeat unti! BC = 0 
+
+
+Reg HL points to source 
+Reg DE points to destination 
+Reg BC is byte counter 
+
+
+Fig. 4.5: Block Transfer Group 
+
+
+Block Transfer Instructions 
+
+
+Block transfer instructions are instructions which will result in the 
+transfer of a block of data rather than a single or double byte. Block 
+transfer instructions are more complex for the manufacturer to imple- 
+ment than most instructions and are usually not provided on micropro- 
+cessors. They are convenient for programming, and may improve the 
+
+
+163 
+
+
+PROGRAMMING THE Z80 
+
+
+performance of a program, especially during input/output operation. 
+Their use and advantages will be demonstrated throughout this book. 
+Some automatic block transfer instructions are available in the case of 
+the Z80. They use specific conventions. 
+
+All block transfer instructions require the use of three pairs of 
+registers: BC, DE, HL: 
+
+
+BC is used as a 16-bit counter. This means that up to 2'* = 64K bytes 
+may be moved automatically. HL is used as the source pointer. It may 
+point anywhere in the memory. DE is used as the destination pointer 
+and may point anywhere in the memory. 
+
+
+Four block transfer instructions are provided: 
+LDD, LDDR, LDI, LDIR 
+
+
+All of them decrement the counter register BC with each transfer. Two 
+of them decrement the pointer registers DE and HL, LDD and LDDR, 
+while the two others increment DE and HL, LDI and LDIR. For each 
+of these two groups of instructions, the letter R at the end of the 
+mnemonic indicates an automatic repeat. Let us examine these instruc- 
+tions. 
+
+LDI stands for ‘‘load and increment.’ It transfers one byte from the 
+memory location pointed to by H and L to the destination in the 
+memory pointed to by D and E. It also decrements BC. It will automati- 
+cally increment H and L and D and E so that all register pairs are pro- 
+perly conditioned to perform the next byte transfer whenever required. 
+
+LDIR stands for ‘‘load increment and repeat,’’ i.e., execute LDI 
+repeatedly until the counter registers BC reach the value ‘‘0”’. It is used 
+to move a continuous block of data automatically from one memory 
+area to another. 
+
+LDD and LDDR operate in the same way except that the address 
+pointer .is decremented rather than incremented. The transfer therefore 
+starts at the Aighest address in the block instead of the lowest. The ef- 
+fect of the four instructions is summarized in Figure 4.5. 
+
+Similar automated instructions are available for CP (compare) and 
+are summarized in Figure 4.6. 
+
+Data Processing Instructions 
+Arithmetic 
+
+
+Two main arithmetic operations are provided: addition and subtrac- 
+tion. They have been used extensively in the previous chapter. There are 
+two types of addition, with and without carry, ADD and ADC respec- 
+
+
+164 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+SEARCH 
+LOCATION 
+
+
+“CPIR’, inc HL, Dec BC 
+repeat until BC = 0 or find match 
+
+
+‘CPDR' Dec HL & BC 
+Repeat until BC = 0 or find match 
+
+
+HL points to location in memory 
+to be compared with accumutator 
+contents 
+
+BC is byte counter 
+
+
+Fig. 4.6: Block Search Group 
+
+
+tively. Similarly, two types of subtraction are provided with and 
+without carry. They are SUB and SBC. 
+
+Additionally, three special instructions are provided: DAA, CPL, 
+and NEG. The Decimal Adjust Accumulator instruction DAA has been 
+used to implement BCD operations. It is normally used for each BCD 
+add or subtract. Two complementation instructions also are available. 
+CPL will compute the one’s complement of the accumulator, and NEG 
+will negate the accumulator into its complement format(two’s comple- 
+ment). 
+
+All the previous instructions operate on eight-bit data. 16-bit opera- 
+tions are more restricted. ADD, ADC, and SBC are available on 
+specific registers, as described in Figure 4.8. 
+
+Finally, increment and decrement instructions are available which 
+operate on all the registers, both in an eight-bit and a 16-bit format. 
+They are listed in Figure 4.7 (eight-bit operations) and 4.8 (16-bit opera- 
+tions). 
+
+
+165 
+
+
+PROGRAMMING THE Z80 
+
+
+SOURCE 
+
+
+REGISTER ADDRESSING 
+
+
+ADD w CARRY 
+‘ADC’ 
+SUBTRACT 
+‘suB’ 
+SUB w CARRY 
+‘SBC’ 
+
+
+COMPARE 
+‘cr 
+
+
+INCREMENT 
+NC’ 
+DECREMENT 
+‘DEC’ 
+
+
+Fig. 4.7: Eight-Bit Arithmetic and Logic 
+
+
+Note that, in general, all arithmetic operations modify some of the 
+flags. Their effect is fully described in the Appendix at the end of this 
+book. However, it is important to note that the INC and DEC instruc- 
+tions which operate on register pairs do not modify any of the flags. 
+This detail is important to keep in mind. This means that if you incre- 
+ment or decrement one of the register pairs to the value ‘‘0’’, the Z-bit 
+in the flags register F will not be set. The value of the register must be 
+explicitly tested for the value ‘‘0’’ in the program. 
+
+Also, it is important to remember that the instructions ADC and SBC 
+always affect all the flags. This does not mean that all the flags will 
+necessarily be different after their execution. However, they might. 
+
+
+166 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+SOURCE 
+
+
+DD 
+09 
+
+
+DESTINATION 
+
+
+ADD WITH CARRY AND | HL ED ED ED 
+SETFLAGS ‘ADC’ 4A, 6A 7A 
+SUB WITH CARRY AND HL ED 
+SETFLAGS ‘SBC’ 72 
+DECREMENT ‘DEC’ or 
+
+
+Fig. 4.8: Sixteen-Bit Arithmetic and Logic 
+
+
+Logical 
+
+
+Three logical operations are provided: AND, OR (inclusive) and 
+XOR (exclusive), plus a comparison instruction CP. They all operate 
+exclusively on eight-bit data. Let us examine them in turn, (A table list- 
+ing all the possibilities and operation codes for these instructions is part 
+of Figure 4.7.) 
+
+
+AND 
+
+
+Each logical operation is characterized by a truth table, which ex- 
+presses the logical value of the result in function of the inputs. The 
+truth table for AND appears below: 
+
+
+167 
+
+
+PROGRAMMING THE Z80 
+
+
+0 AND 0 =0 AND] 0 | 1_ 
+tanpowo & 12 (0 | | 
+panier be 
+
+
+The AND operation is characterized by the fact that the output is 
+**1’* only if both inputs are ‘‘1’*. In other words, if one of the inputs is 
+**0’’, it is guaranteed that the result is ‘‘0’’. This feature is used to zero 
+a bit position in a word. This is called ‘‘masking.”’ 
+
+One of the important uses of the AND instruction is to clear or 
+‘‘mask out’’ one or more specified bit positions in a word. Assume for 
+example that we want to zero the right-most four-bit positions in a 
+word. This will be performed by the following program: 
+
+
+LD A, WORD WORD CONTAINS ‘10101010’ 
+AND 11110000B *11110000’ IS MASK 
+
+
+Let us assume that WORD is equal to ‘10101010’. The result of this 
+program is to leave the value ‘10101010’ in the ‘accumulator. ‘‘B’’ is 
+used to indicate a binary value. 
+
+
+Exercise 4,1: Write a three-line program which will zero bits I and 6 of 
+WORD. 
+
+
+Exercise 4.2: What happens with a MASK = ‘111111117? 
+
+
+OR 
+
+
+This instruction is the inclusive OR operation. It is characterized by 
+the following truth table: 
+
+
+OORO =0 OR | g ; 
+OORI=1 
+roro=1 * 19 | O[ 1 | 
+1OR1=1 
+
+
+The logical OR is characterized by the fact that if one of the operands 
+is ‘‘1’’, then the result is always ‘‘1’’. The obvious use of OR is to set 
+any bit in a word to “‘1’’. 
+
+Let us set the right-most four bits of WORD to 1’s. The program is: 
+
+
+LD A, WORD 
+OR A, 00001111B 
+
+
+168 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Let us assume that WORD did contain ‘10101010’. The final value of 
+the accumulator will be ‘1O10O1111°. 
+
+
+Exercise 4.3: What would happen if we were to use the instruction 
+OR A, 10101111 B? 
+
+
+Exercise 4.4: What is the effect of ORing with “‘FF’’ hexadecimal? 
+
+
+XOR 
+
+
+XOR stands for ‘‘exclusive OR.’’ The exclusive OR differs from the 
+inclusive OR that we have just described in one respect: the result is 
+**0’’ only if one, and only one, of the operands is equal to ‘‘1°’. If both 
+operands are equal to ‘‘1’’, the normal OR would give a ‘‘1’’ result. 
+The exclusive OR gives a ‘‘0’’ result. The truth table is: 
+
+
+oxoro=0 — [xor| o | 1 
+rxoro=1 oF 2 | O | 1 
+pitt ol 
+
+
+1 XOR 1 = 0 
+
+
+The exclusive OR is used for comparisons. If any bit is different, the 
+exclusive OR of two words will be non-zero. In addition, in the case of 
+the Z80, the exclusive OR may be used to complement a word, since 
+there is no complement instruction on anything but the accumulator. 
+This is done by performing the XOR of a word with all ones. The pro- 
+gram appears below: 
+
+
+LD A, WORD 
+XOR 1, 11111111B 
+
+
+where ‘‘r’’ designates the register. 
+
+Let us assume that WORD contained ‘‘10101010’*. The final value of 
+the register will be ‘‘01010101’’. You can verify that this is the comple- 
+ment of the original value. 
+
+XOR can be used to advantage as a ‘‘bit toggle.”’ 
+
+
+Exercise 4.5: What is the effect of XOR using a register with ‘‘00’’ hex- 
+adecimal? 
+
+
+Skew Operations (Shift and Rotate) 
+
+
+Let us first differentiate between the shift and the rotate. operations, 
+which are illustrated in Figure 4.9. In a shift operation, the contents of 
+
+
+169 
+
+
+PROGRAMMING THE Z80 
+
+
+the register are shifted to the left or to the right by one bit position. The 
+bit which falls out of the register goes into the carry bit C, and the bit 
+which comes in is zero. This was explained in the previous section. 
+
+
+SHIFT LEFT 
+
+
+CLP PEED Pp 
+CARRY 
+
+
+ROTATE LEFT 
+
+
+Fig. 4.9: Shift and Rotate 
+
+
+One exception exists: it is the shift-right-arithmetic. When perform- 
+ing operations on negative numbers in the two’s complement format, 
+the left-most bit is the sign bit. In the case of negative numbers it is 
+**1?’, When dividing a negative number by ‘‘2’’ by shifting it to the 
+right, it should remain negative, i.e., the left-most bit should remain a 
+““1”’, This is performed automatically by the SRA instruction or Shift 
+Right Arithmetic. In this arithmetic shift right, the bit which comes in 
+on the left is identical to the sign bit. It is ‘0’ if the left-most bit was a 
+“0”? and ‘‘1”’ if the left-most bit was a ‘‘1’’. This is illustrated on the 
+right of Figure 4.10, which shows all the possible shift and rotate opera- 
+tions. 
+
+
+Rotations 
+
+
+A rotation differs from a shift by the fact that the bit coming into the 
+register is the one which will fall from either the other end of the 
+register or the carry bit. Two types of rotations are supplied in the case 
+of the Z80: an eight-bit rotation and a nine-bit rotation. 
+
+The nine-bit rotation is illustrated in Figure 4.11. For example, in the 
+case of a right rotation, the eight bits of the register are shifted right by 
+one bit position. The bit which falls off the right part of the register 
+goes, as usual, into the carry bit. At this time the bit which comes in on 
+the left end of the register is the previous value of the carry bit (before it 
+is overwritten with the bit falling out.) In mathematics this is called a 
+nine-bit rotation since the eight bits of the register plus the ninth bit (the 
+
+
+170 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+carry bit) are rotated to the right by one bit position. Conversely, the 
+left rotation accomplishes the same result in the opposite direction. 
+
+
+4 
+t Arithmate 
+
+
+9 
+TES Gai we 
+mee _ 
+
+
+ace 
+
+
+Fig. 4.10: Rotates and Shifts 
+7 REGISTER 0 Cc 
+RIGHT P| TT 
+
+
+? REGISTER i) Cc 
+
+
+“AT, os 
+
+
+Fig. 4.11: Nine-Bit Rotation 
+
+
+The eight-bit rotation operates in a similar way. Bit 0 is copied into 
+bit seven, or else bit seven is copied into bit 0, depending on the direc- 
+tion of the rotation. In addition, the bit coming out of the register is 
+also copied in the carry bit. This is illustrated by Figure 4.12. 
+
+
+Cc 
+
+
+[ 7 0 | 
+RIGHT 
+
+
+Cc 
+
+
+i ? 0 | 
+
+
+Fig. 4.12: Eight-Bit Rotation 
+
+
+171 
+
+
+PROGRAMMING THE Z80 
+
+
+Special Digit Instructions 
+
+
+Two special digit-rotate instructions are provided to facilitate BCD 
+arithmetic. The result is a four-bit rotation between two digits con- 
+tained in the memory location pointed to by the HL registers and one 
+digit in the lower half of the accumulator. This is illustrated by Figure 
+4,13. 
+
+
+MEMORY 
+
+
+MEMORY 
+
+
+Fig. 4.13: Digit Rotate Instructions 
+
+
+Bit Manipulation 
+
+
+It has been shown above how the logical operations may be used to 
+set or reset bits or groups of bits in specific registers. However, it is con- 
+venient to set or reset any bit in any register or memory location with a 
+single instruction. This facility requires a considerable number of op- 
+codes and is therefore usually not provided on most microprocessors. 
+However, the Z80 is equipped with extensive bit-manipulation 
+facilities. They are shown in Figure 4,14. This table also includes the 
+test instructions which will be described only in the next section. 
+
+Two special instructions are also available for operating on the carry 
+flag. They are CCF (Complement Carry Fiag) and SCF (Set Carry 
+Flag). They are shown in Figure 4.15. 
+
+
+Test and Jump 
+
+
+Since testing operations rely heavily on the use of the flags register, 
+we will here describe in detail the role of each of the flags. The contents 
+of the flags register appear in Figure 4.16. 
+
+
+172 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+REGISTER ADDRESSING 
+
+
+a | &p 
+a : 3 
+3 fe | de 
+Fi] F 
+ce ce ce | 8 
+ae te 
+FO 
+cB 
+TEST SF 5B 
+‘IT 
+a0 
+ot is 
+ce ca | cs 
+ca | es | ec | 
+ca 
+a 
+ca ca cB ee cB 
+7 «| «7a 75 
+i fe 
+FO 
+cs | ca | ce | cs | ca | ce | ce } ce ce | 
+oe | so | a | wm dg. | g 
+ce ca | ce | os ca | cs © 
+8F 8A | 6a ao | 8: d. 
+
+
+ca ca cB ca 2p #9 
+a7 ao Bt Be Fr 65 8s 
+be is 
+ce ce cB cB ae ee , 
+oF Cry 99 ba 3B Bc cla) BE ie 
+
+
+Fig. 4.14; Bit Manipulation Group 
+
+
+173 
+
+
+PROGRAMMING THE Z80 
+
+
+Decimal Adjust Acc, ‘DAA’ 
+Complement Acc, ‘CPL’ a 
+Negate Acc, ‘NEG’ 
+{2's complement) 
+
+| 
+
+
+Compiement Carry Flag, ‘CCF 
+Set Carry Flag, ‘SCF 
+
+
+Fig. 4.15: General-Purpose AF Operations 
+
+
+7 6 5 4 3 2 J 0 
+staffed} es | 
+(Tt) (T) (T) (T} 
+
+
+Fig. 4.16: The Flags Register 
+
+
+C is the carry, N is add or subtract, P/V is parity or overflow, H is half 
+carry, Z is zero, S is sign. Bits 3 and 5 of the flags register are not used 
+(‘0’). The two flags H and N are used for BCD arithmetic and cannot 
+be tested. The other four flags (C, P/V, Z, S) can be tested in conjunc- 
+tion with conditional jump or call instructions. 
+
+The role of each flag will now be described. 
+
+
+Carry (C) 
+
+In the case of nearly all microprocessors, and of the Z80 in par- 
+ticular, the carry bit assumes a dual role. First, it is used to indicate 
+whether an addition or subtraction operation has resulted in a carry (or 
+borrow). Secondly, it is used as a ninth bit in the case of shift and rotate 
+operations. Using a single bit to perform both roles facilitates some 
+operations, such as a multiplication operation. This should be clear 
+from the explanation of the multiplication which has been presented in 
+the previous chapter. 
+
+
+174 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+When learning to use the carry bit, it is important to remember that 
+all arithmetic operations will either set it or reset it, depending on the 
+result of the instructions. Similarly, all shift and rotation operations use 
+the carry bit and will either set it or reset it, depending on the value of 
+the bit which comes out of the register. 
+
+In the case of logical instructions (AND, OR, XOR), the carry bit 
+will always be reset. They may be used to zero the carry explicitly. 
+
+Instructions which affect the carry bit are: ADD A,s; ADC A,s; 
+SUB s; SBC A,s; CP s; NEG; AND s; OR s; XOR s; ADD DD, ss; ADC 
+HL,ss; SBC HL,ss; RLA; RLCA; RRA; RRCA; RL m; RLC m; RRm; 
+RRC m; SLA m; SRA m; SRL m; DDA; SCF; CCF; NEG s; 
+
+Subtract (N) 
+
+This flag is normally not used by the programmer, and is used by the 
+Z80 itself during BCD operations. The reader will remember from the 
+previous chapter that, following a BCD add or subtract, a DAA 
+(Decimal Adjust Accumulator) instruction is executed to obtain the 
+valid BCD results. However, the ‘‘adjustment’’ operation is different 
+after an addition and after a subtraction. The DAA therefore executes 
+differently depending on the value of the N flag. The N flag is set to 
+“‘Q’’ after an addition and is set to a ‘‘1’’ after a subtraction. 
+
+The symbol used for this flag, ‘‘N’’, may be confusing to program- 
+mers who have used other processors, since it may be mistaken for the 
+sign bit. It is an internal operation sign bit. 
+
+N is set to ‘0’? by: ADD A,s; ADC A,s; ANDs;ORs; XORs; INCs; 
+ADD DD,ss; ADC HL,ss; RLA; RLCA; RRA; RRCA; RL m; RLC m; 
+RR m; RRC m; SLA m; SRA m; SRL m; RLD; RRD; SCF; CCF; INr, 
+(C); LDI; LDD; LDIR; LDDR; LD A, I; LD A,r; BIT b, s. 
+
+N is set to “‘1’’ by: SUB s; SBC A,s; CP s; NEG; DEC m; SBC HL, ss; 
+CPL; INI; IND; OUTI; OUTD; INIR; INDR; OTIR; OTDR; CPI; 
+CPIR; CPD; CPDR. 
+
+
+Parity/Overfiow (P/V) 
+
+The parity/overflow flag performs two different functions. Specific 
+instructions will set or reset this flag depending on the parity of the 
+result; parity is determined by counting the total number of ones in the 
+result. If this number is odd, the parity bit will be set to ‘‘0’’ (odd pari- 
+ty). If it is even, the parity bit will be set to ‘‘1’’ (even parity). Parity is 
+most frequently used on blocks of characters (usually in the ASCII for- 
+mat). The parity bit is an additional bit which is added to the seven-bit 
+code representing the character, in order to verify the integrity of data 
+which has been stored in a memory device. For example, if one bit in 
+the.code representing the character has been changed by accident, due 
+
+
+175 
+
+
+PROGRAMMING THE 280 
+
+
+to a malfunction in the memory device (such as a disk or RAM 
+memory), or during transmission, then the total number of ones in the 
+seven-bit code will have been changed. By checking the parity bit, the 
+discrepancy will be detected, and an error will be flagged. In particular, 
+the flag is used with logical and rotate instructions. Also, naturally, 
+during an input operation from an 1/O device, the parity flag will in- 
+dicate the parity of the data being read. 
+
+For the reader familiar with the Intel 8080, note that the parity flag in 
+the 8080 is used exclusively as such. In the case of the Z80, it is used for 
+several additional functions. This flag should therefore be handled with 
+care when going from one of the microprocessors to the other. 
+
+In the case of the Z80, the second essential use of this flag is as an 
+overflow flag (not available in the 8080). The overflow flag has been de- 
+scribed in Chapter 1, when the two’s complement notation was intro- 
+duced. [t detects the fact that, during an addition or subtraction, the 
+sign of the result is‘‘accidentally’’*changed due to the overflow of the 
+result into the sign bit. (Recall that, using an eight-bit representation, 
+the largest positive number is + 127, and the smallest negative number 
+is ~ 128 in two’s complement.) 
+
+Finally, this bit is also used, in the case of the Z80, for two unrelated 
+functions. 
+
+During the block transfer instructions (LDD, LDDR, LDI, LDIR), 
+and during the search instructions (CPD, CPDR, CPI, CPIR), this flag 
+is. used to detect whether the counter register B has attained the value 
+“0, With decrementing instructions, this flag is reset to ‘‘O’’ if the 
+byte counter register pair is ‘0’. When incrementing, it is set if BC — | 
+= Oat the beginning of the instruction, i.e., if BC will be decremented 
+
+
+to ‘‘0’’ by the instruction. . 
+Finally, when executing the two special instructions LD A,I and LD 
+
+
+A,R, the P/V flag reflects the value of the interrupt enable flip-flop 
+(IFF2). This feature can be used to preserve or test this value. 
+
+The P flag is affected by: AND s; OR s; XOR s; RL m; RLC m; RR m; 
+RRC m; SLA m; SRAm; SRL m; RLD; RRD; DAA; IN r,(C). 
+
+The V flag is affected by: ADD A,s; ADC A,s;SUB s; SBC A,s;CP s: 
+NEG; INC s; DEC m; ADC HL,ss; SBC HL, ss; NEG. 
+
+It is also used by: LDIR; LDDR (set to ‘‘0’’); LDI; LDD; CPI; 
+CPIR; CPD; CPDR. 
+
+
+The Haif-Carry Flag (H) 
+
+
+The half-carry flag indicates a possible carry from bit 3 into bit 4 dur- 
+ing an arithmetic operation. In other words, it represents the carry from 
+
+
+176 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+the low-order nibble (group of 4 bits) into the high order one. Clearly, it 
+is primarily used for BCD operations, In particular, it is used internally 
+within the microprocessor by the Decimal Adjust Accumulator (DAA) 
+instruction in order to adjust the result to its correct value. 
+
+This flag will be set during an addition when there is a carry from bit 
+3 to bit 4 and reset when there is no carry. Conversely, during a subtract 
+operation, it will be set if there is a borrow from bit 4 to bit 3, and reset 
+if there is no borrow. 
+
+The flag will be conditioned by addition, subtraction, increment, 
+decrement, comparisons, and logical operations. 
+
+Instructions which affect the H bit are: ADD A,r ; ADD A,s; SUB s; 
+SBC A,s; CP s; NEG; AND s; OR s; XOR s; INC s; DEC m; RLA; 
+RLCA; RRA; RRCA; RL m; RLC m; RR m; RRC m; SLA m; SR m; 
+SRL m; RLD; RRD; DAA; CPL; SCF; INr,(C); LDI; LLD; LDIR; 
+LDDR; LD A; LD A,r; BIT b,r; NEGs; 
+
+Note that the H bit is not affected by the 16-bit add and subtract in- 
+structions. 
+
+
+zero (Z) 
+
+
+The Z flag is used to indicate whether the value of a byte which has 
+been computed, or is being transferred, is zero. It is also used with com- 
+parison instructions to indicate a match, and for other miscellaneous 
+functions. 
+
+In the case of an operation resulting in a zero result, or of a data 
+transfer, the Z bit is set to ‘‘1’’ whenever the byte is zero. Z is reset to 
+“*Q’’ otherwise. 
+
+In the case of comparison instructions, the Z bit is set to ‘‘1’’ when- 
+ever the comparison succeeds and to ‘*0’’ otherwise. 
+
+Additionally, in the case of the Z80, it is used for three more functions: 
+it is used with the BIT instruction to indicate the value of a bit being 
+tested. It is set to ‘‘1’’ if the specified bit is ‘‘0’’ and reset otherwise. 
+
+With the special ‘‘block input-output instructions’’ (INI, IND, 
+OUTI, OUTD), the Z flag is set if B — 1 = 0, and reset otherwise; it is 
+set if the byte counter will decrement to ‘‘0’’ (INIR, INDR, OTIR, 
+OTDR). 
+
+Finally, with the special instructions IN r,(C), the Z flag is set to ‘‘1”’ 
+to indicate that the input byte has the value ‘‘0’’. 
+
+In summary, the following instructions condition the value of the Z 
+bit: ADD A,s; ADC A,s;SUB s; SBC A,s: CP s; NEG; AND s; OR s; 
+XOR s; INC s; DEC m; ADC HL, ss; SBC HL,ss; RL m; RLC m; 
+
+
+177 
+
+
+PROGRAMMING THE Z80 
+
+
+RR m; RRC m; SLA m; SRA m; SRL m; RLD; RRD; DAA; IN r,(C); 
+INI; IND; OUTI; OUTD; INIR; INDR: OTIR; OTDR; CPI; CPIR; 
+CPD; CPDR; LDA,I; LD A,r; BIT bys: NEGs. 
+
+Usual instructions which do not affect the Z bit are: ADD DD,ss; 
+RLA; RLCA; RRA; RRCA; CPL; SCF; CCF; LDI; LDD; LDIR; 
+LDDR; INC DD; DEC DD. 
+
+
+Sign (S) 
+
+
+This flag reflects the value of the most significant bit of a result or of 
+a byte being transferred (bit seven). In two’s complement notation, the 
+most significant bit is used to represent the sign. ‘‘0’’ indicates a posi- 
+tive number and a ‘‘1’* indicates a negative number. As a result, bit 
+seven is called the sign bit. 
+
+In the case of most microprocessors, the sign bit plays an important 
+role when communicating with input/output devices. Most micropro- 
+cessors are not equipped with a BIT instruction for testing the contents 
+of any bits in a register or the memory. Asa result, the sign bit is usual- 
+ly the most convenient bit to test. When examining the status of an in- 
+put/output device, reading the status register will automatically condi- 
+tion the sign bit, which will be set to the value of bit seven of the status 
+register. It can then be tested conveniently by the program. This is why 
+the status register of most input/output chips connected to micropro- 
+cessor systems have their most important indicator (usually ready/not 
+ready) in bit position seven. 
+
+A special BIT instruction is provided in the case of the Z80. 
+However, in order to test a memory location (which may be the address 
+of an I/O status register), the address must first be loaded into registers 
+IX, IY or HL. There is no bit instruction provided to test a specified 
+memory address directly (i.e., no direct addressing mode for this in- 
+struction). The value of positioning an input/output ready flag in bit 
+position seven, therefore, remains intact, even in the case of the Z80. 
+
+Finally, the sign flag is used by the special instruction IN, (C) to in- 
+dicate the sign of the data being read. 
+
+Instructions which affect the sign bit are: ADD A,s; SUBs; SBC A,s; 
+CP s; NEG; AND s; OR s; XOR s; INC s; DEC m; ADC HL, ss; SBC 
+HL, ss; RLm; RLC m; RR m; RRC m; SLA m; SRA m;SRLm; RLD; 
+RRD; DAA; IN r,(C); CPR; CPIR; CPD; CPDR; LD A,I; LDA,r; 
+NEG. 
+
+
+178 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Summary of the Flags 
+
+
+The flag bits are used to automatically detect special conditions with- 
+in the ALU of the microprocessor. They can be conveniently tested by 
+specialized instructions, so that specific action can be taken in response 
+to the condition detected. It is important to understand the role of the 
+various indicators available, since most decisions taken within the pro- 
+gram will be taken in function of these flag bits. All jumps executed 
+within a program will jump to specified locations depending on the 
+status of these flags. The only exception involves the interrupt 
+mechanism, which will be described in the chapter on input/output and 
+may cause jumping to specific locations whenever a hardware signal is 
+received on specialized pins of the Z80. 
+
+At this point, it is only necessary to remember the main function of 
+each of these bits. When programming, the reader can refer to the de- 
+scription of the instructions in the Appendix section of the book to 
+verify the effect of every instruction of the various flags. Most flags can 
+be ignored most of the time, and the reader who is not yet familiar with 
+them should not feel intimidated by their apparent complexity. Their 
+use will become clearer as we examine more application programs. 
+
+A summary of the six flags and the way they are set or reset by the 
+various instructions is shown in Figure 4.17. 
+
+
+The Jump Instructions 
+
+
+A branch instruction is an instruction which causes a forced bran- 
+ching to a specified program address. It changes the normal flow of 
+execution of the program from a sequential mode into one where a dif- 
+ferent segment of the program is suddenly executed. Jumps may be 
+conditional or unconditional. An unconditional jump is one in which 
+the branching occurs to a specific address, regardless of any other con- 
+dition. 
+
+A conditional jump is one which occurs to a specific address only if 
+one or more conditions are met. This is the type of jump instruction 
+used to make decisions based upon data or computed results. 
+
+In order to explain the conditional jump instructions, it is necessary 
+to understand the role of the flags register, since all branching decisions 
+are based upon these flags. This was the purpose of the preceding sec- 
+tion. We can now examine in more detail the jump instructions pro- 
+vided by the Z80. 
+
+Two main types of jump instructions are provided: jump instructions 
+within the main program (they are called ‘‘jumps’’), and the special 
+
+
+179 
+
+
+PROGRAMMING THE Z80 
+
+
+180 
+
+
+INSTRUCTION BEMEon COMMENTS 
+
+
+ADO A. 3; ADC As 8-bit add or add with carry 
+SUG 5; SBC A. +, CPs, NEG 8-bit subtract, subtract with 
+carry, compare and 
+negate accumulator 
+
+
+AND s 0 P ofl Logical operations 
+
+OR 3; XOR 3 0 P Oo] 0 And sets different flags 
+INC s e v ay: 8-bit increment 
+
+DEC m ° Vv 1 8-bit decrement 
+
+ADD OO, ss rf e Ootx 16-bit add 
+
+AGC Hi, ss H v o|x 18-bit add with carry 
+
+SAC HL, ss : Vv 1|x 16-bit subtract with carry 
+RLA; ALCA, RRA. ARCA H . o;0a Rotate accumulator 
+
+RAUL m:ALCm; Ram; RACm! * P o;0 Rotate and shift jocation m 
+
+
+SLA m: SAA m; SEL m 
+
+
+ALD, RRO ° P a|]oa Ratate digit left and right 
+DAA ! e eit Decimal adjust accumulator 
+CPL e e im! Complement accumulator 
+scr 1 . afta Set carry 
+
+ccr I o ajx Complement carry 
+
+iN r, (C) e P Q;o Input register indirect 
+
+INI; INO; OUTI: OUTD e x 14x | Block input and output 
+INIR; INOR; OTIA; OTOR e x TEx Z=0.f68 #0 otherwise Z 21 
+Loi, LOD . t 0;9 Btock transter instructions 
+LOR, LDOA e Vy oto I PIV = 11fF BC + 9, otherwise 
+
+
+PIV =0 
+Block search inscructions 
+227d A= (HL, 
+otherwise Z = 0 
+Piv=1i58BC +0, 
+otherwise P/V = 0 
+The content of the interrupt 
+enable flip-flop (LFF) ss 
+copied inte the P/V flag 
+The complement of bit b of 
+Jocation 1s COmed into the 
+2 flag 
+Negate accumulator 
+
+
+= 
+m4 
+
+
+CPi, CPIR, CPD, CPOR 
+
+
+LD 4,1;LD A, A 
+
+
+BIT b, + 
+
+
+NEG 
+
+
+Fhe following notation 1s used in thie table: 
+
+
+SYMBOL OPERATION 
+
+c Carry/link flag. C1 if the operation produced a carry from the MSB of the operand or resuit. 
+z Zera flag, Z=1 if the rasult of the opsration is zero. 
+
+$8 Sign Mag. S=1 if tha MSE of the result 1 one. 
+
+
+Pry Parity of overflow flag, Parity (P) and overflow (V} share the same flag. Logical operatians 
+affect this flag with the parity of the result while arithmetic operations affect this flag with 
+the overfiow of the tasult. If P/V holds pacity, P/V=1 if the result of the operation is even. 
+P/V=0 cf reqult 1s odd. 1f P/V holds overflow, P/V=1 if the result af the operation produced 
+an overflow. 
+
+
+H Helf-cerry flag. He 1 if the add or subtract opersticn produced a carry inte of borrow from 
+bit 4 of the accumufator, 
+N Add/Subtract fiag, Net cf the previous operation was a subtract. 
+
+
+H aad N flags are used in conjunction with the decimal adjust instruction (DAA) to properly 
+correct the result into packed BCD format lollow:ng addition or rubtraction using aperands 
+with packed BCD format, 
+
+
+: The flag 1s affected according to the result of tha operation. 
+
+° The tlag 11 unchanged by tha operation. 
+
+0 The flag 1 reset by the operavan. 
+
+1 The flag 1s se1 by the operation. 
+
+x The tlag ts » “don’t care.“ 
+
+Vv P/V flag affected according ta the overflow result of the operation. 
+
+Pp P/V tlag affected according to the parity result of the operation. 
+
+r Any one of the CPU registers A,B,C, DO, E, H, Lb. 
+
+ry Any 98-bit focation for all the addressing modes allowed for the particular instruction. 
+33 Any 16-bit location for all the addressing mades alowed for that instruction. 
+
+it Any one of the two index registers (X or IY. 
+
+R Refrash counter. 
+
+c] 8-bit value is range <0, 255> 
+
+An 16-bit value sn rangs <0, 65535> 
+
+m Any dit Jocation for all the addressing modes allowed for the particular instruction. 
+
+
+Fig. 4.17; Summary of Fiag Operation 
+
+
+Courtesy of Zilog, Inc 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+type of branch instructions used to jump to a subroutine and to return 
+from it (‘‘call’’ and ‘‘return’’). As a result of any jump instruction, the 
+program counter PC will be reloaded with a new address, and the usual 
+program execution will resume from this point on. The full power of 
+the various jump instructions can be understood only in the context of 
+the various addressing modes provided by the microprocessor. This 
+part of the discussion will be deferred until the next chapter, where the 
+addressing modes are discussed. We will only consider here the other 
+aspects of these instructions. 
+
+Jumps may be unconditional (branching to a specified memory ad- 
+dress) or else conditional. In the case of a conditional jump, one of four 
+flag bits may be tested. They are the Z, C, P/V, and S flags. Each of 
+them may be tested for the value ‘‘0”’ or ‘‘1’’. 
+
+The corresponding abbreviations are: 
+
+
+Z = zero (Z = 1) 
+
+NZ = non zero (Z = 0) 
+C = carry(C = 1) 
+NC= no carry (0 = C) 
+PO= odd parity 
+
+PE = even parity 
+
+P positive (S = 0) 
+M = minus (8 = I) 
+
+
+In addition, a special combination instruction is available in the Z80 
+which will decrement the B register and jump to a specified memory ad- 
+dress as long as it is not zero. This is a powerful instruction used to ter- 
+minate a loop, and it has already been used several times in the prevous 
+chapter: it is the DJNZ instruction. 
+
+Similarly, the CALL and the RET (return) instructions may be condi- 
+tional or unconditional. They test the same flags as the branch instruc- 
+tion which we have already described. 
+
+The availability of conditional branches is a powerful resource in a 
+computer and is generally not provided on other eight-bit micropro- 
+cessors. It improves the efficiency of programs by implementing in a 
+single instruction what requires two instructions otherwise. 
+
+Finally, two special return instructions have been provided in the case 
+of interrupt routines. They are RET] and RETN. They will be described 
+in the section of Chapter 6 on interrupts. 
+
+The addressing modes and the opcodes for the various branches 
+available are shown in Figure 4,18. 
+
+
+181 
+
+
+PROGRAMMING THE Z80 
+
+
+CONDITION 
+
+
+NON 
+COND. | CARRY! CARRY) ZEAQ 
+
+
+DECREMENT B. 
+SUMP IF NON 
+ZEAG ‘BJNZ’ 
+
+
+RETURN REGISTER } isPl 
+
+“ReT’ INDIR, (SP+t) 
+RETURN FROM ( 
+INT ‘RET { 
+
+
+RETURN FROM 
+NON MASKABLE 
+INT ‘RETN’ 
+
+
+Fig. 4.18: Jump Instructions 
+
+
+A detailed discussion of the various addressing modes is presented 
+in Chapter 5. 
+
+By examining Figure 4.18, it becomes apparent that many ad- 
+dressing modes are restricted. For example, the absolute jump JP nn 
+can test four flags, while JR can only test two flags. 
+
+Note an important observation: JR tends to be used whenever 
+possible as it is shorter than JP (one less byte) and facilitates program 
+relocation. However, JR and JP are not interchangeable: JR cannot 
+test the parity or the sign flags. 
+
+
+182 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+One more type of specialized branch is available; this is the restart or 
+RST instruction. It is a one-byte instruction which allows jumping to 
+any one of eight starting addresses at the low end of the memory. Its 
+starting addresses are, in decimal, 0, 8, 16, 24, 32, 40, 48 and 56. Itisa 
+powerful instruction because it is implemented in a single byte. It is the 
+fastest branch that can be used, and for this reason, is used essentially 
+to respond to interrupts. However, it is also available to the program- 
+mer for other uses. A summary of the opcodes for this instruction is 
+shown in Figure 4.19. 
+
+
+“RST O° 
+
+“RST 8° 
+“AST 16° 
+"RST 24’ 
+
+
+‘RST 32’ 
+
+
+Cc 
+A 
+i 
+L 
+A 
+D 
+D 
+R 
+E 
+$ 
+& 
+
+
+‘RST 40° 
+
+
+‘RST 48° 
+
+
+“RST 56’ 
+
+
+Fig. 4.19: Restart Group 
+
+
+Input/Output Instructions 
+
+
+Input/output techniques will be described in detail in Chapter 6. 
+Simply, input/output devices may be addressed in two ways: as 
+memory locations, using any one of the instructions that have already 
+
+
+183 
+
+
+PROGRAMMING THE Z80 
+
+
+been described, or using specific input/output instructions. Usual 
+memory addressing instructions use three bytes: one byte for the op- 
+code and two bytes for the address. As a result, they are slow to ex- 
+ecute, since they require three memory accesses. The main purpose of 
+specialized input/output instructions is to provide shorter and, 
+therefore faster, instructions. However, input/output instructions have 
+two disadvantages. 
+
+First, they ‘‘waste’’ several of the precious few opcodes available 
+(since usually only 8 bits are used to supply all opcodes necessary for a 
+microprocessor). Secondly, they require the generation of one or more 
+specialized input/output signals, and therefore ‘‘waste’’ one or more of 
+the few pins available in the microprocessor. The number of pins is 
+usually limited to 40. Because of these possible disadvantages, specific 
+input/output instructions are not provided on most microprocessors. 
+They are, however, provided on the original 8080 (the first powerful 
+eight-bit general-purpose microprocessor introduced) and on the Z80, 
+which we know is compatible with the 8080. 
+
+The advantage of input/output instructions is to execute faster by re- 
+quiring only two bytes. However, a similar result can be obtained by 
+supplying a special addressing mode called ‘‘page 0”’ addressing, where 
+the address is limited to a fieid of eight bits. This solution is often 
+chosen in other microprocessors. 
+
+The two basic input/output instructions are IN and OUT. They 
+transfer either the contents of the specified 1/O locations into any of 
+the working registers or the contents of the register into the 1/O device. 
+They are naturally two bytes long. The first byte is reserved for the op- 
+code, the second byte of the instruction forms the low part of the ad- 
+dress. The accumulator is used to supply the upper part of the address. 
+It is therefore possible to select one of the 64K devices. However, this 
+requires that the accumulator be loaded with the appropriate contents 
+every time, and this may slow the execution. 
+
+In the register-interrupt mode, whose format is IN r, (C), the register 
+pair B and C is used as a pointer to the 1/O device. The contents of B 
+are placed on the high-order part of the address bus. The contents of 
+the specified I/O device are then loaded into the register designated by 
+r 
+
+Additionally, the Z80 provides a register-indirect mode, plus four 
+specialized block-transfer instructions for input and output. 
+
+The same applies to the OUT instruction. 
+
+The four block-transfer instructions on input are: INI, INIR 
+(repeated IND, IND and INDR (repeated IND). Similarly, on output, 
+
+
+184 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+they are: OUTI, OUTIR, OUTD, and OUTDR. 
+
+In this automated block transfer, the register pair H and L is used as 
+a destination pointer. Register C is used as the I/O device selector (one 
+out of 256 devices). In the case of the output instruction, H and L point 
+to the destination. Register B is used as a counter and can be incre- 
+mented or decremented. The corresponding instructions on input are 
+INI when incrementing and IND when decrementing. 
+
+INI is an automated single-byte transfer. Register C selects the input 
+device. A byte is read from the device and is transferred to the memory 
+address pointed to by H and L. H and L are then incremented by 1, and 
+the counter B is decremented by 1. 
+
+INIR is the same instruction, automated, It is executed repeatedly 
+until the counter decrements to ‘‘0’*. Thus, up to 256 bytes may be 
+transferred automatically. Note that to achieve a total transfer of exact- 
+ly 256, register B should be set to the value ‘‘0’’ prior to executing this 
+instruction. 
+
+The opcodes for the input and output instructions are summarized in 
+Figures 4.20 and 4.21. 
+
+
+Control Instructions 
+
+
+Control instructions are instructions which modify the operating 
+mode of the CPU or manipulate its internal status information. Seven 
+such instructions are provided. 
+
+The NOP instruction is a no-operation instruction which does 
+nothing for one cycle. It is typically used either to introduce a deliberate 
+delay (4 states = 2 microseconds with a 2MHz clock), or to fill the gaps 
+created in a program during the debugging phase. In order to facilitate 
+program debugging, the opcode for the NOP is traditionally all 0’s. 
+This is because, at execution time, the memory is often cleared, i.e., all 
+0’s. Executing NOP’s is guaranteed to cause no damage and will not 
+stop the program execution, 
+
+The HALT instruction is used in conjunction with interrupts or a 
+reset. It actually suspends the operation of the CPU. The CPU will then 
+resume operation whenever either an interrupt or a reset signal is re- 
+ceived. In this mode, the CPU keeps executing NOP’s. A halt is often 
+placed at the end of programs during the debugging phase, as there is 
+usually nothing else to be done by the main program. The program 
+must then be explicitly restarted. 
+
+Two specialized instructions are used to disable and enable the inter- 
+nal interrupt flag. They are EI and DI. Interrupts will be described in 
+
+
+185 
+
+
+PROGRAMMING THE Z80 
+
+
+SOURCE 
+
+
+REGISTER 
+
+
+‘QUTI" — OUTPUT 
+Ine HL, Decd 
+
+
+TIA’ — OUTPUT, Inc HL, 
+
+Dec 8, REPEAT IF B70 
+
+‘OUTD’ — OUTPUT ED 
+Dec HL& B AB 
+‘OTOR’ — OUTPUT, Dac HL ED 
+& B, REPEAT IF 60 BB 
+
+Nee er” 
+PORT 
+
+
+DESTINATION 
+ADDRESS 
+
+
+Fig. 4.20: Output Group 
+
+
+SOURCE 
+PORT ADDRESS 
+
+
+INPUT ‘IN’ 
+
+
+a 
+E 
+G 
+A 
+*) 
+o 
+a] 
+€ 
+3 
+
+$ 
+
+¢ 
+
+N 
+6 
+
+
+INPUT 
+DESTINATION 
+
+
+BLOCK INPUT 
+COMMANDS 
+
+
+“INOR’~INPUT Dec He. 
+Oen 8. AEPEAT IF Bed 
+
+
+Fig. 4.21: Input Group 
+
+
+186 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Chapter 6. The interrupt flag is used to authorize or not authorize the 
+interruption of a program. To prevent interrupts from occurring during 
+any specific portion of a program, the interrupt flip-flop (flag) may be 
+disabled by this instruction. It will be used in Chapter 6. These in- 
+structions are shown in Figure 4.22. 
+
+
+‘HALT . 
+DISABLE INT “(DIY | 
+ENABLE INT ‘(El)’ 
+SET iNT MODE 0 ED 
+46 
+
+SET INT MODE 1 
+
+M1" 
+SET INT MODE 2 
+
+"WMn2" 
+
+
+Fig. 4.22: Miscellaneous CPU Control 
+
+
+g080A MODE 
+
+
+CALL TO LOCATION 0038,, 
+
+
+INDIRECT CALL USING REGISTER 
+FAND § BITS FROM INTERRUPTING 
+DEVICE AS A POINTER. 
+
+
+Finally, three interrupt modes are provided in the Z80, (Only one is 
+available on the 8080). Interrupt mode 0 is the 8080 mode, interrupt | is 
+a call to location 038H, and interrupt mode 2 is an indirect call which 
+uses the contents of the special register 1, plus 8 bits provided by the in- 
+terrupting device as a pointer in the memory to the interrupt routine. 
+These modes will be explained in Chapter 6. 
+
+Finally, special pins on the Z80 will trigger an interrupt mechanism 
+which will also be explained in Chapter 6. They are the IRQ and the 
+NMI pins. 
+
+
+187 
+
+
+PROGRAMMING THE Z80 
+
+
+SUMMARY 
+
+
+The five categories of instructions available on the Z80 have now 
+been described. The details on individual instructions are supplied in 
+the following section of the book. It is not necessary to understand the 
+role of each instruction in order to start to program. The knowledge of 
+a few essential instructions of each type is sufficient at the beginning. 
+However, as you begin to write programs by yourself, you should learn 
+about all the instructions of the Z80 if you want to write good pro- 
+grams. Naturally, at the beginning, efficiency is not important, and this 
+is why most instructions can be ignored. 
+
+One important aspect has not yet been described. This is the set of 
+addressing techniques implemented on the Z80 to facilitate the retrieval 
+of data within the memory space. These addressing techniques will be 
+studied in the next chapter. 
+
+
+188 
+
+
+THE 280 INSTRUCTION SET 
+
+
+THE Z80 INSTRUCTIONS: INDIVIDUAL DESCRIPTION 
+
+
+ABBREVIATIONS 
+
+
+C (carry) NC (no carry) 
+M (minus) P (plus) 
+
+
+Z (zero) NZ (non zero) 
+PE (even) PO (odd) 
+
+
+changed according to operation 
+
+flag is set to zero 
+
+flag is set to one 
+
+flag is set randomly by operation 
+
+special case, see accompanying note on that page 
+
+
+x ~-0®@ 
+
+
+bit positions 3 and 5 are always random 
+
+
+189 
+
+
+PROGRAMMING THE Z80 
+
+
+ADC A, 
+
+
+Function: 
+
+
+Format: 
+
+
+190 
+
+
+Ss 
+
+
+(HL) 
+
+
+(IX + d) 
+
+
+(IY + d) 
+
+
+Add accumulator and specified operand with 
+carry. 
+
+
+AtTAFsS+C 
+
+
+s:; may ber, n, (HL),(1X + d), or (LY + d) 
+
+
+byte 1: CE 
+
+
+byte 2: immediate 
+data 
+
+
+co 
+
+
+E 
+
+byte 1: DD 
+
+byte 2: 8E 
+
+byte 3: offset value 
+byte 1: FD 
+
+
+byte 2: 8E 
+
+
+byte 3: offset value 
+
+
+r may be any one of: 
+
+
+A - Ill E —- 011 
+B — 000 H — 100 
+C — 001 L — 101 
+D — 010 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Description: The operand s and the carry flag C from the status 
+register are added to the accumulator, and the 
+result is stored in the accumulator. s is defined in 
+the description of the similar ADD instructions. 
+
+
+Data Flow: 
+
+
+Addressing Mode: 1: implicit; n: immediate; (HL): indirect; (IX + 
+d), (LY + d): indexed. 
+
+
+A B C DE HL 
+or [oJ] es [9] ec] 
+Flags: S H PON C 
+
+
+ele] le] lelcle 
+
+
+Example: ADC A,IA 
+
+
+Byte Codes: ADC Ay s«: 
+
+
+Before: After: 
+
+
+| CE 
+a 
+
+
+OBJECT CODE 
+
+
+191 
+
+
+PROGRAMMING THE Z80 
+
+
+ADC HL,ss Add with carry HL and register pair ss. 
+
+
+Function: HL<« HL +ss8 + C 
+
+
+Format: 
+iy tt fotefifo] st} — byte 1: ED 
+ofits sft fotifo| — byte2 
+
+
+Description: The contents of the HL register pair are added to 
+the contents of the specified register pair, and then 
+the contents of the carry flag are added. The final 
+result is stored back in HL. ss may be any one of: 
+
+
+BC — 00 HL — 10 
+DE — 01 SP - 11 
+
+
+Data Flow: 
+
+
+Timing: 4M cycles; 15 T states: 75 usec @ 2 MHz 
+Addressing Mode: Implicit. 
+
+
+Byte Codes: Ss! BC DE HL SP 
+
+
+§ 
+eo-[enfsa] on] 
+
+
+192 
+
+
+Flags: 
+
+
+Example: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+ee, le le(ole 
+
+
+HH is set if there is a carry from bit 11. 
+
+
+ADC HL, DE 
+
+Before: After: 
+a 
+H[ soils ee k<(C Hy I YYyv. 
+
+
+193 
+
+
+PROGRAMMING THE Z80 
+
+
+ADD A, (HL) Add accumulator with indirectly addressed 
+
+
+memory location (HL). 
+
+Function: A<«-A + (HL) 
+
+Format: 
+ttojofefoj i fo] 86 
+
+Description: The contents of the accumulator are added to the 
+contents of the memory location addressed by the 
+HL register pair. The result is stored in the ac- 
+cumulator. 
+
+Data Flow: 
+
+
+A 
+
+
+HLT "MEMORY 
+
+
+Timing: 2M cycles; 7 T states: 3.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: 
+
+
+ele le, eicle. 
+
+
+194 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+ADD A, (HL) 
+Before: After 
+aL_ oa \ WSU 
+a | 
+ssn0[ ar | 220 [81 
+yo \—~__] 
+
+
+195 
+
+
+PROGRAMMING THE Z80 
+
+
+ADD A, (IX + d) Add accumulator with indexed addressed 
+memory location (IX + d) 
+
+
+Function: Aj A + (IX + d) 
+
+
+Format: 
+
+
+ype fifi foli} byte t: pp 
+
+
+L'tofotofolt |} oe} byte 2: 86 
+byte 3: offset value 
+
+
+Description: The contents of the accumulator are added to the 
+contents of the memory location addressed by the 
+contents of the IX register plus the immediate off- 
+set value. The result is stored in the accumulator. 
+
+
+Data ~—=—I 
+
+
+— 
+) 
+HL 
+
+
+Timing: 5 M cycles; 19 T states: 9.5 usec @ 2 MHz 
+
+
+Addressing Mode; (Indexed. 
+
+
+Flags: 
+
+
+ele [el le(ole 
+
+
+196 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Example: ADD A, (IX + 3) 
+Before: After 
+
+af] VEU 
+[| oD OBGi| 04 opsi| 04 
+a6 op62{ 82 op62{ B2 
+ee) ee oBsa| 36 
+~~ ops] on ona, ol 
+OBJECT CODE I~) I~) 
+
+
+197 
+
+
+PROGRAMMING THE Z80 
+
+
+ADD A, (TY + d) Add accumulator with indexed addressed 
+memory location (LY + d) 
+
+
+Function: A<-A + (IY + d) 
+
+
+Forimat: 
+
+
+rete feet i fi foli] byte t: FD 
+
+
+Fi fofojoloj1|1[o| byte 2: 86 
+byte 3: offset value 
+
+
+Description: The contents of the accumulator are added to the 
+contents of the memory location addressed by the 
+contents of the 1Y register plus the given offset 
+value. The result is stored in the accumulator. 
+
+
+Data Flow: 
+
+
+Timing: 5 M cycles: 19 T states; 9.5 usec @ 2 MHz 
+Addressing Mode: indexed. 
+
+
+Flags: 5 H PAN C 
+
+
+OOsIOEOEO 
+
+
+198 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Example: ADD A, (1¥ +1) 
+Before: After 
+
+| FD oo | rt 
+|e o02c 002¢ 
+po ~__] y—~_] 
+| 
+
+OBJECT 
+
+CODE 
+
+
+199 
+
+
+PROGRAMMING THE Z80 
+
+
+ADD A,n Add accumulator with immediate data n. 
+Function: A«+Adz+n 
+Format: 
+
+
+tj fofojo] i]: jo] byte 1: C6 
+
+
+byte 2: immediate 
+data 
+
+
+n 
+
+
+Description: The contents of the accumulator are added to the 
+contents of the memory location immediately 
+following the op code. The result is stored in the 
+accumulator. 
+
+
+Data Flow: 
+
+
+[nee 
+
+
+MEMORY 
+
+
+Timing: 2M cycles; 7 T states: 3.5 usec @ 2 MHz 
+Addressing Mode: Immediate. 
+
+
+Flags: s H PPON C 
+
+
+OOsOsOOO 
+
+
+Example: ADD A, E2 
+
+
+Before: After: 
+
+
+( ala] _ GEE 
+|e? 
+| 
+
+
+OBJECT CODE 
+
+
+200 
+
+
+THE 280 INSTRUCTION SET 
+
+
+ADD A,r Add accumulator with register r. 
+Function: A+~Adrtr 
+Format: 
+
+
+Lt fojojo}oj—re— 
+
+
+Description: The contents of the accumulator are added with 
+the contents of the specified register. The result is 
+placed in the accumulator. r may be any one of: 
+
+
+A - lil E — Oil 
+B — 000 H — 100 
+Cc — 001 L - 101 
+D — 010 
+
+
+Data Flow: 
+
+
+Timing: 1 Mcycle; 4 T states: 2 usec @ 2 MHz. 
+
+
+Addressing Mode: Implicit. 
+
+
+Byte Codes: : 4 8 C DE HL 
+7 | 20] ar [62 [9s [4 [05 | 
+Flags: S PyWN Cc 
+
+
+OOmOEOO 
+
+
+201 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: ADD A,B 
+Before: 
+a 
+
+SS ee 
+
+
+OBJECT CODE 
+
+
+202 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+ADD HL, ss Add HL and register pair ss. 
+
+
+Function: HL <- HL + ss 
+
+
+Format: 
+
+
+Description: The contents of the specified register pair are 
+added to the contents of the HL register pair and 
+the result is stored in HL. ss may be any one of: 
+
+
+BC — 00 HL — 10 
+DE — Ol SP - 1] 
+
+
+Data Flow: 
+
+
+Timing: 3 M cycles; 11 T states: 5.5 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Byte Codes: Ss: BC DE HL SP 
+09 | 19] 29] 39| 
+Flags: S piv NC 
+
+
+PT Lec] fo 
+
+
+C is set by carry from bit 15, reset otherwise. 
+His set by a carry from bit 11 
+
+
+203 . 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: 
+
+
+204 
+
+
+H 
+
+
+ADD HL, HL 
+
+
+Before: 
+
+
+06B1 
+
+
+L 
+
+
+After: 
+
+
+4 MME? WM 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+ADD IX, rr Add IX with register pair rr. 
+Function: IX <— IX + rr 
+Format: 
+
+
+itr fofi} {sol | byte 1; pp 
+fofofe + [1] oo] t|byte2 
+
+
+Description: The contents of the [IX register are added to the 
+contents of the specified register pair and the 
+result is stored back in IX. rr may be anyone of: 
+
+
+BC — 00 IX — 10 
+DE —- 01 SP - 11 
+Data Flow: 
+Timing: 4M cycles; 15 T states: 7.5 usec @ 2 MHz 
+
+
+Addressing Mode: \mplicit. 
+
+
+Byte Codes: rr: _BC DE IX SP 
+
+
+DD- [08 | 19 | 29 | 39| 
+
+
+205 
+
+
+PROGRAMMING THE Z80 
+
+
+Flag Ss! PV N C 
+
+
+-1 Le lole 
+
+
+H is set by carry out of bit 11. 
+C is set by carry from bit 15, 
+
+
+Example: ADD IX, SP 
+
+Before: After: 
+( ix(__ 00 |) i OYWEEYVVIII 
+Lr | 
+
+
+OBJECT 
+CODE 
+
+
+206 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+ADDIY, rr Add IY and register pair rr. 
+Function: W+«-fY + cr 
+Forniat: 
+
+
+utata{rfrf sol «| byte 1: FD 
+fofole +] t{olo| 1 {byte2 
+
+
+Description: The contents of the IY register are added to the 
+contents of the specified register pair and the 
+result is stored back in IY. rr may be any one of: 
+
+
+BC — 00 ly — 10 
+DE — Ol SP - 11 
+Data Flow: 
+Timing: 4M cycles; 15 T states: 7.5 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Byte Codes: rr: BC DE IY SP 
+
+
+Fo- | 09] 19] 29| 29] 
+
+
+207 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT 
+CODE 
+
+
+208 
+
+
+3 PV N C 
+
+
+“TT eI [ole 
+
+
+H is set by carry out of bit 11. 
+C is set by carry out of bit 15. 
+
+
+ADD IY, DE 
+
+
+Before: After: 
+
+
+AND s 
+
+
+Function: 
+
+
+Format: 
+
+
+(HL) 
+
+
+(IX + d) 
+
+
+(IY + d) 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Logical and accumulator with operand s. 
+
+
+As+AAS 
+Ss: may ber, n, (HL), (EX + d), or TY + d) 
+
+
+byte 1: E6 
+
+
+byte 2: immediate 
+data 
+
+
+6 
+
+
+\o 
+
+
+byte 1: DD 
+
+byte 2: 96 
+
+byte 3: offset value 
+byte 1: FD 
+
+
+| o| byte 2: 96 
+
+
+byte 3: offset value 
+
+
+r may be any one of: 
+
+
+Description: 
+
+
+A - 111 E — 011 
+B — 000 H — 100 
+Cc - oll L — 101 
+D ~ 010 
+
+
+The accumulator and the specified operand are 
+logically ‘and’ed and the result is stored in the ac- 
+cumulator. s is defined in the description of the 
+similar ADD instructions. 
+
+
+209 
+
+
+PROGRAMMING THE Z80 
+
+
+Data Flow: 
+
+
+— 
+
+
+Timing: 
+
+
+Addressing Mode: 1: implicit; n: immediate; (HL): indirect; (EX + 
+d), ([Y + d): indexed. 
+
+
+Byte Codes: AND r cA BC DE HL 
+or [aoa [a2] as acs 
+Flags: 
+
+
+S$ Z H Cv n c 
+jeje] i} jelojo) 
+
+
+Example: AND 4B 
+Before: After: 
+A MERU 
+| 
+| 4B 
+OBJECT 
+CODE 
+
+
+210 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+BIT b, (HL) Test bit b of indirectly addressed memory location 
+(HL) 
+Function: Z ~ (HL), 
+Format: 
+fe fofof: fo [i |] byte 1: cp 
+pot fey] | Jo] byte2 
+Description: The specified bit of the memory location address- 
+ed by the contents of the HL register pair is tested 
+and the Z flag is set according to the result. b may 
+be any one of: 
+0 — 000 4 — 100 
+1 — 001 5 — 101 
+2 — 010 6 — 110 
+3 - O11 7 Wil 
+Data Flow: 
+A 
+B | 
+of | _fe 
+Ss | 
+
+
+Timing: 
+
+
+3 M cycles; 12 T states; 6 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: 
+
+
+E) P/V N C 
+
+
+zZ H 
+BORDER 
+
+
+211 
+
+
+PROGRAMMING THE Z80 
+
+
+Byte Codes: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+212 
+
+
+b: 0 1 2 3 4 5 6 7 
+cp. | 46] ae] 56] se | 06 | 6 [76 | 7€ | 
+BIT 3, (HL) 
+After: 
+
+
+Before 
+
+Lo |r WHY 
+| os 
+[i—__ 
+
+
+~ 
+
+
+can [os | 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+BIT b, (1X + d) Test bit b of indexed addressed memory location 
+(IX + d) 
+
+
+Function: Z << (1X + dp 
+
+
+Format: 
+
+
+upset [eps fe fr) byte 1: Dp 
+'}rfofolifoji |i] byte 2: cB 
+[—__— d A] byte 3: offset value 
+PPE PED DL [e] bytes 
+
+
+Description: The specified bit of the memory location address- 
+ed by the contents of the IX register plus the given 
+offset value is tested and the Z flag is set according 
+to the result. b may be any one of: 
+
+0 — 000 5 - 101 
+1 — 001 6 — 110 
+2 — 010 7-111 
+
+
+3 - O11 
+
+
+4 — 100 
+-_- 
+=a 
+dl 
+yo | 
+
+
+Data Flow: 
+
+
+213 
+
+
+PROGRAMMING THE Z80 
+
+
+Timing: 5 M cycles; 20 T states: 10 usec @ 2 MHz 
+
+
+Addressing Mode: Indexed. 
+
+
+Byte Codes: b 0 1 2 3 4 5 6 7 
+cons [a [ssf 
+Flags: $ Z H PVN C 
+
+
+BORREEOR 
+
+
+Example: BIT 6, UX + 0) 
+
+
+C F WILLA 
+
+
+| DD | 
+| oo 
+
+
+OBJECT CODE 
+
+
+214 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+BIT b, (TY + d) Test bit b of the indexed addressed memory loca- 
+tion (1Y + d) 
+
+
+Function: Z (YY + dp 
+
+
+Format: 
+byte 1: FD 
+byte 2: CB 
+[———_; | __byte 3: offset value 
+polif-res-|i[ije}  byte4 
+Description: The specified bit of the memory location ad- 
+
+
+dressed by the contents of the 1Y register pius the 
+given offset value is tested and the Z flag is set ac- 
+cording to the result. b may be any one of: 
+
+
+0 — 000 4 ~— 100 
+1 — 001 5 — 101 
+2 — 010 6 — 110 
+3 — O11 
+
+
+Data Flow: 
+
+
+rio w >} 
+
+
+215 
+
+
+PROGRAMMING THE Z80 
+
+
+Timing: 5 M cycles; 20 T states; 10 usec @ 2 MHz 
+Addressing Mode: Indexed. 
+
+
+o 1 2 3 4 5 6 7 
+ae] ae [50] 5e | 66 |e | 76 | 78 
+
+
+Byte Codes: b: 
+
+
+Flags: s_2 H PVN C 
+BORREEO 
+Example: BIT 0, (FY + 1) 
+Before: After: 
+[2 WUE 
+| fD FFi2; 61 FFig{_ ot 
+rris[__ 82 a 
+| ot L—__| l—~___| 
+| 4 
+
+
+OBJECT CODE 
+
+
+216 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+BIT b,r Test bit b of register r. 
+
+
+Function: Z “Tp 
+
+
+Format: oT felel fol: [i byte 1: CB 
+| o | 1 |~—-b-— —_—p—— byte 2 
+
+
+Description: The specified bit of the given register is tested and 
+the zero flag is set according to the results. b andr 
+may be any one of: 
+
+
+b: 0 — 000 4 — 100 
+i — 001 5 — 101 
+2 — O10 6 — 110 
+3 — O11 7-111 
+
+r A - lll F —- Oil 
+B — 000 H — 100 
+C — 001 L — 101 
+D — 010 
+
+
+Data Flow: 
+
+
+Timing: 2M cycles; 8 T states; 4 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+217 
+
+
+PROGRAMMING THE Z80 
+
+
+Byte Codes: borA B C DE H 4 
+
+
+ele|#] a]e]<| 0 
+2} | 5s 2) ss 
+
+
+on fp WwW NW 
+
+
+|r| || |e [8 
+rr | [a re 7 
+
+
+“Oo 
+
+
+Flags: H Pv ON C 
+Om mmc 
+Example: BIT 4,B 
+Before: After: 
+
+
+sco} Looe ef 
+| eo 
+yo __] 
+
+
+OBJECT CODE 
+
+
+218 
+
+
+CALL cc, pq 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Call subroutine on condition. 
+
+
+if cc true: (SP - 1) = PChighi (SP - 2) — 
+PClow: SP — SP — 2; PC < pq 
+If cc false: PC < PC + 3 
+
+
+Cp Er ToTe] bv 1 
+
+
+byte 2: address, 
+
+
+low order 
+byte 3: address, 
+
+
+high order 
+
+
+: 
+
+
+If the condition is met, the contents of the pro- 
+gram counter are pushed onto the stack as de- 
+scribed for the PUSH instructions. Then, the con- 
+tents of the memory location immediately follow- 
+ing the opcode are loaded into the low order of the 
+PC and the contents of the second memory loca- 
+tion after the the opcode are loaded into the high 
+order half of the PC. The next instruction fetched 
+will be from this new address. If the condition is 
+not met, the address pq is ignored and the follow- 
+ing instruction is executed. cc may be any one of: 
+
+
+NZ — 000 PO — 100 
+Z — 001 PE — 101 
+NC —- 010 P — 100 
+C - 011 M —- Ill 
+
+
+An RET instruction can be used at the end of the 
+subroutine being called to restore the PC. 
+
+
+219 
+
+
+PROGRAMMING THE Z80 
+
+
+Data Flow: 
+
+
+Timing; 
+
+
+condition 
+true: 
+condition 
+not true: 
+
+
+Addressing Mode: \mmediate. 
+
+
+Byte Codes: cc: NZ.Z NC C PO PE P OM 
+
+
+[ c4] cc] >4] oc] ea E |F4 [Fc ee 
+
+
+P/Y ONC 
+
+
+CLOT LL) toccertecr 
+
+
+Flags: 
+
+
+220 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Before: After: 
+
+
+PROGRAMMING THE Z80 
+
+
+CALL pg 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+222 
+
+
+YM 
+
+
+SP 
+
+
+Call subroutine at location pq. 
+
+
+(SP — 1) — PChigh: (SP - 2) PCiow; SP «SP 
+— 2; PC + pq 
+
+
+Py 0 oli frfofr byte 1: CD 
+byte 2: address, low order 
+
+
+Le Se ee Dee | ; 
+| —— 8 | byte 3: address, high order 
+
+
+Loowb. bb 
+
+
+The contents of the program counter are pushed 
+onto the stack as described for the PUSH instruc- 
+tions. The contents of the memory location im- 
+mediately following the opcode are then loaded in- 
+to the low order half of the PC and the contents of 
+the second memory location after the opcode are 
+loaded in the high order half of the PC. The next 
+instruction will be fetched from this new address. 
+
+
+a 
+
+
+5 M cycles; 17 T states: 8.5 usec @ 2 MHz 
+
+
+Immediate. 
+
+
+Flags: 
+
+
+Example: 
+
+
+| er 
+| 40 
+
+
+OBJECT CODE 
+
+
+THE 280 INSTRUCTION SET 
+
+
+S 2 H PVN ¢ 
+
+LET EET TT) tnoettecty 
+
+CALL 40B1 
+
+Before: After: 
+PC YY SYM), 
+SP °° YY BY. 
+0B12 0312VYyyoyy 
+opi3a] oot 0313 yi iY 
+opia| Fa opi4| Fa 
+
+=a 
+
+
+223 
+
+
+PROGRAMMING THE Z80 
+
+
+CCF Complement carry flag. 
+Function: Cc +c 
+Format: 
+
+
+DORR: 
+
+
+Description: The carry flag is complemented. 
+Data Flow: 
+A F 
+8 Cc 
+D E 
+H L 
+Timing: 1 M cycle; 4 T states: 2 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Flags: S PV NC 
+
+
+z H 
+| | [| ixf | [ojel Becomes previous 
+
+
+carry status. 
+
+
+224 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+CPs Compare operand s to accumulator. 
+Function: A-s 
+Format: s: may be n, (HL), (IX + d), or (IY + d). 
+r 
+n FE 
+byte 2: immediate 
+(HL) byte 1: BE 
+(IX + d) byte 1: DD 
+byte 2: BE 
+byte 3: offset value 
+(IY + d) byte 1: FD 
+byte 2: BE 
+byte 3: offset value 
+
+
+r may be any one of: 
+
+
+A — 111 E — 011 
+B — 000 H — 100 
+C — 001 L — 101 
+D — 010 
+Description: The specified operand is subtracted from the ac- 
+
+
+cumulator, and the result is discarded. s is defined 
+in the description of the similar ADD instructions. 
+
+
+225 
+
+
+PROGRAMMING THE Z80 
+
+
+Data Flow: 
+
+
+a 
+
+
+F 
+
+
+Timing: 
+
+
+Addressing Modes: r: implicit; n: immediate; (HL): indirect; 
+(IX + d), (EY + d): indexed 
+
+
+Byte Codes: CP ir: rmooA 8B C DE HL 
+er {88 [be [Ba Jos [ac [20 
+Flags: S Z H PON C 
+OOBOBORO 
+Example: CP (HL) 
+Before: After: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+CPD Compare with decrement. 
+
+
+Function: A — [HL]; HL «—HL— 1; BC +—BC — | 
+
+
+Format: 
+yf fefafifofi} byte 1: Bp 
+po} fof sfofofa] byte 2: A9 
+
+
+Description: The contents of the memory location addressed by 
+the HL register pair are subtracted from the con- 
+tents of the accumulator and the result is discarded. 
+Then both the HL register pair and the BC register 
+pair are decremented. 
+
+
+Data Flow: 
+
+
+F 
+Cc 
+
+
+A 
+B 
+
+
+comme mre 
+4 MMMM 
+
+
+Timing: 4M cycles; 16 T states: 8 usec @ 2 MHz 
+
+
+Addressing Mode: indirect. 
+
+
+Flags: 
+
+
+$ ZH PVNC 
+lelx] lel [xlif |] -— Reset if BC = O after execution; set otherwise 
+t [ SetifA = [HL] 
+
+
+227 
+
+
+PROGRAMMING THE 280 
+
+
+Example: CPD 
+Before 
+A 
+B 
+ED 86B5 2A 
+AD 
+
+
+OBJECT CODE 
+
+
+228 
+
+
+After: 
+
+
+Al of EL 
+® WM22 MMA © 
+
+
+4 LMM 
+
+
+CPDR 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Block compare with decrement. 
+
+
+— [HL]; HL+—- HL — 1; BC +— BC — 1; 
+Repeat until BC = 0or A = [HL] 
+
+
+Uy fot ty yo} ty byte rt: ED 
+Frye} tl | Pi fojols| byte 2: B9 
+
+
+The contents of the memory location addressed by 
+the HL register pair are subtracted from the con- 
+tents of the accumulator and the result is discarded. 
+Then both the BC register pair and the HL register 
+pair are decremented. If BC = 0 and A = [HL], 
+the program counter is decremented by two and 
+the instruction is re-executed. 
+
+
+A 
+B 
+
+
+Timing: 
+
+
+Flags: 
+
+
+eZ 
+YM MIO 
+
+
+EI. 
+
+
+YY | 
+
+
+BC = Oor A = [HL]: 4 Mcycles; 16 T states: 
+8 usec @ 2 MHz 
+
+BC = OandA = [HL]:5 M cycles; 21 T states: 
+10.5 usec @ 2 MHz 
+
+
+Reset if BC = O after 
+execution; set otherwise 
+
+
+Set if A = [HL] 
+
+
+229 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: 
+
+
+IR 
+
+
+OBJECT CODE 
+
+
+230 
+
+
+CPDR 
+
+
+Before: After: 
+
+
+ig) 2/55) 
+
+
+i ee 2/93/77 
+py 
+core| et corel 8 
+6orF{ 00 | 4orF} oo 
+e100 sioo[ 2a 
+L—$—_| 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+CPI Compare with increment. 
+Function: A — [HL]; HL «— HL + 1; BC =—-BC— 1 
+Format: 
+
+
+Piped efoped cfofa) byte 1: ED 
+p'yoptjofojojol is) byte2: Al 
+
+
+Description: The contents of the memory location addressed by 
+the HL register pair are subtracted from the con- 
+tents of the accumulator and the result is discarded. 
+The HL register pair is incremented and the BC 
+register pair is decremented. 
+
+
+Data Flow: 
+
+
+| YY 
+
+
+YZ; 
+ye 
+
+
+Timing: 4M cycles; 16 T states: 8 usec @ 2 MHz 
+
+
+Addressing Mode: indirect. 
+
+
+Flags: 
+
+
+H P/V NC 
+
+
+(ox eC ETT rr Reset if BC = 0 after execution set otherwise 
+" [- SetifA = [HL] 
+
+
+231 
+
+
+PROGRAMMING THE Z80 
+
+
+CPI 
+
+
+Example; 
+
+
+After: 
+
+
+Before: 
+
+
+lll 
+
+
+N 
+
+
+GH 
+
+
+Ld 
+
+
+LESS 
+
+
+Ly) 
+
+
+HZ 
+
+
+L 
+
+
+86B9 
+
+
+oe a ed a 
+L——_| [_——~_| 
+
+
+cil 
+
+
+OBJECT CODE 
+
+
+232 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+CPIR Block compare with increment. 
+
+
+Function: A—[HL};H = HL + 1;BC ~+~BC —1; 
+Repeat until BC = Q0orA = [HL] 
+
+
+tit fet | fel} bytet: Ep 
+fof fo fefofo}s} byte2: Bi 
+
+
+Format: 
+
+
+Description: The contents of the memory location addressed by 
+the HL register pair are subtracted from the con- 
+tents of the accumulator and the result is discarded. 
+Then the HL register pair is incremented and the 
+BC register pair is decremented. if BC = 0OandA 
+~ [HL], then the program counter is decremented 
+by 2 and the instruction is re-executed. 
+
+
+Data Flow: 
+
+
+TIENT 
+
+
+Timing: BC = Oor A = [HL]: 4M cycles; 16 T states: 
+8 usec @ 2 MHz 
+BC # OandA # [HL]: 5 Mcycles; 21 T states: 
+10.5 usec @ 2 MHz 
+
+
+Addressing Mode. indirect. 
+
+
+233 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: 
+
+
+S$ ZH PVNC _ 
+X| |@| [x ~~ 
+OR BOBRoe Set if A = [HL] 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+234 
+
+
+Reset if BC = Oafter execution; set otherwise 
+
+
+After: 
+
+
+AT om mm CELL 
+8 MMMM 
+
+
+4 MMU 
+
+
+0998 
+
+
+039C 
+
+
+a 
+—— 
+
+
+CPL 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+rom >} 
+
+
+THE 280 INSTRUCTION SET 
+Complement accumulator. 
+
+
+ATA 
+
+
+popep poy tpt y |) 2F 
+
+
+The contents of the accumulator are com- 
+plemented, or inverted, and the result is stored 
+back in the accumulator (one’s complement). 
+
+
+1 M cycle; 4 T states; 2 usec @ 2 MHz 
+
+
+Implicit. 
+
+gs Z H PVN C 
+CPL 
+
+Before: After: 
+
+
+a WU, 
+
+
+235 
+
+
+PROGRAMMING THE Z80 
+
+
+DAA Decimal adjust accumulator. 
+Function: See below. 
+Format: 
+pofotrjojojr ii |r| 27 
+Description: The instruction conditionaly adds ‘‘6’’ to the 
+
+
+right and/or left nibble of the accumulator, based 
+on the status register, for BCD conversion after 
+
+
+arithmetic operations. 
+value of # added ! C after 
+C } high nibble to A | execution 
+
+
+value of 
+low nibble 
+
+
+=e ee OO CTO O O&O 
+=m oor OOOO 
+
+
+Data Flow: 
+
+
+236 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Timing: 1 M cycle; 4 T states; 2 usec @ 2 MHz 
+Addressing Mode: Implicit. 
+
+
+AVN C 
+
+
+OOsOsOSO 
+
+
+Flags: 
+
+
+Example: DAA 
+
+
+Before: After: 
+
+
+a 
+
+
+237 
+
+
+PROGRAMMING THE Z80 
+
+
+DEC m Decrement operand m. 
+Function: m<-m- | 
+Format: m: may ber, (HL), (IX+d), (1Y+d ) 
+
+
+(HL) [ofofi}sjofrfofr| 3 
+ax +d) Jififolifi[ifol.] byte 1: pp 
+byte 2: 35 
+
+
+byte 3: offset value 
+
+
+ay +d) Et ft {7 [+ {tft fo]r] byte i: FD 
+
+
+Description: The contents of the location addressed by the 
+specific operand are decremented and stored back 
+at that location. mis defined in the description of 
+the similar INC instructions. 
+
+
+Data Flow: 
+A 
+
+
+B 
+D E 
+H 
+
+
+238 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+usec 
+M cycles: | T states: |@ 2 MHz: 
+4 2 
+
+
+I] 3.5 
+23 11.5 
+23 11.5 
+
+
+Timing: 
+
+
+r 
+
+
+A ON WW 
+
+
+Addressing Mode: r: implicit; (HL): indirect; (IX + d), (LY + d): in- 
+
+
+dexed. 
+Byte Codes: DEC r ri A B C DE HL 
+[30] 05 | 00 | 15 | 10] 25 | 20) 
+Flags. S Zz H Pw) NC 
+OOBROBORM 
+Example: DEC C 
+Before: After: 
+| op 
+OBJECT 
+CODE 
+
+
+239 
+
+
+PROGRAMMING THE Z80 
+
+
+DEC rr 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Byte Codes: IT: 
+
+
+240 
+
+
+Decrement register pair rr. 
+
+
+ir «rr - 1 
+
+
+ofeote «fr fofs fi] 
+
+
+The contents of the specified register pair are 
+decremented and the result is stored back in the 
+register pair. rr may be any one of: 
+
+
+BC — 00 HL ~— 10 
+DE —- 01 SP — Il 
+
+
+1 M cycle; 6 T states; 3 usec @ 2 MHz 
+Implicit. 
+
+
+BC DE HL SP 
+
+
+THE 280 INSTRUCTION SET 
+
+
+Flags: $ Z H PVN C 
+(no effect). 
+Example: DEC BC 
+Before: After: 
+
+
+241 
+
+
+PROGRAMMING THE Z80 
+
+
+DEC IX 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Decrement IX. 
+
+
+IX - 1X - 1 
+
+
+fot: [ss fo] fbyte 1: Dp 
+po} of y}o} fo] s | jbyte 2: 2B 
+
+
+The contents of the IX register are decremented 
+and the result is stored back in IX. 
+
+
+ru }P 
+
+
+2M cycles; 10 T states; S usec @ 2 MHz 
+
+
+Addressing Modes: Implicit. 
+
+
+Flags: 
+
+
+Exam~pte: 
+
+
+OBJECT CODE 
+
+
+242 
+
+
+5 Z H PVN C 
+PLOT TELL tertee 
+DEC IX 
+
+Before: After: 
+
+
+1S a ee 2S) 
+
+
+DEC IY 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Decrement LY. 
+
+
+Iy¥<Ily - 1 
+
+
+byt fo] t | byte 1: FD 
+of o} +} a} fo} 1] 1) byte 2: 28 
+
+
+The contents of the IY register are decrementea 
+and the result is stored back in IY. 
+
+
+<rT90 8 > 
+
+
+{ty 
+
+
+2 M cycles; 10 T states; 5 usec @ 2 MHz 
+
+
+Implicit. 
+
+Ss Z H PVN C 
+PTET LT LT) eaten 
+DEC IY 
+
+Before: After: 
+a 
+
+
+243 
+
+
+PROGRAMMING THE Z80 
+
+
+Di Disable interrupts. 
+Function: IFF < 0 
+Format: 
+hd t fefets [| Fs 
+Description: The interrupt flip-flops are reset, thereby disabling 
+
+
+all maskable interrupts. A maskable interrupt may 
+be disabled during its execution by DI. It is re- 
+enabled by an El instruction. 
+
+
+Timing: 1 M cycle; 4 T states; 2 usec @ 2 MHz 
+
+
+Addressing Mode: \mplicit. 
+
+
+Flags: S$ Zz H PV N C 
+(no effect). 
+
+
+244 
+
+
+DINZ e 
+
+
+Function: 
+
+
+Format; 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+PC 
+
+
+Timing: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Decrement B and jump e relative on no zero. 
+B<-b -—1;ifB #0: PC<«-PC +e 
+
+
+Fofofo]ifofofolo| byte 1: 10 
+byte 2: offset value 
+
+
+The B register is decremented. If the result is not 
+zero, the immediate offset value is added to the 
+program counter using two’s complement 
+arithmetic so as to enable both forward and 
+backward jumps. The offset value is added to the 
+value of PC + 2 (after the jump). As a result, the 
+effective offset is -126 to +129 bytes. The as- 
+sembler automatically subtracts from the source 
+offset value to generate the hex code. 
+
+
+control 
+LoOGic 
+
+
+B #0: 3 M cycles; 13 T states; 6.5 usec @ 2 MHz. 
+B = 0:2M cycles; 8 T states; 4 usec @ 2 MHz 
+
+
+Addressing Modes: Immediate. 
+
+
+245 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: § Zz H PVN C¢ 
+
+
+Example: DJNZ $ — 5 ($ = current PC) 
+Before: After: 
+
+(> [se 
+
+Ee PC rc(YYyys 
+
+
+OBJECT CODE 
+
+
+246 
+
+
+KI 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Timing: 
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Enable interrupts. 
+
+
+IFF < 1 
+
+
+DRAB ORDE:: 
+
+
+The interrupt flip-flops are set, thereby enabling 
+maskable interrupts after the execution of the in- 
+struction following the EI instruction. In the mean- 
+time maskable interrupts are disabled. 
+
+
+1 M cycle; 4 T states; 2 usec @ 2 MHz 
+Implicit. 
+
+
+$s Zz H PV N C 
+
+
+CELL IE LL] oetten 
+
+
+A usual sequence at the end of an interrupt routine is: 
+EI 
+
+RETI 
+
+The maskable interrupt is re-enabled following 
+completion of RETI. 
+
+
+247 
+
+
+PROGRAMMING THE Z80 
+
+
+EX AF, AF' 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Exchange accumulator and flags with alternate 
+registers. 
+
+
+AF AF! 
+
+
+ofefetet: fo jolo} os 
+
+
+The contents of the accumulator and status 
+register are exchanged with the contents of the 
+alternate accumulator and status register. 
+
+
+D' E 
+
+
+1 ee » Ca F 
+a c NY 8 c 
+D E 
+H L 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+248 
+
+
+H! Li 
+
+
+1 M cycle; 4 T states; 2 usec @ 2 MHz 
+
+
+Implicit. 
+
+
+EX AF, AF' 
+
+
+Before: After: 
+
+
+EX DE, HL 
+
+
+Function: 
+
+
+Format: 
+Description; 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Exchange the HL and DE registers. 
+
+
+DE =— HL 
+
+
+BRRORORER:: 
+
+
+The contents of the register pairs DE and HL are 
+exchanged. 
+
+
+1 M cycle; 4 T states; 2 usec @ 2 MHz 
+
+
+Implicit. 
+4 H PVN C 
+(no effect). 
+EX DE, HL 
+Before: After: 
+eC 
+HL 90a id 
+
+
+249 
+
+
+PROGRAMMING THE Z80 
+
+
+EX (SP), HL 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+250 
+
+
+Exchange HL with top of stack. 
+
+
+(SP) <~L; (SP + 1)*« H 
+
+
+tt fefefoli| | gs 
+
+
+The contents of the L register are exchanged with 
+the contents of the memory location addressed by 
+the stack pointer. The contents of the H register 
+are exchanged with the contents of the memory 
+location immediately following the one addressed 
+by the stack pointer. 
+
+
+; J 
+D I 
+t MM 
+
+
+MMM 
+
+
+SP 
+
+
+5 M cycles; 19 T states; 9.5 usec @ 2 MHz 
+
+
+Indirect. 
+
+
+$ Z H PVN C¢ 
+
+
+CIEE ITLL) vette 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Example: EX (SP), HL 
+
+
+w 
+2 
+2) 
+= 
+g 
+= 
+ao 
+— 
+
+
+H 8290 Cc Hye YH 
+
+
+oe a 
+= B49; FY MII, 
+
+Boa] OE Cd pa0n92 YY 
+OBJECT CODE I~ y~_ 
+
+
+251 
+
+
+PROGRAMMING THE Z80 
+
+
+EX (SP),EX Exchange IX with top of stack. 
+
+
+Function: (SP) *IXjow: (SP + 1) IXhigh 
+
+
+yi fet tif: fo fi) byte 1: pp 
+tt fofofots [1] byte 2: B3 
+
+
+Format; 
+
+
+Description: The contents of the low order of the IX register 
+are exchanged with the contents of the memory 
+location addressed by the stack pointer. The con- 
+tents of the high order of the IX register are ex- 
+changed with the contents of the memory location 
+immediately following the one addressed by the 
+stack pointer. 
+
+
+Data Fiow: 
+
+
+Timing: 6 M cycles; 23 T states; 11.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: 5 Z H PV N C 
+
+
+CLIT EEL] toettee 
+
+
+252 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Example: EX (SP), IX 
+
+
+Before: After: 
+
+
+OBJECT CODE 
+
+
+253 
+
+
+PROGRAMMING THE Z80 
+
+
+EX (SP), IY Exchange LY with top of stack. 
+
+
+Function: (SP)  1Yjows (SP + 1) > TYhigh 
+
+
+Format: 
+Pettit itis fo fi] byte t: FD 
+Ppt feye fey || byte 2: £3 
+
+
+Description: The contents of the low order of the 1Y register 
+are exchanged with the contents of the memory 
+location addressed by the stack pointer. The con- 
+tents of the high order of the IY register are ex- 
+changed with the contents of the memory location 
+immediately following the one addressed by the 
+stack pointer. 
+
+
+Data Flow; 
+A 
+B Cc 
+D E 
+H 
+Timing: 6 M cycles; 23 T states; 11.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: 
+S$ Zz H PV N C 
+
+
+(no effect). 
+
+
+254 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+After 
+
+
+Example: EX (SP), IY 
+
+
+Before: 
+
+
+6211 JY By 
+6212 
+
+
+OBJECT CODE 
+
+
+255 
+
+
+PROGRAMMING THE 280 
+
+
+EXX Exchange alternate registers. 
+Function: BC «+ BC'; DE «*DE' HL <~HL 
+Format: 
+
+
+yrfett|rfoyel | pe 
+
+
+Description: The contents of the general purpose registers are 
+exchanged with the contents of the corresponding 
+alternate registers. 
+
+
+Data Flow: 
+
+
+Timing: 1 M cycle; 4 T states; 2 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Flags: S$ Z H P/V NC 
+(no effect). 
+Example: EXX 
+Before: After: 
+
+
+OBJECT 
+CODE 
+
+
+256 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+HALT Halt CPU. 
+Function: CPU suspended. 
+Format: 
+poli fifi fol] fo} 7% 
+Description: CPU suspends operation and executes NOP’s so 
+
+
+as to continue memory refresh cycles, until in- 
+terrupt or reset is received. 
+
+
+Timing: 1 M cycle; 4 T states; 2 usec @ 2 MHz + inde- 
+finite Nop’s. 
+
+
+Addressing Mode: Implicit. 
+
+
+Flags: SZ H PV NC 
+(no effect). 
+
+
+257 
+
+
+PROGRAMMING THE Z80 
+
+
+IM 0 Set interrupt mode 0 condition. 
+
+
+Function: Internal interrupt control. 
+
+
+Format: 
+itfe[r [i fol 1] byte 1: ED 
+fo} tfofojoli fifo} byte 2: 46 
+
+
+Sets interrupt mode 0. In this condition, the in- 
+
+
+Description: 
+terrupting device may insert one instruction onto 
+the data bus for execution, the first byte of which 
+must occur during the interrupt acknowledge cycle. 
+Timing: 2M cycle; 8 T states; 4 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Flags: SZ H PV ON C 
+LTIT TLL) trvetteen, 
+
+
+258 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+IM 1 Set interrupt mode | condition. 
+Function: Internal interrupt control. 
+Format: 
+
+
+ip fof tts fely) byte 1: Ep 
+po} fo} tfoy ris fo} byte 2: 56 
+
+
+Description: Sets interrupt mode 1. A RST 0038H instruction 
+will be executed when an interrupt occurs. 
+
+
+Data Flow: 00 38 
+a 
+0038 INT 
+ROUTINE 
+STACK 
+Timing: 2 M cycles; 8 T states; 4 usec @ 2 MHz 
+Addressing Mode: Implicit. 
+Flags: 5 2z H PVN C 
+(no effect). 
+
+
+259 
+
+
+PROGRAMMING THE Z80 
+
+
+IM 2 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Timing: 
+Addressing Mode; 
+
+
+Flags: 
+
+
+260 
+
+
+Set interrupt mode 2 condition. 
+
+
+Internal interrupt control. 
+
+
+Pit fop fr fol ay byte i: ED 
+Loti fofi jr is fr fo] byte 2: sé 
+
+
+Set interrupt mode 2. When an interrupt occurs, 
+one byte of data must be provided by the peripheral 
+which is used as the low order of an address. The 
+high order of this vector address is taken from the 
+contents of the I register. This points to a second 
+address stored in memory,which is loaded into the 
+program counter and begins execution. 
+
+
+2M cycles; 8 T states; 4 usec @ 2 MHz 
+Implicit. 
+
+
+Ss 2 H PAV N C 
+
+
+IN r,(C) 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing, 
+Addressing Mode: 
+
+
+Byte Codes: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load register r from port(C) 
+
+
+r—(C) 
+
+
+CETTE TED ToT one te 
+fof i | of oo! byte 2 
+
+
+The peripheral device addressed by the contents of 
+the C register is read and the result is loaded into 
+the specified register. 
+
+C provides bits AO to A7 of the address bus. 
+
+B provides bits A8 to Al5. 
+
+
+PORT 
+
+
+iow }y 
+m 
+
+
+r may be any one of: 
+
+
+A - lll E — Ol! 
+B — 000 H — 100 
+C — 001 L — 101 
+D — 010 
+
+
+3 M cycles; 12 T states; 6 usec @ 2 MHz 
+
+
+External. 
+rs: A B C OD E HL 
+[rs] 9] «| [8] 0] 
+
+
+261 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: py NC 
+
+
+OOsCmOGM 
+
+
+It is important to note that INA,(N) does not have 
+any effect on the flags, while IN r, (C) does. 
+
+
+Example: IN. D, (C) 
+
+Before: After: 
+( c 
+a [es __roer WE [68 Jor 
+i—~___] 
+
+
+OBJECT CODE 
+
+
+262 
+
+
+IN A, (N) 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing, 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load accumulator from input port N. 
+
+
+A = (N) 
+
+
+JL ee byte 1: DB 
+byte 2: port address 
+
+
+The peripheral device N is read and the result is 
+loaded into the accumulator. 
+
+The literal N is placed on lines AO to A7 of the 
+address bus. A supplies bits A8 to AIS. 
+
+
+: 
+E Lo) 
+L PORT ~~ | 
+
+
+3 M cycles; 11 T states; 5.5 usec @ 2 MHz 
+
+
+ron >} 
+
+
+Addressing Mode: External. 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+SZ H P/V_N 
+CT TT TT LL) tocttesn, 
+
+
+IN A, (B2) 
+
+
+Before: After: 
+
+
+a{__84__| [8 _Jroe ~Wygnyy [Ft_jroer 
+
+
+263 
+
+
+PROGRAMMING THE Z80 
+
+
+INC r Increment register r. 
+Function: r<r+l 
+Format: foo] _,; Fi folo 
+Description: The contents of the specified register are in- 
+cremented. r may be any one of: 
+A - 111 E - Oil 
+B — 000 H - 100 
+Cc — 001 L — 10) 
+D — 010 
+Data Flow: 
+
+
+iow > 
+mo 
+
+
+Timing: 1 M cycle; 4 T states; 2 usec @ 2 MHz 
+Addressing Mode: Implicit. 
+
+
+Byte Codes: Tr! A BC DE H 
+
+
+L 
+[ac }oa joc | v4 [1c] 24 | 2c] 
+
+
+Flags: s Zz H PDN C 
+OOOO 
+Example: INC D 
+Before: After: 
+(7 > WED 
+| a 
+OBJECT 
+CODE 
+
+
+264 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+INC rr Increment register pair rr. 
+Function: tr<-rr+ 1 
+Format: 
+
+
+Description: The contents of the specified register pair are in- 
+cremented and the result is stored back in the 
+register pair. rr may be any one of: 
+
+
+BC — 00 HL — 10 
+DE - 01 SP - 11 
+Data Flow: 
+4 
+B 
+D E 
+H L oT 
+a 
+Timing: 1 M cycle; 6 T states; 3 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Byte Codes: rr: BC DE HL SP 
+
+
+265 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: $ 2 Hi PVN C 
+PETE LETT] tose, 
+
+
+Example: INC HL 
+
+
+Before: After: 
+
+
+i Ce Cem SSMU 
+
+
+OBJECT 
+CODE 
+
+
+266 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+INC (HL) Increment indirectly addressed memory location 
+(HL). 
+
+Function: (HL) « (HL) + 1 
+
+Format: 
+fo folijifojifolo] 34 
+
+Description: The contents of the memory location addressed by 
+
+
+the HL register pair are incremented and stored 
+back at that location. 
+
+
+Data Flow: 
+A 
+8 c YY 
+: <i 
+H L 
+
+Timing: 3M cycles; 11 T states; 5.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: SZ H PMN C 
+OOOO C mi 
+Example: INC (HL) 
+Before: After: 
+H 0681 ) | ne 
+O6B — 
+OBJECT 
+ODE 
+
+
+267 
+
+
+PROGRAMMING THE Z80 
+
+
+INC (1X +d) Increment indexed addressed memory location 
+
+
+(IX + d). 
+Function: (IX + d)<- (IX + d) + 1 
+Format: 
+yt fet [ifs fe] | byte t: Dp 
+fo] of [fol {ofo] byte 2: 34 
+byte 3: offset value 
+Description: The contents of the memory location addressed by 
+the contents of the IX register pius the given offset 
+value are incremented and stored back at that 
+location. 
+Data Flow: laital om 
+7 MMM 
+e |—DATA | 
+D 
+H 
+Ix 
+a 
+Timing: 6 M cycles; 23 T states; 11.5 usec @ 2 MHz 
+
+
+Addressing Mode; Indexed. 
+
+
+Flags: 
+
+
+§ Zz H PY) N C 
+jeje] |e leo! | 
+
+
+268 
+
+
+Example: 
+
+
+a) 
+
+
+OBJECT 
+DE 
+
+
+INC (IX + 2) 
+
+
+Before: 
+
+
+THE 280 INSTRUCTION SET 
+
+
+269 
+
+
+PROGRAMMING THE Z80 
+
+
+INC (iY + d) Increment indexed addressed memory location (IY 
+
+
++ d). 
+
+Function: dy +d)*+ (¥ +d) +1 
+
+Format: 
+pepe fifi fo tt} byte 1: BD 
+fofojr|+leoli jojo) byte 2: 34 
+—_—_—___—_ d —————~| byte 3: offset value 
+
+Description: The contents of the memory location addressed by 
+the contents of the IY register plus the given offset 
+value are incremented and stored back at that 
+location. 
+
+Data Flow: 
+
+A 
+
+
+Timing: 6 M cycles; 23 T states; 11.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indexed. 
+
+
+Flags: S H PAD _N 
+
+
+ele] le] elo, 
+
+
+270 
+
+
+Example: 
+
+
+OBJECT 
+CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+INC (1¥ + 0) 
+
+
+Before: After: 
+
+
+osor] St WL 
+o6o2] BO | bo 
+a 
+
+
+271 
+
+
+PROGRAMMING THE Z80 
+
+
+INC Ix 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+272 
+
+
+Increment LX. 
+
+
+IX <- 1X + 1 
+
+
+fa fofrtr]sfo[s | byte 1: DD 
+ofofi}ololo]1|1| byte 2: 23 
+
+
+The contents of the [X register are incremented 
+and the result is stored back in IX. 
+
+
+zo DW >} 
+
+
+2M cycles; 10 T states; 5 usec @ 2 MHz 
+
+
+Implicit. 
+5 Z H P/V N C 
+(no effect). 
+INC IX 
+Before: After: 
+dC en Me ///ASSV// 
+
+
+INC IY 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+Increment LY 
+
+
+y¥<ly +1 
+
+
+ttt tf fifo] byte t: FD 
+fof of sf of of of 1] 1} byte 2: 23 
+
+
+The contents of the IY register are incremented 
+and the result is stored back in IY. 
+
+
+row >} 
+
+
+2 M cycles; 10 T states; 5 usec @ 2 MHz 
+
+
+Implicit. 
+
+
+Ss Zz H PV ON C 
+
+
+PT IT LE LL tnoetteo 
+
+
+INC IY 
+Before: After: 
+v3) NYY 
+
+
+273 
+
+
+PROGRAMMING THE Z80 
+
+
+IND Input with decrement. 
+Function: (HL) — (C); B< B - 1; HL * HL - 1 
+Format: 
+
+
+ifr frfefs |i fot | byte i: ED 
+Pifofr poly fofi{o} byte 2: AA 
+
+
+Description: The peripheral device addressed by the C register 
+is read and the result is loaded into the memory 
+locaton addressed by the HL register pair. The B 
+register and the HL register pair are then each 
+
+
+decremented. 
+Data Flow: 
+A 
+8 Ys “a Y YH Ze 
+4 OMA * 
+Timing: 4M cycles; 16 T states; 8 usec @ 2 MHz 
+
+
+Addressing Mode: External. 
+
+
+Flags: 
+
+
+s Zz H P/V Cc 
+fa{x{ [ef feat | Z Set if B = 0 after execution 
+
+
+Reset otherwise 
+
+
+274 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+IND 
+
+Before: After: 
+
+ee cc) // 
+
+noes t HY EY 
+
+PORT [26 port 
+BS, BS 
+
+i iN Yi pYYY, 
+
+L—~ | YL | 
+
+
+PROGRAMMING THE Z80 
+
+
+INDR Block input with decrement. 
+
+
+Function: (HL) « (C); BB - 1; HL + HL - 1 
+Repeat until B = 0 
+
+
+Pat rfrfofrfrfol[r} byte 1: BD 
+Pttofrfr]ifo] lo] byte 2: BA 
+
+
+Format: 
+
+
+Description: The peripheral device addressed by the C register 
+is read and the result is loaded into the memory 
+location addressed by the HL register pair. Then 
+the B register and the HL register pair are 
+decremented. If B is not zero, the program 
+counter is decremented by 2 and the instruction is 
+re-executed. 
+
+
+Data Flow: 
+
+
+( oma 
+WWW 
+_ 
+WU) 
+a 
+
+
+Timing: B = 0:4 Mcycles; 16 T states; 8 usec @ 2 MHz. 
+B # 0:5 M cycles; 21 T states; 10.5 usec @ 2 MHz, 
+
+
+Addressing Mode: External 
+
+
+Flags: 
+
+
+s._Z H PVN CC 
+ety Pet Pee | 
+
+
+276 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Example: INDR 
+Before: After: 
+ef 3 | « |c YY x \c 
+se eS ///N 
+[a6 «| PorT [ar __eorr 
+56 56 
+( [_ 
+osro} EB 
+= ol] 48 Z 
+OBJECT CODE O9F2) 9A YY) 
+yo] y~__ 
+
+
+277 
+
+
+PROGRAMMING THE Z80 
+
+
+INI Input with increment. 
+Function: (HL) « (C); B< B —- 1;HL<-HL+ 1 
+Format: 
+
+
+Pupp epot fr fogs | byte 1: ED 
+Ff o}rfofofo] so] byte 2: A2 
+
+
+Description: The peripheral device addressed by the C register 
+is read and the result is loaded into the memory 
+location addressed by the HL register pair. The B 
+register is decremented and the HL register pair is 
+incremented. 
+
+
+The contents of C are placed on the low half of the 
+address bus. The contents of B are placed on the 
+high half. I/O selection is generally made by C, 
+i.e., by AO to A7. B is a byte counter. 
+
+
+Data Flow: rn 
+B ee /M/: 
+a ~~ _| 
+4} YM 
+
+Timing: 4M cycles; 16 T states; 8 usec @ 2 MHz 
+
+
+Addressing Mode; External. 
+
+
+Flags: er H PVN C 
+fix} [et [ety | 
+
+
+Z is set if B = 0 after execution, 
+Reset otherwise 
+
+
+278 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+INI 
+
+
+Example: 
+
+
+After: 
+
+
+Before: 
+
+
+Cc 
+
+
+N 
+<x 
+
+
+PORT 
+
+
+PORT 
+
+
+21 
+
+
+21 
+
+
+a 
+: 
+: 
+8 
+2) / 5 
+5 
+
+
+279 
+
+
+PROGRAMMING THE Z80 
+
+
+INIR Block input with increment. 
+
+Function: (HL) — (C); B« B — 1; HL * HL + 1; Repeat 
+until B = 0 
+
+Format: 
+
+
+eteprpot ef fof] byte i: ED 
+pt fefa{ifofol]: [o] byte 2: B2 
+
+
+Description: The peripheral device addressed by the C register 
+is read and the result is loaded into the memory 
+location addressed by the HL register pair. The B 
+register is decremented and the HL register pair is 
+incremented. If B is not zero, the program counter 
+is decremented by 2 and the instruction is re- 
+
+
+executed. 
+Data Flow: 
+A 
+8 ¢C 
+) 
+Tuning: 4M cycles; 16 T states; 8 used @ 2 MHz. 
+
+
+B = 0: 
+B #0: 5 M cycles; 2] T states; 10.5 usec @ 2 MHz. 
+Addressing Mode: External. 
+
+
+Flags: $ 2 H PVN C 
+
+
+280 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+INIR 
+Before: After: 
+Wye» |\° BYU  5\_ |c 
+Hast HOE 
+[__21__}roer LELl PORT 
+145, BF 1AsHy i YY 
+"A6| 3D 91A6 Yy 
+yo 
+
+
+281 
+
+
+PROGRAMMING THE Z80 
+
+
+JP cc, pq Jump on condition to location pq. 
+Function: if cc true: PC < pq 
+Format: 
+
+
+CP ESTP] exe 
+
+
+byte 2: address, 
+low order 
+
+
+byte 3: address, 
+high order 
+
+
+Description: If the specified condition is true, the two-byte ad- 
+dress immediately following the opcode will be 
+loaded into the program counter with the first byte 
+following the opcode being loaded into the low 
+order of the PC. If the condition is not met, the 
+address is ignored. cc may be any one of: 
+
+
+Yt 
+
+
+NZ — 000 no zero 
+Z— 00! zero 
+
+NC — 010 ho carry 
+C - Ol} carry 
+
+PO — 100 parity odd 
+
+PE — 101 parity even 
+P — 110 plus 
+
+M —- ill minus 
+
+
+PC 
+
+
+282 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Timing: 3 M cycles; 10 T states: 5 usec @ 2 MHz 
+
+
+Addressing Mode: Immediate. 
+
+
+Byte Codes: cc NZ Zz NC C PO PE POM 
+ce] ex] 2 foo] [ea] |r 
+Flags: $ Zz H PVN C 
+(no effect) 
+
+Exaniple: JP C, 3B24 
+
+Before: After: 
+PC 
+| a 
+| 38 
+
+
+OBJECT CODE 
+
+
+283 
+
+
+PROGRAMMING THE Z80 
+
+
+JP pq 
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+284 
+
+
+Jump to location pq. 
+PC < pq 
+
+
+Pit Pope} ef et iti] byte 1: C3 
+
+
+: byte 2: address, 
+low order 
+
+
+———— OQ 
+Fd teh order 
+high order 
+
+The contents of the memory location immediately 
+following the opcode are loaded into the low order 
+half of the program counter and the contents of 
+the second memory location immediately follow- 
+ing the opcode are loaded into the high order of 
+
+
+the program counter. The next instruction will be 
+fetched from this new address. 
+
+
+rion } 
+
+
+PC 
+
+
+3 M cycles; 10 T states; 5 usec @ 2 MHz 
+
+
+Immediate. 
+$ Zz H PVN C 
+(No effect) 
+JP 3025 
+Before: After: 
+ps a en met) 
+
+
+JP (HL) 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+THE Z80 INSTRUCTION SET 
+Jump to HL. 
+
+
+PC -— HL 
+
+
+drt fofifotots| gs 
+
+
+The contents of the HL register pair are loaded in- 
+to the program counter. The next instruction is 
+fetched from this new address. 
+
+
+TiHitg: 
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+H 
+
+
+OBJECT CODE 
+
+
+1 M cycle; 4 T states; 2 usec @ 2 MHz 
+
+
+Implicit. 
+5 z H PAV N C 
+(no effect). 
+JP (HL) 
+Before: After: 
+»¢ YMUuist. WA 
+
+
+285 
+
+
+PROGRAMMING THE Z80 
+
+
+JP (1%) Jump to IX. 
+Function: PC =< 1X 
+Format: 
+
+
+Pt jots ||: fo [i | byte 1: pp 
+PT fsfofsfofe]: | byte 2: Bo 
+
+
+Description: The contents of the [X register are loaded into the 
+program counter. The next instruction is fetched 
+from this new address. 
+
+
+Data Flow: 
+A 
+B Cc 
+) E 
+H L 
+Timing: 2M cycles; 8 T states; 4 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Flags: SZ H PVN C 
+
+LEE TTT TT Jeno ettecty 
+Example: JP (IX) 
+
+Before: After: 
+~~ | 
+
+
+OBJECT CODE 
+
+
+286 
+
+
+JP (Ty) 
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Ting: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+Exaniple: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Jump to TY. 
+PC <- IY 
+
+
+byte 1: FD 
+Pitt foftfofofs| byte 2: £9 
+
+
+The contents of the 1Y register are moved into the 
+program counter. The next instruction will be fet- 
+ched from this new address. 
+
+
+2M cycles; 8 T states; 4 usec @ 2 MHz 
+
+
+Implicit. 
+$ Zz H PV NC 
+(no effect). 
+JP (IY) 
+Before: After: 
+
+
+287 
+
+
+PROGRAMMING THE Z80 
+
+
+JR ce,e 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+A 
+
+
+B 
+D 
+H 
+PC 
+
+
+Timing: 
+
+
+288 
+
+
+MMMM 
+
+
+oy 
+
+
+Jump e relative on condition. 
+
+
+if ce true, PC - PC +e 
+
+
+ojo} ijcysfolo lo} byte 
+
+
+e-2——————~| byte 2: offset value 
+
+
+If the specified condition is met, the given offset 
+value is added to the program counter using two’s 
+complement arithmetic so as to enable both for- 
+ward and backward jumps. The offset value is 
+added to the value of PC + 2 (after the jump). As 
+a result, the effective offset is -126 to +129 bytes. 
+The assembler automatically subtracts 2 from the 
+source offset value to generate the hex code. If the 
+condition is not met, the offset value is ignored 
+and instruction execution continues in sequence. 
+cc may any one of: 
+
+
+NZ — 00 NC — 10 
+Z— Ol Cc - iil 
+
+
+geet 
+Sonciiion 
+not met: 
+
+
+Addressing Mode: 
+
+
+Byte Codes: 
+
+
+Flags: 
+
+
+Exanipte: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+Immediate. 
+
+
+ec: NZ Z NC C 
+
+
+[9] «| [9] 
+
+
+$s 2 H P/V N C 
+(no effect). 
+JR NC,$ —- 3 §$ = current PC 
+Before: After: 
+[oo dF [oo |r 
+pcc[_ bons—(#=$sSN| Ge M_UYYYVEYVJ_ 
+
+
+289 
+
+
+PROGRAMMING THE Z80 
+
+
+JRe 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Fiow-: 
+A 
+
+
+OD 
+
+
+Jump e relative. 
+
+
+PC<«PC +e 
+
+
+pofofofsy fofofo| byte 1: 18 
+
+
+e-2 ——_———|_ byte 2: offset value 
+
+
+The given offset value is added to the program 
+counter using two’s complement arithmetic so asto 
+enable both forward and backward jumps. The off- 
+set value is added to the value of PC + 2 (after the 
+jump). As a result, the effective offset is -126 to 
++ 129 bytes. The assembler automatically subtracts 
+2 from the source offset value to generate the hex 
+code. 
+
+
+° YY Mw" 00 
+Timing: 3 M cycles; 12 T states; 6 usec @ 2 MHz 
+Addressing Mode: \mmediate. 
+Flags: § Zz H PVV_N_ C 
+(no effect) 
+Example: JR D4 
+Before: After: 
+—— PC B100 rc YYyyy,s004/y V7 
+—_a 
+
+
+OBJECT CODE 
+
+
+290 
+
+
+LD dd, (nn) 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+xo DO 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load register pair dd from memory locations ad- 
+dressed by nn. 
+
+
+ddjow * (an); ddhigh “ (nn +1) 
+
+
+dit fej]: jo [1 | byte 1: ED 
+ptfarafi jos it | byte 2 
+i rae 
+low order 
+heh orden 
+high order 
+
+
+The contents of the memory location addressed by 
+the memory locations immediately following the 
+opcode are loaded into the low order of the 
+specified register pair. The contents of the 
+memory location immediately following the one 
+previously loaded are then loaded into the 
+high order of the register pair. The low order byte 
+of the nn address immediately follows the opcode. 
+dd may be any one of: 
+
+
+BC — 00 HL — 10 
+DE — O01 SP - 11 
+
+
+ce 
+
+
+291 
+
+
+PROGRAMMING THE Z80 
+
+
+Timing: 6 M cycles; 20 T states; 10 usec @ 2 MHz 
+Addressing Mode: Direct. 
+
+
+Byte Codes: dd: BC DE Hi SP 
+
+
+| 48] se} 08] 78 
+
+
+Flags: S Zz H PV N C 
+
+
+PLL TTL TJ tnvettess 
+
+
+Example: LD DE, (5021) 
+
+
+Before: After: 
+
+
+OL ones YET: 
+
+
+z so so 
+
+
+OBJECT CODE 
+
+
+292 
+
+
+LD dd, nn 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Byte Codes: 
+
+
+Flags: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load register pair dd with immediate data nn. 
+
+
+dd «nn 
+
+
+pofofatsfofofol:] bytes 
+
+Se tas 
+data, low order 
+
+byte 3: immediate 
+
+data, high order 
+
+
+n 
+
+
+The contents of the two memory locations im- 
+mediately following the opcode are loaded into the 
+specified register pair. The lower order byte of the 
+data occurs immediately after the opcode.dd may 
+be any one of: 
+
+
+BC — 00 HL — 10 
+DE - 01 SP — 1] 
+
+
+xo @ >} 
+m 
+- 
+
+
+3 M cycles; 10 T states; 5 usec @ 2 MHz 
+
+
+Immediate. 
+
+
+dd: BC DE HL SP 
+
+
+293 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: LD DE, 4131 
+
+
+Before: After: 
+
+
+) OP 
+
+
+OBJECT CODE 
+
+
+294 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+LDr,n Load register r with immediate data n. 
+Function: rn 
+Format: 
+
+
+of opr] | 8 | byte | 
+
+
+a—~_— 
+
+
+byte 2: immediate data 
+
+
+Description: The contents of the memory location immediately 
+following the opcode location are loaded into the 
+specified register. r may be any one of: 
+
+
+A - Ill E - 011 
+B — 000 H — 100 
+Cc — 00! L — 101 
+D — 010 
+Data Flow: 
+ata Blow s [ 
+B Cc | 
+D (J 
+: a 
+Timing: 2M cycles; 7 T states; 3.5 usec @ 2 MHz 
+
+
+Addressing Mode: \mmediate. 
+
+
+Byte Codes: Ti A B C OD 
+
+
+EIENENOISEIES 
+
+
+Flags: SZ H PVN ¢ 
+
+
+CEETIT LL toette 
+
+
+295 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: LD C, 3B 
+
+
+Before: After: 
+
+
+Gia clo | OEE 
+or | 
+[et 
+
+
+OBJECT CODE 
+
+
+296 
+
+
+LDr,r 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Byte Codes: 
+
+
+Flags: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load register r from register r’. 
+
+
+r<r' 
+
+
+ee ree 
+
+
+The contents of the specified source register are 
+loaded into the specified destination register. r and 
+r’ may be any one of: 
+
+
+A - lil E - 011 
+B — 000 H — 100 
+Cc — 001 L — 101 
+D — 010 
+
+A 
+
+B 
+
+D E 
+
+H 
+
+
+1 M cycle; 4 T states; 2 usec @ 2 MHz 
+Implicit. 
+
+
+A BC D E H L _. (source) 
+
+
+A 
+
+
+SZ H P/VV_N C 
+(no effect). 
+
+
+297 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: LD H,A 
+
+
+67 
+
+
+OBJECT CODE 
+
+
+298 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+LD (BC), A Load indirectly addressed memory location (BC) 
+from the accumulator. 
+
+
+Function: (BC) <A 
+Format: 
+fojo;ojolofol:]o} o2 
+Description: The contents of the accumulator are loaded into 
+
+
+the memory location addressed by the contents of 
+the BC register pair. 
+
+
+Data Flow: 4 
+B c 
+D e | 
+H L 
+DATA 
+Timing: 2M cycles; 7 T states; 3.5 usec @ 2 MHz 
+Addressing Mode: Indirect. 
+Flags: soz OH UPN 
+[Lt LT IL] acettecy. 
+Example: LD (BC), A 
+Before: After: 
+of aoe ide «of —id® 
+
+
+4109 
+
+
+OBJECT CODE 
+
+
+299 
+
+
+PROGRAMMING THE Z80 
+
+
+LD (DE), A 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+300 
+
+
+Load indirectly addressed memory location (DE) 
+from the accumulator. 
+
+
+(DE) <A 
+
+
+ofofof?fofotifojr 
+
+
+The contents of the accumulator are loaded into 
+the memory location addressed by the contents of 
+the DE register pair. 
+
+
+zOoD > 
+
+
+am 
+
+
+L 
+
+
+2M cycles; 7 T states; 3.5 usec @ 2 MHz 
+
+
+Indirect. 
+
+$ Zz H PVN C 
+
+CTL ETLELE] wvetes 
+LD (DE), A 
+
+Before: After 
+
+
+LD (HL), n 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load immediate data n into the indirectly ad- 
+dressed memory location (HL). 
+
+
+(HL) <n 
+
+
+Lofof [rfo]+ [so] byte 1: 36 
+cae TT TT 77 byte 2: immediate 
+ot | data 
+
+
+The contents of the memory location immediately 
+following the opcode are loaded into the memory 
+location indirectly addressed by the HL data 
+counter. 
+
+
+xz ow Pp 
+
+
+3M cycles; 10 T states; 5 usec @ 2 MHz 
+
+
+Immediate/indirect. 
+
+
+4 H PVN C 
+(no effect). 
+
+
+301 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: LD (HL), 5A 
+
+
+Before: After: 
+
+
+| 36 asa2| 2D | B/S), 
+J = 
+ro 
+OBJECT CODE 
+
+
+302 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+LD (HL), r Load indirectly addressed memory location (HL) 
+from register r. 
+
+
+Function: (HL) <r 
+
+
+Format: 
+
+
+poets | fol pe | 
+
+
+Description: The contents of the specified register are loaded 
+into the memory location addressed by the HL 
+register pair. r may be any one of: 
+
+
+A - lil E - 0ll 
+B — 000 H — 100 
+C — 001 L - 101 
+D — 010 
+
+
+Data Flow: 
+A 
+B 
+D 
+H 
+Timing: 2 M cycles; 7 T states; 3.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Byte Codes: r 
+
+
+A 8 C BD EF HL 
+ae 
+
+
+303 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: S Zz H PVN C 
+(no effect). 
+Example: LD (HL), B 
+Before: 
+aT ; 
+
+
+OBJECT CODE 
+
+
+304 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+LD r, (IX + d) Load register r indirect from indexed memory 
+location (IX + d) 
+
+
+Function: r<- (UX + d) 
+
+
+Format; 
+
+
+iLrpetififefo[s] byte 1: pp 
+opt Pe | ft fe] byte 2 
+byte 3: offset value 
+
+
+Description: The contents of the memory location addressed by 
+the IX index register plus the given offset value, 
+are loaded into the specified register. r may be any 
+
+
+one of: 
+A - lll E - Oli 
+B — 000 H — 100 
+Cc — 001 L — 10! 
+D — 010 
+
+
+Data Flow: 
+
+
+Timing: 5M cycles; 19 T states; 9.5 usec @ 2 MHz 
+Addressing Mode: Indexed. 
+
+
+Byte Codes: rn A BC OD 
+
+
+ARIES 
+
+
+305 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: $§ Z H PVN C 
+(no effect). 
+Example: LD E, (IX + 5) 
+Before: After: 
+
+
+8 
+8 
+5 
+© 
+> 
+
+
+OBJECT CODE 
+
+
+306 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+LDr, (GY + d) Load register r indirect from indexed memory 
+location (IY + d) 
+
+
+Function: r<(lY + d) 
+
+
+Format: 
+
+
+df rts ti [sje ts | byte 1: rp 
+[0] 1 |-——---~[1 | 1 [0] byte 2 
+byte 3: offset value 
+
+
+Description: The contents of the memory location addressed by 
+the JY index register plus the given offset value, 
+are loaded into the specified register. r may be any 
+
+
+one of: 
+A - lll E —- 011 
+B — 000 H — 100 
+C — 001 L — 101 
+D — 010 
+
+
+Data Flow: 
+
+
+Timing: 5 M cycles, 19 T states; 9.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indexed. 
+
+
+307 
+
+
+PROGRAMMING THE Z80 
+
+
+Byte Codes: r A B C DE H 
+
+
+L 
+FD-| 76 46] 4€ | 56} 56] 66] 6E|-a 
+
+
+Flags: SZ H PVN C 
+(no effect). 
+Example: LD A, (IY + 2) 
+Before: After: 
+
+aL_s | A L/ 
+
+vs] 
+[| — soos] at pos |_| 
+| | 
+| 2 poo7, FF poo7 | Fo 
+y~_] -—~__ yo 
+OBJECT CODE 
+
+
+308 
+
+
+THE 280 INSTRUCTION SET 
+
+
+LD (IX + d),m Load indexed addressed memory location (IX + 
+d) with immediate data n. 
+
+
+Function: (IX + d)<n 
+
+
+tt fof iti] fof tj byte 1: DD 
+fof of if ifofifijo byte 2: 36 
+
+
+data 
+
+
+Format: 
+
+
+Description: The contents of the memory location immediately 
+following the opcode are transferred into the 
+memory location addressed by the contents of the 
+index register plus the given offset value. 
+
+
+Data Flow: 
+A ry 
+. --G 
+D E 
+H i = 
+xd 
+| = | 
+| od 
+po 
+yo 
+Timing: 5 M cycles; 19 T states; 9.5 usec @ 2 MHz 
+Addressing Mode: Indexed/immediate. 
+Flags: $ Zz H PVN C 
+(no effect). 
+
+
+309 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: LD (IX + 4), FF 
+Before: After: 
+
+
+ee 5109 
+
+
+| FR Biopj aE BODY LM 
+| | 
+
+
+OBJECT CODE 
+
+
+310 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+LD (IY + d),m ~~ Load indexed addressed memory location (IY + 
+d) with immediate data n. 
+
+
+Function: qy+daj<“n 
+
+
+Format: 
+
+
+Pye fata fs fs fos | byte 1: FD 
+fofo}+ |r for] fo] byte 2: 36 
+byte 3: offset value 
+
+
+byte 4: immediate 
+‘data 
+
+
+—— $< ff] 
+
+
+Description: The contents of the memory location immediately 
+following the opcode are transferred into the me- 
+mory location addressed by the contents of the 
+index register plus the given offset value. 
+
+
+Data Flow: 
+A 
+B Cc 
+D 'E 
+=—— L 
+WM 
+L_—~_ | 
+Timing: 5 M cycles; 19 T states; 9.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indexed/immediate. 
+
+
+Flags: 4 H pv oN C 
+(no effect). 
+
+
+311 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: LD (IY + 3), BA 
+
+
+Before: After: 
+
+
+ee oro |__oa | 
+26 2 
+
+To | ! 
+
+os [04 ora E 
+
+
+OBJECT CODE 
+
+
+312 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+LD (IX + d)r — Load indexed addressed memory location (IX + 
+d) from register r. 
+
+
+Format: 
+it sfolr|i|ifols] byte pp 
+pol {i {+ [o |---| byte 2 
+———— d ~~» | byte 3: offset value 
+Description: The contents of the specified register are loaded in- 
+to the memory location adressed by the contents of 
+the index register plus the given offset value. r may 
+be any one of: 
+A - Ill E - 011 
+B — 000 H — 100 
+C - 001 L — 101 
+D — 010 
+Data Flow: 
+Timing: 5 M cycles; 19 T states; 9.5 usec @ 2 MHz 
+
+
+313 
+
+
+PROGRAMMING THE Z80 
+
+
+Addressing Mode: Indexed. 
+
+
+Byte Codes: mr: A B C DE 
+coln fo[n Fao) « 
+Flags: S$ Z H PVN C 
+(no effect). 
+Example: LD (UX + 1),C 
+After 
+
+
+4462 
+
+
+| oD 
+4403 G3 
+~~ __] 
+
+
+1 4463 
+
+
+OBJECT CODE 
+
+
+314 
+
+
+LD (IY + d),r 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Byte Codes: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load indexed addressed memory location (IY + 
+d) from register r. 
+
+
+dY + d)<r 
+
+
+yf fs fo ft) byte 1: FD 
+pop} fi fol—- +] byte 2 
+byte 3: offset value 
+
+
+The contents of the specified register are loaded 
+into the memory location addressed by the con- 
+tents of the index register plus the given offset 
+value. r may be any one of: 
+
+
+A- lll E — 0]! 
+B — 000 H — 100 
+Cc — 001 L — 101 
+D — 010 
+
+
+rs 
+
+
+NS 
+
+
+5 M cycles; 19 T states; 9.5 usec @ 2 MHz 
+
+
+Indexed. 
+
+
+A BC 
+
+
+: D E HL 
+of fo]n [ra] [Ps] 
+
+
+315 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+316 
+
+
+$ 2 H PVN C 
+
+
+CELL LE LL] twoetteo 
+
+
+LD (IY + 3),A 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+LD A, (nn) Load accumulator from the memory location 
+(nn). 
+
+Function: A + (nn) 
+
+Format: 
+
+
+ofott ttt) folio] byte 1: 34 
+
+
+byte 2: address, low 
+order byte 
+
+
+|[———- i ae — | byte 3: address, high 
+es a es A Pe | 
+
+
+order byte 
+
+
+——————<< fF ——————— 
+
+
+Description: The contents of the memory location addressed by 
+the contents of the 2 memory locations immediate- 
+ly following the opcode are loaded into the ac- 
+cumulator. The low byte of the address occurs im- 
+mediately after the opcode. 
+
+
+Data Flow: 
+A fot 
+8 c LP 
+D E 
+: PRL 
+oe oe 
+Timing: 4M cycles; 13 T states; 6.5 usec @ 2 MHz 
+
+
+Addressing Mode: Direct. 
+
+
+317 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: $ Zz H PVN C 
+(no effect). 
+Example: LD A, (3301) 
+Before: After: 
+
+A GF 
+a el 
+| or 
+ae we NO 
+
+
+OBJECT CODE 
+
+
+318 
+
+
+LD (nn),A 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+to ow p 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load directly addressed memory location (nn) 
+from accumulator. 
+
+
+(nn) - A 
+
+
+of ols] sfofeo]1]o] byte 1: 32 
+
+
+byte 2: address, low 
+order 
+n—_' |} byte 3: address, high 
+order 
+
+
+, 
+
+
+The contents of the accumulator are loaded into 
+the memory location addressed by the contents of 
+the memory locations immediately following the 
+opcode. The low byte of the address immediately 
+follows the opcode. 
+
+
+i} 
+
+
+4M cycles; 13 T states; 6.5 usec @ 2 MHz 
+
+
+Direct. 
+
+
+319 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+320 
+
+
+§ 2 H Py ON C 
+
+
+CELE LL vette 
+
+
+LD (032i), A 
+
+
+Before: After: 
+7 A 
+
+
+ogz1{ 06 
+
+
+LD (nn), dd 
+
+
+Function: 
+
+
+Format: 
+
+
+Descriptions: 
+
+
+Data Flow: 
+
+
+roOM Pp 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load memory locations addressed by nn from 
+register pair rr. 
+
+
+(nn) —ddiow; (nn + 1) “ddhigh 
+
+
+[ui fefofifi lo [| byte 1: ED 
+pol t{e efofo |i]: | byte2 
+
+
+byte 3: address, 
+
+
+" i 41 tt} low order 
+: T byte 4: address, 
+high order 
+
+
+The contents of the low order of the specified 
+register pair are loaded into the memory location 
+addressed by the memory locations immediately 
+following the opcode. The contents of the high 
+order of the register pair are loaded into the 
+memory location immediately following the one 
+loaded from the low order. The low order of the 
+nn address occurs immediately after the opcode.dd 
+may be anyone of: 
+
+
+BC — 00 HL - 10 
+DE — 01 SP —- ll 
+
+
+LI; 
+LLL 
+
+
+321 
+
+
+PROGRAMMING THE Z80 
+
+
+Timing: 6 M cycles; 20 T states; 10 usec @ 2 MHz 
+Addressing Mode: Direct. 
+
+
+Byte Codes: dd: BC DE HE SP 
+
+
+=[o[=]s]7 
+
+
+Flags: 4 H PVN C 
+(no effect). 
+Example: LD (040B), BC 
+Before: After: 
+
+
+pe] — owe | a8 0«0c V6 / 
+a ) 
+
+
+OBJECT 
+CODE 
+
+
+322 
+
+
+LD (nn), HL 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load the memory locations addressed by nn from 
+HL. 
+
+
+(nn) « L; (nn + 1)<H 
+
+
+of of fojofo]s fo} byte 1: 22 
+a a byte 2: address, 
+ttt low order 
+
+
+i T_T) byte 3: address, 
+Stadt ttt high order 
+
+
+The contents of the L register are loaded into the 
+memory location addressed by the memory loca- 
+tions immediately following the opcode. The con- 
+tents of the H register are loaded into the memory 
+location immediately following the location 
+loaded form the L register. The low order of the 
+nn address occurs immediately after the opcode. 
+
+
+5 M cycles; 16 T states; 8 usec @ 2 MHz 
+
+
+Direct. 
+
+
+323 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: 
+
+
+Example: 
+
+
+H P/V_N C 
+
+
+CLIT TELL] etteo 
+
+
+LD (40B9), HL 
+
+
+Before: After: 
+
+
+1 a SS 
+
+
+40B9[ 20 Be AAT 
+
+
+40BA BAY 077) 
+
+
+LD (nn), IX 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+rtio@M } 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load memory locations addressed by nn from IX. 
+(nn) ~ IXjow; (nn + 1) — IXhigh 
+
+
+CE RE DTTP] bye t: pp 
+
+
+fofo}: fofofo]s[o} byte 2: 22 
+
+ae byte 3: address, 
+low order 
+
+be gress 
+high order 
+
+
+The contents of the low order of the [X register 
+are loaded into the memory location addressed by 
+the contents of the memory location immediately 
+following the opcode. The contents of the high 
+order of the IX register are loaded into the 
+memory location immediately following the one 
+loaded from the low order. The low order of the 
+nn address occurs immediately after the op code. 
+
+
+6 M cycles; 20 T states; 10 usec @ 2 MHz 
+
+
+Direct. 
+
+
+325 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: $2 H PVN C 
+PT ELLE TL] troctes 
+Example: LD (012B), 1X 
+Before: After: 
+| oD 
+an 
+| 
+| ot 
+
+
+OBJECT 
+CODE 
+
+
+326 
+
+
+LD (nn), IY 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing. 
+
+
+Addressing Mode: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load memory locations addressed by nn from LY. 
+
+
+(nn’ — TYjows (an + 1) — TYhigh 
+
+
+ryeayaya Fifajol]y| byte 1: FD 
+[ofo[fofofofs [| byte 2: 22 
+low order 
+
+byte 4: adres 
+high order 
+
+
+The contents of the low order of the LY register are 
+loaded into the memory location addressed by the 
+contents of the memory locations immediately 
+following the opcode. The contents of the high 
+order of the LY register are loaded into the 
+memory location immediately following the one 
+loaded from the low order. The low order of the 
+nn address occurs immediately after the opcode. 
+
+
+Hy 
+WHI. 
+
+
+| _ = 
+
+
+6 M cycles; 20 T states; 10 usec @ 2 MHz 
+
+
+Direct. 
+
+
+327 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+328 
+
+
+S$ Zz H PVN C 
+(no effect) 
+
+
+LD (BD04), IY 
+
+
+Before: After: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+LD A, (BC) Load accumulator from the memory location in- 
+directly addressed by the BC register pair. 
+
+
+Function: A = (BC) 
+
+
+Format: 
+
+
+fo} olo|o ‘fol Fo | 0A 
+
+
+Description: The contents of the memory location addressed 
+by the contents of the BC register pair are loaded 
+into the accumulator. 
+
+
+Data Flow: 
+A 
+B iC 
+p : © | (om 
+H L 
+Timing: 2M cycles; 7 T states; 3.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: SZ H PV_N C 
+
+CITT TELL] cette. 
+Example: LD A, (BC) 
+
+Before: After: 
+
+
+Bs} = se “<$eCCi 32D1 c 
+
+
+— — 
+
+
+OBJECT CODE 
+
+
+329 
+
+
+PROGRAMMING THE Z80 
+
+
+LD A, (DE) 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Load the accumulator from the memory location 
+indirectly addressed by the DE register pair. 
+
+
+A = (DE) 
+
+
+fofofofs|rfo}ifo}ia 
+
+
+The contents of the memory location addressed by 
+the contents of the DE register pair are loaded into 
+the accumulator. 
+
+
+2 M cycles; 7 T states; 3.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: 
+
+
+Example: 
+
+
+iA 
+
+
+OBJECT CODE 
+
+
+330 
+
+
+S$ 2Z H PVN C 
+CITE TCL LL) ects 
+LD A, (DE) 
+Before After: 
+2 LEU 
+oa 
+
+
+THE 280 INSTRUCTION SET 
+
+
+LD A,I Load accumuiator from interrupt vector register I. 
+Function: ie | 
+Format; 
+
+
+CP Efe [LoL] byte 1: ep 
+Lol Lop Lots Ts] byte 2: 57 
+
+
+Description: The contents of the interrupt vector register are 
+loaded into the accumulator. 
+
+
+Data Flow: 
+
+
+Timing: 2 M cycles; 9 T states; 4.5 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Flags: 5 Zz H PVN C s h 
+ee x et to the contents 
+[eje! lol TxJol | of IFF2 
+Example: LD A,I 
+Before: After: 
+at 30 LBL CARB [ae 
+|e 
+
+
+OBJECT CODE 
+
+
+331 
+
+
+PROGRAMMING THE Z80 
+
+
+LD LA Load Interrupt Vector register I from the ac- 
+cumulator. 
+Function; I-A 
+
+
+Format: Fifafafofrfrfolr | byte 1: ED 
+eT Tefe[oT LP] bye 2:7 
+
+
+Description: The contents of the accumulator are loaded into 
+the Interrupt Vector register. 
+
+
+Data Flow: A 
+B 
+D 
+H 
+Timing: 2M cycles; 9 T states; 4.5 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Flags $s Zz H PV N C 
+(no effect) 
+Example: LD IA 
+Before: After: 
+
+
+af 'C ale 1 YAW 
+
+
+OBJECT CODE 
+
+
+332 
+
+
+LD A,R 
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+| ED 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load accumulator from Memory Refresh register 
+R. 
+
+
+A+R 
+
+
+Pada | Fofafifo]s | byte 1: ED 
+po} Poff aff] | byte 2: sF 
+
+
+The contents of the Memory Refresh register are 
+loaded into the accumulator. 
+
+
+zoe +}, 
+m 
+
+
+2M cycles; 9 T states; 4.5 usec @ 2 MHz 
+Implicit. 
+
+
+5 PVN C 
+
+
+CIC Edom 
+
+
+Asset to contents of IFF2 
+
+
+LD A,R 
+
+
+Before: After: 
+
+
+aj _62__;R[ 4A | ALaRF9- Rh, tA 
+
+
+333 
+
+
+PROGRAMMING THE Z80 
+
+
+LD HL, (mn) Load HL register from memory locations addres- 
+sed by nn, 
+
+
+Function: L < (nn); H < (nn + 1) 
+
+
+Format: 
+foto} fofr fo]: fo] byte 1: 24 
+
+
+byte 2: address, low 
+order 
+byte 3: address, high 
+order 
+
+
+—— ee 
+
+
+| 
+
+
+Description: The contents of the memory location addressed by 
+the memory locations immediately after the op- 
+code are loaded into the L register. The contents 
+of the memory location after the one loaded into 
+the L register are loaded into the H register. The 
+low byte of the nn address occurs immediately 
+after the opcode. 
+
+
+Data Flow: 
+
+
+ro @ yp 
+
+
+Timing: 5 M cycles, 16 T states; 8 usec @ 2 MHz 
+
+
+Addressing Mode: Direct. 
+
+
+H PVN C 
+
+
+SZ £ 
+[ | | | | | | | | (no effect) 
+
+
+Flags: 
+
+
+334 
+
+
+Example: 
+
+
+iT 
+
+
+2 
+24 
+
+
+(| 
+
+
+OBJECT CODE 
+
+
+THE 280 INSTRUCTION SET 
+
+
+LD HL, (0024) 
+
+
+Before: After: 
+
+
+335 
+
+
+PROGRAMMING THE Z80 
+
+
+LD IX, nn Load IX register with immediate data nn. 
+
+
+Function: IX + nn 
+
+
+Format: 
+Pty fofefi te fos] byte 1: DD 
+fo}o} i fojo}o}o]s | byte 2: 21 
+byte 3: immediate 
+data, low order 
+-Ft ee) byte 4: immediate 
+data, high order 
+
+
+Description: The contents of the memory locations immediate- 
+ly following the opcode are loaded into the IX 
+register. The low order byte occurs immediately 
+after the opcode. 
+
+
+Data Flow: 
+
+
+Timing: 4M cycles; 14 T states; 7 usec @ 2 MHz 
+
+
+Addressing Mode: immediate. 
+
+
+Flags: SZ H PV N C 
+(no effect) 
+
+
+336 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+IX 
+
+
+LD 1x, BOBI 
+
+
+Before: 
+
+
+306F 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+After: 
+
+
+ix Gy, 03 ' Gy 
+
+
+337 
+
+
+PROGRAMMING THE Z80 
+
+
+LD IX, (an) 
+
+
+Function: 
+
+
+Format: 
+
+
+Descriptions: 
+
+
+Data Flow: 
+
+
+x WMA 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+338 
+
+
+al 
+
+
+Load 1X register from memory locations ad- 
+dressed by nn. 
+
+
+IXjow © (nn); IXpigh + (an + 1) 
+
+
+[effet fe}: [eo] ] byte 1: pp 
+[ofo|1 fo [1 [ofr [0 | byte 2: 2A 
+-—————, byte 3: address, 
+—-1—_L—_1— low order 
+SE i oe 
+
+
+The contents of the memory location addressed by 
+the memory locations immediately following the 
+opcode are loaded into the low order of the IX 
+register. The contents of the memory location im- 
+mediately following the one loaded into the low 
+order are loaded into the high order of the 1X reg- 
+ister. The low order of the nn address immediately 
+follows the opcode. 
+
+
+6 M cycles; 20 T states; 10 usec @ 2 MHz 
+
+
+Direct. 
+
+
+Flags: 
+
+
+Example: 
+
+
+WN 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+LD IX, (010B) 
+
+
+Before: After: 
+nn | 
+oos| 0 orp] oo 
+oroc| 32 ooc| 32 
+
+
+339 
+
+
+PROGRAMMING THE Z80 
+
+
+LD IY, (nn) Load IY register with immediate data nn. 
+
+
+Function: IY «nn 
+
+
+Format: 
+Pet fet fs [fo [| byte 1: FD 
+PTL TopoTe [oT] byte 2:21 
+-—— byte 3: immediate 
+data, low order 
+-—— byte 4: immediate 
+data, high order 
+
+
+Description. The contents of the memory locations immediate- 
+ly following the opcode are loaded into the IY 
+register. The iow order byte occurs immediately 
+after the opcode. 
+
+
+Data Flow: 
+A 
+B 
+D 
+H 
+IY 
+Timing: 4M cycles; 14 T states; 7 usec @ 2 MHz 
+
+
+Addressing Mode: Immediate. 
+
+
+340 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE 280 INSTRUCTION SET 
+
+
+LD IY, 21 
+
+
+Before: After: 
+
+
+341 
+
+
+PROGRAMMING THE Z80 
+
+
+LD IY,nn 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+342 
+
+
+Load register TY from memory locations addressed 
+
+
+by nn. 
+
+
+TYiow * (nn); IYpigh © (nn + 1) 
+
+
+CEE DT [of Jove t: Fp 
+fofofi [ofr fo]: Jo | byte 2: 2A 
+low order 
+
+
+byte 4: address, 
+high order 
+
+
+n 
+
+
+The contents of the memory location addressed by 
+the memory locations immediately following the 
+opcode are loaded into the low order of the ITY 
+register. The contents of the memory location im- 
+mediately following the one loaded into the low 
+order are loaded into the high order of the 1Y 
+register. The low order of the nn address im- 
+
+
+mediately follows the opcode. 
+
+
+zoo Fr 
+
+
+\\ LMM 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Timing: 6M cycles; 20 T states; 10 usec @ 2 MHz 
+
+
+Addressing Mode: Direct. 
+
+
+Flags: $2 H PAV NC 
+(no effect). 
+Example: LD IY, (S00D) 
+Before: After: 
+
+
+Iv | 6002 WW 0—~¥«K<: HG 
+
+
+| FD soo | os 500} a3 
+500E SOOE{ 44 
+
+
+OBJECT 
+CODE 
+
+
+343 
+
+
+PROGRAMMING THE Z80 
+
+
+LD R,A 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+| ED 
+
+
+OBJECT CODE 
+
+
+344 
+
+
+Load Memory Refresh register R from the ac- 
+cumulator. 
+
+
+R<-A 
+
+
+Py fefej ry: foli) byte 1: ED 
+pop Pofop fe fifi} byte 2: 4F 
+
+
+The contents of the accumulator are loaded into 
+the Memory Refresh register. 
+
+
+ro 8 } 
+
+
+2M cycles; 9 T states; 4.5 usec @ 2 MHz 
+
+
+Implicit. 
+
+
+§ Z H PAY N € 
+PLE CELL] eoetes 
+LD R,A 
+
+Before: After: 
+
+
+ator =| r{__ ao AL or | Ror" 
+
+
+LD SP, HL 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load stack pointer from HL. 
+
+
+SP -— HL 
+
+
+UE t pp fefet ] rs 
+
+
+The contents of the HL register pair are loaded in- 
+to the stack pointer. 
+
+
+i M cycles; 6 T states; 3 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Flags: 
+Example: 
+
+
+OBJECT 
+CODE 
+
+
+PV N C 
+
+
+§ Z H 
+[Li Lil | | | (no effect) 
+
+
+LD SP, HL 
+
+
+Before: After: 
+
+
+345 
+
+
+PROGRAMMING THE Z80 
+
+
+LD SP, IX 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT 
+CODE 
+
+
+346 
+
+
+Load stack pointer from 1X register. 
+
+
+SP < IX 
+
+
+P| 1 Fofalafifo}y| byte 1: DD 
+CTD TT TeTe TT ovte 2:9 
+
+
+The contents of the X register are loaded into the 
+stack pointer. 
+
+
+2M cycles; 10 T states; 5 usec @ 2 MHz 
+
+
+Implicit. 
+
+sz 4 Pv NE 
+
+[ LLL iz [ LI “| (no effect) 
+LD SP, IX 
+
+Before: After: 
+
+
+sel suaoss—=«d‘(Ciés 9 
+
+
+LD SP, IY 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Load stack pointer from IY register. 
+
+
+SP < lY 
+
+
+Fatata} a} 1}ofo i | byte 2: F9 
+
+
+The contents of the 1Y register are loaded into the 
+stack pointer. 
+
+
+rU 8 >} 
+faa) 
+
+
+iY 
+SP GZ 
+
+
+2M cycles; 10 T states; 5 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+5s 2 H PVN C 
+
+
+CTT LT LJ erettecy 
+LD SP, IY 
+Before: After: 
+
+1Y O9AB IY O9AB 
+
+
+347 
+
+
+PROGRAMMING THE Z80 
+
+
+LDD 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Block load with decrement. 
+
+
+(DE) « (HL); DE< DE - 1;HL<«HL-— 1; 
+BC « BC - 1 
+
+
+iprfrfopr fr josy| byte 1: ED 
+yop fey tfofofo] byte 2: a8 
+
+
+The contents of the memory location addressed by 
+HL are loaded into the memory focation address- 
+ed by DE. Then BC, DE, and HL are all 
+decremented. 
+
+
+el 
+ee 
+77 prstination 77/77 € 
+
+
+\ ee) 
+
+
+4M cycles; 16 T states; 8 usec @ 2 MHz 
+
+
+Addressing Modes: Indirect. 
+
+
+Flags: 
+
+
+348 
+
+
+Sor 
+
+
+— Reset if BC = 0 after 
+execution, set otherwise. 
+
+
+Example: 
+
+
+| co 
+a 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+LDD 
+
+
+Before: After: 
+
+
+D 

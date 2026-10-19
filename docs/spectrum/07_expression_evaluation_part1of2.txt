@@ -1,0 +1,6004 @@
+# Spectrum ROM Disassembly - Expression Evaluation
+Part 1/2
+
+---
+
+EXPRESSION EVALUATION 
+
+THE 'SCANNING' SUBROUTINE 
+
+This subroutine is used to produce an evaluation result of the 'next expression'. 
+
+The result is returned as the 'last value' on the calculator stack. For a numerical result, the last value will be the actual floating point 
+number. Flowever, for a string result the last value will consist of a set of parameters. The first of the five bytes is unspecified, the 
+second and third bytes hold the address of the start of the string and the fourth and fifth bytes hold the length of the string. 
+
+Bit 6 of FLAGS is set for a numeric result and reset for a string result. 
+
+When a next expression consists of only a single operand, e.g. ... A ..., ... RND A$ (4, 3 TO 7) ... , then the last value is simply 
+
+the value that is obtained from evaluating the operand. 
+
+Flowever when the next expression contains a function and an operand, e.g. ... CFIFt$ A..., ... NOT A ... , SIN 1 ..., the operation 
+code of the function is stored on the machine stack until the last value of the operand has been calculated. This last value is then 
+subjected to the appropriate operation to give a new last value. 
+
+In the case of there being an arithmetic or logical operation to be performed, e.g. ... A+B ... , A*B ..., ... A=B ... , then both the last 
+value of the first argument and the operation code have to be kept until the last value of the second argument has been found. Indeed 
+the calculation of the last value of the second argument may also involve the storing of last values and operation codes whilst the 
+calculation is being performed. 
+
+It can therefore be shown that as a complex expression is evaluated, e.g. ... CFIR$ (T+A - 26*INT ((T+A)/26)+65)..., a hierarchy of 
+operations yet to be performed is built up until the point is reached from which it must be dismantled to produce the final last value. 
+
+Each operation code has associated with it an appropriate priority code and operations of higher priority are always performed before 
+those of lower priority. 
+
+The subroutine begins with the A register being set to hold the first character of the expression and a starting priority marker - zero - 
+being put on the machine stack. 
+
+
+SCANNING 
+
+RST 
+
+001 8, GET-CHAR 
+
+The first character is fetched. 
+
+
+LD 
+
+B,+00 
+
+The starting priority marker. 
+
+
+PUSH 
+
+BC 
+
+it is stacked. 
+
+S-LOOP-1 
+
+LD 
+
+C,A 
+
+The main re-entry point. 
+
+
+LD 
+
+HL.+2596 
+
+Index into scanning function 
+
+
+CALL 
+
+16DC, INDEXER 
+
+table with the code in C. 
+
+
+LD 
+
+A,C 
+
+Restore the code to A. 
+
+
+JP 
+
+NC,2684,S-ALPHNUM 
+
+Jump if code not found in table. 
+
+
+LD 
+
+B,+00 
+
+Use the entry found in the table 
+
+
+LD 
+
+C,(HL) 
+
+to build up the required address 
+
+
+ADD 
+
+HL,BC 
+
+in HL, and jump to it. 
+
+
+JP 
+
+(HL) 
+
+
+
+Four subroutines follow; they are called by routines from the scanning function table. The first one, the 'scanning quotes subroutine', is 
+used by S-QUOTE to check that every string quote is matched by another one. 
+
+
+S-QUOTE-S CALL 
+
+0074,CH-ADD+1 
+
+Point to the next character. 
+
+INC 
+
+BC 
+
+Increase the length count by 
+one. 
+
+CP 
+
++0D 
+
+Is it a carriage return? 
+
+JP 
+
+Z, 1C8A.REPORT-C 
+
+Report the error if so. 
+
+CP 
+
++22 
+
+Is it another ""? 
+
+JR 
+
+NZ,250F, S-QUOTE-S 
+
+Loop back if it is not. 
+
+CALL 
+
+0074,CH-ADD+1 
+
+Point to next character; set zero 
+
+CP 
+
++22 
+
+flag if it is another 
+
+RET 
+
+
+Finished. 
+
+
+The next subroutine, the 'scanning: two co-ordinates' subroutine, is called by S-SCREEN$, S-ATTR and S-POINT to make sure the 
+required two co-ordinates are given in their proper form. 
+
+
+2522 S-2-COORD RST 
+CP 
+
+
+0020, NEXT-CHAR 
++28 
+
+
+Fetch the next character. 
+Is it a '('? 
+
+
+127 
+
+
+
+
+JR 
+
+NZ.252D, S-RPORT-C 
+
+Report the error if it is not. 
+
+
+CALL 
+
+1C79.NEXT-2NUM 
+
+Co-ordinates to calculator stack. 
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Fetch the current character. 
+
+
+CP 
+
++29 
+
+Is it a ')'? 
+
+252 D S-RPORT-C 
+
+JP 
+
+NZ,1C8A,REPORT-C 
+
+Report the error if it is not. 
+
+THE 'SYNTAX-Z' SUBROUTINE 
+
+
+At this point the 'SYNTAX-Z' subroutine is interpolated. It is called 32 times, with a saving of just one byte each call. A simple test 
+7 of FLAGS will give the zero flag reset during execution and set during syntax checking. 
+
+i.e. SYNTAX gives Z set. 
+
+
+
+2530 SYNTAX-Z 
+
+BIT 
+
+7, (FLAGS) 
+
+Test bit 7 of FLAGS. 
+
+
+RET 
+
+
+Finished. 
+
+The next subroutine is the 'scanning SCREENS subroutine', which is used by S-SCREENSS to find the character that appears at 1 
+
+column y of the screen. 
+
+It only searches the character set 'pointed to' to CFIARS. 
+
+Note: This is normally the characters +20 (space) to +7F (©) although the user can alter CFIARS to match for other characters, 
+
+including user-defined graphics. 
+
+
+
+2535 S-SCRNS-S 
+
+CALL 
+
+2307.STK-TO-BC 
+
+x to C, y to B; 0<=x<23 
+
+
+LD 
+
+HL, (CHARS) 
+
+decimal: 0<=y<=31 decimal. 
+
+
+LD 
+
+DE,+0100 
+
+CHARS plus 256 decimal gives 
+
+
+ADD 
+
+HL,DE 
+
+HL pointing to the character set. 
+
+
+LD 
+
+A,C 
+
+x is copied to A. 
+
+
+RRCA 
+
+
+The number 32 (decimal) * (x 
+
+
+RRCA 
+
+
+mod 8) + y is formed in A and 
+copied to E. 
+
+
+RRCA 
+
+
+This is the low byte of the 
+
+
+AND 
+
++E0 
+
+required screen address. 
+
+
+XOR 
+
+B 
+
+
+
+LD 
+
+E,A 
+
+
+
+LD 
+
+A,C 
+
+x is copied to A again 
+
+
+AND 
+
++18 
+
+Now the number 64 (decimal) + 
+
+
+XOR 
+
++40 
+
+8*INT (x/8) is inserted into D. 
+
+
+LD 
+
+D,A 
+
+DE now holds the screen address. 
+
+
+LD 
+
+B,+60 
+
+B counts the 96 characters. 
+
+254 F S-SCRN-LP 
+
+PUSH 
+
+BC 
+
+Save the count. 
+
+
+PUSH 
+
+DE 
+
+And the screen pointer. 
+
+
+PUSH 
+
+HL 
+
+And the character set pointer. 
+
+
+LD 
+
+A,(DE) 
+
+Get first row of screen character. 
+
+
+XOR 
+
+(HL) 
+
+Match with row from character 
+set. 
+
+
+JR 
+
+Z.255A, S-SC-MTCH 
+
+Jump if direct match found. 
+
+
+INC 
+
+A 
+
+Now test for match with inverse 
+character (get +00 in A from 
++FF). 
+
+
+JR 
+
+NZ,2573,S-SCR-NXT 
+
+Jump if neither match found. 
+
+
+DEC 
+
+A 
+
+Restore +FF to A. 
+
+255A S-SC-MTCH 
+
+LD 
+
+C,A 
+
+Inverse status (+00 or +FF) to C. 
+
+
+LD 
+
+B,+07 
+
+B counts through the other 7 
+
+
+
+
+rows. 
+
+255D S-SC-ROWS 
+
+INC 
+
+D 
+
+Move DE to next row (add 256 
+dec.). 
+
+
+INC 
+
+HL 
+
+Move HL to next row (i.e. next 
+byte). 
+
+
+LD 
+
+A,(DE) 
+
+Get the screen row. 
+
+
+XOR 
+
+(HL) 
+
+Match with row from the ROM. 
+
+
+XOR 
+
+C 
+
+Include the inverse status. 
+
+
+JR 
+
+NZ,2573,S-SCR-NXT 
+
+Jump if row fails to match. 
+
+
+DJNZ 
+
+255D, S-SC-ROWS 
+
+Jump back till all rows done. 
+
+
+POP 
+
+BC 
+
+Discard character set pointer. 
+
+
+POP 
+
+BC 
+
+And screen pointer. 
+
+
+128 
+
+
+
+2573 
+
+
+257D 
+
+
+S-SCR-NXT 
+
+
+S-SCR-STO 
+
+
+POP 
+
+BC 
+
+LD 
+
+A, +80 
+
+SUB 
+
+B 
+
+LD 
+
+BC,+0001 
+
+RST 
+
+0030,BC-SPACES 
+
+LD 
+
+(DE),A 
+
+JR 
+
+257D, S-SCR-STO 
+
+POP 
+
+HL 
+
+LD 
+
+DE.+0008 
+
+ADD 
+
+HL,DE 
+
+POP 
+
+DE 
+
+POP 
+
+BC 
+
+DJNZ 
+
+254F,S-SCRN-LP 
+
+LD 
+
+C,B 
+
+JP 2AB2,STK-STO-$ 
+
+
+Final count to BC. 
+
+Last character code in set plus 
+one. 
+
+A now holds required code. 
+
+One space is now needed in the 
+work space. 
+
+Make the space. 
+
+Put the character into it. 
+
+Jump to stack the character. 
+Restore character set pointer. 
+Move it on 8 bytes, to the next 
+character in the set. 
+
+Restore the screen pointer. 
+
+And the counter. 
+
+Loop back for the 96 characters. 
+Stack the empty string (Length 
+zero). 
+
+Jump to stack the matching 
+character, or the null string if 
+no match is found. 
+
+
+Note: This exit, via STK-STO-$, is a mistake as it leads to 'double storing' of the string result (see S-STRING, 25DB). The instruction 
+line should be 'RET'. 
+
+
+The last of these four subroutines is the 'scanning attributes subroutine'. It is called by S-ATTR to return the value of ATTR (x,y) 
+which codes the attributes of line x, column y on the television screen. 
+
+
+S-ATTR-S CALL 
+
+2307,STK-TO-BC 
+
+x to C, y to B. Again, 0<=x<=23 
+
+LD 
+
+A,C 
+
+decimal: 0<=y<=31 decimal. 
+
+RRCA 
+
+
+x is copied to A and the number 
+
+RRCA 
+
+
+32 (decimal)*x (mod 8)+y is 
+
+RRCA 
+
+
+formed in A and copied to L. 
+
+LD 
+
+C,A 
+
+32*x(mod 8)+INT (x/8) is also 
+
+AND 
+
++E0 
+
+copied to C. 
+
+XOR 
+
+B 
+
+
+LD 
+
+L,A 
+
+L holds low byte of attribute 
+address. 
+
+LD 
+
+A,C 
+
+32*x(mod 8)+INT (x/8) is 
+copied to A. 
+
+AND 
+
++03 
+
+88 (decimal)+INT (x/8) is 
+
+XOR 
+
++58 
+
+formed in A and copied to FI. 
+
+LD 
+
+H,A 
+
+FI holds high byte of attribute 
+address. 
+
+LD 
+
+A,(HL) 
+
+The attribute byte is copied to 
+
+A. 
+
+Exit, stacking the required byte. 
+
+JP 
+
+2D28.STACK-A 
+
+
+THE SCANNING FUNCTION TABLE 
+
+This table contains 8 functions and 4 operators. It thus incorporates 5 new Spectrum functions and provides a neat way of accessing 
+some functions and operators which already existed on the ZX81 . 
+
+
+location 
+
+code 
+
+offset 
+
+2596 
+
+22 
+
+1C 
+
+2598 
+
+28 
+
+4F 
+
+259A 
+
+2E 
+
+F2 
+
+259C 
+
+2B 
+
+12 
+
+259 E 
+
+A8 
+
+56 
+
+25A0 
+
+A5 
+
+57 
+
+25A2 
+
+A7 
+
+84 
+
+25A4 
+
+A6 
+
+8F 
+
+25A6 
+
+C4 
+
+E6 
+
+25A8 
+
+AA 
+
+BF 
+
+25AA 
+
+AB 
+
+C7 
+
+
+name 
+
+S-QUOTE 
+
+S-BRACKET 
+
+S-DECIMAL 
+
+S-U-PLUS 
+
+S-FN 
+
+S-AND 
+
+S-PI 
+
+S-INKEY$ 
+
+S-BIN (EQU. S-DECIMAL) 
+S-SCREEN$ 
+
+S-ATTR 
+
+
+address of handling routine 
+
+25B3 
+
+25E8 
+
+268 D 
+
+25AF 
+
+25F5 
+
+25F8 
+
+2627 
+
+2634 
+
+268 D 
+
+2668 
+
+2672 
+
+
+129 
+
+
+
+25AC A9 CE 
+
+S-POINT 
+
+267B 
+
+
+25AE 00 
+
+
+End-marker 
+
+
+THE SCANNING FUNCTION ROUTINES 
+
+
+25AF S-U-PLUS 
+
+RST 
+
+0020,NEXTCHAR 
+
+For unary plus, simply move on 
+
+
+JP 
+
+24FF.S-LOOP-1 
+
+to the next character and jump 
+back to the main re-entry 
+of SCANNING. 
+
+The 'scanning QUOTE routine': This routine deals with string quotes, whether simple like "name" or more complex like "a ""white"" lie" 
+
+or the seemingly redundant VAL$ a’" 
+
+
+
+25B3 S-QUOTE 
+
+RST 
+
+001 8, GET-CHAR 
+
+Fetch the current character. 
+
+
+INC 
+
+HL 
+
+Point to the start of the string. 
+
+
+PUSH 
+
+HL 
+
+Save the start address. 
+
+
+LD 
+
+BC.+0000 
+
+Set the length to zero. 
+
+
+CALL 
+
+250F,S-QUOTE-S 
+
+Call the "matching" subroutine. 
+
+
+JR 
+
+NZ.25D9, S-Q-PRMS 
+
+Jump if zero reset - no more 
+quotes. 
+
+25BE S-Q-AGAIN 
+
+CALL 
+
+250F,S-QUOTE-S 
+
+Call it again for a third quote. 
+
+
+JR 
+
+Z,25BE, S-Q-AGAIN 
+
+And again for the fifth, seventh 
+etc. 
+
+
+CALL 
+
+2530,SYNTAX-Z 
+
+If testing syntax, jump to reset 
+
+
+JR 
+
+Z,25D9, S-Q-PRMS 
+
+bit 6 of FLAGS and to continue 
+scanning. 
+
+
+RST 
+
+0030,BC-SPACES 
+
+Make space in the work space 
+for the string and the 
+terminating quote. 
+
+
+POP 
+
+HL 
+
+Get the pointer to the start. 
+
+
+PUSH 
+
+DE 
+
+Save the pointer to the first 
+space. 
+
+25CB S-Q-COPY 
+
+LD 
+
+A,(HL) 
+
+Get a character from the string. 
+
+
+INC 
+
+HL 
+
+Point to the next one. 
+
+
+LD 
+
+(DE),A 
+
+Copy last one to work space. 
+
+
+INC 
+
+DE 
+
+Point to the next space. 
+
+
+CP 
+
++22 
+
+Is last character a ""? 
+
+
+JR 
+
+NZ.25CB, S-Q-COPY 
+
+If not, jump to copy next one. 
+
+
+LD 
+
+A,(HL) 
+
+But if it was, do not copy next 
+
+
+INC 
+
+HL 
+
+one; if next one is a jump 
+
+
+CP 
+
++22 
+
+to copy the one after it; 
+
+
+JR 
+
+Z,25CB, S-Q-COPY 
+
+otherwise, finished with copying. 
+
+25D9 S-Q-PRMS 
+
+DEC 
+
+BC 
+
+Get true length to BC. 
+
+Note that the first quote was not counted into the length; the final quote was, and is discarded now. Inside the string, the first, third, fifth, 
+
+etc., quotes were counted in but the second, fourth, etc., were not. 
+
+
+
+POP 
+
+DE 
+
+Restore start of copied string. 
+
+25DB S-STRING 
+
+LD 
+
+HL.+5C3B 
+
+This is FLAGS; this entry point 
+
+
+RES 
+
+6, (H L) 
+
+is used whenever bit 6 is to be 
+
+
+BIT 
+
+7,(HL) 
+
+reset and a string stacked if exe- 
+
+
+CALL 
+
+NZ,2AB2,STK-STO-S 
+
+cuting a line. This is done now. 
+
+
+JP 
+
+2712,S-CONT-2 
+
+Jump to continue scanning the 
+line. 
+
+Note that in copying the string to the work space, every two pairs of string quotes inside the string ("") have been reduced to one pair of 
+
+string quotesf"). 
+
+
+
+
+25E8 S-BRACKET 
+
+RST 0020, NEXT-CHAR 
+
+The ’scanning BRACKET 
+
+
+CALL 
+
+24FB, SCANNING 
+
+routine’ simply gets the 
+
+
+CP 
+
++29 
+
+character and calls SCANNING 
+recursively. 
+
+
+JP 
+
+NZ,1C8A,REPORT-C 
+
+Report the error if no matching 
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+bracket; then continue scanning. 
+
+
+130 
+
+
+
+25F5 S-FN 
+
+
+JP 
+
+JP 
+
+
+2712,S-CONT-2 
+
+27BD.S-FN-SBRN The 'scanning FN routine'. 
+
+
+This routine, for user-defined functions, just jumps to the 'scanning FN subroutine'. 
+
+
+25F8 
+
+S-RND 
+
+CALL 
+
+2530,SYNTAX-Z 
+
+Unless syntax is being checked, 
+
+
+
+JR 
+
+Z, 2626, S-RND-END 
+
+jump to calculate a random 
+number. 
+
+
+
+LD 
+
+BC,(SEED) 
+
+Fetch the current value of 
+
+SEED. 
+
+
+
+CALL 
+
+2D2B,STACK-BC 
+
+Put it on the calculator stack. 
+
+
+
+RST 
+
+0028,FP-CALC 
+
+Now use the calculator, 
+
+
+
+DEFB 
+
++A1,stk-one 
+
+The 'last value' is now 
+
+
+
+DEFB 
+
++0F, addition 
+
+SEED+1 . 
+
+
+
+DEFB 
+
++34,stk-data 
+
+Put the decimal number 75 
+
+
+
+DEFB 
+
++37,exponent+87 
+
+on the calculator stack. 
+
+
+
+DEFB 
+
++16, (+00, +00, +00) 
+
+
+
+
+DEFB 
+
++04, multiply 
+
+'last value' (SEED+1 )*75. 
+
+
+
+DEFB 
+
++34,stk-data 
+
+See STACK LITERALS to see 
+
+
+
+DEFB 
+
++80, (four bytes) 
+
+how bytes are expanded so as to 
+
+
+
+DEFB 
+
++41 .exponent +91 
+
+put the decimal number 65537 
+
+
+
+DEFB 
+
++00, +00, +80, (+00) 
+
+on the calculator stack. 
+
+
+
+DEFB 
+
++32,n-mod-m 
+
+Divide (SEED+1 )*75 by 65537 
+to give a 'remainder' and an 
+’answer'. 
+
+
+
+DEFB 
+
++02, delete 
+
+Discard the 'answer'. 
+
+
+
+DEFB 
+
++A1,stk-one 
+
+The 'last value' is now 
+
+
+
+DEFB 
+
++03, subtract 
+
+'remainder' - 1. 
+
+
+
+DEFB 
+
++31, duplicate 
+
+Make a copy of the 'last value'. 
+
+
+
+DEFB 
+
++38, end-calc 
+
+The calculation is finished. 
+
+
+
+CALL 
+
+2DA2,FP-TO-BC 
+
+Use the 'last value' to give the 
+
+
+
+LD 
+
+(SEED),BC 
+
+new value for SEED. 
+
+
+
+LD 
+
+A,(HL) 
+
+Fetch the exponent of last 
+value'. 
+
+
+
+AND 
+
+A 
+
+Jump forward if the exponent is 
+
+
+
+JR 
+
+Z, 2625, S-RND-END 
+
+zero. 
+
+
+
+SUB 
+
++10 
+
+Reduce the exponent, i.e. divide 
+
+
+
+LD 
+
+(HL),A 
+
+'last value' by 65536 to give the 
+required 'last value'. 
+
+2625 
+
+S-RND-END 
+
+JR 
+
+2630, S-PI-END 
+
+Jump past the 'PI' routine. 
+
+The 'scanning-PI routine' 
+
+: unless syntax is being checked the value of 'Pi' is calculated and forms the 'last value' on the calculator stack. 
+
+2627 
+
+S-PI 
+
+CALL 
+
+2530,SYNTAX-Z 
+
+Test for syntax checking. 
+
+
+
+JR 
+
+Z, 2630, S-PI-END 
+
+Jump if required. 
+
+
+
+RST 
+
+0028,FP-CALC 
+
+Now use the calculator. 
+
+
+
+DEFB 
+
++A3,stk-pi/2 
+
+The value of PI/2 is put on the 
+
+
+
+DEFB 
+
++3B, end-calc 
+
+calculator stack as the 'last 
+value'. 
+
+
+
+INC 
+
+(HL) 
+
+The exponent is incremented 
+thereby doubling the 'last value' 
+giving PI. 
+
+2630 
+
+S-PI-END 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Move on to the next character. 
+
+
+
+JP 
+
+26C3.S-NUMERIC 
+
+Jump forward. 
+
+2634 
+
+S-INKEY$ 
+
+LD 
+
+BC.+105A 
+
+Priority +10 hex, operation 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+code +5A for the 'read-in' 
+subroutine. 
+
+
+
+CP 
+
++23 
+
+If next char, is '#', jump. 
+
+
+
+JP 
+
+Z,270D,S-PUSH-PO 
+
+There will be a numerical 
+argument. 
+
+
+
+LD 
+
+HL.+5C3B 
+
+This is FLAGS. 
+
+
+
+RES 
+
+6,(HL) 
+
+Reset bit 6 for a string result. 
+
+
+
+BIT 
+
+7,(HL) 
+
+Test for syntax checking. 
+
+
+131 
+
+
+
+
+
+JR 
+
+Z,2665,S-INK$-EN 
+
+Jump if required. 
+
+
+
+CALL 
+
+028E, KEY-SCAN 
+
+Fetch a key-value in DE. 
+
+
+
+LD 
+
+C,+00 
+
+Prepare empty string; stack it if 
+
+
+
+JR 
+
+NZ,2660,S-IK$-STK 
+
+too many keys pressed. 
+
+
+
+CALL 
+
+031E.K-TEST 
+
+Test the key value; stack empty 
+
+
+
+JR 
+
+NC,2660,S-IK$-STK 
+
+string if unsatisfactory. 
+
+
+
+DEC 
+
+D 
+
++FF to D for L made (bit 3 set). 
+
+
+
+LD 
+
+E,A 
+
+Key-value to E for decoding. 
+
+
+
+CALL 
+
+0333.K-DECODE 
+
+Decode the key-value. 
+
+
+
+PUSH 
+
+AF 
+
+Save the ASCII value briefly. 
+
+
+
+LD 
+
+BC,+0001 
+
+One space is needed in the work 
+space. 
+
+
+
+RST 
+
+0030,BC-SPACES 
+
+Make it now. 
+
+
+
+POP 
+
+AF 
+
+Restore the ASCII value. 
+
+
+
+LD 
+
+(DE),A 
+
+Prepare to stack it as a string. 
+
+
+
+LD 
+
+C.+01 
+
+Its length is one. 
+
+2660 
+
+S-IKS-STK 
+
+LD 
+
+B,+00 
+
+Complete the length parameter. 
+
+
+
+CALL 
+
+2AB2,STK-STO-$ 
+
+Stack the required string. 
+
+2665 
+
+S-INK$-EN 
+
+JP 
+
+2712.S-CONT-2 
+
+Jump forward. 
+
+2668 
+
+S-SCREENS 
+
+CALL 
+
+2522.S-2-COORD 
+
+Check that 2 co-ordinates are 
+given. 
+
+
+
+CALL 
+
+NZ,2535,S-SCRN$-S 
+
+Call the subroutine unless 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+checking syntax; then get next 
+
+
+
+JP 
+
+25DB.S-STRING 
+
+character and jump back. 
+
+2672 
+
+S-ATTR 
+
+CALL 
+
+2522,5-2-COORD 
+
+Check that 2 co-ordinates are 
+given. 
+
+
+
+CALL 
+
+NZ,2580,S-ATTR-S 
+
+Call the subroutine unless 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+checking syntax; then get the 
+
+
+
+JR 
+
+26C3.S-NUMERIC 
+
+next character and jump 
+forward. 
+
+267B 
+
+S-POINT 
+
+CALL 
+
+2522.S-2-COORD 
+
+Check that 2 co-ordinates are 
+given. 
+
+
+
+CALL 
+
+NZ.22CB, POINT-SUB 
+
+Call the subroutine unless 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+checking syntax; then get the 
+
+
+
+JR 
+
+26C3.S-NUMERIC 
+
+next character and jump 
+forward. 
+
+2684 
+
+S-ALPHNUM 
+
+CALL 
+
+2C88,ALPHANUM 
+
+Is the character alphanumeric? 
+
+
+
+JR 
+
+NC,26DF,S-NEGATE 
+
+Jump if not a letter or a digit. 
+
+
+
+CP 
+
++41 
+
+Now jump if it a letter; 
+
+
+
+JR 
+
+NC,26C9,S-LETTER 
+
+otherwise continue on into 
+S-DECIMAL. 
+
+
+The 'scanning DECIMAL routine 1 which follows deals with a decimal point or a number that starts with a digit. It also takes care of the 
+expression 'BIN', which is dealt with in the 'decimal to floating-point' subroutine. 
+
+268 D S-DECIMAL CALL 2530,SYNTAX-Z Jump forward if a line is 
+
+(EQU. S-BIN) JR NZ,2685,S-STK-DEC being executed. 
+
+The action taken is now very different for syntax checking and line execution. If syntax is being checked then the floating-point form has 
+to be calculated and copied into the actual BASIC line. However when a line is being executed the floating-point form will always be 
+available so it is copied to the calculator stack to form a 'last value'. 
+
+During syntax checking: 
+
+
+CALL 
+
+2C9B.DEC-TO-FP 
+
+The floating-point form is 
+found. 
+
+RST 
+
+001 8, GET-CHAR 
+
+Set HL to point one past the 
+last digit. 
+
+LD 
+
+BC,+0006 
+
+Six locations are required. 
+
+CALL 
+
+1655, MAKE-ROOM 
+
+Make the room in the BASIC 
+line. 
+
+INC 
+
+HL 
+
+Point to the first free space. 
+
+LD 
+
+(HL),+0E 
+
+Enter the number marker code. 
+
+INC 
+
+HL 
+
+Point to the second location. 
+
+EX 
+
+DE,HL 
+
+This pointer is wanted in DE. 
+
+
+132 
+
+
+
+
+LD 
+
+HL,(STKEND) 
+
+Fetch the 'old' STKEND. 
+
+
+LD 
+
+C,+05 
+
+There are 5 bytes to move. 
+
+
+AND 
+
+A 
+
+Clear the carry flag. 
+
+
+SBC 
+
+FiL.BC 
+
+The 'new' STKEND='old' 
+
+STKEND -5. 
+
+
+LD 
+
+LDIR 
+
+(STKEND),HL 
+
+Move the floating-point number 
+from the calculator stack to 
+the line. 
+
+
+EX 
+
+DE,HL 
+
+Put the line pointer in HL. 
+
+
+DEC 
+
+HL 
+
+Point to the last byte added. 
+
+
+CALL 
+
+0077,TEMP-PTR1 
+
+This sets CH-ADD. 
+
+
+JR 
+
+26C3, S-NUMERIC 
+
+Jump forward. 
+
+During line execution: 
+
+26B5 S-STK-DEC 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the current character. 
+
+26B6 S-SD-SKIP 
+
+INC 
+
+HL 
+
+Now move on to the next 
+
+
+LD 
+
+A,(HL) 
+
+character in turn until 
+
+
+CP 
+
++0E 
+
+the number marker code 
+
+
+JR 
+
+NZ.26B6, S-SD-SKIP 
+
+is found. 
+
+
+INC 
+
+HL 
+
+Point to the first byte of the 
+number. 
+
+
+CALL 
+
+33B4, STACK-NUM 
+
+Move the floating-point number. 
+
+
+LD 
+
+(CH-ADD),HL 
+
+Set CH-ADD. 
+
+A numeric result has now been identified, coming from RND, PI, 
+
+ATTR, POINT or a decimal number, therefore bit 6 of FLAGS must be 
+
+set. 
+
+26C3 S-NUMERIC 
+
+SET 
+
+6, (FLAGS) 
+
+Set the numeric marker flag. 
+
+
+JR 
+
+26DD,S-CONT-1 
+
+Jump forward. 
+
+
+THE SCANNING VARIABLE ROUTINE 
+
+When a variable name has been identified a call is made to LOOK-VARS which looks through those variables that already exist in the 
+variables area (or in the program area at DEF FN statements for a user-defined function FN). If an appropriate numeric value is found 
+then it is copied to the calculator stack using STACK-NUM. Flowever a string or string array entry has to have the appropriate 
+parameters passed to the calculator stack by the STK-VAR subroutine (or in the case of a user-defined function, by the STK-F-ARG 
+subroutine as called from LOOK-VARS). 
+
+
+26C9 
+
+S-LETTER 
+
+CALL 
+
+28B2, LOOK-VARS 
+
+Look in the existing variables 
+for the matching entry. 
+
+
+
+JP 
+
+C,1C2E, REPORT-2 
+
+An error is reported if there is 
+no existing entry. 
+
+
+
+CALL 
+
+Z,2996,STK-VARS 
+
+Stack the parameters of the 
+string entry/return numeric 
+element base address. 
+
+
+
+LD 
+
+A, (FLAGS) 
+
+Fetch FLAGS. 
+
+
+
+CP 
+
++C0 
+
+Test bits 6 and 7 together. 
+
+
+
+JR 
+
+C,26DD, S-CONT-1 
+
+One or both bits are reset. 
+
+
+
+INC 
+
+HL 
+
+A numeric value is to be stacked. 
+
+
+
+CALL 
+
+33B4, STACK-NUM 
+
+Move the number. 
+
+26DD 
+
+S-CONT-1 
+
+JR 
+
+2712,S-CONT-2 
+
+Jump forward. 
+
+
+The character is tested against the code for thus identifying the 'unary minus' operation. 
+
+
+Before the actual test the B register is set to hold the priority +09 and the C register the operation code +D8 that are required for this 
+operation. 
+
+
+26DF 
+
+S-NEGATE LD 
+
+BC.+09DB 
+
+Priority +09, operation code 
++D8. 
+
+
+CP 
+
++2D 
+
+Is it a '-'? 
+
+
+JR 
+
+Z,270D,S-PUSH-PO 
+
+Jump forward if it is 'unary 
+minus'. 
+
+
+Next the character is tested against the code for 'VAL$\ with priority 1 6 decimal and operation code 1 8 hex. 
+
+
+133 
+
+
+
+LD 
+
+BC.+1018 
+
+Priority 16 dec, operation code 
++18 hex. 
+
+CP 
+
++AE 
+
+Is it 'VAL$'? 
+
+JR 
+
+Z.270D, S-PUSH-PO 
+
+Jump forward if it is 'VAL$\ 
+
+
+The present character must now represent one of the functions CODE to NOT, with codes +AF to +C3. 
+
+
+SUB 
+
++AF 
+
+The range of the functions is 
+
+
+
+changed from +AF to +C3 to 
+
+
+
+range +00 to +14 hex. 
+
+JP 
+
+C,1 C8A.REPORT-C 
+
+Report an error if out of range. 
+
+
+The function 'NOT' is identified and dealt with separately from the others. 
+
+
+LD 
+
+BC.+04F0 
+
+Priority +04, operation code 
++F0. 
+
+CP 
+
++14 
+
+Is it the function 'NOT'? 
+
+JR 
+
+Z.270D, S-PUSH-PO 
+
+Jump if it is so. 
+
+JP 
+
+NC,1 C8A.REPORT-C 
+
+Check the range again. 
+
+
+The remaining functions have priority 16 decimal. The operation codes for these functions are now calculated. Functions that operate 
+on strings need bit 6 reset and functions that give string results need bit 7 reset in their operation codes. 
+
+
+LD 
+
+B.+10 
+
+Priority 16 decimal. 
+
+ADD 
+
+A,+DC 
+
+The function range is now +DC 
++EF. 
+
+LD 
+
+C,A 
+
+Transfer the operation code. 
+
+CP 
+
++DF 
+
+Separate CODE, VAL and LEN 
+
+JR 
+
+NC.2707.S-NO-TO-S 
+
+which operate on strings to give 
+
+RES 
+
+6,C 
+
+numerical results. 
+
+CP 
+
++EE 
+
+Separate STR$ and CHR$ 
+
+JR 
+
+C, 2700, S-PUSH-PO 
+
+which operate on numbers to 
+give string results. 
+
+RES 
+
+7,C 
+
+Mark the operation codes. 
+
+The other operation codes have 
+bits 6 and 7 both set. 
+
+
+The priority code and the operation code for the function being considered are now pushed on to the machine stack. A hierarchy of 
+operations is thereby built up. 
+
+
+270D 
+
+
+S-PUSH-PO PUSH 
+RST 
+JP 
+
+
+BC 
+
+0020, NEXT-CHAR 
+24FF.S-LOOP-1 
+
+
+Stack the priority and operation 
+codes before moving on to 
+consider the next part of the 
+expression. 
+
+
+The scanning of the line now continues. The present argument may be followed by a '(', a binary operator or, if the end of the 
+expression has been reached, then e.g. a carriage return character or a colon, a separator or a 'THEN 1 . 
+
+
+2712 S-CONT-2 RST 
+
+2713 S-CONT-3 CP 
+
+JR 
+
+
+001 8, GET-CHAR 
++28 
+
+NZ,2723,S-OPERTR 
+
+
+Fetch the present character. 
+Jump forward if it is not a 
+which indicates a parenthesised 
+expression. 
+
+
+If the 'last value' is numeric then the parenthesised expression is a true sub-expression and must be evaluated by itself. However if the 
+last value’ is a string then the parenthesised expression represents an element of an array or a slice of a string. A call to SLICING 
+modifies the parameters of the string as required. 
+
+
+BIT 
+
+6, (FLAGS) 
+
+Jump forward if dealing with a 
+
+JR 
+
+NZ,2734,S-LOOP 
+
+numeric parenthesised 
+expression. 
+
+CALL 
+
+2A52, SLICING 
+
+Modify the parameters of the 
+'last value'. 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Move on to consider the next 
+
+JR 
+
+271 3, S-CONT-3 
+
+character. 
+
+
+134 
+
+
+
+If the present character is indeed a binary operator it will be given an operation code in the range +C3 - +CF hex, and the appropriate 
+
+
+priority code. 
+
+
+
+2723 S-OPERTR LD 
+
+B,+00 
+
+Original code to BC to index 
+
+LD 
+
+C,A 
+
+into table of operators. 
+
+LD 
+
+HL.+2795 
+
+The pointer to the table. 
+
+CALL 
+
+16DC, INDEXER 
+
+Index into the table. 
+
+JR 
+
+NC, 2734, SLOOP 
+
+Jump forward if no operation 
+found. 
+
+LD 
+
+C,(HL) 
+
+Get required code from the 
+table. 
+
+LD 
+
+HL.+26ED 
+
+The pointer to the priority 
+table: i.e. 26ED +C3 gives 27B0 
+as the first address. 
+
+ADD 
+
+HL,BC 
+
+Index into the table. 
+
+LD 
+
+B,(HL) 
+
+Fetch the appropriate priority. 
+
+
+The main loop of this subroutine is now entered. At this stage there are: 
+
+I. A 'last value' on the calculator stack. 
+
+II. The starting priority market on the machine stack below a hierarchy, of unknown size, of function and binary operation codes. 
+This hierarchy may be null. 
+
+III. The BC register pair holding the 'present' operation and priority, which if the end of an expression has been reached will be 
+priority zero. 
+
+Initially the last' operation and priority are taken off the machine stack and compared against the 'present' operation and priority. 
+
+If the 'present' priority is higher than the 'last' priority then an exit is made from the loop as the 'present' priority is considered to bind 
+tighter than the last' priority. 
+
+However, if the present priority is less binding, then the operation specified as the 'last' operation is performed. The 'present' 
+operation and priority go back on the machine stack to be carried round the loop again. In this manner the hierarchy of functions and 
+binary operations that have been queued are dealt with in the correct order. 
+
+
+S-LOOP 
+
+POP 
+
+DE 
+
+Get the last' operation and 
+priority. 
+
+
+LD 
+
+A,D 
+
+The priority goes to the A 
+register. 
+
+
+CP 
+
+B 
+
+Compare 'last' against 'present'. 
+
+
+JR 
+
+C,2773,S-TIGHTER 
+
+Exit to wait for the argument. 
+
+
+AND 
+
+A 
+
+Are both priorities zero? 
+
+
+JP 
+
+Z, 0018, GET-CHAR 
+
+Exit via GET-CHAR thereby 
+making last value 1 the required 
+result. 
+
+
+Before the last’ operation is performed, the 'USR' function is separated into 'USR number' and 'USR string’ according as bit 6 of FLAGS 
+was set or reset when the argument of the function was stacked as the 'last value'. 
+
+
+PUSH 
+
+BC 
+
+Stack the 'present' values. 
+
+LO 
+
+HL.+5C3B 
+
+This is FLAGS. 
+
+LD 
+
+A,E 
+
+The last' operation is compared 
+
+CP 
+
++ED 
+
+with the code for USR, which 
+
+JR 
+
+NZ,274C,S-STK-LST 
+
+will give 'USR number' unless 
+modified; jump if not 'USR'. 
+
+BIT 
+
+6,(HL) 
+
+Test bit 6 of FLAGS. 
+
+JR 
+
+NZ,274C,S-STK-LST 
+
+Jump if it is set ('USR number'). 
+
+LD 
+
+E,+99 
+
+Modify the last' operation 
+code: 'offset' 1 9, +80 for string 
+input and numerical result 
+('USR string'). 
+
+PUSH 
+
+DE 
+
+Stack the last’ values briefly. 
+
+CALL 
+
+2530,SYNTAX-Z 
+
+Do not perform the actual 
+
+JR 
+
+Z,275B,S-SYNTEST 
+
+operation if syntax is being 
+checked. 
+
+
+135 
+
+
+
+LD 
+
+A,E 
+
+The 'last' operation code. 
+
+AND 
+
++3F 
+
+Strip off bits 6 and 7 to convert 
+
+LD 
+
+B,A 
+
+the operation code to a 
+calculator offset. 
+
+RST 
+
+0028,FP-CALC 
+
+Now use the calculator. 
+
+DEFB 
+
++3B,fp-calc-2 
+
+Perform the actual operation 
+
+DEFB 
+
++38, end-calc 
+
+It has been done. 
+
+JR 
+
+2764,S-RUNTEST 
+
+Jump forward. 
+
+
+An important part of syntax checking involves the testing of the operation to ensure that the nature of the 'last value' is of the correct 
+type for the operation under consideration. 
+
+
+275B 
+
+S-SYNTEST LD 
+
+A,E 
+
+Get the 'last' operation code. 
+
+
+XOR 
+
+(FLAGS) 
+
+This tests the nature of the 'last 
+
+
+AND 
+
++40 
+
+value' against the requirement 
+of the operation. They are to be 
+the same for correct syntax. 
+
+2761 
+
+S-RPORT-C JP 
+
+NZ,1C8A,REPORT-C 
+
+Jump if syntax fails. 
+
+
+Before jumping back to go round the loop again the nature of the last value’ must be recorded in FLAGS. 
+
+
+2764 
+
+S-RUNTEST POP 
+
+DE 
+
+Get the 'last' operation code. 
+
+
+LD 
+
+HL.+5C3B 
+
+This is FLAGS. 
+
+
+SET 
+
+6,(HL) 
+
+Assume result to be numeric. 
+
+
+BIT 
+
+7,E 
+
+Jump forward if the nature of 
+
+
+JR 
+
+NZ, 2770, S-LOOPEND 
+
+'last value' is numeric. 
+
+
+RES 
+
+6,(HL) 
+
+It is string. 
+
+2770 
+
+S-LOOPEND POP 
+
+BC 
+
+Get the 'present' values into BC 
+
+
+JR 
+
+2734.S-LOOP 
+
+Jump back. 
+
+
+Whenever the 'present' operation binds tighter, the 'last' and the 'present' values go back on the machine stack. Flowever if the 'present' 
+operation requires a string as its operand then the operation code is modified to indicate this requirement. 
+
+
+S-TIGHTER 
+
+PUSH 
+
+DE 
+
+The 'last' values go on the stack. 
+
+
+LD 
+
+A,C 
+
+Get the 'present' operation 
+code. 
+
+
+BIT 
+
+6, (FLAGS) 
+
+Do not modify the operation 
+
+
+JR 
+
+NZ, 2790, S-NEXT 
+
+code if dealing with a numeric 
+operand. 
+
+
+AND 
+
++3F 
+
+Clear bits 6 and 7. 
+
+
+ADD 
+
+A, +08 
+
+Increase the code by +08 hex. 
+
+
+LD 
+
+C,A 
+
+Return the code to the C 
+register. 
+
+
+CP 
+
++10 
+
+Is the operation 'AND'? 
+
+
+JR 
+
+NZ, 2788, S-NOT-AND 
+
+Jump if it is not so. 
+
+
+SET 
+
+6,C 
+
+'AND' requires a numeric 
+operand. 
+
+
+JR 
+
+2790, S-NEXT 
+
+Jump forward. 
+
+S-NOT-AND 
+
+JR 
+
+C, 2761 .S-RPORT-C 
+
+The operations A and OR 
+
+are not possible between strings. 
+
+
+CP 
+
++17 
+
+Is the operation a '+'? 
+
+
+JR 
+
+Z, 2790, S-NEXT 
+
+Jump if it is so. 
+
+
+SET 
+
+7,C 
+
+The other operations yield a 
+numeric result. 
+
+S-NEXT 
+
+PUSH 
+
+BC 
+
+The 'present' values go on the 
+machine stack. 
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Consider the next character. 
+
+
+JP 
+
+24FF.S-LOOP-1 
+
+Go around the loop again. 
+
+
+136 
+
+
+
+THE TABLE OF OPERATORS 
+
+
+
+
+operator 
+
+
+
+
+operator 
+
+
+location 
+
+code 
+
+code 
+
+operator 
+
+location 
+
+code 
+
+code 
+
+operator 
+
+2795 
+
+2B 
+
+CF 
+
++ 
+
+27A3 
+
+3C 
+
+CD 
+
+< 
+
+2797 
+
+2D 
+
+C3 
+
+- 
+
+27A5 
+
+C7 
+
+C9 
+
+<= 
+
+2799 
+
+2A 
+
+C4 
+
+* 
+
+27A7 
+
+C8 
+
+CA 
+
+>= 
+
+279B 
+
+2F 
+
+C5 
+
+/ 
+
+27A9 
+
+C9 
+
+CB 
+
+<> 
+
+279 D 
+
+5E 
+
+C6 
+
+A 
+
+27AB 
+
+C5 
+
+C7 
+
+OR 
+
+279 F 
+
+3D 
+
+CE 
+
+= 
+
+27AD 
+
+C6 
+
+C8 
+
+AND 
+
+27A1 
+
+3E 
+
+CC 
+
+> 
+
+27AF 
+
+00 
+
+End marker 
+
+
+THE TABLE OF 
+
+PRIORITIES (precedence table) 
+
+
+
+
+location 
+
+priority 
+
+operator 
+
+
+location 
+
+priority 
+
+operator 
+
+
+27B0 
+
+06 
+
+- 
+
+
+27B7 
+
+05 
+
+>= 
+
+
+27B1 
+
+08 
+
+* 
+
+
+27B8 
+
+05 
+
+<> 
+
+
+27B2 
+
+08 
+
+/ 
+
+
+27B9 
+
+05 
+
+> 
+
+
+27B3 
+
+0A 
+
+A 
+
+
+27BA 
+
+05 
+
+< 
+
+
+27B4 
+
+02 
+
+OR 
+
+
+27BB 
+
+05 
+
+= 
+
+
+27B5 
+
+03 
+
+AND 
+
+
+27BC 
+
+06 
+
++ 
+
+
+27B6 
+
+05 
+
+<= 
+
+
+
+
+
+
+
+THE 'SCANNING FUNCTION' SUBROUTINE 
+
+This subroutine is called by the 'scanning FN routine' to evaluate a user defined function which occurs in a BASIC line. The subroutine 
+can be considered in four stages: 
+
+I. The syntax of the FN statement is checked during syntax checking. 
+
+II. During line execution, a search is made of the program area for a DEF FN statement, and the names of the functions are 
+compared, until a match is found - or an error is reported. 
+
+III. The arguments of the FN are evaluated by calls to SCANNING. 
+
+IV. The function itself is evaluated by calling SCANNING, which in turn calls LOOK-VARS and so the 'STACK FUNCTION 
+ARGUMENT' subroutine. 
+
+
+27BD 
+
+S-FN-SBRN 
+
+CALL 
+
+2530.SYNTAX-Z 
+
+Unless syntax is being checked, 
+
+
+
+JR 
+
+NZ,27F7,SF-RUN 
+
+a jump is made to SF-RUN. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the first character of the 
+
+
+
+
+
+name. 
+
+
+
+CALL 
+
+2C8D, ALPHA 
+
+If it is not alphabetic, then 
+
+
+
+JP 
+
+NC,1C8A,REPORT-C 
+
+report the error. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the next character. 
+
+
+
+CP 
+
++24 
+
+Is it a '$'? 
+
+
+
+PUSH 
+
+AF 
+
+Save the zero flag on the stack. 
+
+
+
+JR 
+
+NZ.27D0, SF-BRKT-1 
+
+Jump if it was not a '$'. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+But get the next character if it 
+
+
+
+
+
+was. 
+
+27D0 
+
+SF-BRKT-1 
+
+CP 
+
++28 
+
+If the character is not a '(', then 
+
+
+
+JR 
+
+NZ,27E6,SF-RPRT-C 
+
+report the error. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the next character. 
+
+
+
+CP 
+
++29 
+
+Is it a ')'? 
+
+
+
+JR 
+
+Z,27E9,SF-FLAG-6 
+
+Jump if it is: there are no argu- 
+ments. 
+
+27D9 
+
+SF-ARGMTS 
+
+CALL 
+
+24FB, SCANNING 
+
+Within the loop, call SCANNING 
+to check the syntax of each 
+argument and to insert floating- 
+point numbers. 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the character which follows 
+
+
+
+CP 
+
++2C 
+
+the argument; if it is not a 
+
+
+
+JR 
+
+NZ,27E4,SF-BRKT-2 
+
+then jump - no more arguments. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the first character in the 
+next argument. 
+
+
+137 
+
+
+
+
+
+JR 
+
+27D9.SF-ARGMTS 
+
+Loop back to consider this 
+argument. 
+
+27E4 
+
+SF-BRKT-2 
+
+CP 
+
++29 
+
+Is the current character a ')'? 
+
+27E6 
+
+SF-RPRT-C 
+
+JP 
+
+NZ,1C8A,REPORT-C 
+
+Report the error if it is not. 
+
+27E9 
+
+SF-FLAG-6 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Point to the next character in 
+the BASIC line. 
+
+
+
+LD 
+
+HL.+5C3B 
+
+This is FLAGS: assume a string- 
+
+
+
+RES 
+
+6,(HL) 
+
+valued function and reset bit 6 
+of FLAGS. 
+
+
+
+POP 
+
+AF 
+
+Restore the zero flag, jump if 
+
+
+
+JR 
+
+Z.27F4, SF-SYN-EN 
+
+the FN is indeed string valued. 
+
+
+
+SET 
+
+6,(HL) 
+
+Otherwise, set bit 6 of FLAGS 
+
+27F4 
+
+SF-SYN-EN 
+
+JP 
+
+2712,S-CONT-2 
+
+Jump back to continue scanning 
+the line. 
+
+
+ii. During line execution, a search must first be made for a DEF FN statement. 
+
+
+27F7 
+
+SF-RUN 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the first character of the 
+
+
+
+
+
+name. 
+
+
+
+AND 
+
++DF 
+
+Reset bit 5 for upper case. 
+
+
+
+LD 
+
+B,A 
+
+Copy the name to B. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the next character. 
+
+
+
+SUB 
+
++24 
+
+Subtract 24 hex, the code for 
+
+
+
+LD 
+
+C,A 
+
+Copy the result to C (zero for a 
+string, non-zero for a numerical 
+function). 
+
+
+
+JR 
+
+NZ,2802,SF-ARGMT 1 
+
+Jump if non-zero: numerical 
+function. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the next character, the '('. 
+
+2802 
+
+SF-ARGMT1 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get 1st character of 1st argu- 
+ment. 
+
+
+
+PUSH 
+
+HL 
+
+Save the pointer to it on the 
+stack. 
+
+
+
+LD 
+
+HL,(PROG) 
+
+Point to the start of the 
+program. 
+
+
+
+DEC 
+
+HL 
+
+Go back one location. 
+
+2808 
+
+SF-FND-DF 
+
+LD 
+
+DE,+00CE 
+
+The search will be for 'DEF FN'. 
+
+
+
+PUSH 
+
+BC 
+
+Save the name and 'string 
+status'. 
+
+
+
+CALL 
+
+1D86, LOOK-PROG 
+
+Search the program now. 
+
+
+
+POP 
+
+BC 
+
+Restore the name and status. 
+
+
+
+JR 
+
+NC,2814,SF-CP-DEF 
+
+Jump if a DEF FN statement 
+found. 
+
+REPORT P - FN without DEF. 
+
+
+
+2812 
+
+REPORT-P 
+
+RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+
+
+DEFB 
+
++18 
+
+routine. 
+
+
+When a DEF FN statement is found, the name and status of the two functions are compared: if they do not match, the search is 
+resumed. 
+
+
+2814 
+
+SF-CP-DEF PUSH 
+
+HL 
+
+Save the pointer to the DEF FN 
+character in case the search has 
+to be resumed. 
+
+
+CALL 
+
+28AB.FN-SKPOVR 
+
+Get the name of the DEF FN 
+function. 
+
+
+AND 
+
++DF 
+
+Reset bit 5 for upper case. 
+
+
+CP 
+
+B 
+
+Does it match the FN name? 
+
+
+JR 
+
+NZ,2825,SF-NOT-FD 
+
+Jump if it does not match. 
+
+
+CALL 
+
+28AB.FN-SKPOVR 
+
+Get the next character in the 
+
+DEF FN. 
+
+
+SUB 
+
++24 
+
+Subtract 24 hex, the code for 
+
+
+CP 
+
+C 
+
+vj> . 
+
+Compare the status with that of 
+FN. 
+
+
+138 
+
+
+
+
+
+JR 
+
+Z, 2831, SF-VALUES 
+
+Jump if complete match now 
+found. 
+
+2825 
+
+SF-NOT-FD 
+
+POP 
+
+HL 
+
+Restore the pointer to the 'DEF 
+
+FN'. 
+
+
+
+DEC 
+
+HL 
+
+Step back one location. 
+
+
+
+LD 
+
+DE,+0200 
+
+Use the search routine to find 
+
+
+
+PUSH 
+
+BC 
+
+the end of the DEF FN state- 
+
+
+
+CALL 
+
+198B, EACH-STMT 
+
+ment, preparing for the next 
+
+
+
+POP 
+
+BC 
+
+search; save the name and status 
+meanwhile. 
+
+
+
+JR 
+
+2808,SF-FND-DF 
+
+Jump back for a further search. 
+
+ii. The correct DEF FN 
+
+statement has now been found. The arguments of the FN statement will be evaluated by repeated calls of 
+
+SCANNING, and their 5 byte values (or parameters, for strings) will be inserted into the DEF FN statement in the spaces made there 
+syntax checking. FHL will be used to point along the DEF FN statement (calling FN-SKPOVR as needed) while CFI-ADD points along 1 
+
+FN statement (calling RST 0020, 
+
+NEXT-CHAR, as needed). 
+
+
+2831 
+
+SF-VALUES 
+
+AND 
+
+A 
+
+If HL is now pointing to a '$', 
+
+
+
+CALL 
+
+Z.28AB, FN-SKPOVR 
+
+move on to the '('. 
+
+
+
+POP 
+
+DE 
+
+Discard the pointer to 'DEF 
+
+FN'. 
+
+
+
+POP 
+
+DE 
+
+Get the pointer to the first 
+
+
+
+LD 
+
+(CH-ADD),DE 
+
+argument of FN, and copy it to 
+
+CH-ADD. 
+
+
+
+CALL 
+
+28AB, FN-SKPOVR 
+
+Move past the '(' now. 
+
+
+
+PUSH 
+
+HL 
+
+Save this pointer on the stack. 
+
+
+
+CP 
+
++29 
+
+Is it pointing to a ')'? 
+
+
+
+JR 
+
+Z,2885,SF-R-BR-2 
+
+If so, jump: FN has no argu- 
+ments. 
+
+2843 
+
+SF-ARG-LP 
+
+INC 
+
+HL 
+
+Point to the next code. 
+
+
+
+LD 
+
+A,(HL) 
+
+Put the code into A. 
+
+
+
+CP 
+
++0E 
+
+Is it the 'number marker' code, 
+
+0E hex? 
+
+
+
+LD 
+
+D,+40 
+
+Set bit 6 of D for a numerical 
+argument. 
+
+
+
+JR 
+
+Z, 2852, SF-ARG-VL 
+
+Jump on zero: numerical 
+argument. 
+
+
+
+DEC 
+
+HL 
+
+Now ensure that HL is pointing 
+to the '$' character (not e.g. to a 
+
+
+
+CALL 
+
+28AB, FN-SKPOVR 
+
+control code). 
+
+
+
+INC 
+
+HL 
+
+HL now points to the 'number 
+marker'. 
+
+
+
+LD 
+
+D,+00 
+
+Bit 6 of D is reset: string 
+argument. 
+
+2852 
+
+SF-ARG-VL 
+
+INC 
+
+HL 
+
+Point to the 1st of the 5 bytes 
+in DEF FN. 
+
+
+
+PUSH 
+
+HL 
+
+Save this pointer on the stack. 
+
+
+
+PUSH 
+
+DE 
+
+Save the 'string status' of the 
+argument. 
+
+
+
+CALL 
+
+24FB, SCANNING 
+
+Now evaluate the argument. 
+
+
+
+POP 
+
+AF 
+
+Get the no./string flag into A. 
+
+
+
+XOR 
+
+(FLAGS) 
+
+Test bit 6 of it against the result 
+
+
+
+AND 
+
++40 
+
+of SCANNING. 
+
+
+
+JR 
+
+NZ,288B,REPORT-Q 
+
+Give report Q if they did not 
+match. 
+
+
+
+POP 
+
+HL 
+
+Get the pointer to the first of 
+
+
+
+EX 
+
+DE,HL 
+
+the 5 spaces in DEF FN into 
+
+DE. 
+
+
+
+LD 
+
+HL,(STKEND) 
+
+Point HL at STKEND. 
+
+
+
+LD 
+
+BC.+0005 
+
+BC will count 5 bytes to be 
+moved. 
+
+
+
+SBC 
+
+HL,BC 
+
+First, decrease STKEND by 5, 
+
+
+139 
+
+
+
+LD 
+
+(STKEND).HL 
+
+so deleting the 'last value' from 
+the stack. 
+
+LDIR 
+
+
+Copy the 5 bytes into the spaces 
+in DEF FN. 
+
+EX 
+
+DE.HL 
+
+Point HL at the next code. 
+
+DEC 
+
+HL 
+
+Ensure that HL points to the 
+
+CALL 
+
+28AB.FN-SKPOVR 
+
+character after the 5 bytes. 
+
+CP 
+
++29 
+
+Is it a ')'? 
+
+JR 
+
+Z, 2885, SF-R-BR-2 
+
+Jump if it is: no more 
+arguments in the DEF FN 
+statement. 
+
+PUSH 
+
+HL 
+
+It is a save the pointer to it. 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the character after the last 
+
+
+
+argument that was evaluated 
+from FN. 
+
+CP 
+
++2C 
+
+If it is not a 7 jump: mis- 
+
+JR 
+
+NZ,288B, REPORT-Q 
+
+matched arguments of FN and 
+
+DEF FN. 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Point CH-ADD to the next 
+argument of FN. 
+
+POP 
+
+HL 
+
+Point HL to the ',' in DEF FN 
+again. 
+
+CALL 
+
+28AB.FN-SKPOVR 
+
+Move HL on to the next argu- 
+ment in DEF FN. 
+
+JR 
+
+2843,SF-ARG-LP 
+
+Jump back to consider this 
+argument. 
+
+2885 SF-R-BR-2 PUSH 
+
+HL 
+
+Save the pointer to the ')' in 
+
+DEF FN. 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the character after the last 
+argument in FN. 
+
+CP 
+
++29 
+
+Is it a ')'? 
+
+JR 
+
+Z,288D, SF-VALUE 
+
+If so, jump to evaluate the 
+function: but if not, give report 
+
+Q. 
+
+REPORT Q - Parameter error. 
+288B REPORT-Q RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++19 
+
+routine. 
+
+iv. Finally, the function itself is evaluated by calling SCANNING, 
+
+after first setting DEFADD to hold the address of the arguments as they 
+
+occur in the DEF FN statement. 
+
+This ensures that LOOK-VARS, when called by SCANNING, will first search these arguments for the 
+
+required values, before making a search of the variables area. 
+
+
+288 D SF-VALUE POP 
+
+DE 
+
+Restore pointer to ')' in DEF 
+
+FN. 
+
+EX 
+
+DE,HL 
+
+Get this pointer into HL. 
+
+LD 
+
+(CH-ADD),HL 
+
+Insert it into CH-ADD. 
+
+LD 
+
+HL,(DEFADD) 
+
+Get the old value of DEFADD. 
+
+EX 
+
+(SP),HL 
+
+Stack it, and get the start 
+
+LD 
+
+(DEFADD),HL 
+
+address of the arguments area of 
+
+DEF FN into DEFADD. 
+
+PUSH 
+
+DE 
+
+Save address of ')' in FN. 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Move CH-ADD on past ')' and 
+
+RST 
+
+0020, NEXT-CHAR 
+
+'=' to the start of the expression 
+for the function in DEF FN. 
+
+CALL 
+
+24FB, SCANNING 
+
+Now evaluate the function. 
+
+POP 
+
+HL 
+
+Restore the address of ')' in 
+
+FN. 
+
+LD 
+
+(CH-ADD),HL 
+
+Store it in CH-ADD. 
+
+POP 
+
+HL 
+
+Restore original value of 
+
+DEFADD. 
+
+LD 
+
+(DEFADD).HL 
+
+Put it back into DEFADD. 
+
+
+140 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the next character in the 
+BASIC line. 
+
+JP 
+
+2712,S-CONT-2 
+
+Jump back to continue 
+scanning. 
+
+
+THE 'FUNCTION SKIPOVER' SUBROUTINE 
+
+This subroutine is used by FN and by STK-F-ARG to move HL along the DEF FN statement while leaving CM-ADD undisturbed, as it 
+points along the FN statement. 
+
+
+28AB 
+
+
+FN-SKPOVR INC 
+
+HL 
+
+Point to the next code in the 
+statement. 
+
+LD 
+
+A,(HL) 
+
+Copy the code to A. 
+
+CP 
+
++21 
+
+Jump back to skip over it if it 
+
+JR 
+
+C,28AB, FN-SKPOVR 
+
+a control code or a space. 
+
+RET 
+
+
+Finished. 
+
+
+THE 'LOOK-VARS' SUBROUTINE 
+
+This subroutine is called whenever a search of the variables area or of the arguments of a DEF FN statement is required. The 
+subroutine is entered with the system variable CFI-ADD pointing to the first letter of the name of the variable whose location is being 
+sought. The name will be in the program area or the work space. The subroutine initially builds up a discriminator byte, in the C register, 
+that is based on the first letter of the variable's name. Bits 5 & 6 of this byte indicate the type of the variable that is being handled. 
+
+The B register is used as a bit register to hold flags. 
+
+
+LOOK-VARS SET 
+
+6, (FLAGS) 
+
+Presume a numeric variable. 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the first character into A. 
+
+CALL 
+
+2C8D, ALPHA 
+
+Is it alphabetic? 
+
+JP 
+
+NC,1 C8A,REPORT-C 
+
+Give an error report if it is not 
+
+PUSH 
+
+HL 
+
+SO. 
+
+Save the pointer to the first 
+letter. 
+
+AND 
+
++1 F 
+
+Transfer bits 0 to 4 of the letter 
+
+LD 
+
+C,A 
+
+to the C register; bits 5 & 7 are 
+always reset. 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the 2nd character into A. 
+
+PUSH 
+
+HL 
+
+Save this pointer also. 
+
+CP 
+
++28 
+
+is the 2nd character a '('? 
+
+JR 
+
+Z,28EF,V-RUN/SYN 
+
+Separate arrays of numbers. 
+
+SET 
+
+6,C 
+
+Now set bit 6. 
+
+CP 
+
++24 
+
+Is the 2nd character a '$'? 
+
+JR 
+
+Z,28DE,V-STR-VAR 
+
+Separate all the strings. 
+
+SET 
+
+5,C 
+
+Now set bit 5. 
+
+CALL 
+
+2C88,ALPHANUM 
+
+If the variable's name has only 
+
+JR 
+
+NC,28E3, V-TEST-FN 
+
+one character then jump 
+forward. 
+
+
+Now find the end character of a name that has more than one character. 
+
+
+28D4 
+
+V-CHAR 
+
+CALL 
+
+2C88,ALPHANUM 
+
+Is the character alphanumeric? 
+
+
+
+JR 
+
+NC,28EF,V-RUN/SYN 
+
+Jump out of the loop when the 
+end of the name is found. 
+
+
+
+RES 
+
+6,C 
+
+Mark the discriminator byte. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the next character. 
+
+
+
+JR 
+
+28D4, V-CHAR 
+
+Go back to test it. 
+
+Simple strings and arrays of strings require that bit 6 of FLAGS 
+
+is reset. 
+
+28DE 
+
+V-STR-VAR 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Step CH-ADD past the '$'. 
+
+
+
+RES 
+
+6, (FLAGS) 
+
+Reset the bit 6 to indicate a 
+string. 
+
+
+if DEFADD-hi is non-zero, indicating that a 'function' (a 'FN') is being evaluated, and if in 'run-time', a search will be made of the 
+arguments in the DEF FN statement. 
+
+28E3 V-TEST-FN LD A, (DEFADD-hi) Is DEFADD-hi zero? 
+
+
+141 
+
+
+
+AND 
+
+A 
+
+
+JR 
+
+Z,28EF,V-RUN/SYN 
+
+If so, jump forward. 
+
+CALL 
+
+2530,SYNTAX-Z 
+
+In 'run-time'? 
+
+JP 
+
+NZ,2951,STK-F-ARG 
+
+If so, jump forward to search 
+the DEF FN statement. 
+
+
+Otherwise (or if the variable was not found in the DEF FN statement) a search of variables area will be made, unless syntax is being 
+checked. 
+
+
+28EF V-RUN/SYN LD 
+
+B,C 
+
+Copy the discriminator bytes to 
+the B register. 
+
+CALL 
+
+2530,SYNTAX-Z 
+
+Jump forward if in 
+
+JR 
+
+NZ,28FD,V-RUN 
+
+'run-time'. 
+
+LD 
+
+A,C 
+
+Move the discriminator to A. 
+
+AND 
+
++E0 
+
+Drop the character code part. 
+
+SET 
+
+7, A 
+
+Indicate syntax by setting bit 7. 
+
+LD 
+
+C,A 
+
+Restore the discriminator. 
+
+JR 
+
+2934,V-SYNTAX 
+
+Jump forward to continue. 
+
+
+A BASIC line is being executed so make a search of the variables area. 
+
+
+28FD V-RUN LD 
+
+HL,(VARS) 
+
+Pick up the VARS pointer. 
+
+Now enter a loop to consider the names of the existing variables. 
+
+
+2900 V-EACH LD 
+
+A,(HL) 
+
+The 1st. letter of each 
+existing variable. 
+
+AND 
+
++7F 
+
+Match on bits 0 to 6. 
+
+JR 
+
+Z,2932,V-80-BYTE 
+
+Jump when the '80-byte' is 
+reached. 
+
+CP 
+
+C 
+
+The actual comparison. 
+
+JR 
+
+NZ,292A,V-NEXT 
+
+Jump forward if the 1st 
+characters do not match. 
+
+RLA 
+
+
+Rotate A leftwards and then 
+
+ADD 
+
+A, A 
+
+double it to test bits 5 & 6. 
+
+JP 
+
+P,293F,V-FOUND-2 
+
+Strings and array variables. 
+
+JR 
+
+C,293F,V-FOUND-2 
+
+Simple numeric and FOR-NEXT 
+variables. 
+
+Long names are required to be matched 
+
+fully. 
+
+
+POP 
+
+DE 
+
+Take a copy of the pointer 
+
+PUSH 
+
+DE 
+
+to the 2nd. character. 
+
+PUSH 
+
+HL 
+
+Save the 1st letter pointer. 
+
+2912 V-MATCHES INC 
+
+HL 
+
+Consider the next character. 
+
+2913 V-SPACES LD 
+
+A,(DE) 
+
+Fetch each character in turn. 
+
+INC 
+
+DE 
+
+Point to the next character. 
+
+CP 
+
++20 
+
+Is the character a 'space'? 
+
+JR 
+
+Z, 291 3, V-SPACES 
+
+Ignore the spaces. 
+
+OR 
+
++20 
+
+Set bit 5 so as to match 
+lower and upper case letters. 
+
+CP 
+
+(HL) 
+
+Make the comparison. 
+
+JR 
+
+Z, 291 2, V-MATCHES 
+
+Back for another character if 
+it does match. 
+
+OR 
+
++80 
+
+Will it match with bit 7 set? 
+
+CP 
+
+(HL) 
+
+T ry it. 
+
+JR 
+
+NZ,2929,V-GET-PTR 
+
+Jump forward if the 'last 
+characters' do not match. 
+
+LD 
+
+A,(DE) 
+
+Check that the end of the 
+
+CALL 
+
+2C88.ALPHANUM 
+
+name has been reached before 
+
+JR 
+
+NC,293E,V-FOUND-1 
+
+jumping forward. 
+
+
+In all cases where the names fail to match the FHL register pair has to be made to point to the next variable in the variables area. 
+
+
+2929 
+
+V-GET-PTR 
+
+POP 
+
+HL 
+
+Fetch the pointer. 
+
+292A 
+
+V-NEXT 
+
+PUSH 
+
+BC 
+
+Save B & C briefly. 
+
+
+
+CALL 
+
+19B8, NEXT-ONE 
+
+DE is made to point to the 
+next variable. 
+
+
+142 
+
+
+
+
+
+EX 
+
+DE,HL 
+
+Switch the two pointers. 
+
+
+
+POP 
+
+BC 
+
+Get B & C back. 
+
+
+
+JR 
+
+2900,V-EACH 
+
+Go around the loop again. 
+
+Come 
+
+here if no entry was found with the correct name. 
+
+
+2932 
+
+V-80-BYTE 
+
+SET 
+
+7,B 
+
+Signal 'variable not found'. 
+
+Come 
+
+here if checking syntax. 
+
+
+
+2934 
+
+V-SYNTAX 
+
+POP 
+
+DE 
+
+Drop the pointer to the 
+
+2nd. character. 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Fetch the present character. 
+
+
+
+CP 
+
++28 
+
+Is it a '('? 
+
+
+
+JR 
+
+Z, 2943, V-PASS 
+
+Jump forward. 
+
+
+
+SET 
+
+5,B 
+
+Indicate not dealing with an 
+
+
+
+JR 
+
+294B, V-END 
+
+array and jump forward. 
+
+Come 
+
+here when an entry with the correct name was found. 
+
+
+293E 
+
+V-FOUND-1 
+
+POP 
+
+DE 
+
+Drop the saved variable pointer. 
+
+293F 
+
+V-FOUND-2 
+
+POP 
+
+DE 
+
+Drop the 2nd character pointer. 
+
+
+
+POP 
+
+DE 
+
+Drop the first letter pointer. 
+
+
+
+PUSH 
+
+HL 
+
+Save the 'last' letter pointer. 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Fetch the current character. 
+
+If the matching variable name has more than a single letter then the other characters must be passed-over. 
+
+Note: This appears to have been done already at V-CHAR. 
+
+
+2943 
+
+V-PASS 
+
+CALL 
+
+2C88,ALPHANUM 
+
+Is it alphanumeric? 
+
+
+
+JR 
+
+NC.294B, V-END 
+
+Jump when the end of the name 
+has been found. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Fetch the next character. 
+
+
+
+JR 
+
+2943, V-PASS 
+
+Go back and test it. 
+
+The exit-parameters are now set. 
+
+
+
+294B 
+
+V-END 
+
+POP 
+
+HL 
+
+HL holds the pointer to the 
+letter of a short name or the 
+'last' character of a long name. 
+
+
+
+RL 
+
+B 
+
+Rotate the whole register. 
+
+
+
+BIT 
+
+6,B 
+
+Specify the state of bit 6. 
+
+
+
+RET 
+
+
+Finished. 
+
+
+The exit-parameters for the subroutine can be summarised as follows: The system variable CH-ADD points to the first location after the 
+name of the variable as it occurs in the BASIC line. 
+
+
+When 'variable not found': 
+
+
+I. The carry flag is set. 
+
+II. The zero flag is set only when the search was for an array variable. 
+
+III. The HL register pair points to the first letter of the name of the variable as it occurs in the BASIC line. 
+When 'variable found': 
+
+
+I. The carry flag is reset. 
+
+II. The zero flag is set for both simple string variables and all array variables. 
+
+III. The HL register pair points to the letter of a 'short' name, or the last character of a 'long' name, of the existing entry that was 
+found in the variables area. 
+
+
+In all cases bits 5 & 6 of the C register indicate the type of variable being handled. Bit 7 is the complement of the SYNTAX/RUN flag. 
+But only when the subroutine is used in 'runtime' will bits 0 to 4 hold the code of the variable's letter. 
+
+In syntax time the return is always made with the carry flag reset. The zero flag is set for arrays and reset for all other variables, except 
+that a simple string name incorrectly followed by a '$' sets the zero flag and, in the case of SAVE "name" DATA a$(), passes syntax as 
+well. 
+
+
+143 
+
+
+
+THE 'STACK FUNCTION ARGUMENT' SUBROUTINE 
+
+This subroutine is called by LOOK-VARS when DEFADD-hi in non-zero, to make a search of the arguments area of a DEF FN 
+statement, before searching in the variables area. If the variable is found in the DEF FN statement, then the parameters of a string 
+variable are stacked and a signal is given that there is no need to call STK/VAR. But it is left to SCANNING to stack the value of a 
+numerical variable at 26DA in the usual way. 
+
+
+2951 
+
+STK-F-ARG 
+
+LD 
+
+HL,(DEFADD) 
+
+Point to the 1st character in the 
+
+
+
+LD 
+
+A,(HL) 
+
+arguments area and put it into A 
+
+
+
+CP 
+
++29 
+
+Is it a ')'? 
+
+
+
+JP 
+
+Z,28EF,V-RUN/SYN 
+
+Jump to search the variables 
+
+
+
+
+
+area. 
+
+295A 
+
+SFA-LOOP 
+
+LD 
+
+A,(HL) 
+
+Get the next argument in the 
+loop. 
+
+
+
+OR 
+
++60 
+
+Set bits 5 & 6, assuming a 
+
+
+
+LD 
+
+B,A 
+
+simple numeric variable; copy it 
+to B. 
+
+
+
+INC 
+
+HL 
+
+Point to the next code. 
+
+
+
+LD 
+
+A,(HL) 
+
+Put it into the A register. 
+
+
+
+CP 
+
++0E 
+
+Is it the 'number marker' code 
+0E hex? 
+
+
+
+JR 
+
+Z.296B, SFA-CP-VR 
+
+Jump if so: numeric variable. 
+
+
+
+DEC 
+
+HL 
+
+Ensure that HL points to the 
+
+
+
+CALL 
+
+28AB.FN-SKPOVR 
+
+character, not to a space or 
+control code. 
+
+
+
+INC 
+
+HL 
+
+HL now points to the 'number 
+marker'. 
+
+
+
+RES 
+
+5,B 
+
+Reset bit 5 of B: string variable. 
+
+296B 
+
+SFA-CP-VR 
+
+LD 
+
+A,B 
+
+Get the variable name into A. 
+
+
+
+CP 
+
+C 
+
+Is it the one we are looking for? 
+
+
+
+JR 
+
+Z.2981 .SFA-MATCH 
+
+Jump if it matches. 
+
+
+
+INC 
+
+HL 
+
+Now pass over the 5 bytes of 
+
+
+
+INC 
+
+HL 
+
+the floating-point number or 
+
+
+
+INC 
+
+HL 
+
+string parameters to get to the 
+
+
+
+INC 
+
+HL 
+
+next argument. 
+
+
+
+INC 
+
+HL 
+
+
+
+
+CALL 
+
+28AB.FN-SKPOVR 
+
+Pass on to the next character. 
+
+
+
+CP 
+
++29 
+
+Is it a ')'? 
+
+
+
+JP 
+
+Z,28EF,V-RUN/SYN 
+
+If so, jump to search the 
+variables area. 
+
+
+
+CALL 
+
+28AB.FN-SKPOVR 
+
+Point to the next argument. 
+
+
+
+JR 
+
+295A, SFA-LOOP 
+
+Jump back to consider it. 
+
+
+A match has been found. The parameters of a string variable are stacked, avoiding the need to call the STK-VAR subroutine. 
+
+
+SFA-MATCH 
+
+BIT 
+
+5,C 
+
+Test for a numeric variable. 
+
+
+JR 
+
+NZ, 2991 .SFA-END 
+
+Jump if the variable is numeric: 
+SCANNING will stack it. 
+
+
+INC 
+
+HL 
+
+Point to the first of the 5 
+bytes to be stacked. 
+
+
+LD 
+
+DE.(STKEND) 
+
+Point DE to STKEND. 
+
+
+CALL 
+
+33CO,MOVE-FP 
+
+Stack the 5 bytes. 
+
+
+EX 
+
+DE,HL 
+
+Point HL to the new position 
+
+
+LD 
+
+(STKEND).HL 
+
+of STKEND, and reset the 
+system variable. 
+
+SFA-END 
+
+POP 
+
+DE 
+
+Discard the LOOK-VARS 
+
+
+POP 
+
+DE 
+
+pointers (2nd & 1st character 
+pointers). 
+
+
+XOR 
+
+A 
+
+Return from the search with 
+
+
+INC 
+
+A 
+
+both the carry and zero flags 
+reset - signalling that a call 
+STK-VAR is not required. 
+
+
+RET 
+
+
+Finished. 
+
+
+144 
+
+
+
+THE 'STK-VAR' SUBROUTINE 
+
+This subroutine is usually used either to find the parameters that define an existing string entry in the variables area or to return in the 
+HL register pair the base address of a particular element or an array of numbers. When called from DIM the subroutine only checks the 
+syntax of the BASIC statement. 
+
+Note that the parameters that define a string may be altered by calling SLICING if this should be specified. 
+
+Initially the A and the B registers are cleared and bit 7 of the C register is tested to determine whether syntax is being checked. 
+
+
+2996 STK-VAR XOR 
+
+A 
+
+Clear the array flag. 
+
+LD 
+
+B,A 
+
+Clear the B register for later. 
+
+BIT 
+
+7,C 
+
+Jump forward if syntax is 
+
+JR 
+
+NZ,29E7,SV-COUNT 
+
+being checked. 
+
+Next, simple strings are separated from array variables. 
+
+
+BIT 
+
+7,(HL) 
+
+Jump forward if dealing with 
+
+JR 
+
+NZ,29AE,SV-ARRAYS 
+
+an array variable. 
+
+The parameters for a simple string are readily found. 
+
+
+INC 
+
+A 
+
+Signal 'a simple string'. 
+
+29A1 SV-SIMPLE$ INC 
+
+HL 
+
+Move along the entry. 
+
+LD 
+
+C,(HL) 
+
+Pick up the low length counter. 
+
+INC 
+
+HL 
+
+Advance the pointer. 
+
+LD 
+
+B,(HL) 
+
+Pick up the high length 
+pointer. 
+
+INC 
+
+HL 
+
+Advance the pointer. 
+
+EX 
+
+DE,HL 
+
+Transfer the pointer to the 
+actual string. 
+
+CALL 
+
+2AB2,STK-STORE 
+
+Pass these parameters to the 
+calculator stack. 
+
+RST 
+
+001 8, GET-CHAR 
+
+Fetch the present character 
+and jump forward to see if a 
+
+JP 
+
+2A49,SV-SLICE? 
+
+'slice' is required. 
+
+
+The base address of an element in an array is now found. Initially the 'number of dimensions' is collected. 
+
+
+SV-ARRAYS INC 
+
+HL 
+
+Step past the length bytes. 
+
+INC 
+
+HL 
+
+
+INC 
+
+HL 
+
+
+LD 
+
+B,(HL) 
+
+Collect the 'number of 
+dimensions'. 
+
+BIT 
+
+6,C 
+
+Jump forward if handling an 
+
+JR 
+
+Z,29C0, SV-PTR 
+
+array of numbers. 
+
+
+If an array of strings has its 'number of dimensions' equal to '1' then such an array can be handled as a simple string. 
+
+
+DEC B Decrease the 'number of 
+
+JR Z,29A1 ,SV-SIMPLE$ dimensions' and jump if the 
+
+number is now zero. 
+
+
+Next a check is made to ensure that in the BASIC line the variable is followed by a subscript. 
+
+
+EX 
+
+DE.HL 
+
+Save the pointer in DE. 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the present character. 
+
+CP 
+
++28 
+
+Is it a '('? 
+
+JR 
+
+NZ,2A20, REPORT-3 
+
+Report the error if it is not so. 
+
+EX 
+
+DE,HL 
+
+Restore the pointer. 
+
+
+For both numeric arrays and arrays of strings the variable pointer is transferred to the DE register pair before the subscript is evaluated. 
+
+
+29C0 SV-PTR EX 
+JR 
+
+
+DE.HL 
+
+29E7.SV-COUNT 
+
+
+Pass the pointer to DE. 
+Jump forward. 
+
+
+145 
+
+
+
+The following loop is used to find the parameters of a specified element within an array. The loop is entered at the mid-point - SV- 
+COUNT where the element count is set to zero. 
+
+The loop is accessed 'B' times, this being, for a numeric array, equal to the number of dimensions that are being used, but for an array 
+of strings 'B' is one less than the number of dimensions in use as the last subscript Is used to specify a 'slice' of the string. 
+
+
+SV-COMMA PUSH 
+
+HL 
+
+Save the counter. 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the present character. 
+
+POP 
+
+HL 
+
+Restore the counter. 
+
+CP 
+
++2C 
+
+Is the present character a ’,’? 
+
+JR 
+
+Z,29EA,SV-LOOP 
+
+Jump forward to consider 
+another subscript. 
+
+BIT 
+
+7,C 
+
+If a line is being executed 
+
+JR 
+
+Z.2A20, REPORT-3 
+
+then there is an error. 
+
+BIT 
+
+6,C 
+
+Jump forward if dealing with 
+
+JR 
+
+NZ,29D8,SV-CLOSE 
+
+an array of strings. 
+
+CP 
+
++29 
+
+Is the present character a ’)’? 
+
+JR 
+
+NZ,2A1 2,SV-RPT-C 
+
+Report an error if not so. 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD. 
+
+RET 
+
+
+Return as the syntax is correct. 
+
+
+For an array of strings the present subscript may represent a 'slice', or the subscript for a 'slice' may yet be present in the BASIC line. 
+
+
+29D8 
+
+SV-CLOSE 
+
+CP 
+
++29 
+
+Is the present character a ’)'? 
+
+
+
+JR 
+
+Z,2A48,SV-DIM 
+
+Jump forward and check 
+whether there is another sub- 
+
+
+
+
+
+script. 
+
+
+
+CP 
+
++CC 
+
+Is the present character a ’TO’? 
+
+
+
+JR 
+
+NZ,2A1 2,SV-RPT-C 
+
+It must not be otherwise. 
+
+29E0 
+
+SV-CH-ADD 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the present character. 
+
+
+
+DEC 
+
+HL 
+
+Point to the preceding 
+
+
+
+LD 
+
+(CH-ADD), HL 
+
+character and set CH-ADD. 
+
+
+
+JR 
+
+2A45,SV-SLICE 
+
+Evaluate the ’slice'. 
+
+Enter the loop here. 
+
+
+
+
+29E7 
+
+SV-COUNT 
+
+LD 
+
+HL.+0000 
+
+Set the counter to zero. 
+
+29EA 
+
+SV-LOOP 
+
+PUSH 
+
+HL 
+
+Save the counter briefly. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD. 
+
+
+
+POP 
+
+HL 
+
+Restore the counter. 
+
+
+
+LD 
+
+A,C 
+
+Fetch the discriminator byte. 
+
+
+
+CP 
+
++C0 
+
+Jump unless checking the 
+
+
+
+JR 
+
+NZ.29FB, SV-MULT 
+
+syntax for an array of strings. 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the present character. 
+

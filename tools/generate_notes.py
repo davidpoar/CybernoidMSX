@@ -1,0 +1,224 @@
+#!/usr/bin/env python3
+"""Generate a complete summary report of the Cybernoid I/O analysis."""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+from paths import SPECTRUM_DISASM_DIR
+
+
+CONTENT = '''CYBERNOID - PORTING NOTES (Spectrum → MSX)
+==========================================
+
+ENTRY POINT
+-----------
+- The Spectrum game starts at $6504 after a complex self-modifying LDDR.
+- After the LDDR, the game's memory layout is:
+  - $4000-$5AFF : Spectrum screen memory + attributes (6144 + 768 bytes)
+  - $5B00-$6103 : BASIC area, zeroed
+  - $6104-$6503 : Zeroed (between old loader area and new game area)
+  - $6504-$FFFF : Game code/data (originally at $6104-$FBFF, shifted +$400)
+
+For MSX, the entire game region ($6504-$FFFF) can be moved to:
+  - MSX ROM at $4000-$7FFF (16K ROM) for the lower half
+  - Plus 32K RAM bank for the upper half ($8000-$FFFF), or
+  - Use mapper for paging.
+
+KEY SUBROUTINE ADDRESSES (post-LDDR)
+------------------------------------
+$6504   - Game entry point
+$6508   - CALL $70B4 (interrupt init: IM 2, I=$FE)
+$651F   - OUT ($FE),A   - Sets border to 0 (black)
+$6521   - LD A,($386E)  - Test some flag
+$653C   - CALL $8738    - ?
+$653F   - CALL $EF3B    - ?
+$6544   - CALL $EF42    - ?
+$6548   - CALL $7BFC    - Sound init
+$654B   - CALL $671E    - Screen clear?
+$654E   - CALL $81A6    - ?
+$6551   - CALL $66E7    - ?
+$6567   - CALL $7465    - Wait/sync
+$6584   - CALL $688F    - Draw frame?
+$6587   - CALL $68AC    - Draw frame?
+$658A   - CALL $75B8    - Game logic
+$658D   - CALL $7A50    - Game logic
+$6590   - CALL $7AEA    - Game logic
+$6593   - CALL $7CD2    - Game logic
+$6596   - CALL $7B4A    - Keyboard read (1,2,3,4,5 row)
+$659C   - CALL $7069    - More logic
+$659F   - CALL $87AC    - More logic
+... (and many more CALLs in the main loop)
+
+INTERRUPT HANDLER
+-----------------
+$70B4   - Initialize IM 2: vector at $FDFD, I=$FE
+$70D3   - IM 2 handler (50 Hz interrupt)
+          - Increments $711A (frame counter)
+          - If $830A == 0: CALL $EF3B (init sound state)
+          - Else if $8599 == 0:
+            - Toggle $711B (every other frame)
+            - When toggled to 0: CALL $85BA (sound driver)
+          - Else: CALL $EF38 (alternative sound)
+          - Restore regs, EI, RETI
+
+KEYBOARD MATRIX USAGE
+---------------------
+Spectrum keyboard is read via IN A, ($FE) with row in A high byte.
+Found 4 read sequences:
+
+1. $65EB: LD A,$FE; IN A,($FE); AND 1
+   - Checks Row $FE bit 0 = CAPS_SHIFT
+
+2. $65F2: LD A,$7F; IN A,($FE); AND 2
+   - Checks Row $7F bit 1 = SYM_SHIFT (Spectrum modifier)
+
+3. $660B: LD A,$F7; IN A,($FE); AND $1F; RET NZ
+   - Checks Row $F7 bits 0-4 = keys 1,2,3,4,5
+   - Returns NZ if any pressed (used to start game)
+
+4. $7B4A: LD A,$F7; IN A,($FE); AND $1F
+   - Same row, but more complex tracking
+   - Probably in-game fire button
+
+A generic "press any key" routine at $662B:
+- Reads all 8 keyboard rows
+- Returns ASCII of pressed key from lookup table at $6649
+- Used in title screen "Press any key to play"
+
+CYBERNOID KEYBOARD MAP (to MSX)
+-------------------------------
+Based on the keyboard reading patterns:
+- Row $FE (CAPS_SHIFT, Z, X, C, V):
+  - bit 0 (CAPS) → likely "fire" or "thrust"
+- Row $7F (SPACE, SYM, M, N, B):
+  - bit 1 (SYM) → likely another action
+- Row $F7 (1, 2, 3, 4, 5):
+  - 1, 2, 3, 4, 5 → "fire" or game start
+
+Likely MSX mapping (similar to Spectrum):
+- CAPS / GRAPH / fire button
+- Space = thrust?
+- Numeric keys for actions?
+
+For a default mapping:
+- SPACE → FIRE (button 1)
+- Arrow keys or numeric keys → MOVEMENT (depending on game design)
+
+SOUND / BEEPER
+-------------
+$85BA   - Sound driver (called from IM 2 handler)
+$7BFC   - Sound init (5 channels × 16 bytes structure at $7BAA)
+
+Data structures at $7BAA, $7BBA, $7BCA, $7BDA, $7BEA - 5 × 16-byte entries:
+$BAAA: "BOMB    \\|...."
+$BBBA: "MINES   ..}...."
+$BCAA: "SHIELD  v~...."
+$BDAA: "BOUNCE  .~...."
+$BEAA: "SEEKER  ...."
+(Each entry is a name + envelope data)
+
+Sound is driven by IM 2 handler at 50 Hz. The beeper is toggled by
+OUT ($FE), A with bit 4 alternating.
+
+There is NO AY-3-8912 sound chip - this is a 48K Spectrum game using
+only the beeper. For MSX, port beeper routines to PSG (AY-3-8910).
+
+VIDEO
+-----
+Spectrum uses ULA with bitmap at $4000-$5AFF (256×192, 1 bpp).
+Attributes at $5800-$5AFF (32×24 cells, 1 byte per cell: ink+paper+flash+bright).
+
+Screen reference points:
+- $6726: LD HL,$4000 (screen pixel base)
+- $679D: LD DE,$5800 (attribute base)
+- $67AD: LD HL,$5800
+- $77F0: LD DE,$4000
+
+For MSX port, the video system is COMPLETELY different:
+- TMS9918 VDP with separate VRAM
+- Sprite-based graphics
+- No direct bitmap-to-attribute mapping
+
+The video routines MUST be rewritten for MSX. The game assets (sprites,
+maps) can be converted from the Spectrum graphics data.
+
+CALL CHAIN FROM ENTRY
+---------------------
+$6504: DI
+       LD SP,$0000   (NOTE: SP=$0000, ROM in 48K - looks odd but valid)
+       CALL $70B4    (init IM 2)
+       LD HL,$5B00; LD DE,$5B01; LD (HL),0; LD BC,$0A03; LDIR  (clear BASIC area)
+       XOR A; LD ($81A5),A; LD ($7BFA),A  (zero flags)
+       OUT ($FE),A  (border black)
+       LD A,($386E); SUB $FF; JR Z,$652A; LD A,1  (test flag at $386E)
+       LD ($8599),A
+       OR A; JP NZ,$653F
+       LD A,$C9; LD ($EF38),A; LD ($EF3B),A; LD ($EF42),A  (RET patches)
+       CALL $8738    (init?)
+       CALL $EF3B
+       LD E,1
+       CALL $EF42
+       EI
+       CALL $7BFC    (sound init)
+       CALL $671E    (screen clear?)
+       CALL $81A6
+       CALL $66E7
+       ; ... main game loop calls:
+       LD A,4; LD ($78D3),A  (some state)
+       ; ... zero out some buffer at $78F9
+       XOR A; CALL $7465
+       ; ... wait loop:
+       LD A,($711A); CP 2; JR NC,$6574; JP $656A
+       ; ... after 2 frames:
+       XOR A; LD ($711A),A
+       ; ... main loop:
+       INC ($65EA)
+       ; ... (HL) = $FF
+       CALL $688F (sprite update?)
+       CALL $68AC
+       CALL $75B8 (player logic?)
+       CALL $7A50
+       CALL $7AEA
+       CALL $7CD2
+       CALL $7B4A  (read fire button)
+       CALL $7C10
+       CALL $7069
+       CALL $87AC
+       CALL $8A69
+       ; ... ~50 more CALLs in main loop
+       CALL $7E27
+       CALL $79FE
+       CALL $660B  (any-key check for next loop)
+       CALL $65EB  (CAPS check)
+       JP $656A    (back to wait loop)
+
+NOTES FOR MSX PORT
+------------------
+1. Screen memory ($4000-$5AFF) - convert to MSX sprite/character maps.
+2. Keyboard ($FE) - rewrite to read MSX keyboard via $A0-$A9 ports.
+3. Beeper - rewrite to PSG channel.
+4. Border - MSX has no border (border color via VDP register 7).
+5. IM 2 - replace with MSX interrupt handler (50 Hz via VDP).
+6. Game structure - mostly intact, only I/O routines need rewriting.
+7. ROM space - 16K ROM at $4000-$7FFF + 32K RAM at $8000-$FFFF
+   (or use MSX-DOS / megaROM / memory mapper for larger ROMs).
+
+NEXT STEPS
+----------
+1. Build a complete disassembly of all game routines.
+2. Identify data vs code regions in $6504-$FFFF.
+3. Write MSX replacements for video, sound, keyboard.
+4. Adapt the game loop to use MSX BIOS hooks.
+5. Compile/link to MSX ROM or .CAS image.
+'''
+
+
+def main():
+    out_path = Path(SPECTRUM_DISASM_DIR) / 'PORTING_NOTES.txt'
+    with open(out_path, 'w', encoding='utf-8') as f:
+        f.write(CONTENT)
+    print(f'Saved porting notes to {out_path}')
+
+
+if __name__ == '__main__':
+    main()

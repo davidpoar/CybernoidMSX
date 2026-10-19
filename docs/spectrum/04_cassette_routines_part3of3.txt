@@ -1,0 +1,1341 @@
+# Spectrum ROM Disassembly - The Cassette Handling Routines
+Part 3/3
+
+---
+
+Fetch the code anew. 
+
+
+
+SUB 
+
++17 
+
+Carry is reset for TAB. 
+
+
+
+ADC 
+
+A, +00 
+
+Note: This splits off AT & TAB 
+but AT & TAB in this form are 
+not implemented anyway so it 
+makes no difference. 
+
+
+
+JR 
+
+NZ, 1051, ED-EDGE-2 
+
+Jump forward unless dealing 
+
+
+
+INC 
+
+HL 
+
+with AT & TAB which would 
+have two parameters, if used. 
+
+1051 
+
+ED-EDGE-2 
+
+AND 
+
+A 
+
+Prepare for true subtraction. 
+
+
+
+SBC 
+
+HL,BC 
+
+The carry flag will be reset 
+
+
+
+ADD 
+
+HL,BC 
+
+when the 'updated pointer' 
+reaches K-CUR. 
+
+
+
+EX 
+
+DE,HL 
+
+For the next loop use the 
+
+
+
+JR 
+
+C.103E, ED-EDGE-1 
+
+’updated pointer', but if 
+
+
+
+RET 
+
+
+exiting use the 'present 
+pointer' for K-CUR. 
+
+Note: It is the control character 
+
+
+
+
+
+that is deleted when using 
+DELETE. 
+
+THE 'CURSOR UP EDITING' SUBROUTINE 
+
+
+1059 
+
+ED-UP 
+
+BIT 
+
+5,(FLAGX) 
+
+Return if in 'INPUT mode'. 
+
+
+
+RET 
+
+NZ 
+
+
+
+
+LD 
+
+HL,(E-PPC) 
+
+Fetch the current line 
+
+
+
+CALL 
+
+196E,LINE-ADDR 
+
+number and its start address. 
+
+
+
+EX 
+
+DE.HL 
+
+HL now points to the previous 
+line. 
+
+
+
+CALL 
+
+1695, LINE-NO 
+
+This line's number is fetched. 
+
+
+
+LD 
+
+HL.+5C4A 
+
+This is E-PPC-hi. 
+
+
+
+CALL 
+
+1910,LN-STORE 
+
+The line number is stored. 
+
+106E 
+
+ED-LIST 
+
+CALL 
+
+1795, AUTO-LIST 
+
+A new automatic listing is 
+
+
+
+LD 
+
+A, +00 
+
+now produced and channel 'K' 
+
+
+
+JP 
+
+1601, CHAN-OPEN 
+
+re-opened before returning to 
+ED-LOOP. 
+
+
+THE 'ED-SYMBOL' SUBROUTINE 
+
+If SYMBOL & GRAPHICS codes were used they would be handled as follows: 
+
+
+1076 ED-SYMBOL BIT 7,(FLAGX) 
+
+JR Z,1024,ED-ENTER 
+
+107C ED-GRAPH JP 0F81 , ADD-CHAR 
+
+Jump back unless dealing with 
+INPUT. LINE. 
+
+Jump back. 
+
+THE 'ED-ERROR' SUBROUTINE 
+
+Come here when there has been some kind of error. 
+
+
+107F ED-ERROR BIT 4,(FLAGS2) 
+
+JR Z,1026,ED-END 
+
+Jump back if using other than 
+channel 'K'. 
+
+
+54 
+
+
+
+LD 
+
+(ERR-NR),+FF 
+
+Cancel the error number and 
+
+LD 
+
+D,+00 
+
+give a 'rasp' before going 
+
+LD 
+
+E,(RASP) 
+
+around the editor again. 
+
+LD 
+
+HL.+1A90 
+
+
+CALL 
+
+0385, BEEPER 
+
+
+JP 
+
+0F30,ED-AGAIN 
+
+
+THE 'CLEAR-SP' SUBROUTINE 
+
+The editing area or the work space is cleared as directed. 
+
+
+1097 CLEAR-SP PUSH 
+
+HL 
+
+Save the pointer to the space 
+
+CALL 
+
+1 190,SET-HL 
+
+DE will point to the first 
+character and HL the last. 
+
+DEC 
+
+HL 
+
+The correct amount is now 
+
+CALL 
+
+19E5, RECLAIM-1 
+
+reclaimed. 
+
+LD 
+
+(K-CUR),HL 
+
+The system variables K-CUR 
+
+LD 
+
+(MODE), +00 
+
+and MODE ('K mode') are 
+
+POP 
+
+HL 
+
+initialised before fetching 
+
+RET 
+
+
+the pointer and returning. 
+
+
+THE 'KEYBOARD INPUT' SUBROUTINE 
+
+This important subroutine returns the code of the last key to have bean pressed but note that CAPS LOCK, the changing of the mode 
+and the colour control parameters are handled within the subroutine. 
+
+
+10A8 
+
+KEY-INPUT 
+
+BIT 
+
+3, (TV-FLAG) 
+
+Copy the edit-linear the 
+
+
+
+CALL 
+
+NZ, 1 1 1 D.ED-COPY 
+
+INPUT-line to the screen if 
+the mode has changed. 
+
+
+
+AND 
+
+A 
+
+Return with both carry 
+
+
+
+BIT 
+
+5, (FLAGS) 
+
+and zero flags reset if no 
+
+
+
+RET 
+
+Z 
+
+new key has been pressed 
+
+
+
+LD 
+
+A,(LAST-K) 
+
+Otherwise fetch the code and 
+
+
+
+RES 
+
+5, (FLAGS) 
+
+signal that it has been taken 
+
+
+
+PUSH 
+
+AF 
+
+Save the code temporarily. 
+
+
+
+BIT 
+
+5, (TV-FLAG) 
+
+Clear the lower part of the 
+
+
+
+CALL 
+
+NZ,OD6E,CLS-LOWER 
+
+display if necessary; 
+e.g. after ’scroll?'; 
+
+
+
+POP 
+
+AF 
+
+Fetch the code. 
+
+
+
+CP 
+
++20 
+
+Accept all characters and 
+
+
+
+JR 
+
+NC,11 IB, KEY-DONE 
+
+token codes. 
+
+
+
+CP 
+
++10 
+
+Jump forward with most of 
+
+
+
+JR 
+
+NC,10FA,KEY-CONTR 
+
+the control character codes. 
+
+
+
+CP 
+
++06 
+
+Jump forward with the 'mode'. 
+
+
+
+JR 
+
+NC,1 0DB,KEY=M&CL 
+
+codes and the CAPS LOCK code. 
+
+Now deal with the FLASH, BRIGHT& INVERSE codes. 
+
+
+
+
+LD 
+
+B,A 
+
+Save the code. 
+
+
+
+AND 
+
++01 
+
+Keep only bit 0. 
+
+
+
+LD 
+
+C,A 
+
+C holds +00 (= OFF) or 
+
+C holds +01 (= ON). 
+
+
+
+LD 
+
+A,B 
+
+Fetch the code. 
+
+
+
+RRA 
+
+
+Rotate it once (losing bit 0). 
+
+
+
+ADD 
+
+A, +12 
+
+Increase it by +12 giving for 
+
+
+
+JR 
+
+11 05, KEY-DATA 
+
+FLASH- +12, BRIGHT- +13 
+and INVERSE - +14. 
+
+The CAPS LOCK code and the mode codes are dealt with locally'. 
+
+
+10DB 
+
+KEY-M&CL 
+
+JR 
+
+NZ.10E6, KEY-MODE 
+
+Jump forward with 'mode' codes. 
+
+
+
+LD 
+
+HL.+5C6A 
+
+This is FLAGS2. 
+
+
+
+LD 
+
+A, +08 
+
+Flip bit 3 of FLAGS2. This is 
+
+
+
+XOR 
+
+(HL) 
+
+the CAPS LOCK flag. 
+
+
+
+LD 
+
+(HL),A 
+
+
+
+
+JR 
+
+10F4, KEY-FLAG 
+
+Jump forward. 
+
+10E6 
+
+KEY-MODE 
+
+CP 
+
++0E 
+
+Check the lower limit. 
+
+
+55 
+
+
+
+
+RET 
+
+C 
+
+
+
+SUB 
+
++0D 
+
+Reduce the range. 
+
+
+LD 
+
+HL.+5C41 
+
+This is MODE. 
+
+
+CP 
+
+(HL) 
+
+Has it been changed? 
+
+
+LD 
+
+(HL),A 
+
+Enter the new 'mode' code. 
+
+
+JR 
+
+NZ.10F4, KEY-FLAG 
+
+Jump if it has changed; 
+
+
+LD 
+
+(HL),+00 
+
+otherwise make it 'L mode'. 
+
+10F4 
+
+KEY-FLAG SET 3, (TV-FLAG) 
+
+Signal 'the mode might have 
+
+
+
+
+changed. 
+
+
+CP 
+
+A 
+
+Reset the carry flag and 
+
+
+RET 
+
+
+return. 
+
+The control key codes (apart from FLASFI, BRIGFIT & INVERSE) are manipulated. 
+
+10FA 
+
+KEY-CONTR LD 
+
+B,A 
+
+Save the code. 
+
+
+AND 
+
++07 
+
+Make the C register hold the 
+
+
+LD 
+
+C,A 
+
+parameter. (+00 to +07) 
+
+
+LD 
+
+A, +10 
+
+A now holds the INK code. 
+
+
+BIT 
+
+3,B 
+
+But if the code was an 
+
+
+JR 
+
+NZ,1 105, KEY-DATA 
+
+'unshifted' code then make A 
+
+
+INC 
+
+A 
+
+hold the PAPER code. 
+
+The parameter is saved in K-DATA and the channel address changed from KEY-INPUT to KEY-NEXT. 
+
+1105 
+
+KEY-DATA LD 
+
+(K-DATA), C 
+
+Save the parameter. 
+
+
+LD 
+
+DE,+1 10D 
+
+This is KEY-NEXT. 
+
+
+JR 
+
+11 13, KEY-CHAN 
+
+Jump forward. 
+
+
+Note: On the first pass entering at KEY-INPUT the A register is returned holding a control code' and then on the next pass, entering 
+
+at KEY-NEXT, it is the parameter that is returned. 
+
+
+1 1 0D 
+
+
+KEY-NEXT 
+
+
+LD 
+
+LD 
+
+
+A, (K- DATA) 
+DE.+10A8 
+
+
+Fetch the parameter. 
+This is KEY-INPUT. 
+
+
+Now set the input address in the first channel area. 
+
+
+1113 KEY-CHAN LD 
+
+HL, (CHANS) 
+
+Fetch the channel address. 
+
+INC 
+
+HL 
+
+
+INC 
+
+HL 
+
+
+LD 
+
+(HL),E 
+
+Now set the input address. 
+
+INC 
+
+HL 
+
+
+LD 
+
+(HL),D 
+
+
+Finally exit with the required code in the A register. 
+
+
+11 IB KEY-DONE SCF 
+
+
+Show a code has been found 
+
+RET 
+
+
+and return. 
+
+THE 'LOWER SCREEN COPYING' SUBROUTINE 
+
+
+This subroutine is called whenever the line in the editing area or the INPUT area is to be printed in the lower 
+
+11 ID ED-COPY CALL 
+
+0D4D, TEMPS 
+
+Use the permanent colours. 
+
+RES 
+
+3, (TV-FLAG) 
+
+Signal that the 'mode is to be 
+
+RES 
+
+5, (TV-FLAG) 
+
+considered unchanged' and the 
+'lower screen does not need 
+clearing'. 
+
+LD 
+
+HL,(S-POSNL) 
+
+Save the current value of 
+
+PUSH 
+
+HL 
+
+S-POSNL. 
+
+LD 
+
+HL,(ERR-SP) 
+
+Keep the current value of 
+
+PUSH 
+
+HL 
+
+ERR-SP. 
+
+LD 
+
+HL.+1167 
+
+This is ED-FULL. 
+
+PUSH 
+
+HL 
+
+Push this address on to the 
+
+LD 
+
+(ERR-SP),SP 
+
+machine stack to make ED-FULL 
+the entry point following an 
+
+
+56 
+
+
+
+LD 
+
+HL,(ECHO-E) 
+
+Push the value of ECHO-E 
+
+PUSH 
+
+HL 
+
+on to the stack. 
+
+SCF 
+
+
+Make HL point to the start 
+
+CALL 
+
+1195, SET-HL 
+
+of the space and DE the end. 
+
+EX 
+
+DE.HL 
+
+
+CALL 
+
+187D,OUT-LINE2 
+
+Now print the line. 
+
+EX 
+
+DE.HL 
+
+Exchange the pointers and 
+
+CALL 
+
+18E1, OUT-CURS 
+
+print the cursor. 
+
+LD 
+
+HL,(S-POSNL) 
+
+Next fetch the Current value 
+
+EX 
+
+(SP),HL 
+
+of S-POSNL and exchange it 
+with ECHO-E. 
+
+EX 
+
+DE,HL 
+
+Pass ECHO-E to DE. 
+
+CALL 
+
+0D4D, TEMPS 
+
+Again fetch the permanent 
+colours. 
+
+
+The remainder of any line that has been started is now completed with spaces printed with the 'permanent' PAPER colour. 
+
+
+1150 
+
+ED-BLANK 
+
+LD 
+
+A.(S-POSNL-hi) 
+
+Fetch the current line number 
+
+
+
+SUB 
+
+D 
+
+and subtract the old line number. 
+
+
+
+JR 
+
+C,1 17C,ED-C-DONE 
+
+Jump forward if no 'blanking' 
+of lines required. 
+
+
+
+JR 
+
+NZ.115E, ED-SPACES 
+
+Jump forward if not on the 
+same line. 
+
+
+
+LD 
+
+A,E 
+
+Fetch the old column number 
+
+
+
+SUB 
+
+(S-POSNL-lo) 
+
+and subtract the new column 
+number. 
+
+
+
+JR 
+
+NC,1 17C.ED-C-DONE 
+
+Jump if no spaces required. 
+
+115E 
+
+ED-SPACES 
+
+LD 
+
+A, +20 
+
+A 'space'. 
+
+
+
+PUSH 
+
+DE 
+
+Save the old values, 
+
+
+
+CALL 
+
+09F4, PRINT-OUT 
+
+Print it. 
+
+
+
+POP 
+
+DE 
+
+Fetch the old values. 
+
+
+
+JR 
+
+11 50, ED-BLANK 
+
+Back again. 
+
+New deal with any errors. 
+
+
+
+1167 
+
+ED-FULL 
+
+LD 
+
+D,+00 
+
+Give out a 'rasp'. 
+
+
+
+LD 
+
+E,(RASP) 
+
+
+
+
+LD 
+
+HL.+1A90 
+
+
+
+
+CALL 
+
+03B5, BEEPER 
+
+
+
+
+LD 
+
+(ERR-NR),+FF 
+
+Cancel the error number. 
+
+
+
+LD 
+
+DE, (S-POSNL) 
+
+Fetch the current value of 
+
+
+
+JR 
+
+1 1 7E,ED-C-END 
+
+S-POSNL and jump forward. 
+
+
+The normal exit upon completion of the copying over of the editor the INPUT line. 
+
+
+117C ED-C-DONE POP 
+
+DE 
+
+The new position value. 
+
+POP 
+
+HL 
+
+The 'error address'. 
+
+But come here after an error. 
+
+
+
+117E ED-C-END POP 
+
+HL 
+
+The old value of ERR-SP is 
+
+LD 
+
+(ERR-SP),HL 
+
+restored. 
+
+POP 
+
+BC 
+
+Fetch the old value of 
+
+
+
+S-POSNL. 
+
+PUSH 
+
+DE 
+
+Save the new position values. 
+
+CALL 
+
+0DD9,CL-SET 
+
+Set the system variables. 
+
+POP 
+
+HL 
+
+The old value of S-POSNL 
+
+LD 
+
+(ECHO-E), HL 
+
+goes into ECHO-E. 
+
+LD 
+
+(X-PTR-hi),+00 
+
+X-PTR is cleared in a 
+
+RET 
+
+
+suitable manner and the return 
+
+
+
+Made. 
+
+THE 'SET-HL' AND 'SET-DE' SUBROUTINES 
+
+
+
+These subroutines return with HL pointing to the first location and DE the 'last' location of either the editing area or the work space. 
+1190 SET-HL LD HL,(WORKSP) Point to the last location 
+
+
+57 
+
+
+
+1195 
+
+
+SET-DE 
+
+
+DEC 
+
+HL 
+
+of the editing area. 
+
+AND 
+
+A 
+
+Clear the carry flag. 
+
+1195 SET-DE LD 
+
+DE, (E-LINE) 
+
+Point to the start of the 
+
+BIT 
+
+5,(FLAGX) 
+
+editing area and return if 
+
+RET 
+
+Z 
+
+in 'editing mode'. 
+
+LD 
+
+DE.(WORKSP) 
+
+Otherwise change DE. 
+
+RET 
+
+C 
+
+Return if now intended. 
+
+LD 
+
+HL,(STKBOT) 
+
+Fetch STKBOT and then 
+
+RET 
+
+
+return. 
+
+THE 'REMOVE-FP' SUBROUTINE 
+
+
+This subroutine removes the hidden floating-point forms in a BASIC line. 
+
+11A7 REMOVE-FP LD 
+
+A,(HL) 
+
+Each character in turn is 
+examined. 
+
+CP 
+
++0E 
+
+Is it a number marker? 
+
+LD 
+
+BC,+0006 
+
+It will occupy six locations. 
+
+CALL 
+
+Z,19E8, RECLAIM-2 
+
+Reclaim the F-P number. 
+
+LD 
+
+A,(HL) 
+
+Fetch the code again. 
+
+INC 
+
+HL 
+
+Update the pointer. 
+
+CP 
+
++0D 
+
+'Carriage return'? 
+
+JR 
+
+NZ.11A7, REMOVE-FP 
+
+Back if not. But make a 
+
+RET 
+
+
+simple return if it is. 
+
+
+58 
+
+

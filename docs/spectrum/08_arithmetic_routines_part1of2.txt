@@ -1,0 +1,6004 @@
+# Spectrum ROM Disassembly - The Arithmetic Routines
+Part 1/2
+
+---
+
+THE ARITHMETIC ROUTINES 
+
+
+THE 'E-FORMAT TO FLOATING-POINT' SUBROUTINE 
+
+(Offset 3C - see CALCULATE below: 'e-to-fp') 
+
+This subroutine gives a 'last value' on the top of the calculator stack that is the result of converting a number given in the form xEm, 
+where m is a positive or negative integer. The subroutine is entered with x at the top of the calculator stack and m in the A register. 
+
+The method used is to find the absolute value of m, say p, and to multiply or divide x by 1 0 A p according to whether m is positive or 
+negative. 
+
+To achieve this, p is shifted right until it is zero, and x is multiplied or divided by 10 A (2 A n) for each set bit b(n) of p. Since p is never 
+much more than decimal 39, bits 6 and 7 of p will not normally be set. 
+
+
+2D4F 
+
+E-TO-FP 
+
+RLCA 
+
+
+Test the sign of m by rotating 
+
+
+
+RRCA 
+
+
+bit 7 of A into the carry 
+without changing A. 
+
+
+
+JR 
+
+NC,2D55, E-SAVE 
+
+Jump if m is positive. 
+
+
+
+CPL 
+
+
+Negate m in A without 
+
+
+
+INC 
+
+A 
+
+disturbing the carry flag. 
+
+2D55 
+
+E-SAVE 
+
+PUSH 
+
+AF 
+
+Save m in A briefly. 
+
+
+
+LD 
+
+HL.+5C92 
+
+This is MEMBOT: a sign flag is 
+
+
+
+CALL 
+
+350B,FP-0/1 
+
+now stored in the first byte of 
+mem-0, i.e. 0 for '+' and 1 for 
+
+
+
+RST 
+
+0028,FP-CALC 
+
+The stack holds x. 
+
+
+
+DEFB 
+
++A4,stk-ten 
+
+x, 1 0 (decimal) 
+
+
+
+DEFB 
+
++38, end-calc 
+
+x,10 
+
+
+
+POP 
+
+AF 
+
+Restore m in A. 
+
+2D60 
+
+E-LOOP 
+
+SRL 
+
+A 
+
+in the loop, shift out the next 
+bit of m, modifying the carry 
+and zero flags appropriately; 
+
+
+
+JR 
+
+NC.2D71, E-TST-END 
+
+jump if carry reset. 
+
+
+
+PUSH 
+
+AF 
+
+Save the rest of m and the flags. 
+
+
+
+RST 
+
+0028,FP-CALC 
+
+The stack holds x' and 
+
+10 A (2 A n), where x' is an 
+interim stage in the multiplica- 
+tion of x by 1 0 A m, and n= 
+
+0,1, 2, 3, 4 or 5. 
+
+
+
+DEFB 
+
++C1 ,st-mem-1 
+
+(1 0 A (2 A n) is copied to mem-1 ). 
+
+
+
+DEFB 
+
++E0, get-mem-0 
+
+x', 10 A (2 A n), (1/0) 
+
+
+
+DEFB 
+
++00, jump-true 
+
+x', 10 A (2 A n) 
+
+
+
+DEFB 
+
++04, to E-DIVSN 
+
+x', 10 A (2 A n) 
+
+
+
+DEFB 
+
++04, multiply 
+
+x'*10 A (2 A n)= x" 
+
+
+
+DEFB 
+
++33, jump 
+
+x" 
+
+
+
+DEFB 
+
++02, to E-FETCH 
+
+x" 
+
+2D6D 
+
+E-DIVSN 
+
+DEFB 
+
++05, division 
+
+x/1 0 A (2 A n)=x" (x" is N'*10 A 
+(2 A n) or x'/l 0 A (2 A n) 
+according as m is '+' ot '-'). 
+
+2D6E 
+
+E-FETCH 
+
+DEFB 
+
++E1 , get-mem-1 
+
+X " io A (2 A n) 
+
+
+
+DEFB 
+
++38, end-calc 
+
+X " 1 0 A (2 A n) 
+
+
+
+POP 
+
+AF 
+
+Restore the rest of m in A, and 
+the flags. 
+
+2D71 
+
+E-TST-END 
+
+JR 
+
+Z,2D7B, E-END 
+
+Jump if m has been reduced to 
+
+
+
+
+
+zero. 
+
+
+
+PUSH 
+
+AF 
+
+Save the rest of m in A. 
+
+
+
+RST 
+
+0028,FP-CALC 
+
+X " io A (2 A n) 
+
+
+
+DEFB 
+
++31 .duplicate 
+
+X " 1 0 A (2 A n), 10 A (2 A n) 
+
+
+
+DEFB 
+
++04, multiply 
+
+x", 1 0 A (2 A (n+1 )) 
+
+
+
+DEFB 
+
++38, end-calc 
+
+x", 1 0 A (2 A (n+1 )) 
+
+
+
+POP 
+
+AF 
+
+Restore the rest of m in A. 
+
+
+
+JR 
+
+2D60, E-LOOP 
+
+Jump back for all bits of m. 
+
+2D7B 
+
+E-END 
+
+RST 
+
+0028.FP-CALC 
+
+Use the calculator to delete the 
+
+
+164 
+
+
+
+DEFB 
+
+DEFB 
+
+RET 
+
+
++02, delete 
++28, end-calc 
+
+
+final power of 10 reached, 
+leaving the 'last value' x*10 A m 
+on the stack 
+
+
+THE 'INT-FETCH' SUBROUTINE 
+
+This subroutine collects in DE a small integer n (-65535<=n<=65535) from the location addressed by FHL: i.e. n is normally the first (or 
+second) number at the top of the calculator stack; but FHL can alls access (by exchange with DE) a number which has been deleted 
+from the stack. The subroutine does not itself delete the number from the stack or from memory; it returns FHL pointing to the fourth byte 
+of the number in its original position. 
+
+
+2D7F 
+
+INT-FETCH INC 
+
+HL 
+
+Point to the sign byte of the 
+number. 
+
+
+LD 
+
+C,(HL) 
+
+Copy the sign byte to C. 
+
+
+The following mechanism will twos complement the number if it is negative (C is FF) but leave it unaltered if it is positive (C is 00) 
+
+
+INC 
+
+HL 
+
+Point to the less significant 
+byte. 
+
+LD 
+
+A,(HL) 
+
+Collect the byte in A. 
+
+XOR 
+
+C 
+
+Ones complement it if negative 
+
+SUB 
+
+C 
+
+This adds 1 for negative 
+numbers; it sets the carry unless 
+the byte was 0. 
+
+LD 
+
+E,A 
+
+Less significant byte to E now. 
+
+INC 
+
+HL 
+
+Point to the more significant 
+byte. 
+
+LD 
+
+A,(HL) 
+
+Collect it in A. 
+
+ADC 
+
+A,C 
+
+Finish two complementing in 
+the case of a negative number; 
+note that the carry is always 
+left reset. 
+
+LD 
+
+RET 
+
+D,A 
+
+More significant byte to D now. 
+Finished. 
+
+
+THE 'INT-STORE' SUBROUTINE 
+
+This subroutine stores a small integer n (-65535<=n<=65535) in the location addressed by FHL and the four following locations: i.e. n 
+replaces the first (or second) number at the top of the calculator stack. The subroutine returns FHL pointing to the first byte of n on the 
+stack. 
+
+
+2D8C 
+
+P-INT-STO 
+
+LD 
+
+C,+00 
+
+This entry point would store a 
+number known to be positive 
+
+2D8E 
+
+INT-STORE 
+
+PUSH 
+
+HL 
+
+The pointer to the first location 
+is saved. 
+
+
+
+LD 
+
+(HL),+00 
+
+The first byte is set to zero. 
+
+
+
+INC 
+
+HL 
+
+Point to the second location. 
+
+
+
+LD 
+
+(HL),C 
+
+Enter the second byte. 
+
+
+The same mechanism is now used as in 'INT-FETCFI' to twos complement negative numbers. This is needed e.g. before and after the 
+multiplication of small integers. Addition is however performed without any further twos complementing before or afterwards. 
+
+
+INC 
+
+HL 
+
+Point to the third location. 
+
+LD 
+
+A,E 
+
+Collect the less significant 
+byte. 
+
+XOR 
+
+C 
+
+Twos complement it if the 
+
+SUB 
+
+C 
+
+number is negative 
+
+LD 
+
+(HL),A 
+
+Store the byte. 
+
+INC 
+
+HL 
+
+Point to the fourth location. 
+
+LD 
+
+A,D 
+
+Collect the more significant 
+byte. 
+
+ADC 
+
+A,C 
+
+Twos complement it if the 
+
+XOR 
+
+C 
+
+number is negative 
+
+
+165 
+
+
+
+LD 
+
+(HL),A 
+
+Store the byte. 
+
+INC 
+
+HL 
+
+Point to the fifth location. 
+
+LD 
+
+(HL),+00 
+
+The fifth byte is set to zero. 
+
+POP 
+
+HL 
+
+Return with HL pointing to the 
+
+RET 
+
+first byte on n on the stack 
+
+
+
+THE 'FLOATING-POINT TO BC' SUBROUTINE 
+
+This subroutine is called from four different places for various purposes and is used to compress the floating-point 'last value' into the 
+BC register pair. If the result is too large, i.e. greater than 65536 decimal, then the subroutine returns with the carry flag set. If the 'last 
+value’ is negative then the zero flag is reset. The low byte of the result is also copied to the A register. 
+
+
+2DA2 FP-TO-BC RST 
+
+0028,FP-CALC 
+
+Use the calculator to make HL 
+
+DEFB 
+
++38, end-calc 
+
+point to STKEND-5 
+
+LD 
+
+A,(HL) 
+
+Collect the exponent byte of 
+
+AND 
+
+A 
+
+the 'last value'; jump if it is 
+
+JR 
+
+Z,2DAD, FP-DELETE zero, indicating a 'small integer'. 
+
+RST 
+
+0028,FP-CALC 
+
+Now use the calculator to round 
+
+DEFB 
+
++A2,stk-half 
+
+the 'last value' to the nearest 
+
+DEFB 
+
++0F, addition 
+
+integer, which also changes it to 
+
+DEFB 
+
++27,int 
+
+'small integer' form on the 
+
+DEFB 
+
++38, end-calc 
+
+calculator stack if that is pos- 
+sible, i.e. if -65535.5 <= 
+x <65535.3 
+
+2DAD FP-DELETE RST 
+
+0028,FP-CALC 
+
+Use the calculator to delete the 
+
+DEFB 
+
++92, delete 
+
+integer from the stack; DE still 
+
+DEFB 
+
++38, end-calc 
+
+points to it in memory (at 
+
+STKEND). 
+
+PUSH 
+
+HL 
+
+Save both stack pointers. 
+
+PUSH 
+
+DE 
+
+
+EX 
+
+DE,HL 
+
+HL now points to the number. 
+
+LD 
+
+B,(HL) 
+
+Copy the first byte to B. 
+
+CALL 
+
+2D7F.INT-FETCH 
+
+Copy bytes 2, 3 and 4 to C, E 
+and D. 
+
+XOR 
+
+A 
+
+Clear the A register. 
+
+SUB 
+
+B 
+
+This sets the carry unless B is 
+zero. 
+
+BIT 
+
+7,C 
+
+This sets the zero flag if the 
+number is positive (NZ denotes 
+negative). 
+
+LD 
+
+B,D 
+
+Copy the high byte to B. 
+
+LD 
+
+C,E 
+
+And the low byte to C. 
+
+LD 
+
+A,E 
+
+Copy the low byte to A too. 
+
+POP 
+
+DE 
+
+Restore the stack pointers. 
+
+POP 
+
+HL 
+
+
+RET 
+
+
+Finished. 
+
+THE 'LOG (2 A A)' SUBROUTINE 
+
+
+This subroutine is called by the 'PRINT-FP' subroutine to calculate the approximate number of digits before the decimal in x, the 
+
+number to be printed, or, if there are no digits before the decimal, then the approximate number of leading zeros after the decimal. 
+
+entered with the A register containing e', the true exponent of x, 
+
+or e'-2, and calculates z=log to the base 1 0 of (2 A A). It then sets A 
+
+equal to ABS INT (Z + 0.5), as required, using FP-TO-A for this purpose. 
+
+2DC1 LOG(2 A A) LD 
+
+D,A 
+
+The integer A is stacked, either 
+
+RLA 
+
+
+as 00 00 A 00 00 (for positive 
+
+SBC 
+
+A, A 
+
+A) or as 00 FF A FF 00 (for 
+negative A). 
+
+LD 
+
+E,A 
+
+These bytes are first loaded into 
+
+LD 
+
+C,A 
+
+A, E, D, C, B and then STK- 
+
+XOR 
+
+A 
+
+STORE is called to put the 
+
+LD 
+
+B,A 
+
+number on the calculator stack. 
+
+
+166 
+
+
+
+CALL 
+
+2AB6.STK-STORE 
+
+
+RST 
+
+0028.FP-CALC 
+
+The calculator is used 
+
+DEFB 
+
++34,stk-data 
+
+Log 2 to the base 10 is now 
+stacked. 
+
+DEFB 
+
++EF, exponent +7F 
+
+The stack now holds a, log 2. 
+
+DEFB 
+
++1 A,+20,+9A,+85 
+
+
+DEFB 
+
++04, multiply 
+
+A*log 2 i.e. log (2 A A) 
+
+DEFB 
+
++27,int 
+
+INT log (2 A A) 
+
+DEFB 
+
++38, end-calc 
+
+
+
+The subroutine continues on into FP-TO-A to complete the calculation. 
+
+THE 'FLOATING-POINT TO A' SUBROUTINE 
+
+This short but vital subroutine is called at least 8 times for various purposes. It uses the last but one subroutine, FP-TO-BC, to get the 
+'last value' into the A register where this is possible. It therefore tests whether the modulus of the number rounds to more than 255 and 
+if it does the subroutine returns with the carry flag set. Otherwise it returns with the modulus of the number, rounded to the nearest 
+integer, in the A register, and the zero flag set to imply that the number was positive, or reset to imply that it was negative. 
+
+
+2DD5 FP-TO-A CALL 
+
+2DA2, FP-TO-BC 
+
+Compress the 'last value' into 
+BC. 
+
+RET 
+
+C 
+
+Return if out of range already. 
+
+PUSH 
+
+AF 
+
+Save the result and the flags. 
+
+DEC 
+
+B 
+
+Again it will be out of range 
+
+INC 
+
+B 
+
+if the B register does not hold 
+zero. 
+
+JR 
+
+Z.2DE1, FP-A-END 
+
+Jump if in range. 
+
+POP 
+
+AF 
+
+Fetch the result and the flags 
+
+SCF 
+
+
+Signal the result is out of rangi 
+
+RET 
+
+
+Finished - unsuccessful. 
+
+2DE1 FP-A-END POP 
+
+AF 
+
+Fetch the result and the flags. 
+
+RET 
+
+
+Finished - successful. 
+
+
+THE 'PRINT A FLOATING-POINT NUMBER' SUBROUTINE 
+
+This subroutine is called by the PRINT command routine at 2039 and by STR$ at 3630, which converts to a string the number as it 
+would be printed. The subroutine prints x, the 'last value' on the calculator stack. The print format never occupies more than 14 spaces. 
+The 8 most significant digits of x, correctly rounded, are stored in an ad hoc print buffer in mem-3 and mem-4. Small numbers, 
+numerically less than 1 , and large numbers, numerically greater than 2 A 27, are dealt with separately. The former are multiplied by 1 0 A 
+n, where n is the approximate number of leading zeros after the decimal, while the latter are divided by 10 A (n-7), where n is the 
+approximate number of digits before the decimal. This brings all numbers into the middle range, and the numbers of digits required 
+before the decimal is built up in the second byte of mem-5. Finally the printing is done, using E-format if there are more than 8 digits 
+before the decimal or, for small numbers, more than 4 leading zeros after the decimal. 
+
+The following program shows the range of print formats: 
+
+10 FOR a=-1 1 TO 12: PRINT SGN a*9 A a,: NEXT a 
+
+i. First the sign of x is taken care of: 
+
+If X is negative, the subroutine jumps to PF-NEGATIVE, takes ABS x and prints the minus sign. 
+
+If x is zero, x is deleted from the calculator stack, a 'O' is printed and a return is made from the subroutine. 
+
+If x is positive, the subroutine just continues. 
+
+
+PRINT-FP 
+
+RST 
+
+0028.FP-CALC 
+
+Use the calculator 
+
+
+DEFB 
+
++31, duplicate 
+
+x,x 
+
+
+DEFB 
+
++36,less-0 
+
+x, (1/0) Logical value of x. 
+
+
+DEFB 
+
++00, jump-true 
+
+X 
+
+
+DEFB 
+
++0B,to PF-NEGTVE 
+
+X 
+
+
+DEFB 
+
++31, duplicate 
+
+x,x 
+
+
+DEFB 
+
++37,greater-0 
+
+x, (1/0) Logical value of X. 
+
+
+167 
+
+
+
+
+
+DEFB 
+
++00, jump-true 
+
+X 
+
+
+
+DEFB 
+
++0D,to PF-POSTVE 
+
+x Hereafter x'=ABS x. 
+
+
+
+DEFB 
+
++02, delete 
+
+- 
+
+
+
+DEFB 
+
++38, end-calc 
+
+- 
+
+
+
+LD 
+
+A, +30 
+
+Enter the character code for 'O’. 
+
+
+
+RST 
+
+0010,PRINT-A-1 
+
+Print the ’O'. 
+
+
+
+RET 
+
+
+Finished as the 'last value' is 
+
+
+
+
+
+zero. 
+
+2DF2 
+
+PF-NEGTVE 
+
+DEFB 
+
++2A,abs 
+
+x' x'=ABS x. 
+
+
+
+DEFB 
+
++38, end-calc 
+
+x' 
+
+
+
+LD 
+
+A,+2D 
+
+Enter the character code for 
+
+
+
+RST 
+
+0010,PRINT-A-1 
+
+Print the '-'. 
+
+
+
+RST 
+
+0028,FP-CALC 
+
+Use the calculator again. 
+
+2DF8 
+
+PF-POSTVE 
+
+DEFB 
+
++A0,stk-zero 
+
+The 15 bytes of mem-3, mem-4 
+
+
+
+DEFB 
+
++C3,st-mem-3 
+
+and mem-5 are now initialised to 
+
+
+
+DEFB 
+
++C4,st-mem-4 
+
+zero to be used for a print 
+
+
+
+DEFB 
+
++C5,st-mem-5 
+
+buffer and two counters. 
+
+
+
+DEFB 
+
++02, delete 
+
+The stack is cleared, except for 
+
+x'. 
+
+x' 
+
+
+
+DEFB 
+
++38, end-calc 
+
+
+
+EXX 
+
+
+H'L', which is used to hold 
+
+
+
+PUSH 
+
+HL 
+
+calculator offsets, (e.g. for 
+
+
+
+EXX 
+
+
+'STR$') is saved on the machine 
+stack. 
+
+
+ii. This is the start of a loop which deals with large numbers. However every number x is first split into its integer part i and the fractional 
+part f. If i is a small integer, i.e. if -65535 <= i <= 65535, it is stored in D'E' for insertion into the print buffer. 
+
+
+2E01 PF-LOOP 
+
+
+2E1E PF-SAVE 
+
+
+RST 
+
+0028,FP-CALC 
+
+DEFB 
+
++31, duplicate 
+
+DEFB 
+
++27,int 
+
+DEFB 
+
++C2,st-mem-2 
+
+DEFB 
+
++03, subtract 
+
+DEFB 
+
++E2, get-mem-2 
+
+DEFB 
+
++01, exchange 
+
+DEFB 
+
++C2,st-mem-2 
+
+DEFB 
+
++03, delete 
+
+DEFB 
+
++38, end-calc 
+
+LD 
+
+A,(HL) 
+
+AND 
+
+A 
+
+JR 
+
+NZ,2E56,PF-LARGE 
+
+CALL 
+
+2D7FJNT-FETCH 
+
+LD 
+
+B.+10 
+
+LD 
+
+A,D 
+
+AND 
+
+A 
+
+JR 
+
+NZ,2E1E, PF-SAVE 
+
+OR 
+
+E 
+
+JR 
+
+Z.2E24, PF-SMALL 
+
+LD 
+
+D,E 
+
+LD 
+
+B,+08 
+
+PUSH 
+
+DE 
+
+EXX 
+
+POP 
+
+DE 
+
+EXX 
+
+JR 
+
+2E78, PF-BITS 
+
+
+Use the calculator again, 
+x' x' 
+
+x', INT (x')=i 
+
+(i is stored in mem-2). 
+
+x'-i=f 
+
+f,i 
+
+i,f 
+
+(f is stored in mem-2). 
+
+i 
+
+i 
+
+Is i a small integer (first byte 
+zero) i.e. is ABS i <= 65535? 
+Jump if it is not 
+
+i is copied to DE (i, like x', >=0). 
+B is set to count 16 bits. 
+
+D is copied to A for testing: 
+
+Is it zero? 
+
+Jump if it is not zero. 
+
+Now test E. 
+
+Jump if DE zero: x is a pure 
+fraction. 
+
+Move E to D and set B for 8 
+bits: D was zero and E was not. 
+Transfer DE to D'E 1 , via the 
+machine stack, to be moved 
+into the print buffer at 
+PF-BITS. 
+
+Jump forward. 
+
+
+iii. Pure fractions are multiplied by 10 A n, where n is the approximate number of leading zeros after the decimal; and -n is added to the 
+second byte of mem-5, which holds the number of digits needed before the decimals; a negative number here indicates leading zeros 
+after the decimal; 
+
+
+2E24 PF-SMALL RST 
+DEFB 
+
+
+0028,FP-CALC 
++E2, get-mem-2 
+
+
+i (i=zero here), 
+i,f 
+
+
+168 
+
+
+
+DEFB 
+
+
++38, end-calc 
+
+
+i, f 
+
+
+Note that the stack is now unbalanced. An extra byte 'DEFB +02, delete' is needed at 2E25, immediately after the RST 0028. Now an 
+expression like ”2" +STFt$ 0.5 is evaluated incorrectly as 0.5; the zero left on the stack displaces the "2” and is treated as a null string. 
+Similarly all the string comparisons can yield incorrect values if the second string takes the form STR$ x where x is numerically less 
+than 1 ; e.g. the expression "50"<STR$ 0 .1 yields the logical value "true"; once again "" is used instead of "50". 
+
+
+LD 
+
+A,(HL) 
+
+SUB 
+
++7E 
+
+
+CALL 
+
+2DC1.LOG (2 A A) 
+
+LD 
+
+D,A 
+
+LD 
+
+A,(mem-5-2nd) 
+
+SUB 
+
+D 
+
+LD 
+
+(mem-5-2nd),A 
+
+LD 
+
+A,D 
+
+CALL 
+
+2D4F,E-TO-FP 
+
+RST 
+
+0028,FP-CALC 
+
+DEFB 
+
++31, duplicate 
+
+DEFB 
+
++27,int 
+
+DEFB 
+
++C1 ,st-mem-1 
+
+DEFB 
+
++03, subtract 
+
+DEFB 
+
++E1, get-mem-1 
+
+DEFB 
+
++38, end-calc 
+
+CALL 
+
+2DD5,FP-TO-A 
+
+PUSH 
+
+HL 
+
+LD 
+
+(mem-3-1 st), A 
+
+DEC 
+
+RLA 
+
+A 
+
+SBC 
+
+A, A 
+
+INC 
+
+A 
+
+LD 
+
+HL.+5CAB 
+
+LD 
+
+(HL),A 
+
+INC 
+
+HL 
+
+ADD 
+
+A,(HL) 
+
+LD 
+
+(HL),A 
+
+POP 
+
+HL 
+
+JP 
+
+2ECF.PF-FRACT 
+
+
+The exponent byte e of f is 
+copied to A. 
+
+A becomes e - 1 26 dec i.e. 
+e'+2, where e' is the true 
+exponent of f. 
+
+The construction A = ABS I NT 
+(LOG (2 A A)) is performed 
+(LOG is to base 10); i.e. A=n, 
+say: n is copied from A to D. 
+The current count is collected 
+from the second byte of mem-5 
+and n is subtracted from it. 
+n is copied from D to A. 
+y=f*10 A n is formed and 
+stacked. 
+
+i. y 
+i. y, y 
+
+i, y, (INT (y) = i2 
+
+(i2 is copied to mem-1). 
+
+i, y - i2 
+
+i, y - i2, i2 
+
+i, f2, i2 (f2 = y - i2) 
+
+i2 is transferred from the stack 
+
+to A. 
+
+The pointer to f2 is saved. 
+i2 is stored in the first byte of 
+mem-3: a digit for printing. 
+i2 will not count as a digit for 
+printing if it is zero; A is 
+manipulated so that zero will 
+produce zero but a non-zero 
+digit will produce 1 . 
+
+The zero or one is inserted into 
+the first byte of mem-5 (the no. 
+of digits for printing) and added 
+to the second byte of mem-5 
+(the number of digits before the 
+decimal). 
+
+The pointer to f2 is restored. 
+Jump to store f2 in buffer (FHL 
+now points to f2, DE to i2). 
+
+
+iv. Numbers greater than 2 A 27 are similarly multiplied by 2 A (-n+7), reducing the number of digits before the decimal to 8, and the loop 
+is re-entered at PF-LOOP. 
+
+
+PF-LARGE SUB 
+
++80 
+
+e - 80 hex = e', the true 
+exponent of i. 
+
+CP 
+
++1C 
+
+Is e' less than 28 decimal? 
+
+JR 
+
+C,2E6F,PF-MEDIUM 
+
+Jump if it is less. 
+
+CALL 
+
+2DC1.LOG (2 A A) 
+
+n is formed in A. 
+
+SUB 
+
++07 
+
+And reduced to n - 7. 
+
+LD 
+
+B,A 
+
+Then copied to B. 
+
+LD 
+
+HL.+5CAC 
+
+n - 7 is added in to the second 
+
+ADD 
+
+A,(HL) 
+
+byte of mem-5, the number of 
+
+LD 
+
+(HL),A 
+
+digits required before the 
+
+
+169 
+
+
+
+decimal in x. 
+
+
+
+
+LD 
+
+A,B 
+
+Then i is multiplied by 
+
+10 A (-n+7) 
+
+
+
+NEG 
+
+
+This will bring it into medium 
+
+
+
+CALL 
+
+2D4F,E-TO-FP 
+
+range for printing. 
+
+
+
+JR 
+
+2E01 ,PF-LOOP 
+
+Round the loop again to deal 
+with the now medium-sized 
+
+
+
+
+
+number. 
+
+v. The 
+
+integer part of x is now stored in the print buffer in mem-3 and mem-4. 
+
+2E6F 
+
+PF-MEDIUM 
+
+EX 
+
+DE,HL 
+
+DE now points to i, HL to f. 
+
+
+
+CALL 
+
+2FBA, FETCH-TWO 
+
+The mantissa of i is now in 
+
+D',E',D,E. 
+
+
+
+EXX 
+
+
+Get the exchange registers. 
+
+
+
+SET 
+
+7,D 
+
+True numerical bit 7 to D'. 
+
+
+
+LD 
+
+A,L 
+
+Exponent byte e of i to A. 
+
+
+
+EXX 
+
+
+Back to the main registers. 
+
+
+
+SUB 
+
++80 
+
+True exponent e'=e - 80 hex to 
+
+A. 
+
+This gives the required bit 
+
+
+
+LD 
+
+B,A 
+
+count. 
+
+Note that the case where i us a small integer (less than 65536) re-enters here. 
+
+2E7B 
+
+PF-BITS 
+
+SLA 
+
+E 
+
+The mantissa of i is now rotated 
+
+
+
+RL 
+
+D 
+
+left and all the bits of i are thus 
+
+
+
+EXX 
+
+
+shifted into mem-4 and each 
+
+
+
+RL 
+
+E 
+
+byte of mem-4 is decimal 
+adjusted at each shift. 
+
+
+
+RL 
+
+D 
+
+All four bytes of i. 
+
+
+
+EXX 
+
+
+Back to the main registers. 
+
+
+
+LD 
+
+HL.+5CAA 
+
+Address of fifth byte of mem-4 
+
+
+
+LD 
+
+C,+05 
+
+to HL; count of 5 bytes to C. 
+
+2E8A 
+
+PF-BYTES 
+
+LD 
+
+A,(HL) 
+
+Get the byte of mem-4. 
+
+
+
+ADC 
+
+A, A 
+
+Shift it left, taking in the new 
+bit. 
+
+
+
+DAA 
+
+
+Decimal adjust the byte. 
+
+
+
+LD 
+
+(HL),A 
+
+Restore it to mem-4. 
+
+
+
+DEC 
+
+HL 
+
+Point to next byte of mem-4. 
+
+
+
+DEC 
+
+C 
+
+Decrease the byte count by one. 
+
+
+
+JR 
+
+NZ.2E8A, PF-BYTES 
+
+Jump for each byte of mem-4. 
+
+
+
+DJNZ 
+
+2E7B, PF-BITS 
+
+Jump for each bit of INT (x). 
+
+Decimal adjusting each byte of mem-4 gave 2 decimal digits per byte, 
+
+there being at most 9 digits. The digits 
+
+one to a byte, in mem-3 and mem-4, 
+
+using the instruction RLD. 
+
+
+
+
+XOR 
+
+A 
+
+A is cleared to receive the digits. 
+
+
+
+LD 
+
+HL.+5CA6 
+
+Source address: first byte of 
+mem-4. 
+
+
+
+LD 
+
+DE,+5CA1 
+
+Destination: first byte of 
+mem-3. 
+
+
+
+LD 
+
+B,+09 
+
+There are at most 9 digits. 
+
+
+
+RLD 
+
+
+The left nibble of mem-4 is 
+discarded. 
+
+
+
+LD 
+
+C,+FF 
+
+FF in C will signal a leading 
+zero, 00 will signal a non-leading 
+
+
+
+
+
+zero. 
+
+2EA1 
+
+PF-DIGITS 
+
+RLD 
+
+
+Left nibble of (HL) to A, right 
+nibble of (HL) to left. 
+
+
+
+JR 
+
+NZ.2EA9, PF-INSERT 
+
+Jump if digit in A is not zero. 
+
+
+
+DEC 
+
+C 
+
+Test for a leading zero: 
+
+
+
+INC 
+
+C 
+
+it will now give zero reset. 
+
+
+
+JR 
+
+NZ,2EB3,PF-TEST-2 
+
+Jump it it was a leading zero. 
+
+2EA9 
+
+PF-iNSERT 
+
+LD 
+
+(DE),A 
+
+Insert the digit now. 
+
+
+170 
+
+
+
+2EB3 
+
+
+2EB8 
+
+
+2ECB 
+
+
+PF-TEST-2 
+
+
+PF-ALL-9 
+
+
+PF-MORE 
+
+
+INC 
+
+DE 
+
+INC 
+
+(mem-5-1 st) 
+
+INC 
+
+(mem-5-2nd) 
+
+LD 
+
+C,+00 
+
+BIT 
+
+0,B 
+
+JR 
+
+Z,2EB8,PF, ALL-9 
+
+INC 
+
+HL 
+
+DJNZ 
+
+2EA1.PF-DIGITS 
+
+LD 
+
+A,(mem-5-1st) 
+
+SUB 
+
++09 
+
+JR 
+
+C,2ECB, PF-MORE 
+
+DEC 
+
+(mem-5-1 st) 
+
+LD 
+
+A, +04 
+
+CP 
+
+(mem-4-4th) 
+
+JR 
+
+2FOC.PF-ROUND 
+
+RST 
+
+0028,FP-CALC 
+
+DEFB 
+
++02, delete 
+
+DEFB 
+
++E2, get-mem-2 
+
+DEFB 
+
++38, end-calc 
+
+
+vi. The fractional part of x is now stored in the print buffer. 
+
+
+2ECF 
+
+
+2EDF 
+
+
+2EEC 
+
+2EEF 
+
+
+PF-FRACTN 
+
+
+PF-FRN-LP 
+
+
+PF-FR-DGT 
+
+PF-FR-EXX 
+
+
+EX 
+
+DE,HL 
+
+CALL 
+
+2FBA, FETCH-TWO 
+
+EXX 
+
+LD 
+
+A, +80 
+
+SUB 
+
+L 
+
+LD 
+
+L,+00 
+
+SET 
+
+7,D 
+
+EXX 
+
+CALL 
+
+2FDD,SHIFT-FP 
+
+LP 
+
+A,(mem-5-1st) 
+
+CP 
+
++08 
+
+JR 
+
+C,2EEC,PR-FR-DGT 
+
+EXX 
+
+RL 
+
+D 
+
+EXX 
+
+JR 
+
+2F0C.PF-ROUND 
+
+LD 
+
+BC,+0200 
+
+LD 
+
+A,E 
+
+CALL 
+
+2F8B,CA=10*A+C 
+
+LD 
+
+E,A 
+
+LD 
+
+A,D 
+
+CALL 
+
+2F8B,CA=10*A+C 
+
+LD 
+
+D,A 
+
+PUSH 
+
+BC 
+
+EXX 
+
+POP 
+
+BC 
+
+DJNZ 
+
+2EEF, PF-FR-EXX 
+
+LD 
+
+HL.+5CA1 
+
+LD 
+
+A,C 
+
+LD 
+
+C, (mem-5-1 st) 
+
+ADD 
+
+HL,BC 
+
+LD 
+
+(HL),A 
+
+
+Point to next destination. 
+
+One more digit for printing, and 
+one more before the decimal. 
+Change the flag from leading 
+zero to other zero. 
+
+The source pointer needs to be 
+incremented on every second 
+passage through the loop, when 
+B is odd. 
+
+Jump back for all 9 digits. 
+
+Get counter: were there 9 digits 
+excluding leading zeros? 
+
+If not, jump to get more digits. 
+Prepare to round: reduce count 
+to 8. 
+
+Compare 9th digit, byte 4 of 
+mem-4, with 4 to set carry for 
+rounding up. 
+
+Jump forward to round up. 
+
+Use the calculator again. 
+
+- (i is now deleted). 
+
+f 
+
+f 
+
+
+DE now points to f. 
+
+The mantissa of f is now in 
+D'.E'.D.E. 
+
+Get the exchange registers. 
+
+The exponent of f is reduced to 
+zero, by shifting the bits of f 80 
+hex - e places right, where L' 
+contained e. 
+
+True numerical bit to bit 7 of 
+D'. 
+
+Restore the main registers. 
+
+Now make the shift. 
+
+Get the digit count. 
+
+Are there already 8 digits? 
+
+If not, jump forward. 
+
+If 8 digits, just use f to round i 
+up, rotating D 1 left to set the 
+carry. 
+
+Restore main registers and jump 
+forward to round up. 
+
+Initial zero to C, count of 2 to B. 
+D'E'DE is multiplied by 10 in 2 
+stages, first DE then D'E', each 
+byte by byte in 2 steps, and the 
+integer part of the result is 
+obtained in C to be passed into 
+the print buffer. 
+
+The count and the result 
+alternate between BC and B'C'. 
+
+Look back once through the 
+exchange registers. 
+
+The start - 1st byte of mem-3. 
+Result to A for storing. 
+
+Count of digits so far in number 
+to C. 
+
+Address the first empty byte. 
+Store the next digit. 
+
+
+171 
+
+
+
+INC 
+
+JR 
+
+
+(mem-5-1 st) 
+2EDF,PF-FRN-LP 
+
+
+Step up the count of digits. 
+Loop back until there are 8 
+digits. 
+
+
+vii. The digits stored in the print buffer are rounded to a maximum of 8 digits for printing. 
+
+
+2F0C 
+
+
+2F1 8 
+
+
+2F25 
+
+
+2F2D 
+
+
+PF-ROUND 
+
+
+PF-RND-LP 
+
+
+PF-R-BACK 
+
+
+PF-COUNT 
+
+
+PUSH 
+
+AF 
+
+LD 
+
+HL.+5CA1 
+
+LD 
+
+C, (mem-5-1 st) 
+
+LD 
+
+B,+00 
+
+ADD 
+
+HL.BC 
+
+LD 
+
+B,C 
+
+POP 
+
+AF 
+
+DEC 
+
+HL 
+
+LD 
+
+A,(HL) 
+
+ADC 
+
+A, +00 
+
+LD 
+
+(HL),A 
+
+AND 
+
+A 
+
+JR 
+
+Z,2F25, PF-R-BACK 
+
+CP 
+
++0A 
+
+CCF 
+
+JR 
+
+NC.2F2D, PF-COUNT 
+
+DJNZ 
+
+2F18, PF-RND-LP 
+
+LD 
+
+(HL),+01 
+
+INC 
+
+B 
+
+INC 
+
+(mem-5-2nd) 
+
+LD 
+
+(mem-5-1st),B 
+
+RST 
+
+0028,FP-CALC 
+
+
+Save the carry flag for the 
+rounding. 
+
+Base address of number: mem-3, 
+byte 1 . 
+
+Offset (number of digits in 
+number) to BC. 
+
+Address the last byte of the 
+number. 
+
+Copy C to B as the counter. 
+Restore the carry flag. 
+
+This is the last byte of the 
+number. 
+
+Get the byte into A. 
+
+Add in the carry i.e. round 
+up. 
+
+Store the rounded byte in the 
+buffer. 
+
+If the byte is 0 or 1 0, B will be 
+decremented and the final zero 
+(or the 10) will not be counted 
+for printing. 
+
+Reset the carry for a valid digit. 
+Jump if carry reset. 
+
+Jump back for more rounding 
+or more final zeros. 
+
+There is overflow to the left; 
+an extra 1 is needed here. 
+
+It is also an extra digit before 
+the decimal. 
+
+B now sets the count of the 
+digits to be printed (final zeros 
+will not be printed), 
+f is to be deleted. 
+
+
+DEFB +02, delete 
+
+DEFB +38, end-calc 
+
+EXX The calculator offset saved on 
+
+POP FHL the stack is restored to H'L'. 
+
+EXX 
+
+
+viii. The number can now be printed. First C will be set to hold the number of digits to be printed, not counting final zeros, while B will 
+hold the number of digits required before the decimal. 
+
+
+
+LD 
+
+BC,(mem-5-1st) 
+
+The counters are set. 
+
+
+LD 
+
+HL.+5CA1 
+
+The start of the digits. 
+
+
+LD 
+
+A,B 
+
+If more than 9, or fewer than 
+
+
+CP 
+
++09 
+
+minus 4, digits are required 
+
+
+JR 
+
+C,2F46, PF-NOT-E 
+
+before the decimal, then E-format 
+will be needed. 
+
+
+CP 
+
++FC 
+
+Fewer than 4 means more than 
+
+
+JR 
+
+C,2F6C,PF-E-FRMT 
+
+4 leading zeros after the decimal. 
+
+2F46 
+
+PF-NOT-E AND 
+
+A 
+
+Are there no digits before the 
+
+
+CALL 
+
+Z.15EF, OUT-CODE 
+
+decimal? If so, print an initial 
+zero. 
+
+The next entry point is also used to print the digits needed for E-format printing. 
+
+2F4A 
+
+PF-E-SBRN XOR 
+
+A 
+
+Start by setting A to zero. 
+
+
+172 
+
+
+
+
+
+SUB 
+
+B 
+
+Subtract B: minus will mean 
+
+
+
+JR 
+
+M,2F52, PF-OUT-LP 
+
+there are digits before the 
+decimal; jump forward to print 
+them. 
+
+
+
+LD 
+
+B,A 
+
+A is now required as a counter. 
+
+
+
+JR 
+
+2F5E, PF-DC-OUT 
+
+Jump forward to print the 
+decimal part. 
+
+2F52 
+
+PF-OUT-LP 
+
+LD 
+
+A,C 
+
+Copy the number of digits to be 
+
+
+
+AND 
+
+A 
+
+printed to A. If A is 0, there are 
+
+
+
+JR 
+
+Z.2F59, PF-OUT-DT 
+
+still final zeros to print (B is 
+non-zero), so jump. 
+
+
+
+LD 
+
+A,(HL) 
+
+Get a digit from the print buffer. 
+
+
+
+INC 
+
+HL 
+
+Point to the next digit. 
+
+
+
+DEC 
+
+C 
+
+Decrease the count by one. 
+
+2F59 
+
+PF-OUT-DT 
+
+CALL 
+
+15EF, OUT-CODE 
+
+Print the appropriate digit. 
+
+
+
+DJNZ 
+
+2F52, PF-OUT-LP 
+
+Loop back until B is zero. 
+
+2F5E 
+
+PF-DC-OUT 
+
+LD 
+
+A,C 
+
+It is time to print the decimal, 
+
+
+
+AND 
+
+A 
+
+unless C is now zero; in that 
+
+
+
+RET 
+
+Z 
+
+case, return - finished. 
+
+
+
+INC 
+
+B 
+
+Add 1 to B - include the 
+decimal. 
+
+
+
+LD 
+
+A,+2E 
+
+Put the code for into A. 
+
+2F64 
+
+PF-DEC-OS 
+
+RST 
+
+0010,PRINT-A-1 
+
+Print the 
+
+
+
+LD 
+
+A, +30 
+
+Enter the character code for 
+'O'. 
+
+Loop back to print all needed 
+
+
+
+DJNZ 
+
+2F64, PF-DEC-OS 
+
+zeros. 
+
+
+
+LD 
+
+B,C 
+
+Set the count for all remaining 
+digits. 
+
+
+
+JR 
+
+2F52, PF-OUT-LP 
+
+Jump back to print them. 
+
+2F6C 
+
+PF-E-FRMT 
+
+LD 
+
+D,B 
+
+The count of digits is copied to 
+D. 
+
+it is decremented to give the 
+
+
+
+DEC 
+
+D 
+
+exponent. 
+
+
+
+LD 
+
+B.+01 
+
+One digit is required before the 
+decimal in E-format. 
+
+
+
+CALL 
+
+2F4A,PF-E-SBRN 
+
+All the part of the number 
+before the 'E' is now printed. 
+
+
+
+LD 
+
+A, +45 
+
+Enter the character code for 
+'E'. 
+
+Print the 'E'. 
+
+
+
+RST 
+
+0010,PRINT-A-1 
+
+
+
+LD 
+
+C,D 
+
+Exponent to C now for printing. 
+
+
+
+LD 
+
+A,C 
+
+And to A for testing. 
+
+
+
+AND 
+
+A 
+
+Its sign is tested. 
+
+
+
+JP 
+
+P,2F83, PF-E-POS 
+
+Jump if it is positive. 
+
+
+
+NEG 
+
+
+Otherwise, negate it in A. 
+
+
+
+LD 
+
+C,A 
+
+Then copy it back to C for 
+printing. 
+
+
+
+LD 
+
+A,+2D 
+
+Enter the character code for 
+
+
+
+JR 
+
+2F85, PF-E-SIGN 
+
+Jump to print the sign. 
+
+2F83 
+
+PF-E-POS 
+
+LD 
+
+A,+2B 
+
+Enter the character code for 
+
+2F85 
+
+PF-E-SIGN 
+
+RST 
+
+0010,PRINT-A-1 
+
++ . 
+
+Now print the sign: '+' or 
+
+
+
+LD 
+
+B,+00 
+
+BC holds the exponent for 
+printing. 
+
+
+
+JP 
+
+1A1B.OUT-NUM 
+
+Jump back to print it and finish. 
+
+
+THE 'CA=10*A+C' SUBROUTINE' 
+
+This subroutine is called by the PRINT-FP subroutine to multiply each byte of D'E'DE by 10 and return the integer part of the result in 
+the C register. On entry, the A register contains the byte to be multiplied by 10 and the C register contains the carry over from the 
+previous byte. On return, the A register contains the resulting byte and the C register the carry forward to the next byte. 
+
+
+173 
+
+
+
+2F8B CA=10*A+C PUSH 
+
+DE 
+
+Save whichever DE pair is in use. 
+
+LD 
+
+L,A 
+
+Copy the multiplicand from A 
+
+LD 
+
+H,+00 
+
+to HL. 
+
+LD 
+
+E,L 
+
+Copy it to DE too. 
+
+LD 
+
+D,H 
+
+
+ADD 
+
+HL,HL 
+
+Double HL. 
+
+ADD 
+
+HL,HL 
+
+Double it again. 
+
+ADD 
+
+HL,DE 
+
+Add in DE to give HL=5*A. 
+
+ADD 
+
+HL,HL 
+
+Double again: now HL=10*A. 
+
+LD 
+
+E,C 
+
+Copy C to DE (D is zero) for 
+addition. 
+
+ADD 
+
+HL,DE 
+
+Now HL=10*A+C. 
+
+LD 
+
+C,H 
+
+H is copied to C. 
+
+LD 
+
+A,L 
+
+L is copied to A, completing 
+the task. 
+
+POP 
+
+DE 
+
+The DE register pair is restored. 
+
+RET 
+
+
+Finished. 
+
+THE 'PREPARE TO ADD' SUBROUTINE. 
+
+
+This subroutine is the first of four subroutines that are used by the main arithmetic operation routines - SUBTRACTION, ADDITION, 
+MULTIPLICATION and DIVISION. 
+
+This particular subroutine prepares a floating-point number for addition, mainly by replacing the sign bit with a true numerical bit 1 , and 
+
+negating the number (two's complement) if it is negative. The exponent is returned in the A register and the first byte is set to Hex.00 for 
+
+a positive number and Hex.FF for a negative number. 
+
+
+2F9B PREP-ADD LD 
+
+A,(HL) 
+
+Transfer the exponent to A. 
+
+LD 
+
+(HL),+00 
+
+Presume a positive number. 
+
+AND 
+
+A 
+
+If the number is zero then the 
+
+RET 
+
+Z 
+
+preparation is already finished. 
+
+INC 
+
+HL 
+
+Now point to the sign byte. 
+
+BIT 
+
+7,(HL) 
+
+Set the zero flag for positive 
+number. 
+
+SET 
+
+7,(HL) 
+
+Restore the true numeric bit. 
+
+DEC 
+
+HL 
+
+Point to the first byte again. 
+
+RET 
+
+Z 
+
+Positive numbers have been 
+prepared, but negative numbers 
+need to be twos complemented. 
+
+PUSH 
+
+BC 
+
+Save any earlier exponent. 
+
+LD 
+
+BC.+0005 
+
+There are 5 bytes to be handled. 
+
+ADD 
+
+HL,BC 
+
+Point one-past the last byte. 
+
+LD 
+
+B,C 
+
+Transfer the '5' to B. 
+
+LD 
+
+C,A 
+
+Save the exponent in C. 
+
+SCF 
+
+
+Set carry flag for negation. 
+
+2FAF NEG-BYTE DEC 
+
+HL 
+
+Point to each byte in turn. 
+
+LD 
+
+A,(HL) 
+
+Get each byte. 
+
+CPL 
+
+
+One's complement the byte. 
+
+ADC 
+
+A, +00 
+
+Add in carry for negation. 
+
+LD 
+
+(HL),A 
+
+Restore the byte. 
+
+DJNZ 
+
+2FAF, NEG-BYTE 
+
+Loop the '5' times. 
+
+LD 
+
+A,C 
+
+Restore the exponent to A. 
+
+POP 
+
+BC 
+
+Restore any earlier exponent. 
+
+RET 
+
+
+Finished. 
+
+
+THE 'FETCH TWO NUMBERS' SUBROUTINE 
+
+This subroutine is called by ADDITION, MULTIPLICATION and DIVISION to get two numbers from the calculator stack and put them 
+into the register, including the exchange registers. 
+
+On entry to the subroutine the HL register pair points to the first byte of the first number and the DE register pair points to the first byte 
+of the second number. 
+
+When the subroutine is called from MULTIPLICATION or DIVISION the sign of the result is saved in the second byte of the first 
+number. 
+
+
+174 
+
+
+
+2FBA FETCH-TWO PUSH 
+
+HL 
+
+HL is preserved. 
+
+PUSH 
+
+AF 
+
+AF is preserved. 
+
+Call the five bytes of the first number 
+
+- Ml, M2, M3, M4& M5. 
+
+
+and the second number -N1,N2, N3, 
+
+N4 & N5. 
+
+
+LD 
+
+C,(HL) 
+
+Ml to C. 
+
+INC 
+
+HL 
+
+Next. 
+
+LD 
+
+B,(HL) 
+
+M2 to B. 
+
+LD 
+
+(HL),A 
+
+Copy the sign of the result to 
+(HL). 
+
+INC 
+
+HL 
+
+Next. 
+
+LD 
+
+A,C 
+
+Ml to A. 
+
+LD 
+
+C,(HL) 
+
+M3 to C. 
+
+PUSH 
+
+BC 
+
+Save M2 & M3 on the machine 
+stack. 
+
+INC 
+
+HL 
+
+Next. 
+
+LD 
+
+C,(HL) 
+
+M4 to C. 
+
+INC 
+
+HL 
+
+Next. 
+
+LD 
+
+B,(HL) 
+
+M5 to B. 
+
+EX 
+
+DE,HL 
+
+HL now points to N1 . 
+
+LD 
+
+D.A 
+
+Ml to D. 
+
+LD 
+
+E,(HL) 
+
+N1 to E. 
+
+PUSH 
+
+DE 
+
+Save Ml & N1 on the machine 
+stack. 
+
+INC 
+
+HL 
+
+Next. 
+
+LD 
+
+D,(HL) 
+
+N2 to D. 
+
+INC 
+
+HL 
+
+Next. 
+
+LD 
+
+E,(HL) 
+
+N3 to E. 
+
+PUSH 
+
+DE 
+
+Save N2 &N3 on the machine 
+stack. 
+
+EXX 
+
+
+Get the exchange registers. 
+
+POP 
+
+DE 
+
+N2 to D' & N3 to E\ 
+
+POP 
+
+HL 
+
+Ml to H’ & N1 to L'. 
+
+POP 
+
+BC 
+
+M2 to B' & M3 to C'. 
+
+EXX 
+
+
+Get the original set of registers. 
+
+INC 
+
+HL 
+
+Next. 
+
+LD 
+
+D,(HL) 
+
+N4 to D. 
+
+INC 
+
+HL 
+
+Next. 
+
+LD 
+
+E,(HL) 
+
+N5 to E. 
+
+POP 
+
+AF 
+
+Restore the original AF. 
+
+POP 
+
+HL 
+
+Restore the original HL. 
+
+RET 
+
+
+Finished. 
+
+Summary: Ml - M5 are in H', B', C', C, B. 
+
+
+N1 - N5 are ir 
+
+i: L', D’, E', D, E. 
+
+
+HL points to the first byte of the first number. 
+
+
+THE 'SHIFT ADDEND' SUBROUTINE 
+
+
+This subroutine shifts a floating-point number up to 32 decimal, Hex. 20, places right to line it up properly for addition. The number 
+the smaller exponent has been put in the addend position before this subroutine is called. Any overflow to the right, into the carry, 
+added back into the number. If the exponent difference is greater than 32 decimal, or the carry ripples right back to the beginning i 
+number then the number is set to zero so that the addition will not alter the other number (the augend). 
+
+2FDD SHIFT-FP AND 
+
+A 
+
+If the exponent difference is 
+
+RET 
+
+Z 
+
+zero, the subroutine returns at 
+
+CP 
+
++21 
+
+once. If the difference is greater 
+
+JR 
+
+NC.2FF9, ADDEND-0 
+
+than Hex. 20, jump forward. 
+
+PUSH 
+
+BC 
+
+Save BC briefly. 
+
+LD 
+
+B.A 
+
+Transfer the exponent difference 
+to B to count the shifts right. 
+
+2FE5 ONE-SHIFT EXX 
+
+
+Arithmetic shift right for L', 
+
+SRA 
+
+L 
+
+preserving the sign marker bits. 
+
+
+175 
+
+
+
+RR 
+
+D 
+
+Rotate right with carry D', E', 
+
+RR 
+
+E 
+
+D & E. 
+
+EXX 
+
+
+Thereby shifting the whole five 
+
+RR 
+
+D 
+
+bytes of the number to the right 
+
+RR 
+
+E 
+
+as many times as B counts. 
+
+DJNZ 
+
+2FE5, ONE-SHIFT 
+
+Loop back until B reaches zero. 
+
+POP 
+
+BC 
+
+Restore the original BC. 
+
+RET 
+
+NC 
+
+Done if no carry to retrieve. 
+
+CALL 
+
+3004, ADD-BACK 
+
+Retrieve carry. 
+
+RET 
+
+NZ 
+
+Return unless the carry rippled 
+right back. (In this case there is 
+nothing to add). 
+
+2FF9 ADDEND-0 EXX 
+
+
+Fetch L', D' & E'. 
+
+XOR 
+
+A 
+
+Clear the A register. 
+
+2FFB ZEROS-4/5 LD 
+
+L,+00 
+
+Set the addend to zero in D',E', 
+
+LD 
+
+D,A 
+
+D & E, together with its marker 
+
+LD 
+
+E,L 
+
+byte (sign indicator) L', which 
+
+EXX 
+
+
+was Hex.00 for a positive 
+
+LD 
+
+DE,+0000 
+
+number and Hex.FF for a 
+
+
+negative number. ZEROS-4/5 
+produces only 4 zero bytes 
+when called for near underflow 
+at 3160. 
+
+RET Finished. 
+
+THE 'ADD-BACK' SUBROUTINE 
+
+This subroutine adds back into the number any carry which has overflowed to the right. In the extreme case, the carry ripples right back 
+to the left of the number. 
+
+When this subroutine is called during addition, this ripple means that a mantissa of 0.5 was shifted a full 32 places right, and the 
+addend will now be set to zero; when called from MULTIPLICATION, it means that the exponent must be incremented, and this may 
+result in overflow. 
+
+
+3004 ADD-BACK 
+
+INC 
+
+E 
+
+Add carry to rightmost byte. 
+
+
+RET 
+
+NZ 
+
+Return if no overflow to left. 
+
+
+INC 
+
+D 
+
+Continue to the next byte. 
+
+
+RET 
+
+NZ 
+
+Return if no overflow to left. 
+
+
+EXX 
+
+
+Get the next byte. 
+
+
+INC 
+
+E 
+
+Increment it too. 
+
+
+JR 
+
+NZ.300D, ALL-ADDED 
+
+Jump if no overflow. 
+
+
+INC 
+
+D 
+
+Increment the last byte. 
+
+300D ALL-ADDED 
+
+EXX 
+
+
+Restore the original 
+registers. 
+
+
+RET 
+
+
+Finished. 
+
+THE 'SUBTRACTION' OPERATION 
+
+(Offset 03 - see CALCULATE below: 'subtract') 
+
+
+This subroutine simply changes the sign of the subtrahend and carried on into ADDITION. 
+
+Note that HL points to the minuend and DE points to the subtrahend. (See ADDITION for more details.) 
+
+300F SUBTRACT 
+
+EX 
+
+DE,HL 
+
+Exchange the pointers. 
+
+
+CALL 
+
+346E, NEGATE 
+
+Change the sign of the 
+subtrahend. 
+
+
+EX 
+
+DE,HL 
+
+Exchange the pointers back and 
+
+
+continue into ADDITION. 
+
+THE 'ADDITION' OPERATION 
+
+(Offset OF - see CALCULATE below: 'addition') 
+
+The first of three major arithmetical subroutines, this subroutine carries out the floating-point addition of two numbers, each with a 4- 
+byte mantissa and a 1 -byte exponent. In these three subroutines, the two numbers at the top of the calculator stack are 
+added/multiplied/divided to give one number at the top of the calculator stack, a 'last value'. 
+
+
+176 
+
+
+
+HL points to the second number from the top, the augend/multiplier/dividend. DE points to the number at the top of the calculator stack, 
+the addend/multiplicand/divisor. Afterwards HL points to the resultant 'last value' whose address can also be considered to be STKEND 
+- 5. 
+
+But the addition subroutine first tests whether the 2 numbers to be added are 'small integers'. If they are, it adds them quite simply in HL 
+and BC, and puts the result directly on the stack. No twos complementing is needed before or after the addition, since such numbers 
+are held on the stack in twos complement form, ready for addition. 
+
+
+3014 addition 
+
+
+3032 
+
+
+LD 
+
+A,(DE) 
+
+OR 
+
+(HL) 
+
+JR 
+
+NZ,303E,FULL-ADDN 
+
+PUSH 
+
+DE 
+
+INC 
+
+HL 
+
+PUSH 
+
+HL 
+
+INC 
+
+HL 
+
+LD 
+
+E,(HL) 
+
+INC 
+
+HL 
+
+LD 
+
+D,(HL) 
+
+INC 
+
+HL 
+
+INC 
+
+HL 
+
+INC 
+
+HL 
+
+LD 
+
+A,(HL) 
+
+INC 
+
+HL 
+
+LD 
+
+C,(HL) 
+
+INC 
+
+HL 
+
+LD 
+
+B,(HL) 
+
+POP 
+
+HL 
+
+EX 
+
+DE,HL 
+
+ADD 
+
+HL,BC 
+
+EX 
+
+DE.HL 
+
+ADC 
+
+RRCA 
+
+A,(HL) 
+
+ADC 
+
+A, +00 
+
+JR 
+
+NZ,303C,ADDN-OFLW 
+
+SBC 
+
+A, A 
+
+LD 
+
+(HL),A 
+
+INC 
+
+HL 
+
+LD 
+
+(HL),E 
+
+INC 
+
+HL 
+
+LD 
+
+(HL),D 
+
+DEC 
+
+HL 
+
+DEC 
+
+HL 
+
+DEC 
+
+HL 
+
+POP 
+
+RET 
+
+DE 
+
+
+Test whether the first bytes of 
+both numbers are zero. 
+
+If not, jump for full addition. 
+
+Save the pointer to the second 
+number. 
+
+Point to the second byte of the 
+first number and save that 
+pointer too. 
+
+Point to the less significant 
+byte. 
+
+Fetch it in E. 
+
+Point to the more significant 
+byte. 
+
+Fetch it in D. 
+
+Move on to the second byte of 
+the second number. 
+
+Fetch it in A (this is the siqn 
+byte). 
+
+Point to the less significant 
+byte. 
+
+Fetch it in C. 
+
+Point to the more significant 
+byte. 
+
+Fetch is in B. 
+
+Fetch the pointer to the sign 
+byte of the first number; put it 
+in DE, and the number in HL. 
+Perform the addition: result in 
+HL. 
+
+Result to DE, sign byte to HL. 
+Add the sign bytes and the carry 
+into A; this will detect any 
+overflow. 
+
+A non-zero A now indicates 
+overflow. 
+
+Jump to reset the pointers and 
+to do full addition. 
+
+Define the correct sign byte for 
+the result. 
+
+Store it on the stack. 
+
+Point to the next location. 
+
+Store the low byte of the result. 
+Point to the next location. 
+
+Store the high byte of the 
+result. 
+
+Move the pointer back to 
+address the first byte of the 
+result. 
+
+Restore STKEND to DE. 
+Finished. 
+
+
+Note that the number -65536 decimal can arise here in the form 00 FF 00 00 00 as the result of the addition of two smaller negative 
+integers, e.g. -65000 and -536. It is simply stacked in this form. This is a mistake. The Spectrum system cannot handle this number. 
+
+
+177 
+
+
+
+Most functions treat it as zero, and it is printed as -1 E-38, obtained by treating is as 'minus zero' in an illegitimate format. 
+
+One possible remedy would be to test for this number at about byte 3032 and, if it is present, to make the second byte 80 hex and the 
+first byte 91 hex, so producing the full five byte floating-point form of the number, i.e. 91 80 00 00 00, which causes no problems. See 
+also the remarks in 'truncate' below, before byte 3225, and the Appendix. 
+
+
+303C 
+
+ADDN-OFLW 
+
+DEC 
+
+HL 
+
+Restore the pointer to the first 
+number. 
+
+
+
+POP 
+
+DE 
+
+Restore the pointer to the 
+second number. 
+
+303E 
+
+FULL-ADDN 
+
+CALL 
+
+3293, RE-ST-TWO 
+
+Re-stack both numbers in full 
+
+
+five byte floating-point form. 
+
+
+The full ADDITION subroutine first calls PREP-ADD for each number, then gets the two numbers from the calculator stack and puts the 
+one with the smaller exponent into the addend position. It then calls SHIFT-FP to shift the addend up to 32 decimal places right to line it 
+up for addition. The actual addition is done in a few bytes, a single shift is made for carry (overflow to the left) if needed, the result is 
+twos complemented if negative, and any arithmetic overflow is reported; otherwise the subroutine jumps to TEST -NORM to normalise 
+the result and return it to the stack with the correct sign bit inserted into the second byte. 
+
+
+EXX 
+
+
+Exchange the registers. 
+
+PUSH 
+
+HL 
+
+Save the next literal address. 
+
+EXX 
+
+
+Exchange the registers. 
+
+PUSH 
+
+DE 
+
+Save pointer to the addend. 
+
+PUSH 
+
+HL 
+
+Save pointer to the augend. 
+
+CALL 
+
+2F9B, PREP-ADD 
+
+Prepare the augend. 
+
+LD 
+
+B,A 
+
+Save its exponent in B. 
+
+EX 
+
+DE,HL 
+
+Exchange its pointers. 
+
+CALL 
+
+2F9B, PREP-ADD 
+
+Prepare the addend. 
+
+LD 
+
+C,A 
+
+Save its exponent in C. 
+
+CP 
+
+B 
+
+If the first exponent is smaller, 
+
+JR 
+
+NC, 3055, SHIFT-LEN 
+
+keep the first number in the 
+
+LD 
+
+A,B 
+
+addend position; otherwise 
+
+LD 
+
+B,C 
+
+change the exponents and the 
+
+EX 
+
+DE.HL 
+
+pointers back again. 
+
+SHIFT-LEN PUSH 
+
+AF 
+
+Save the larger exponent in A. 
+
+SUB 
+
+B 
+
+The difference between the 
+exponents is the length of the 
+shift right. 
+
+CALL 
+
+2FBA, FETCH-TWO 
+
+Get the two numbers from the 
+stack. 
+
+CALL 
+
+2FDD, SHIFT-FP 
+
+Shift the addend right. 
+
+POP 
+
+AF 
+
+Restore the larger exponent. 
+
+POP 
+
+HL 
+
+HL is to point to the result. 
+
+LD 
+
+(HL),A 
+
+Store the exponent of the 
+result. 
+
+PUSH 
+
+HL 
+
+Save the pointer again. 
+
+LD 
+
+L,B 
+
+M4 to H & M5 to L, 
+
+LD 
+
+H,C 
+
+(see FETCH-TWO). 
+
+ADD 
+
+HL,DE 
+
+Add the two right bytes. 
+
+EXX 
+
+
+N2 to H' & N3 to L', 
+
+EX 
+
+DE.HL 
+
+(see FETCH-TWO). 
+
+ADC 
+
+HL,BC 
+
+Add left bytes with carry. 
+
+EX 
+
+DE.HL 
+
+Result back in D'E'. 
+
+LD 
+
+A,H 
+
+Add H', L' and the carry; the 
+
+ADC 
+
+A,L 
+
+resulting mechanisms will ensure 
+
+LD 
+
+L,A 
+
+that a single shift right is called 
+
+RRA 
+
+
+if the sum of 2 positive numbers 
+
+XOR 
+
+L 
+
+has overflowed left, or the sum 
+
+EXX 
+
+
+of 2 negative numbers has not 
+overflowed left. 
+
+
+178 
+
+
+
+
+EX 
+
+DE,HL 
+
+The result is now in DED'E. 
+
+
+POP 
+
+HL 
+
+Get the pointer to the 
+exponent. 
+
+
+RRA 
+
+
+The test for shift (H\ L' were 
+
+
+JR 
+
+NC.307C, TEST-NEG 
+
+Hex. 00 for positive numbers 
+and Hex.FF for negative 
+numbers). 
+
+
+LD 
+
+A, +01 
+
+A counts a single shift right. 
+
+
+CALL 
+
+2FDD,SHIFT-FP 
+
+The shift is called. 
+
+
+INC 
+
+(HL) 
+
+Add 1 to the exponent; this 
+
+
+JR 
+
+Z.309F, ADD-REP-6 
+
+may lead to arithmetic overflow. 
+
+307C 
+
+TEST-NEG EXX 
+
+
+Test for negative result: get 
+
+
+LD 
+
+A,L 
+
+sign bit of L’ into A (this now 
+
+
+AND 
+
++80 
+
+correctly indicates the sign of 
+
+
+EXX 
+
+
+the result). 
+
+
+INC 
+
+HL 
+
+Store it in the second byte 
+
+
+LD 
+
+(HL),A 
+
+position of the result on 
+
+
+DEC 
+
+HL 
+
+the calculator stack. 
+
+
+JR 
+
+Z,30A5, GO-NC-MLT 
+
+If it is zero, then do not 
+twos complement the result. 
+
+
+LD 
+
+A,E 
+
+Get the first byte. 
+
+
+NEG 
+
+
+Negate it. 
+
+
+CCF 
+
+
+Complement the carry for 
+
+
+LD 
+
+E,A 
+
+continued negation, and store 
+byte. 
+
+
+LD 
+
+A,D 
+
+Get the next byte. 
+
+
+CPL 
+
+
+Ones complement it. 
+
+
+ADC 
+
+A, +00 
+
+Add in the carry for negation. 
+
+
+LD 
+
+D,A 
+
+Store the byte. 
+
+
+EXX 
+
+
+Proceed to get next byte into 
+
+
+LD 
+
+A,E 
+
+the A register. 
+
+
+CPL 
+
+
+Ones complement it. 
+
+
+ADC 
+
+A, +00 
+
+Add in the carry for negation. 
+
+
+LD 
+
+E,A 
+
+Store the byte. 
+
+
+LD 
+
+A,D 
+
+Get the last byte. 
+
+
+CPL 
+
+
+Ones complement it. 
+
+
+ADC 
+
+A, +00 
+
+Add in the carry for negation. 
+
+
+JR 
+
+NC.30A3, END-COMPL 
+
+Done if no carry. 
+
+
+RRA 
+
+
+Else, get .5 into mantissa and 
+
+
+EXX 
+
+
+add 1 to the exponent; this will 
+
+
+INC 
+
+(HL) 
+
+be needed when two negative 
+numbers add to give an exact 
+power of 2, and it may lead to 
+arithmetic overflow. 
+
+309F 
+
+ADD-REP-6 JP 
+
+Z, 31 AD, REPORT-6 
+
+Give the error if required. 
+
+
+EXX 
+
+
+
+30A3 
+
+END-COMPL LD 
+
+D,A 
+
+Store the last byte. 
+
+
+EXX 
+
+
+
+30A5 
+
+GO-NC-MLT XOR 
+
+A 
+
+Clear the carry flag. 
+
+
+JP 
+
+31 55, TEST-NORM 
+
+Exit via TEST-NORM. 
+
+
+THE 'HL=HL*DE' SUBROUTINE 
+
+This subroutine is called by 'GET-HL*DE' and by 'MULTIPLICATION' to perform the 16-bit multiplication as stated. 
+Any overflow of the 16 bits available is dealt with on return from the subroutine. 
+
+
+30A9 
+
+HL=HL*DE 
+
+PUSH 
+
+BC 
+
+BC is saved. 
+
+
+
+LD 
+
+B,+1 0 
+
+It is to be a 16 bit multipli- 
+cation. 
+
+
+
+LD 
+
+A,H 
+
+A holds the high byte. 
+
+
+
+LD 
+
+C,L 
+
+C holds the low byte. 
+
+
+
+LD 
+
+HL.+0000 
+
+Initialise the result to zero. 
+
+30B1 
+
+HL-LOOP 
+
+ADD 
+
+HL,HL 
+
+Double the result. 
+
+
+179 
+
+
+
+
+JR 
+
+C.30BE, HL-END 
+
+Jump if overflow. 
+
+
+RL 
+
+C 
+
+Rotate bit 7 of C into the carry. 
+
+
+RLA 
+
+
+Rotate the carry bit into bit 0 
+and bit 7 into the carry flag. 
+
+
+JR 
+
+NC.30BC, HL-AGAIN 
+
+Jump if the carry flag is reset. 
+
+
+ADD 
+
+HL,DE 
+
+Otherwise add DE in once. 
+
+
+JR 
+
+C.30BE, HL-END 
+
+Jump if overflow. 
+
+30BC 
+
+HL-AGAIN DJNZ 
+
+30B1 .HL-LOOP 
+
+Until 16 passes have been made. 
+
+30BE 
+
+HL-END POP 
+
+BC 
+
+Restore BC. 
+
+
+RET 
+
+
+Finished. 
+
+
+THE 'PREPARE TO MULTIPLY OR DIVIDE' SUBROUTINE 
+
+This subroutine prepares a floating-point number for multiplication or division, returning with carry set if the number is zero, getting the 
+sign of the result into the A register, and replacing the sign bit in the number by the true numeric bit, 1 . 
+
+30C0 PREP-M/D CALL 34E9, TEST-ZERO If the number is zero, return 
+
+RET C with the carry flag set. 
+
+INC HL Point to the sign byte. 
+
+XOR (HL) Get sign for result into A (like 
+
+signs give plus, unlike give 
+minus); also reset the carry flag. 
+
+SET 7,(HL) Set the true numeric bit. 
+
+DEC HL Point to the exponent again. 
+
+RET Return with carry flag reset. 
+
+THE 'MULTIPLICATION' OPERATION 
+
+(Offset 04 - see CALCULATE below: 'multiply') 
+
+
+This subroutine first tests whether the two numbers to be multiplied are 'small integers'. If they are, it uses INT-FETCH to get them from 
+the stack, HL=HL*DE to multiply them and INT-STORE to return the result to the stack. Any overflow of this 'short multiplication' (i.e. if 
+the result is not itself a ’small integer') causes a jump to multiplication in full five byte floating-point form (see below). 
+
+
+30CA multiply 
+
+
+30E5 
+
+
+LD 
+
+A,(DE) 
+
+Test whether the first bytes of 
+
+OR 
+
+(HL) 
+
+both numbers are zero. 
+
+JR 
+
+NZ.30F0, MULT-LONG 
+
+If not, jump for 'long' multi- 
+plication. 
+
+PUSH 
+
+DE 
+
+Save the pointers: to the second 
+number. 
+
+PUSH 
+
+HL 
+
+And to the first number. 
+
+PUSH 
+
+DE 
+
+And to the second number yet 
+again. 
+
+CALL 
+
+2D7F, INT-FETCH 
+
+Fetch sign in C, number in DE. 
+
+EX 
+
+DE,HL 
+
+Number to HL now. 
+
+EX 
+
+(SP),HL 
+
+Number to stack, second 
+pointer to HL. 
+
+LD 
+
+B,C 
+
+Save first sign in B. 
+
+CALL 
+
+2D7F, INT-FETCH 
+
+Fetch second sign in C, number 
+in DE. 
+
+LD 
+
+A,B 
+
+Form sign of result in A: like 
+
+XOR 
+
+C 
+
+signs give plus (00), unlike give 
+minus (FF). 
+
+LD 
+
+C,A 
+
+Store sign of result in C. 
+
+POP 
+
+HL 
+
+Restore the first number to HL. 
+
+CALL 
+
+30A9,HL=HL*DE 
+
+Perform the actual multipli- 
+cation. 
+
+EX 
+
+DE,HL 
+
+Store the result in DE. 
+
+POP 
+
+HL 
+
+Restore the pointer to the first 
+number. 
+
+JR 
+
+C,30EF,MULT-OFLW 
+
+Jump on overflow to 'full' 
+multiplication. 
+
+LD 
+
+A,D 
+
+These 5 bytes ensure that 
+
+
+180 
+
+
+
+OR 
+
+E 
+
+00 FF 00 00 00 is replaced by 
+
+JR 
+
+NZ.30EA, MULT-RSLT 
+
+zero; that they should not be 
+
+LD 
+
+C.A 
+
+needed if this number were 
+excluded from the system (see 
+after 303B) above). 
+
+30EA MULT-RSLT CALL 
+
+2D8E.INT-STORE 
+
+Now store the result on the 
+stack. 
+
+POP 
+
+DE 
+
+Restore STKEND to DE. 
+
+RET 
+
+
+Finished. 
+
+30EF MULT-OFLW POP 
+
+DE 
+
+Restore the pointer to the 
+second number. 
+
+30F0 MULT-LONG CALL 
+
+3293, RE-ST-TWO 
+
+Re-stack both numbers in full 
+five byte floating-point form. 
+
+The full MULTIPLICATION subroutine prepares the first number for multiplication by calling PREP-M/D, returning if it is zero; otherwise 
+the second number is prepared by again calling PREP-M/D, and if it is zero the subroutine goes to set the result to zero. Next it fetches 
+the two numbers from the calculator stack and multiplies their mantissas in the usual way, rotating the first number (treated as the 
+multiplier) right and adding in the second number (the multiplicand) to the result whenever the multiplier bit is set. The exponents are 
+then added together and checks are made for overflow and for underflow (giving the result zero). Finally, the result is normalised and 
+returned to the calculator stack with the correct sign bit in the second byte. 
+
+XOR 
+
+A 
+
+A is set to Hex.00 so that the 
+sign of the first number will go 
+into A. 
+
+CALL 
+
+30C0, PREP-M/D 
+
+Prepare the first number, and 
+
+RET 
+
+C 
+
+return if zero. (Result already 
+zero.) 
+
+EXX 
+
+
+Exchange the registers. 
+
+PUSH 
+
+HL 
+
+Save the next literal address. 
+
+EXX 
+
+
+Exchange the registers. 
+
+PUSH 
+
+DE 
+
+Save the pointer to the multi- 
+plicand. 
+
+EX 
+
+DE.HL 
+
+Exchange the pointers. 
+
+CALL 
+
+30C0, PREP-M/D 
+
+Prepare the 2nd number. 
+
+EX 
+
+DE.HL 
+
+Exchange the pointers again. 
+
+JR 
+
+C.315D.ZERO-RSLT 
+
+Jump forward if 2nd number is 
+
+
+
+zero. 
+
+PUSH 
+
+HL 
+
+Save the pointer to the result. 
+
+CALL 
+
+2FBA, FETCH-TWO 
+
+Get the two numbers from 
+the stack. 
+
+LD 
+
+A.B 
+
+M5 to A (see FETCH-TWO). 
+
+AND 
+
+A 
+
+Prepare for a subtraction. 
+
+SBC 
+
+HL.HL 
+
+Initialise HL to zero for the 
+result. 
+
+EXX 
+
+
+Exchange the registers. 
+
+PUSH 
+
+HL 
+
+Save Ml & N1 (see 
+
+FETCH-TWO). 
+
+SBC 
+
+HL.HL 
+
+Also initialise H'L' for the 
+result. 
+
+EXX 
+
+
+Exchange the registers. 
+
+LD 
+
+B.+21 
+
+B counts 33 decimal, Hex.21 , 
+shifts. 
+
+JR 
+
+3125.STRT-MLT 
+
+Jump forward into the loop. 
+
+Now enter the multiplier loop. 
+
+
+
+3114 MLT-LOOP JR 
+
+NC, 31 IB, NO-ADD 
+
+Jump forward to NO-ADD if no 
+carry, i.e. the multiplier bit was 
+reset. 
+
+ADD 
+
+HL.DE 
+
+Else, add the multiplicand in 
+
+EXX 
+
+
+D'E'DE (see FETCH-TWO) into 
+
+ADC 
+
+HL.DE 
+
+the result being built up on 
+
+
+181 
+
+
+
+EXX 
+
+
+H'L'FHL. 
+
+31 IB NO-ADD EXX 
+
+
+Whether multiplicand was added 
+
+RR 
+
+H 
+
+or not, shift result right in 
+
+RR 
+
+L 
+
+FTL'FIL, i.e. the shift is done by 
+
+EXX 
+
+
+rotating each byte with carry, so 
+
+RR 
+
+H 
+
+that any bit that drops into the 
+
+RR 
+
+L 
+
+carry is picked up by the next 
+byte, and the shift continued 
+into B'C'CA. 
+
+3125 STRT-MLT EXX 
+
+
+Shift right the multiplier in 
+
+RR 
+
+B 
+
+B'C'CA (see FETCH-TWO & 
+above). 
+
+RR 
+
+C 
+
+A final bit dropping into the 
+
+EXX 
+
+
+carry will trigger another add of 
+
+RR 
+
+RRA 
+
+C 
+
+the multiplicand to the result. 
+
+DJNZ 
+
+31 14,MLT-LOOP 
+
+Loop 33 times to get all the bits. 
+
+EX 
+
+EXX 
+
+DE,HL 
+
+Move the result from: 
+
+EX 
+
+EXX 
+
+DE,HL 
+
+H'L'HL to D'E'DE. 
+
+Now add the exponents together. 
+
+POP 
+
+BC 
+
+Restore the exponents - Ml 
+& N1. 
+
+POP 
+
+HL 
+
+Restore the pointer to the 
+exponent byte. 
+
+LD 
+
+A,B 
+
+Get the sum of the two 
+
+ADD 
+
+A,C 
+
+exponent bytes in A, and the 
+correct carry. 
+
+JR 
+
+NZ, 31 3B, MAKE-EXPT 
+
+If the sum equals zero then clear 
+
+AND 
+
+A 
+
+the carry: else leave it 
+unchanged. 
+
+31 3B MAKE-EXPT DEC 
+
+A 
+
+Prepare to increase the 
+
+CCF 
+
+
+exponent by Hex.80. 
+
+The rest of the subroutine is common to both MULTIPLICATION and DIVISION. 
+
+31 3D DIVN-EXPT RLA 
+
+
+These few bytes very cleverly 
+
+CCF 
+
+
+make the correct exponent 
+byte. 
+
+RRA 
+
+
+Rotating left then right gets the 
+exponent byte (true exponent 
+plus Hex.80) into A. 
+
+JP 
+
+P,31 46,OFLW 1 -CLR 
+
+If the sign flag is reset, no report 
+of arithmetic overflow needed. 
+
+JR 
+
+NC.31AD, REPORT-6 
+
+Report the overflow if carry 
+reset. 
+
+AND 
+
+A 
+
+Clear the carry now. 
+
+3146 OFLW1-CLR INC 
+
+A 
+
+The exponent byte is now com- 
+
+JR 
+
+NZ,31 51 ,OFLW2-CLR 
+
+plete; but if A is zero a further 
+
+JR 
+
+03151 .OFLW2-CLR 
+
+check for overflow is needed. 
+
+EXX 
+
+
+If there is no carry set and the 
+
+BIT 
+
+7,D 
+
+result is already in normal form 
+
+EXX 
+
+
+(bit 7 of D' set) then there is 
+
+JR 
+
+NZ, 31 AD, REPORT-6 
+
+overflow to report; but if bit 7 
+of D' is reset, the result in just in 
+range, i.e. just under 2**127. 
+
+3151 OFLW2-CLR LD 
+
+(HL),A 
+
+Store the exponent byte, at last. 
+
+EXX 
+
+
+Pass the fifth result byte to A 
+
+LD 
+
+A,B 
+
+for the normalisation sequence, 
+
+EXX 
+
+
+i.e. the overflow from L into B'. 
+
+
+182 
+
+
+
+The remainder of the subroutine deals with normalisation and is common to all the arithmetic routines. 
+
+
+3155 
+
+TEST-NORM 
+
+JR 
+
+NC,316C, NORMALISE 
+
+
+
+LD 
+
+A,(HL) 
+
+
+
+AND 
+
+A 
+
+3159 
+
+NEAR-ZERO 
+
+LD 
+
+A, +80 
+
+
+
+JR 
+
+Z, 31 5E, SKIP-ZERO 
+
+315D 
+
+ZERO-RSLT 
+
+XOR 
+
+A 
+
+315E 
+
+SKIP-ZERO 
+
+EXX 
+
+
+
+
+AND 
+
+D 
+
+
+
+CALL 
+
+RLCA 
+
+2FFB.ZEROS-4/5 
+
+
+
+LD 
+
+(HL),A 
+
+
+
+JR 
+
+C,3195,OFLOW-CLR 
+
+
+
+INC 
+
+HL 
+
+
+
+LD 
+
+(HL),A 
+
+
+
+DEC 
+
+HL 
+
+
+
+JR 
+
+31 95,OFLOW-CLR 
+
+
+The actual normalisation operation. 
+
+
+31 6C 
+
+NORMALISE LD 
+
+B,+20 
+
+316E 
+
+SHIFT-ONE EXX 
+
+
+
+BIT 
+
+EXX 
+
+7,D 
+
+
+JR 
+
+RLCA 
+
+NZ,3186,NORML-NOW 
+
+
+RL 
+
+E 
+
+
+RL 
+
+EXX 
+
+D 
+
+
+RL 
+
+E 
+
+
+RL 
+
+EXX 
+
+D 
+
+
+DEC 
+
+(HL) 
+
+
+JR 
+
+Z, 31 59, NEAR-ZERO 
+
+
+DJNZ 
+
+31 6E, SHIFT-ONE 
+
+JR 
+
+31 5D, ZERO-RSLT 
+
+
+Finish the normalisation by considering the 'carry'. 
+
+3186 NORML-NOW RLA 
+
+
+JR 
+
+NC,3195,OFLW-CLR 
+
+CALL 
+
+3004, ADD-BACK 
+
+JR 
+
+NZ,31 95,OFLW-CLR 
+
+EXX 
+
+
+LD 
+
+D,+80 
+
+EXX 
+
+
+INC 
+
+(HL) 
+
+JR 
+
+Z, 31 AD, REPORT-6 
+
+The final part of the subroutine involves passing the result to the 
+
+3195 OFLOW-CLR PUSH 
+
+HL 
+
+INC 
+
+HL 
+
+EXX 
+
+
+PUSH 
+
+DE 
+
+EXX 
+
+
+
+If no carry then normalise now. 
+Else, deal with underflow (zero 
+result) or near underflow 
+(result 2**-128): 
+return exponent to A, test if A 
+is zero (case 2**-128) and if so 
+produce 2**-1 28 if number is 
+normal; otherwise produce zero. 
+The exponent must then be set 
+to zero (for zero) or 1 (for 
+2**-1 28). 
+
+Restore the exponent byte. 
+Jump if case 2**-128. 
+
+Otherwise, put zero into second 
+byte of result on the calculator 
+stack. 
+
+Jump forward to transfer the 
+result. 
+
+
+Normalise the result by up to 32 
+decimal, Hex.20, shifts left of 
+D'E'DE (with A adjoined) until 
+bit 7 of D' is set. A holds zero 
+after addition so no precision is 
+gained or lost; A holds the fifth 
+byte from B' after multiplica- 
+tion or division; but as only 
+about 32 bits can be correct, no 
+precision is lost. Note that A is 
+rotated circularly, with branch 
+at carry .... eventually a random 
+process. 
+
+The exponent is decremented 
+on each shift. 
+
+If the exponent becomes zero, 
+then number from 2**-1 29 are 
+rounded up to 2**-128. 
+
+Loop back, up to 32 times. 
+
+If bit 7 never became 1 then the 
+whole result is to be zero. 
+
+
+After normalisation add back 
+any final carry that went into A. 
+
+Jump forward if the carry does 
+not ripple right back. 
+
+If it should ripple right back 
+then set mantissa to 0.5 and 
+increment the exponent. 
+
+This action may lead to arith- 
+metic overflow (final case). 
+
+reserved for it on the calculator stack and resetting the pointers. 
+
+Save the result pointer. 
+
+Point to the sign byte in the 
+result. 
+
+The result is moved from its 
+present registers, D'E'DE, to 
+BCDE; and then to ACDE. 
+
+
+183 
+
+
+
+POP 
+
+BC 
+
+
+LD 
+
+A,B 
+
+The sign bit is retrieved from 
+
+RLA 
+
+
+its temporary store and trans- 
+
+RL 
+
+(HL) 
+
+ferred to its correct position of 
+
+RRA 
+
+
+bit 7 of the first byte of the 
+mantissa. 
+
+LD 
+
+(HL),A 
+
+The first byte is stored. 
+
+INC 
+
+HL 
+
+Next. 
+
+LD 
+
+(HL),C 
+
+The second byte is stored. 
+
+INC 
+
+HL 
+
+Next. 
+
+LD 
+
+(HL),D 
+
+The third byte is stored. 
+
+INC 
+
+HL 
+
+Next. 
+
+LD 
+
+(HL),E 
+
+The fourth byte is stored. 
+
+POP 
+
+HL 
+
+Restore the pointer to the 
+result. 
+
+POP 
+
+DE 
+
+Restore the pointer to second 
+number. 
+
+EXX 
+
+
+Exchange the register. 
+
+POP 
+
+HL 
+
+Restore the next literal address. 
+
+EXX 
+
+
+Exchange the registers. 
+
+RET 
+
+
+Finished. 
+
+Report 6 - Arithmetic overflow 
+
+
+
+31 AD REPORT-6 RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++05 
+
+routine. 
+
+THE 'DIVISION' OPERATION 
+
+
+
+(Offset 05 - see CALCULATE below: 'division') 
+
+
+This subroutine first prepared the divisor by calling PREP-M/D, reporting arithmetic overflow if it is zero; then it prepares the dividend 
+again calling PREP-M/D, returning if it is zero. Next fetches the two numbers from the calculator stack and divides their mantissa by 
+means of the usual restoring division, trial subtracting the divisor from the dividend and restoring if there is carry, otherwise adding 1 i 
+the quotient. The maximum precision is obtained for a 4-byte division, and after subtracting the exponents the subroutine exits by 
+
+joining the later part of MULTIPLICATION. 
+
+
+31 AF division CALL 
+
+3293, RE-ST-TWO 
+
+Use full floating-point forms. 
+
+EX 
+
+DE,HL 
+
+Exchange the pointers. 
+
+XOR 
+
+A 
+
+A is set to Hex.00, so that the 
+sign of the first number will go 
+into A. 
+
+CALL 
+
+30C0, PREP-M/D 
+
+Prepare the divisor and give the 
+
+JR 
+
+C.31AD, REPORT-6 
+
+report for arithmetic overflow if 
+it is zero. 
+
+EX 
+
+DE,HL 
+
+Exchange the pointers. 
+
+CALL 
+
+30C0, PREP-M/D 
+
+Prepare the dividend and return 
+
+RET 
+
+C 
+
+if it is zero (result already zero). 
+
+EXX 
+
+
+Exchange the pointers. 
+
+PUSH 
+
+HL 
+
+Save the next literal address. 
+
+EXX 
+
+
+Exchange the registers. 
+
+PUSH 
+
+DE 
+
+Save pointer to divisor. 
+
+PUSH 
+
+HL 
+
+Save pointer to dividend. 
+
+CALL 
+
+2FBA, FETCH-TWO 
+
+Get the two numbers from the 
+stack. 
+
+EXX 
+
+
+Exchange the registers. 
+
+PUSH 
+
+HL 
+
+Save Ml & N1 on the machine 
+stack. 
+
+LD 
+
+H,B 
+
+Copy the four bytes of the 
+
+LD 
+
+L,C 
+
+dividend from registers B’C'CB 
+
+EXX 
+
+
+(i.e. M2, M3, M4 & M5; see 
+
+LD 
+
+H,C 
+
+FETCH-TWO) to the registers 
+
+H'L’HL. 
+
+LD 
+
+L,B 
+
+
+
+184 
+
+
+
+XOR A Clear A and reset the carry flag. 
+
+LD B,+DF B will count upwards from -33 
+
+to -1 , twos complement, 
+
+Hex. DF to FF, looping on 
+minus and will jump again on 
+zero for extra precision. 
+
+JR 31 E2,DIV-START Jump forward into the division 
+
+loop for the first trial 
+subtraction. 
+
+
+Now enter the division loop. 
+
+
+31 D2 
+
+DIV-LOOP RLA 
+
+
+Shift the result left into B'C'CA, 
+
+
+RL 
+
+C 
+
+shifting out the bits already 
+
+
+EXX 

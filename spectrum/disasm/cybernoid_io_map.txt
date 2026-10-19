@@ -1,0 +1,587 @@
+======================================================================
+CYBERNOID I/O MAP (post-LDDR memory layout)
+======================================================================
+
+======================================================================
+1. KEYBOARD READING ROUTINES
+======================================================================
+
+Spectrum keyboard is read via IN A, ($FE) with different rows.
+The high byte of the port determines which row is selected:
+
+  Row 0 ($FE) : CAPS SHIFT, Z, X, C, V
+  Row 1 ($FD) : A, S, D, F, G
+  Row 2 ($FB) : Q, W, E, R, T
+  Row 3 ($F7) : 1, 2, 3, 4, 5
+  Row 4 ($EF) : 0, 9, 8, 7, 6
+  Row 5 ($DF) : P, O, I, U, Y
+  Row 6 ($BF) : ENTER, L, K, J, H
+  Row 7 ($7F) : SPACE, SYM SHIFT, M, N, B
+
+--- Keyboard routines in detail ---
+
+--- Near $65EB ---
+$65EB: LD A,0xfe                         ; 3efe
+$65ED: IN A,(0x00fe)                     ; dbfe
+$65EF: AND 1                             ; e601
+$65F1: RET nz                            ; c0
+$65F2: LD A,0x7f                         ; 3e7f
+$65F4: IN A,(0x00fe)                     ; dbfe
+$65F6: AND 2                             ; e602
+$65F8: RET nz                            ; c0
+$65F9: LD BC,0x1f4                       ; 01f401
+$65FC: CALL 0x676a                       ; cd6a67
+$65FF: CALL 0x6672                       ; cd7266
+$6602: JR nz,0x65ff                      ; 20fb
+$6604: CALL 0x662b                       ; cd2b66
+$6607: OR A                              ; b7
+$6608: JR z,0x6604                       ; 28fa
+$660A: RET                               ; c9
+$660B: LD A,0xf7                         ; 3ef7
+$660D: IN A,(0x00fe)                     ; dbfe
+$660F: AND 0x1f                          ; e61f
+$6611: RET nz                            ; c0
+
+--- Near $65ED ---
+$65ED: IN A,(0x00fe)                     ; dbfe
+$65EF: AND 1                             ; e601
+$65F1: RET nz                            ; c0
+$65F2: LD A,0x7f                         ; 3e7f
+$65F4: IN A,(0x00fe)                     ; dbfe
+$65F6: AND 2                             ; e602
+$65F8: RET nz                            ; c0
+$65F9: LD BC,0x1f4                       ; 01f401
+$65FC: CALL 0x676a                       ; cd6a67
+$65FF: CALL 0x6672                       ; cd7266
+$6602: JR nz,0x65ff                      ; 20fb
+$6604: CALL 0x662b                       ; cd2b66
+$6607: OR A                              ; b7
+$6608: JR z,0x6604                       ; 28fa
+$660A: RET                               ; c9
+$660B: LD A,0xf7                         ; 3ef7
+$660D: IN A,(0x00fe)                     ; dbfe
+$660F: AND 0x1f                          ; e61f
+$6611: RET nz                            ; c0
+$6612: JP 0x6504                         ; c30465
+
+--- Near $65F2 ---
+$65F2: LD A,0x7f                         ; 3e7f
+$65F4: IN A,(0x00fe)                     ; dbfe
+$65F6: AND 2                             ; e602
+$65F8: RET nz                            ; c0
+$65F9: LD BC,0x1f4                       ; 01f401
+$65FC: CALL 0x676a                       ; cd6a67
+$65FF: CALL 0x6672                       ; cd7266
+$6602: JR nz,0x65ff                      ; 20fb
+$6604: CALL 0x662b                       ; cd2b66
+$6607: OR A                              ; b7
+$6608: JR z,0x6604                       ; 28fa
+$660A: RET                               ; c9
+$660B: LD A,0xf7                         ; 3ef7
+$660D: IN A,(0x00fe)                     ; dbfe
+$660F: AND 0x1f                          ; e61f
+$6611: RET nz                            ; c0
+$6612: JP 0x6504                         ; c30465
+$6615: AND 0xf1                          ; e6f1
+$6617: JP nz,0x0adf                      ; c2df0a
+$661A: LD A,(BC)                         ; 0a
+
+--- Near $65F4 ---
+$65F4: IN A,(0x00fe)                     ; dbfe
+$65F6: AND 2                             ; e602
+$65F8: RET nz                            ; c0
+$65F9: LD BC,0x1f4                       ; 01f401
+$65FC: CALL 0x676a                       ; cd6a67
+$65FF: CALL 0x6672                       ; cd7266
+$6602: JR nz,0x65ff                      ; 20fb
+$6604: CALL 0x662b                       ; cd2b66
+$6607: OR A                              ; b7
+$6608: JR z,0x6604                       ; 28fa
+$660A: RET                               ; c9
+$660B: LD A,0xf7                         ; 3ef7
+$660D: IN A,(0x00fe)                     ; dbfe
+$660F: AND 0x1f                          ; e61f
+$6611: RET nz                            ; c0
+$6612: JP 0x6504                         ; c30465
+$6615: AND 0xf1                          ; e6f1
+$6617: JP nz,0x0adf                      ; c2df0a
+$661A: LD A,(BC)                         ; 0a
+$661B: RET po                            ; e0
+
+--- Near $660B ---
+$660B: LD A,0xf7                         ; 3ef7
+$660D: IN A,(0x00fe)                     ; dbfe
+$660F: AND 0x1f                          ; e61f
+$6611: RET nz                            ; c0
+$6612: JP 0x6504                         ; c30465
+$6615: AND 0xf1                          ; e6f1
+$6617: JP nz,0x0adf                      ; c2df0a
+$661A: LD A,(BC)                         ; 0a
+$661B: RET po                            ; e0
+$661C: LD B,L                            ; 45
+$661D: LD D,A                            ; 57
+$661E: LD C,B                            ; 48
+$661F: LD C,C                            ; 49
+$6620: LD B,E                            ; 43
+$6621: LD C,B                            ; 48
+$6622: JR nz,0x6670                      ; 204c
+$6624: LD B,L                            ; 45
+$6625: LD D,(HL)                         ; 56
+$6626: LD B,L                            ; 45
+$6627: LD C,H                            ; 4c
+
+--- Near $660D ---
+$660D: IN A,(0x00fe)                     ; dbfe
+$660F: AND 0x1f                          ; e61f
+$6611: RET nz                            ; c0
+$6612: JP 0x6504                         ; c30465
+$6615: AND 0xf1                          ; e6f1
+$6617: JP nz,0x0adf                      ; c2df0a
+$661A: LD A,(BC)                         ; 0a
+$661B: RET po                            ; e0
+$661C: LD B,L                            ; 45
+$661D: LD D,A                            ; 57
+$661E: LD C,B                            ; 48
+$661F: LD C,C                            ; 49
+$6620: LD B,E                            ; 43
+$6621: LD C,B                            ; 48
+$6622: JR nz,0x6670                      ; 204c
+$6624: LD B,L                            ; 45
+$6625: LD D,(HL)                         ; 56
+$6626: LD B,L                            ; 45
+$6627: LD C,H                            ; 4c
+$6628: JR nz,0x6669                      ; 203f
+
+--- Near $6631 ---
+$6631: CP 0x7a                           ; fe7a
+$6633: IN A,(0x00fe)                     ; dbfe
+$6635: LD E,1                            ; 1e01
+$6637: LD B,5                            ; 0605
+$6639: RRCA                              ; 0f
+$663A: JR nc,0x6645                      ; 3009
+$663C: INC HL                            ; 23
+$663D: SLA E                             ; cb23
+$663F: DJNZ 0x6639                       ; 10f8
+$6641: RLC D                             ; cb02
+$6643: JR c,0x6632                       ; 38ed
+$6645: LD A,(HL)                         ; 7e
+$6646: POP HL                            ; e1
+$6647: POP BC                            ; c1
+$6648: RET                               ; c9
+$6649: LD BC,0x585a                      ; 015a58
+$664C: LD B,E                            ; 43
+$664D: LD D,(HL)                         ; 56
+$664E: LD B,C                            ; 41
+$664F: LD D,E                            ; 53
+
+--- Near $6633 ---
+$6633: IN A,(0x00fe)                     ; dbfe
+$6635: LD E,1                            ; 1e01
+$6637: LD B,5                            ; 0605
+$6639: RRCA                              ; 0f
+$663A: JR nc,0x6645                      ; 3009
+$663C: INC HL                            ; 23
+$663D: SLA E                             ; cb23
+$663F: DJNZ 0x6639                       ; 10f8
+$6641: RLC D                             ; cb02
+$6643: JR c,0x6632                       ; 38ed
+$6645: LD A,(HL)                         ; 7e
+$6646: POP HL                            ; e1
+$6647: POP BC                            ; c1
+$6648: RET                               ; c9
+$6649: LD BC,0x585a                      ; 015a58
+$664C: LD B,E                            ; 43
+$664D: LD D,(HL)                         ; 56
+$664E: LD B,C                            ; 41
+$664F: LD D,E                            ; 53
+$6650: LD B,H                            ; 44
+
+--- Near $6671 ---
+$6671: NOP                               ; 00
+$6672: XOR A                             ; af
+$6673: IN A,(0x00fe)                     ; dbfe
+$6675: CPL                               ; 2f
+$6676: AND 0x1f                          ; e61f
+$6678: RET                               ; c9
+$6679: PUSH HL                           ; e5
+$667A: PUSH DE                           ; d5
+$667B: PUSH BC                           ; c5
+$667C: INC A                             ; 3c
+$667D: PUSH AF                           ; f5
+$667E: LD HL,(0x66a8)                    ; 2aa866
+$6681: LD DE,7                           ; 110700
+$6684: ADD HL,DE                         ; 19
+$6685: LD E,L                            ; 5d
+$6686: LD D,H                            ; 54
+$6687: ADD HL,HL                         ; 29
+$6688: ADD HL,HL                         ; 29
+$6689: LD C,L                            ; 4d
+$668A: LD B,H                            ; 44
+
+--- Near $6673 ---
+$6673: IN A,(0x00fe)                     ; dbfe
+$6675: CPL                               ; 2f
+$6676: AND 0x1f                          ; e61f
+$6678: RET                               ; c9
+$6679: PUSH HL                           ; e5
+$667A: PUSH DE                           ; d5
+$667B: PUSH BC                           ; c5
+$667C: INC A                             ; 3c
+$667D: PUSH AF                           ; f5
+$667E: LD HL,(0x66a8)                    ; 2aa866
+$6681: LD DE,7                           ; 110700
+$6684: ADD HL,DE                         ; 19
+$6685: LD E,L                            ; 5d
+$6686: LD D,H                            ; 54
+$6687: ADD HL,HL                         ; 29
+$6688: ADD HL,HL                         ; 29
+$6689: LD C,L                            ; 4d
+$668A: LD B,H                            ; 44
+$668B: ADD HL,HL                         ; 29
+$668C: ADD HL,BC                         ; 09
+
+--- Near $7B4A ---
+$7B4A: LD A,0xf7                         ; 3ef7
+$7B4C: IN A,(0x00fe)                     ; dbfe
+$7B4E: AND 0x1f                          ; e61f
+$7B50: CP 0x1f                           ; fe1f
+$7B52: JR nz,0x7b59                      ; 2005
+$7B54: XOR A                             ; af
+$7B55: LD (0x7b49),A                     ; 32497b
+$7B58: RET                               ; c9
+$7B59: LD D,A                            ; 57
+$7B5A: LD A,(0x7b49)                     ; 3a497b
+$7B5D: OR A                              ; b7
+$7B5E: RET nz                            ; c0
+$7B5F: INC A                             ; 3c
+$7B60: LD (0x7b49),A                     ; 32497b
+$7B63: LD A,D                            ; 7a
+$7B64: LD BC,0x500                       ; 010005
+$7B67: RRCA                              ; 0f
+$7B68: JR nc,0x7b6e                      ; 3004
+$7B6A: INC C                             ; 0c
+$7B6B: DJNZ 0x7b67                       ; 10fa
+
+--- Near $7B4C ---
+$7B4C: IN A,(0x00fe)                     ; dbfe
+$7B4E: AND 0x1f                          ; e61f
+$7B50: CP 0x1f                           ; fe1f
+$7B52: JR nz,0x7b59                      ; 2005
+$7B54: XOR A                             ; af
+$7B55: LD (0x7b49),A                     ; 32497b
+$7B58: RET                               ; c9
+$7B59: LD D,A                            ; 57
+$7B5A: LD A,(0x7b49)                     ; 3a497b
+$7B5D: OR A                              ; b7
+$7B5E: RET nz                            ; c0
+$7B5F: INC A                             ; 3c
+$7B60: LD (0x7b49),A                     ; 32497b
+$7B63: LD A,D                            ; 7a
+$7B64: LD BC,0x500                       ; 010005
+$7B67: RRCA                              ; 0f
+$7B68: JR nc,0x7b6e                      ; 3004
+$7B6A: INC C                             ; 0c
+$7B6B: DJNZ 0x7b67                       ; 10fa
+$7B6D: RET                               ; c9
+
+
+======================================================================
+2. SOUND / BEEPER ROUTINES
+======================================================================
+
+Cybernoid likely uses the Spectrum beeper (bit 4 of port $FE) for sound.
+Beeper routines set/clear bit 4 alternately with timing loops.
+
+--- $7BFC: Sound init ---
+$7BFC: LD DE,0x10                        ; 111000
+$7BFF: LD B,5                            ; 0605
+$7C01: LD IX,0x7baa                      ; dd21aa7b
+$7C05: LD A,(IX+14)                      ; dd7e0e
+$7C08: LD (IX+11),A                      ; dd770b
+$7C0B: ADD IX,DE                         ; dd19
+$7C0D: DJNZ 0x7c05                       ; 10f6
+$7C0F: RET                               ; c9
+$7C10: LD A,(0x8f94)                     ; 3a948f
+$7C13: OR A                              ; b7
+$7C14: RET nz                            ; c0
+$7C15: LD DE,(0x6969)                    ; ed5b6969
+$7C19: LD A,E                            ; 7b
+$7C1A: CP 0x79                           ; fe79
+$7C1C: RET nc                            ; d0
+$7C1D: LD A,D                            ; 7a
+$7C1E: CP 0xb1                           ; feb1
+$7C20: RET nc                            ; d0
+$7C21: CP 0x20                           ; fe20
+$7C23: RET c                             ; d8
+$7C24: LD A,(0x7ae9)                     ; 3ae97a
+$7C27: CP 5                              ; fe05
+$7C29: RET c                             ; d8
+$7C2A: LD HL,(0x7bfa)                    ; 2afa7b
+$7C2D: ADD HL,HL                         ; 29
+$7C2E: ADD HL,HL                         ; 29
+$7C2F: ADD HL,HL                         ; 29
+$7C30: ADD HL,HL                         ; 29
+$7C31: LD BC,0x7bb5                      ; 01b57b
+$7C34: ADD HL,BC                         ; 09
+$7C35: LD A,(HL)                         ; 7e
+$7C36: OR A                              ; b7
+$7C37: RET z                             ; c8
+$7C38: PUSH HL                           ; e5
+$7C39: INC HL                            ; 23
+$7C3A: LD A,(HL)                         ; 7e
+$7C3B: INC HL                            ; 23
+$7C3C: LD H,(HL)                         ; 66
+$7C3D: LD L,A                            ; 6f
+$7C3E: XOR A                             ; af
+
+--- $85BA: Sound driver (called from IM 2 at $70E5) ---
+$85BA: LD HL,0x859a                      ; 219a85
+$85BD: LD A,(0x859b)                     ; 3a9b85
+$85C0: CP 0xff                           ; feff
+$85C2: JR z,0x861d                       ; 2859
+$85C4: LD C,A                            ; 4f
+$85C5: LD A,0xff                         ; 3eff
+$85C7: LD (0x859b),A                     ; 329b85
+$85CA: LD A,(HL)                         ; 7e
+$85CB: AND A                             ; a7
+$85CC: JR z,0x85d1                       ; 2803
+$85CE: CP C                              ; b9
+$85CF: JR c,0x861d                       ; 384c
+$85D1: LD (HL),C                         ; 71
+$85D2: LD A,C                            ; 79
+$85D3: AND A                             ; a7
+$85D4: JP z,0x870b                       ; ca0b87
+$85D7: DEC A                             ; 3d
+$85D8: RLCA                              ; 07
+$85D9: RLCA                              ; 07
+$85DA: RLCA                              ; 07
+$85DB: LD E,A                            ; 5f
+$85DC: LD D,0                            ; 1600
+$85DE: LD HL,0x8710                      ; 211087
+$85E1: ADD HL,DE                         ; 19
+$85E2: LD DE,0x859e                      ; 119e85
+$85E5: LD BC,7                           ; 010700
+$85E8: LDIR                              ; edb0
+$85EA: LD A,(HL)                         ; 7e
+$85EB: AND 15                            ; e60f
+$85ED: LD (DE),A                         ; 12
+$85EE: INC DE                            ; 13
+$85EF: XOR (HL)                          ; ae
+$85F0: RRCA                              ; 0f
+$85F1: RRCA                              ; 0f
+$85F2: RRCA                              ; 0f
+$85F3: RRCA                              ; 0f
+$85F4: LD (DE),A                         ; 12
+$85F5: LD HL,0x85a4                      ; 21a485
+$85F8: LD C,(HL)                         ; 4e
+$85F9: LD HL,0x85a7                      ; 21a785
+$85FC: LD A,(0x859e)                     ; 3a9e85
+$85FF: LD (HL),A                         ; 77
+$8600: INC HL                            ; 23
+$8601: LD A,(0x85a0)                     ; 3aa085
+$8604: LD (HL),A                         ; 77
+$8605: LD A,(0x85a5)                     ; 3aa585
+$8608: LD (0x85a9),A                     ; 32a985
+$860B: BIT 7,C                           ; cb79
+$860D: EXX                               ; d9
+$860E: LD HL,0x85a7                      ; 21a785
+$8611: LD E,L                            ; 5d
+$8612: LD D,H                            ; 54
+$8613: JR z,0x8618                       ; 2803
+$8615: LD DE,0x85a8                      ; 11a885
+$8618: EXX                               ; d9
+$8619: LD B,1                            ; 0601
+$861B: JR 0x862e                         ; 1811
+$861D: LD A,(HL)                         ; 7e
+$861E: AND A                             ; a7
+$861F: JP z,0x870b                       ; ca0b87
+
+--- $70D3: IM 2 handler (50 Hz interrupt, drives sound) ---
+$70D3: PUSH AF                           ; f5
+$70D4: PUSH BC                           ; c5
+$70D5: PUSH DE                           ; d5
+$70D6: PUSH HL                           ; e5
+$70D7: PUSH IX                           ; dde5
+$70D9: PUSH IY                           ; fde5
+$70DB: EXX                               ; d9
+$70DC: EX AF,AF'                         ; 08
+$70DD: PUSH AF                           ; f5
+$70DE: PUSH BC                           ; c5
+$70DF: PUSH DE                           ; d5
+$70E0: PUSH HL                           ; e5
+$70E1: LD HL,0x711a                      ; 211a71
+$70E4: INC (HL)                          ; 34
+$70E5: LD A,(0x830a)                     ; 3a0a83
+$70E8: OR A                              ; b7
+$70E9: CALL z,0xef3b                     ; cc3bef
+$70EC: LD A,(0x830a)                     ; 3a0a83
+$70EF: OR A                              ; b7
+$70F0: JR z,0x7109                       ; 2817
+$70F2: LD A,(0x8599)                     ; 3a9985
+$70F5: OR A                              ; b7
+$70F6: JR nz,0x7106                      ; 200e
+$70F8: LD A,(0x711b)                     ; 3a1b71
+$70FB: XOR 1                             ; ee01
+$70FD: LD (0x711b),A                     ; 321b71
+$7100: CALL z,0x85ba                     ; ccba85
+$7103: JP 0x7109                         ; c30971
+$7106: CALL 0xef38                       ; cd38ef
+$7109: POP HL                            ; e1
+$710A: POP DE                            ; d1
+$710B: POP BC                            ; c1
+$710C: POP AF                            ; f1
+$710D: EX AF,AF'                         ; 08
+$710E: EXX                               ; d9
+$710F: POP IY                            ; fde1
+$7111: POP IX                            ; dde1
+$7113: POP HL                            ; e1
+$7114: POP DE                            ; d1
+$7115: POP BC                            ; c1
+
+
+======================================================================
+3. VIDEO / SCREEN MEMORY ROUTINES
+======================================================================
+
+Spectrum video memory layout:
+  $4000-$5AFF: screen pixels (6144 bytes, 256x192, 1 bit per pixel)
+  $5800-$5AFF: attributes (768 bytes, 32x24, 8x8 cells, color)
+
+Screen pixel byte layout: 8 pixels per byte, MSB=leftmost
+
+--- Screen clears ---
+Note: post-LDDR $FE3A is overwritten by game data; see loader_disasm.txt for $FE3A.
+
+$650B: Clear $5B00-$6503 (LDIR $A03 bytes of 0) - BASIC area
+$650B: LD HL,0x5b00                      ; 21005b
+$650E: LD DE,0x5b01                      ; 11015b
+$6511: LD (HL),0                         ; 3600
+$6513: LD BC,0xa03                       ; 01030a
+$6516: LDIR                              ; edb0
+
+--- References to $4000/$5800 (screen/attribute base) ---
+  $6726: LD HL,0x4000
+  $679D: LD DE,0x5800
+  $67AD: LD HL,0x5800
+  $77F0: LD DE,0x4000
+
+
+======================================================================
+4. OUT ($FE) USAGE
+======================================================================
+
+Found 4 OUT ($FE) instructions
+  $651F: OUT (0x00fe),A
+  context:
+$651B: ADD A,C                           ; 81
+$651C: LD (0x7bfa),A                     ; 32fa7b
+$651F: OUT (0x00fe),A                    ; d3fe
+$6521: LD A,(0x386e)                     ; 3a6e38
+  $8637: OUT (0x00fe),A
+  context:
+$8633: LD (BC),A                         ; 02
+$8634: LD A,0x18                         ; 3e18
+$8636: LD B,(HL)                         ; 46
+$8637: OUT (0x00fe),A                    ; d3fe
+  $FC17: OUT (0x00fe),A
+  context:
+$FC13: RET m                             ; f8
+$FC14: LD A,(0xfc43)                     ; 3a43fc
+$FC17: OUT (0x00fe),A                    ; d3fe
+$FC19: LD B,(HL)                         ; 46
+  $FC25: OUT (0x00fe),A
+  context:
+$FC21: RET m                             ; f8
+$FC22: LD A,(0xfc44)                     ; 3a44fc
+$FC25: OUT (0x00fe),A                    ; d3fe
+$FC27: LD A,(0xfc49)                     ; 3a49fc
+
+
+======================================================================
+5. INITIALIZATION CALL CHAIN (from entry $6504)
+======================================================================
+
+Calls/Jumps in $6504-$6600 (init/main loop area):
+  $6508: CALL 0x70b4
+  $6526: JR z,0x652a
+  $652E: JP nz,0x653f
+  $653C: CALL 0x8738
+  $653F: CALL 0xef3b
+  $6544: CALL 0xef42
+  $6548: CALL 0x7bfc
+  $654B: CALL 0x671e
+  $654E: CALL 0x81a6
+  $6551: CALL 0x66e7
+  $6567: CALL 0x7465
+  $656F: JR nc,0x6574
+  $6571: JP 0x656a
+  $6584: CALL 0x688f
+  $6587: CALL 0x68ac
+  $658A: CALL 0x75b8
+  $658D: CALL 0x7a50
+  $6590: CALL 0x7aea
+  $6593: CALL 0x7cd2
+  $6596: CALL 0x7b4a
+  $6599: CALL 0x7c10
+  $659C: CALL 0x7069
+  $659F: CALL 0x87ac
+  $65A2: CALL 0x8a69
+  $65A5: CALL 0x7f1d
+  $65A8: CALL 0x7fe7
+  $65AB: CALL 0x8ada
+  $65AE: CALL 0x89d7
+  $65B1: CALL 0x8923
+  $65B4: CALL 0x7584
+  $65B7: CALL 0x8d3c
+  $65BA: CALL 0x8cd7
+  $65BD: CALL 0x9040
+  $65C0: CALL 0x9267
+  $65C3: CALL 0x97f0
+  $65C6: CALL 0x970f
+  $65C9: CALL 0x9be2
+  $65CC: CALL 0x98b4
+  $65CF: CALL 0xa04e
+  $65D2: CALL 0x8066
+  $65D5: CALL 0xa086
+  $65D8: CALL 0x8edb
+  $65DB: CALL 0x7e27
+  $65DE: CALL 0x79fe
+  $65E1: CALL 0x660b
+  $65E4: CALL 0x65eb
+  $65E7: JP 0x656a
+  $65FC: CALL 0x676a
+  $65FF: CALL 0x6672
+
+--- Main loop area $6560-$65A0 ---
+$6560: DEC B                             ; 05
+$6561: NOP                               ; 00
+$6562: LD (HL),0x30                      ; 3630
+$6564: LDIR                              ; edb0
+$6566: XOR A                             ; af
+$6567: CALL 0x7465                       ; cd6574
+$656A: LD A,(0x711a)                     ; 3a1a71
+$656D: CP 2                              ; fe02
+$656F: JR nc,0x6574                      ; 3003
+$6571: JP 0x656a                         ; c36a65
+$6574: XOR A                             ; af
+$6575: LD (0x711a),A                     ; 321a71
+$6578: LD HL,0x65ea                      ; 21ea65
+$657B: INC (HL)                          ; 34
+$657C: LD HL,0x8e44                      ; 21448e
+$657F: LD (HL),0xff                      ; 36ff
+$6581: LD (0x8e42),HL                    ; 22428e
+$6584: CALL 0x688f                       ; cd8f68
+$6587: CALL 0x68ac                       ; cdac68
+$658A: CALL 0x75b8                       ; cdb875
+$658D: CALL 0x7a50                       ; cd507a
+$6590: CALL 0x7aea                       ; cdea7a
+$6593: CALL 0x7cd2                       ; cdd27c
+$6596: CALL 0x7b4a                       ; cd4a7b
+$6599: CALL 0x7c10                       ; cd107c
+$659C: CALL 0x7069                       ; cd6970
+$659F: CALL 0x87ac                       ; cdac87
+$65A2: CALL 0x8a69                       ; cd698a
+$65A5: CALL 0x7f1d                       ; cd1d7f
+$65A8: CALL 0x7fe7                       ; cde77f
+$65AB: CALL 0x8ada                       ; cdda8a
+$65AE: CALL 0x89d7                       ; cdd789

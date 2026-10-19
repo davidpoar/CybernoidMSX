@@ -1,0 +1,1016 @@
+# Spectrum ROM Disassembly - The Loudspeaker Routines
+
+---
+
+THE LOUDSPEAKER ROUTINES 
+
+
+The two subroutines in this section are the BEEPER subroutine, that actually controls the loudspeaker, and the BEEP command 
+routine. 
+
+The loudspeaker is activated by having D4 low during an OUT instruction that is using port '254'. When D4 is high in a similar situation 
+the loudspeaker is deactivated. A 'beep' can therefore be produced by regularly changing the level of D4. 
+
+Consider now the note 'middle C' which has the frequency 261 .63 hz. In order to get this note the loudspeaker will have to be 
+alternately activated and deactivated every 1/523. 26 lh . of a second. In the SPECTRUM the system clock is set to run at 3.5 mhz. and 
+the note of 'middle C’ will require that the requisite OUT instruction be executed as close as possible to every 6,689 T states. This last 
+value, when reduced slightly for unavoidable overheads, represents the ’length of the timing loop' in the BEEPER subroutine. 
+
+THE 'BEEPER' SUBROUTINE 
+
+This subroutine is entered with the DE register pair holding the value 'f*t', where a note of given frequency T is to have a duration of T 
+
+seconds, and the HL register pair holding a value equal to the number of T states in the 'timing loop' divided by '4'. 
+
+i.e. For the note 'middle C' to be produced for one second DE holds +0105 (INT(261 .3*1)) and FHL holds +066A (derived from 6,689/4 - 
+
+30.125). 
+
+
+Dl 
+
+
+Disable the interrupt for the 
+duration of a 'beep'. 
+
+LD 
+
+A.L 
+
+Save L temporarily. 
+
+SRL 
+
+L 
+
+Each T in the L register is 
+
+SRL 
+
+L 
+
+to count '4' T states, but take 
+INT (L/4) and count '16' T 
+states instead. 
+
+CPL 
+
+
+Go back to the original value 
+
+AND 
+
++03 
+
+in L and find how many were 
+
+LD 
+
+C.A 
+
+lost by taking INT (L/4). 
+
+LD 
+
+B.+00 
+
+
+LD 
+
+IX.+03D1 
+
+The base address of the timing 
+loop. 
+
+ADD 
+
+IX, BC 
+
+Alter the length of the timing 
+loop. Use an earlier starting 
+point for each '1' lost by taking 
+INT (L/4). 
+
+LD 
+
+A.(BORDCR) 
+
+Fetch the present border 
+
+AND 
+
++38 
+
+colour and move it to bits 
+
+RRCA 
+
+RRCA 
+
+RRCA 
+
+
+2, 1 & 0 of the A register. 
+
+OR 
+
++08 
+
+Ensure the MIC output is 'off. 
+
+
+Now enter the sound generation loop. 'DE' complete passes are made, i.e. a pass for each cycle of the note. 
+
+The HL register holds the 'length of the timing loop' with '16' T states being used for each T in the L register and '1 ,024' T states for 
+
+
+each '1' 
+
+in the FI register. 
+
+
+
+
+03D1 
+
+BE-IX+3 
+
+NOP 
+
+
+Add '4' T states for each 
+
+03D2 
+
+BE-IX+2 
+
+NOP 
+
+
+earlier entry port 
+
+03D3 
+
+BE-IX+1 
+
+NOP 
+
+
+that is used. 
+
+03D4 
+
+BE-IX+0 
+
+INC 
+
+B 
+
+The values in the B & C registers 
+
+
+
+INC 
+
+C 
+
+will come from FI & L registers 
+- see below. 
+
+03D6 
+
+BE-Ff&L-LP 
+
+DEC 
+
+C 
+
+The 'timing loop'. 
+
+
+
+JR 
+
+NZ,03D6,BE-H&L-LP 
+
+i.e. 'BC' * '4' T states. 
+
+
+
+LD 
+
+C,+3F 
+
+(But note that at the half-cycle 
+
+
+
+DEC 
+
+B 
+
+point - C will be equal to 
+
+
+
+JP 
+
+NZ,03D6,BE-H&L-LP 
+
+L+T.) 
+
+The loudspeaker is now alternately activated and deactivated. 
+
+
+
+
+XOR 
+
++10 
+
+Flip bit 4. 
+
+
+11 
+
+
+
+OUT 
+
+(+FE),A 
+
+Perform the OUT operation; 
+leaving the border unchanged. 
+
+LD 
+
+B,H 
+
+Reset the B register. 
+
+LD 
+
+C,A 
+
+Save the A register. 
+
+BIT 
+
+4, A 
+
+Jump if at the half-cycle 
+
+JR 
+
+NZ.03F2, BE-AGAIN 
+
+point. 
+
+After a full cycle the DE register pair is tested. 
+
+
+LD 
+
+A,D 
+
+Jump forward if the last 
+
+OR 
+
+E 
+
+complete pass has been 
+
+JR 
+
+Z,03D6, BE-END 
+
+made already. 
+
+LD 
+
+A,C 
+
+Fetch the saved value. 
+
+LD 
+
+C,L 
+
+Reset the C register. 
+
+DEC 
+
+DE 
+
+Decrease the pass counter. 
+
+JP 
+
+(IX) 
+
+Jump back to the required 
+starting location of the loop. 
+
+The parameters for the second half-cycle are set up. 
+
+
+03F2 BE-AGAIN LD 
+
+C,L 
+
+Reset the C register. 
+
+INC 
+
+C 
+
+Add '1 6' T states as this path 
+is shorter. 
+
+JP 
+
+(IX) 
+
+Jump back. 
+
+Upon completion of the 'beep' the maskable interrupt has to be enabled. 
+
+03F6 BE-END El 
+
+
+Enable interrupt. 
+
+RET 
+
+
+Finally return. 
+
+THE 'BEEP' COMMAND ROUTINE 
+
+The subroutine is entered with two numbers on the calculator stack. 
+
+The topmost 
+
+number represents the 'pitch' of the note and the number underneath it represents the 'duration'. 
+
+03F8 BEEP RST 
+
+0028,FP-CALC 
+
+The floating-point calculator is 
+used to manipulate the two values 
+
+DEFB 
+
++31, duplicate 
+
+t,P,P 
+
+DEFB 
+
++27,int 
+
+t,P,P 
+
+DEFB 
+
++C0,st-mem-0 
+
+t,P,i (mem-0 holds i) 
+
+DEFB 
+
++03, subtract 
+
+t,P (where p is the fractional 
+part of P) 
+
+DEFB 
+
++34,stk-data 
+
+Stack the decimal value ’K’. 
+
+DEFB 
+
++EC,exponent+7C 
+
+0.0577622606 (which is a 
+
+DEFB 
+
++6C,+98,+1 F,+F5 
+
+little below 12*(2 A 0.5)-1) 
+
+DEFB 
+
++04, multiply 
+
+t,pK 
+
+DEFB 
+
++A1,stk-one 
+
+t,pK,1 
+
+DEFB 
+
++0F, addition 
+
+t,pK+1 
+
+DEFB 
+
++38, end-calc 
+
+
+Now perform several tests on 1, the integer part of the 'pitch'. 
+
+
+LD 
+
+HL.+5C92 
+
+This is 'mem-0-1 st (MEMBOT). 
+
+LD 
+
+A,(HL) 
+
+Fetch the exponent of i. 
+
+AND 
+
+A 
+
+Give an error if i is not in the 
+
+JR 
+
+NZ,046C,REPORT-B 
+
+integral (short) form. 
+
+INC 
+
+HL 
+
+Copy the sign byte to the 
+
+LD 
+
+C,(HL) 
+
+C register. 
+
+INC 
+
+HL 
+
+Copy the low-byte to the 
+
+LD 
+
+A,B 
+
+register. 
+
+RLA 
+
+
+Again give report B if i does not 
+
+SBC 
+
+A, A 
+
+satisfy the test: 
+
+CP 
+
+C 
+
+-1 28<=i<=+1 27 
+
+JR 
+
+NZ,046C,REPORT-B 
+
+
+INC 
+
+HL 
+
+
+CP 
+
+(HL) 
+
+
+
+12 
+
+
+
+JR 
+
+NZ,046C,REPORT-B 
+
+
+LD 
+
+A,B 
+
+Fetch the low-byte and test 
+it further. 
+
+ADD 
+
+A,+3C 
+
+
+JP 
+
+P, 0425, BE-I-OK 
+
+Accept -60<=i<=67. 
+
+JP 
+
+PO,046C,REPORT-B 
+
+Reject -128 to -61 . 
+
+Note: The range +70 to +127 will be rejected later on. 
+
+
+The correct frequency for the 'pitch' 
+
+i can now be found. 
+
+
+0425 BE-I-OK LD 
+
+B,+FA 
+
+Start '6' octaves below middle C. 
+
+0427 BE-OCTAVE INC 
+
+B 
+
+Repeatedly reduce i in order to 
+
+SUB 
+
++0C 
+
+find the correct octave. 
+
+JR 
+
+NC, 0427, BE-OCTAVE 
+
+
+ADD 
+
+A,+0C 
+
+Ass back the last subtraction. 
+
+PUSH 
+
+BC 
+
+Save the octave number. 
+
+LD 
+
+HL,+046E 
+
+The base address of the 'semi- 
+tone table'. 
+
+CALL 
+
+3406.LOC-MEM 
+
+Consider the table and pass the 
+
+CALL 
+
+33B4.STACK-NUM 
+
+'A th.' value to the calculator 
+stack. (Call it C.) 
+
+Now the fractional part of the 'pitch' can be taken into consideration. 
+
+
+RST 
+
+0028.FP-CALC 
+
+t, pK+1 , C 
+
+DEFB 
+
++04, multiply 
+
+t, C(pK+1 ) 
+
+DEFB 
+
++38, end-calc 
+
+
+The final frequency f is found by modifying the 'last value' according to the octave number. 
+
+POP 
+
+AF 
+
+Fetch the octave number. 
+
+ADD 
+
+A,(HL) 
+
+Multiply the 'last value' by 
+
+LD 
+
+(HL),A 
+
+'2 to the power of the octave 
+number'. 
+
+RST 
+
+0028,FP-CALC 
+
+t, f 
+
+DEFB 
+
++C0,st-mem-0 
+
+The frequency is put aside for 
+
+DEFB 
+
++02, delete 
+
+the moment in mem-0. 
+
+Attention is now turned to the 'duration'. 
+
+
+DEFB 
+
++31 .duplicate 
+
+t, t 
+
+DEFB 
+
++38, end-calc 
+
+
+CALL 
+
+1E94, FIND-INTI 
+
+The value 'INT t' must be in 
+
+CP 
+
++0B 
+
+the range +00 to +0A. 
+
+JR 
+
+NC,046C,REPORT-B 
+
+
+The number of complete cycles in the 'beep' is given by f*t' so this value is now found. 
+
+RST 
+
+0028.FP-CALC 
+
+t 
+
+DEFB 
+
++E0, get-mem-0 
+
+t, f 
+
+DEFB 
+
++04, multiply 
+
+f*t 
+
+The result is left on the calculator stack whilst the length of the 'timing loop’ required for the 'beep' is computed 
+
+DEFB 
+
++E0, get-mem-0 
+
+f*t 
+
+DEFB 
+
++34,stk-data 
+
+The value '3.5* 10 A 6/8' 
+
+DEFB 
+
++80, four bytes 
+
+is formed on the top of 
+
+DEFB 
+
++43, exponent +93 
+
+the calculator stack. 
+
+DEFB 
+
++55,+9F,+80, (+00) 
+
+f*t, f, 437,500 (dec.) 
+
+DEFB 
+
++01 .exchange 
+
+f*t, 437,500, f 
+
+DEFB 
+
++05, division 
+
+f*t, 437,500/f 
+
+DEFB 
+
++34,stk-data 
+
+
+DEFB 
+
++35, exponent +85 
+
+
+DEFB 
+
++71, (+00, +00, +00) 
+
+f*t, 437,500/f, 30.125 (dec.) 
+
+DEFB 
+
++03, subtract 
+
+f*t, 437,500/f -30.125 
+
+DEFB 
+
++38, end-calc 
+
+
+
+13 
+
+
+
+Note: The value '437,500/f gives the 'half-cycle' length of the note and reducing it by '30. 1 25' allows for '1 20.5' T states in which to 
+actually produce the note and adjust the counters etc. 
+
+The values can now be transferred to the required registers. 
+
+
+CALL 1 E99,FIND-INT2 The 'timing loop' value is 
+
+compressed into the BC 
+PUSH BC register pair; and saved. 
+
+Note: If the timing loop value is too large then an error will occur (returning via ERROR-1 ); thereby excluding 'pitch' values of '+70 to 
++127'. 
+
+
+CALL 
+
+1E99.FIND-INT2 
+
+The 'f*t' value is compressed 
+into the BC register pair. 
+
+POP 
+
+HL 
+
+Move the 'timing loop' value to 
+the HL register pair. 
+
+LD 
+
+D,B 
+
+Move the 'f*t' value to the 
+
+LD 
+
+E,C 
+
+DE register pair. 
+
+However before making the 'beep' test the value 'fT 
+
+
+LD 
+
+A,D 
+
+Return if 'f*t' has given the 
+
+OR 
+
+E 
+
+result of 'no cycles' 
+
+RET 
+
+Z 
+
+required. 
+
+DEC 
+
+DE 
+
+Decrease the cycle number and 
+
+JP 
+
+03B5, BEEPER 
+
+jump to the BEEPER subroutine 
+(making, at least, one pass). 
+
+Report B - integer out of range 
+
+046C REPORT-B RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++0A 
+
+routine. 
+
+
+THE 'SEMI-TONE' TABLE 
+
+This table holds the frequencies of the twelve semi-tones in an octave. 
+
+
+DEFB 
+
++89,+02,+D0,+12,+86 
+
+frequency hz. 
+
+261.63 
+
+note 
+
+C 
+
+DEFB 
+
++89,+0A,+97,+60,+75 
+
+277.18 
+
+c# 
+
+DEFB 
+
++89,+12,+D5,+17,+1F 
+
+293.66 
+
+D 
+
+DEFB 
+
++89, +1 B,+90,+41 ,+02 
+
+311.12 
+
+D# 
+
+DEFB 
+
++89,+24,+D0,+53,+CA 
+
+329.63 
+
+E 
+
+DEFB 
+
++89,+2E,+9D,+36,+B1 
+
+349.23 
+
+F 
+
+DEFB 
+
++89,+38,+FF,+49,+3E 
+
+369.99 
+
+F# 
+
+DEFB 
+
++89,+43,+FF,+6A,+73 
+
+392 
+
+G 
+
+DEFB 
+
++89,+4F,+A7,+00,+54 
+
+415.30 
+
+G# 
+
+DEFB 
+
++89,+5C,+00,+00,+00 
+
+440 
+
+A 
+
+DEFB 
+
++89,+69,+14,+F6,+24 
+
+466.16 
+
+A# 
+
+DEFB 
+
++89,+76,+F1 ,+10, +05 
+
+493.88 
+
+B 
+
+
+THE 'PROGRAM NAME' SUBROUTINE (ZX81) 
+
+The following subroutine applies to the ZX81 and was not removed when the program was rewritten for the SPECTRUM. 
+
+
+04 AA DEFB 
+
+DEFB 
+DEFB 
+DEFB 
+DEFB 
+DEFB 
+
+
++CD,+FB,+24,+3A 
++3B,+5C,+87,+FA 
++8A,+1C,+E1 ,+D0 
++E5,+CD,+F1,+2B 
++62,+6B,+0D,+F8 
++09,+CB,+FE,+C9 
+
+
+14 
+
+

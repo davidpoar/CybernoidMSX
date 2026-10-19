@@ -1,0 +1,4214 @@
+# Spectrum ROM Disassembly - Expression Evaluation
+Part 2/2
+
+---
+
+
+CP 
+
++29 
+
+Is it a ')’? 
+
+
+
+JR 
+
+Z,2A48,SV-DIM 
+
+Jump forward as finished 
+counting elements. 
+
+
+
+CP 
+
++CC 
+
+Is to 'TO'? 
+
+
+
+JR 
+
+Z,29E0, SV-CH-ADD 
+
+Jump back if dealing with a 
+'slice'. 
+
+29FB 
+
+SV-MULT 
+
+PUSH 
+
+BC 
+
+Save the dimension-number 
+counter and the discriminator 
+byte. 
+
+
+
+PUSH 
+
+HL 
+
+Save the element-counter. 
+
+
+
+CALL 
+
+2AEE.DE, (DE+1) 
+
+Get a dimension-size Into DE. 
+
+
+
+EX 
+
+(SP),HL 
+
+The counter moves to HL and 
+the variable pointer is stacked. 
+
+
+
+EX 
+
+DE,HL 
+
+The counter moves to DE and 
+the dimension-size to HL. 
+
+
+
+CALL 
+
+2ACCJNT-EXP1 
+
+Evaluate the next subscript. 
+
+
+
+JR 
+
+C.2A20, REPORT-3 
+
+Give an error if out of range. 
+
+
+
+DEC 
+
+BC 
+
+The result of the evaluation is 
+
+
+decremented as the counter is to 
+
+
+146 
+
+
+
+
+
+count the elements occurring 
+before the specified element. 
+
+CALL 
+
+2AF4,GET-HL*DE 
+
+Multiply the counter by the 
+dimension-size. 
+
+ADD 
+
+HL,BC 
+
+Add the result of'INT-EXPf 
+to the present counter. 
+
+POP 
+
+DE 
+
+Fetch the variable pointer. 
+
+POP 
+
+BC 
+
+Fetch the dimension-number 
+and the discriminator byte. 
+
+DJNZ 
+
+29C3.SV-COMMA 
+
+Keep going round the loop 
+until 'B' equals zero. 
+
+
+The SYNTAX/RUN flag is checked before arrays of strings are separated from arrays of numbers. 
+
+
+BIT 
+
+7,C 
+
+Report an error if checking 
+
+2A1 2 SV-RPT-C JR 
+
+NZ,2A7A,SL-RPT-C 
+
+syntax at this point. 
+
+PUSH 
+
+HL 
+
+Save the counter. 
+
+BIT 
+
+6,C 
+
+Jump forward if handling 
+
+JR 
+
+NZ,2A2C,SV-ELEM$ 
+
+an array of strings. 
+
+When dealing with an array of numbers 
+
+the present character must be a ')'. 
+
+LD 
+
+B,D 
+
+Transfer the variable pointer 
+
+LD 
+
+C,E 
+
+to the BC register pair. 
+
+RST 
+
+001 8, GET-CHAR 
+
+Fetch the present character. 
+
+CP 
+
++29 
+
+Is it a ')'? 
+
+JR 
+
+Z,2A22, SV-NUMBER 
+
+Jump past the error report 
+unless it is needed. 
+
+Report 3 - Subscript out of range 
+
+2A20 REPORT-3 RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++02 
+
+routine. 
+
+The address of the location before the actual floating-point form can now be calculated. 
+
+2A22 SV-NUMBER RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD. 
+
+POP 
+
+HL 
+
+Fetch the counter. 
+
+LD 
+
+DE.+0005 
+
+There are 5 bytes to each 
+element in an array of numbers. 
+
+CALL 
+
+2AF4,GET-HL*DE 
+
+Compute the total number of 
+bytes before the required 
+element. 
+
+ADD 
+
+HL,BC 
+
+Make HL point to the location 
+before the required element. 
+
+RET 
+
+
+Return with this address. 
+
+
+When dealing with an array of strings the length of an element is given by the last 'dimension-size'. The appropriate parameters are 
+calculated and then passed to the calculator stack. 
+
+
+2A2C SV-ELEM$ CALL 
+
+2AEE.DE, (DE+1) 
+
+Fetch the last dimension-size. 
+
+EX 
+
+(SP),HL 
+
+The variable printer goes on the 
+stack and the counter to HL. 
+
+CALL 
+
+2AF4,GET-HL*DE 
+
+Multiply 'counter' by 
+'dimension-size'. 
+
+POP 
+
+BC 
+
+Fetch the variable pointer. 
+
+ADD 
+
+HL,BC 
+
+This gives HL pointing to the 
+location before the string. 
+
+INC 
+
+HL 
+
+So point to the actual 'start'. 
+
+LD 
+
+B,D 
+
+Transfer the last dimension- 
+
+LD 
+
+C,E 
+
+size to BC to form the 'length'. 
+
+EX 
+
+DE,HL 
+
+Move the 'start' to DE. 
+
+CALL 
+
+2AB1 .STK-ST-0 
+
+Pass these parameters to the 
+calculator stack. Note: The first 
+
+
+
+parameter is zero indicating a 
+string from an 'array of strings' 
+
+
+147 
+
+
+
+and hence the existing entry is 
+not to be reclaimed. 
+
+There are three possible forms of the last subscript. The first is illustrated by - A$(2,4 TO 8) the second by - A$(2)(4 TO 8) - and the 
+third by - A$(2) - which is the default form and indicates that the whole string is required. 
+
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the present character. 
+
+
+
+CP 
+
++29 
+
+Is it a ')'? 
+
+
+
+JR 
+
+Z,2A48, SV-DIM 
+
+Jump if it is so. 
+
+
+
+CP 
+
++2C 
+
+Is it a ','? 
+
+
+
+JR 
+
+NZ.2A20, REPORT-3 
+
+Report the error if not so. 
+
+2A45 
+
+SV-SLICE 
+
+CALL 
+
+2A52, SLICING 
+
+Use SLICING to modify the 
+set of parameters. 
+
+2A48 
+
+SV-DIM 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Fetch the next character. 
+
+2A49 
+
+SV-SLICE? 
+
+CP 
+
++28 
+
+Is It a '('? 
+
+
+
+JR 
+
+Z,2A45, SV-SLICE 
+
+Jump back if there is a 
+
+
+'slice' to be considered. 
+
+When finished considering the last subscript a return can be made. 
+
+RES 6, (FLAGS) Signal - string result. 
+
+RET Return with the parameters of 
+
+the required string forming a 
+'last value' on the calculator 
+stack. 
+
+THE 'SLICING' SUBROUTINE 
+
+The present string can be sliced using this subroutine. The subroutine is entered with the parameters of the string being present on the 
+top of the calculator stack and in the registers A, B, C, D & E. Initially the SYNTAX/RUN flag is tested and the parameters of the string 
+are fetched only if a line is being executed. 
+
+
+2A52 SLICING CALL 
+
+2530,SYNTAX-Z 
+
+Check the flag. 
+
+CALL 
+
+NZ,2BF1,STK-FETCH 
+
+Take the parameters off the 
+stack in 'run-time'. 
+
+The possibility of the 'slice' being '()' 
+
+has to be considered. 
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the next character. 
+
+CP 
+
++29 
+
+Is it a ')'? 
+
+JR 
+
+Z,2AAD,SL-STORE 
+
+Jump forward if it is so. 
+
+Before proceeding the registers are manipulated as follows: 
+
+
+PUSH 
+
+DE 
+
+The 'start' goes on the 
+machine stack. 
+
+XOR 
+
+A 
+
+The A register is cleared 
+
+PUSH 
+
+AF 
+
+and saved. 
+
+PUSH 
+
+BC 
+
+The 'length' is saved briefly. 
+
+LD 
+
+DE,+0001 
+
+Presume that the 'slice' is to 
+begin with the first character. 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the first character. 
+
+POP 
+
+HL 
+
+Pass the 'length' to HL. 
+
+The first parameter of the 'slice' is now evaluated. 
+
+
+CP 
+
++CC 
+
+Is the present character a 
+'TO'? 
+
+JR 
+
+Z,2A81 ,SL-SECOND 
+
+The first parameter, by default, 
+will be T if the jump is taken. 
+
+POP 
+
+AF 
+
+At this stage A is zero. 
+
+CALL 
+
+2ACDJNT-EXP2 
+
+BC is made to hold the first 
+parameter. A will hold +FF if 
+there has been an 'out of range' 
+error. 
+
+PUSH 
+
+AF 
+
+Save the value anyway. 
+
+LD 
+
+D,B 
+
+Transfer the first parameter 
+
+LD 
+
+E,C 
+
+to DE. 
+
+PUSH 
+
+HL 
+
+Save the 'length' briefly. 
+
+
+148 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the present character. 
+
+POP 
+
+HL 
+
+Restore the ’length'. 
+
+CP 
+
++CC 
+
+Is the present character a ’TO’? 
+
+JR 
+
+Z.2A81, SL-SECOND 
+
+Jump forward to consider the 
+second parameter if it is so; 
+
+CP +29 otherwise show that there is 
+
+2A7A SL-RPT-C JP 
+
+NZ,1C8A,REPORT-C 
+
+a closing bracket. 
+
+At this point a 'slice' of a single character has been identified, e.g. 
+
+- A$(4). 
+
+LD 
+
+H,D 
+
+The last character of the ’slice' 
+
+LD 
+
+L,E 
+
+is also the first character. 
+
+JR 
+
+2A94, SL-DEFINE 
+
+Jump forward. 
+
+The second parameter of a 'slice' is now evaluated. 
+
+
+2A81 SL-SECOND PUSH 
+
+HL 
+
+Save the 'length' briefly. 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the next character. 
+
+POP 
+
+HL 
+
+Restore the 'length'. 
+
+CP 
+
++29 
+
+Is the present character a 
+
+'V? 
+
+JR 
+
+Z,2A94, SL-DEFINE 
+
+/ • 
+
+Jump if there is not a 
+second parameter. 
+
+POP 
+
+AF 
+
+If the first parameter was in 
+range A will hold zero; 
+otherwise +FF. 
+
+CALL 
+
+2ACDJNT-EXP2 
+
+Make BC hold the second 
+parameter. 
+
+PUSH 
+
+AF 
+
+Save the 'error register'. 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the present character. 
+
+LD 
+
+H,B 
+
+Pass the result obtained from 
+
+LD 
+
+L,C 
+
+INT-EXP2 to the HL register 
+pair. 
+
+CP 
+
++29 
+
+Check that there is a closing 
+
+JR 
+
+NZ,2A7A, SL-RPT-C 
+
+bracket now. 
+
+The 'new' parameters are now defined. 
+
+2A94 SL-DEFINE POP 
+
+AF 
+
+Fetch the 'error register'. 
+
+EX 
+
+(SP),HL 
+
+The second parameter goes on 
+the stack and the ’start’ goes to 
+
+HL. 
+
+ADD 
+
+HL,DE 
+
+The first parameter is added 
+to the ’start’. 
+
+DEC 
+
+HL 
+
+Go back a location to get it 
+correct. 
+
+EX 
+
+(SP),HL 
+
+The ’new start' goes on the 
+stack and the second parameter 
+goes to HL. 
+
+AND 
+
+A 
+
+Subtract the first parameters 
+
+SBC 
+
+HL.DE 
+
+from the second to find the 
+length of the 'slice'. 
+
+LD 
+
+BC,+0000 
+
+Initialise the 'new length'. 
+
+JR 
+
+C,2AA8, SL-OVER 
+
+A negative 'slice' is a 'null 
+string’ rather than an error 
+condition. (See manual.) 
+
+INC 
+
+HL 
+
+Allow for the inclusive byte. 
+
+AND 
+
+A 
+
+Only now test the 'error 
+register'. 
+
+JP 
+
+M,2A20, REPORT-3 
+
+Jump if either parameter was 
+out of range for the string. 
+
+LD 
+
+B,H 
+
+Transfer the 'new length' 
+
+LD 
+
+C,L 
+
+to BC. 
+
+2AA8 SL-OVER POP 
+
+DE 
+
+Get the 'new start'. 
+
+RES 
+
+6, (FLAGS) 
+
+Ensure that a string is still 
+indicated. 
+
+
+149 
+
+
+
+2AAD SL-STORE CALL 
+RET 
+
+
+2530,SYNTAX-Z 
+
+Z 
+
+
+Return at this point if 
+checking syntax; otherwise 
+continue into the STK-STORE 
+subroutine. 
+
+
+THE 'STK-STORE' SUBROUTINE 
+
+This subroutine passes the values held in the A, B, C, D & E registers to the calculator stack. The stack thereby grows in size by 5 
+bytes with every call to this subroutine. 
+
+The subroutine is normally used to transfer the parameters of strings but it is also used by STACK-BC and LOG (2 A A) to transfer 'small 
+integers' to the stack. 
+
+Note that when storing the parameters of a string the first value stored (coming from the A register) will be a zero if the string comes 
+from an array of strings or is a ’slice' of a string. The value will be T for a complete simple string. This 'flag' is used in the 'LET' 
+command routine when the '1 ' signals that the old copy of the string is to be 'reclaimed'. 
+
+
+2AB1 
+
+STK-ST-0 
+
+XOR 
+
+A 
+
+Signal - a string from an 
+array of strings or a ’sliced’ 
+string. 
+
+2AB2 
+
+STK-STO-$ 
+
+RES 
+
+6, (FLAGS) 
+
+Ensure the flag Indicates a 
+string result. 
+
+2AB6 
+
+STK-STORE 
+
+PUSH 
+
+BC 
+
+Save B & C briefly. 
+
+
+
+CALL 
+
+33A9,TEST-5-SP 
+
+Is there room for 5 bytes? 
+
+Do not return here unless there 
+is room available. 
+
+
+
+POP 
+
+BC 
+
+Restore B & C. 
+
+
+
+LD 
+
+HL,(STKEND) 
+
+Fetch the address of the first 
+location above the present 
+stack. 
+
+
+
+LD 
+
+(HL),A 
+
+Transfer the first byte. 
+
+
+
+INC 
+
+HL 
+
+Step on. 
+
+
+
+LD 
+
+(HL),E 
+
+Transfer the second and 
+
+
+
+INC 
+
+HL 
+
+third bytes; for a string 
+
+
+
+LD 
+
+(HL),D 
+
+these will be the ’start'. 
+
+
+
+INC 
+
+HL 
+
+Step on. 
+
+
+
+LD 
+
+(HL),C 
+
+Transfer the fourth and 
+
+
+
+INC 
+
+HL 
+
+fifth bytes; for a string 
+
+
+
+LD 
+
+(HL),B 
+
+these will be the 'length'. 
+
+
+
+INC 
+
+HL 
+
+Step on so as to point to the 
+location above the stack. 
+
+
+
+LD 
+
+(STKEND),HL 
+
+Save this address In STKEND 
+
+
+
+RET 
+
+
+and return. 
+
+
+THE 'INT-EXP' SUBROUTINE 
+
+This subroutine returns the result of evaluating the 'next expression’ as an integer value held in the BC register pair. The subroutine 
+also tests this result against a limit-value supplied in the HL register pair. The carry flag becomes set if there is an 'out of range' error. 
+The A register is used as an 'error register' and holds +00 of there is no 'previous error' and +FF if there has been one. 
+
+
+2ACC INT-EXP1 
+
+XOR 
+
+A 
+
+Clear the ’error register'. 
+
+2ACD INT-EXP2 
+
+PUSH 
+
+DE 
+
+Save both the DE & HL 
+
+
+PUSH 
+
+HL 
+
+register pairs throughout. 
+
+
+PUSH 
+
+AF 
+
+Save the ’error register' 
+briefly. 
+
+
+CALL 
+
+1C82.EXPT-1NUM 
+
+The 'next expression' is 
+evaluated to give a 'last value' 
+on the calculator stack. 
+
+
+POP 
+
+AF 
+
+Restore the 'error register'. 
+
+
+CALL 
+
+2530.SYNTAX-Z 
+
+Jump forward if checking 
+
+
+150 
+
+
+
+JR 
+
+Z,2AEB, l-RESTORE 
+
+PUSH 
+
+AF 
+
+CALL 
+
+1 E99.FIND-INT2 
+
+POP 
+
+DE 
+
+LD 
+
+A,B 
+
+OR 
+
+C 
+
+SCF 
+
+
+JR 
+
+Z,2AE8, l-CARRY 
+
+POP 
+
+HL 
+
+PUSH 
+
+HL 
+
+
+AND A 
+
+SBC HL,BC 
+
+
+syntax. 
+
+Save the error register again. 
+
+The 'last value' is 
+compressed Into BC. 
+
+Error register to D. 
+
+A 'next expression’ that 
+gives zero is always in 
+error so jump forward if it 
+is so. 
+
+Take a copy of the 
+limit-value. This will be a 
+'dimension-size' a 'DIM-limit' 
+or a 'string length'. 
+
+Now compare the result of 
+evaluating the expression against 
+the limit. 
+
+
+The state of the carry flag and the value held in the D register are now manipulated so as to give the appropriate value for the 'error 
+register'. 
+
+2AE8 l-CARRY LD A,D Fetch the 'old error value' 
+
+SBC A, +00 Form the 'new error value'; 
+
++00 if no error at anytime/ 
+
++FF or less if an 'out of 
+range' error on this pass or on 
+previous ones. 
+
+Restore the registers before returning. 
+
+
+2AEB l-RESTORE POP HL 
+
+POP DE 
+
+RET 
+
+
+Restore HL & DE. 
+
+Return; 'error register’ is the 
+A register. 
+
+
+THE 'DE,(DE+1)' SUBROUTINE 
+
+This subroutine performs the construction - LD DE,(DE+1) - and returns HL pointing to 'DE+2'. 
+
+
+DE,(DE+1) EX 
+
+DE,HL 
+
+Use HL for the construe 
+
+INC 
+
+HL 
+
+Point to 'DE+1 '. 
+
+LD 
+
+E,(HL) 
+
+In effect -LD E,(DE+1). 
+
+INC 
+
+HL 
+
+Point to 'DE+2'. 
+
+LD 
+
+D,(HL) 
+
+In effect - LD D,(DE+2). 
+
+RET 
+
+
+Finished. 
+
+
+THE 'GET-HL*DE' SUBROUTINE 
+
+Unless syntax is being checked this subroutine calls 'HL=HL*DE' which performs the implied construction. 
+
+Overflow of the 1 6 bits available in the HL register pair gives the report 'out of memory'. This is not exactly the true situation but it 
+implies that the memory is not large enough for the task envisaged by the programmer. 
+
+
+2AF4 GET-HL*DE CALL 
+
+2530,SYNTAX-Z 
+
+Return directly if syntax is 
+
+RET 
+
+Z 
+
+being checked. 
+
+CALL 
+
+30A9,HL=HL*DE 
+
+Perform the multiplication. 
+
+JP 
+
+C,1 FI 5, REPORT-4 
+
+Report 'Out of memory'. 
+
+RET 
+
+
+Finished. 
+
+
+THE 'LET' COMMAND ROUTINE 
+
+This is the actual assignment routine for the LET, READ and INPUT commands. 
+
+When the destination variable is a 'newly declared variable' then DEST will point to the first letter of the variable's name as it occurs in 
+the BASIC line. Bit 1 of FLAGX will be set. 
+
+However if the destination variable 'exists already' then bit 1 of FLAGX will be reset and DEST will point for a numeric variable to the 
+location before the five bytes of the 
+
+
+151 
+
+
+
+'old number'; and for a string variable to the first location of the 'old string'. The use of DEST in this manner applies to simple variables 
+and to elements of arrays. 
+
+Bit 0 of FLAGX is set if the destination variable is a 'complete' simple string variable. (Signalling - delete the old copy.) 
+
+Initially the current value of DEST is collected and bit 1 of FLAGS tested. 
+
+
+2AFF 
+
+LET 
+
+LD 
+
+HL,(DEST) 
+
+Fetch the present address in 
+DEST. 
+
+
+
+BIT 
+
+1, (FLAGX) 
+
+Jump if handling a variable 
+
+
+
+JR 
+
+Z,2B66,L-EXISTS 
+
+that ’exists already’. 
+
+
+A 'newly declared variable’ is being used. So first the length of its name is found. 
+
+LD BC.+0005 Presume dealing with a 
+
+numeric variable - 5 bytes. 
+
+Enter a loop to deal with the characters of a long name. Any spaces or colour codes in the name are ignored. 
+
+
+2B0B L-EACH-CH INC 
+
+BC 
+
+Add T to the counter for 
+each character of a name. 
+
+2B0C L-NO-SP INC 
+
+HL 
+
+Move along the variable's name. 
+
+LD 
+
+A,(HL) 
+
+Fetch the 'present code'. 
+
+CP 
+
++20 
+
+Jump back if it is a 'space'; 
+
+JR 
+
+Z,2B0C, L-NO-SP 
+
+thereby Ignoring spaces. 
+
+JR 
+
+NC,2B1 F.L-TEST-CH 
+
+Jump forward if the code is 
++21 to +FF. 
+
+CP 
+
++10 
+
+Accept, as a final code, those 
+
+JR 
+
+C,2B29,L-SPACES 
+
+in the range +00 to +0F. 
+
+CP 
+
++16 
+
+Also accept the range 
+
+JR 
+
+NC,2B29,L-SPACES 
+
++16 to +1 F. 
+
+INC 
+
+HL 
+
+Step past the control code 
+after any of INK to OVER. 
+
+JR 
+
+2B0C, L-NO-SP 
+
+Jump back as these control 
+codes are treated as spaces. 
+
+
+Separate 'numeric' and 'string' names. 
+
+
+
+2B1 F L-TEST -CH CALL 
+
+2C88,ALPHANUM 
+
+Is the code alphanumeric? 
+
+JR 
+
+C,2B0B, L-EACH-CH 
+
+If It is so then accept it as 
+a character of a 'long' name. 
+
+CP 
+
++24 
+
+Is the present code a 'S'? 
+
+JP 
+
+Z,2BC0,L-NEWS 
+
+Jump forward as handling a 
+'newly declared' simple string. 
+
+
+The 'newly declared numeric variable’ presently being handled will require ’BC spaces in the variables area for its name and its value. 
+The room is made available and the name of the variable is copied over with the characters being 'marked' as required. 
+
+
+LD 
+
+A,C 
+
+Copy the 'length' to A. 
+
+LD 
+
+HL, (E-LINE) 
+
+Make HL point to the 
+
+DEC 
+
+HL 
+
+'80-byte' at the end of the 
+variables area. 
+
+CALL 
+
+1655, MAKE-ROOM 
+
+Now open up the variables area. 
+Note: In effect 'BC' spaces are 
+made before the displaced 
+'80-byte'. 
+
+INC 
+
+HL 
+
+Point to the first 'new' byte. 
+
+INC 
+
+HL 
+
+Make DE point to the second 
+
+EX 
+
+DE,HL 
+
+'new' byte. 
+
+PUSH 
+
+DE 
+
+Save this pointer. 
+
+LD 
+
+HL,(DEST) 
+
+Fetch the pointer to the 
+start of the name. 
+
+DEC 
+
+DE 
+
+Make DE point to the first 
+'new' byte. 
+
+SUB 
+
++06 
+
+Make B hold the 'number of 
+
+LD 
+
+B,A 
+
+extra letters' that are found 
+in a 'long name'. 
+
+
+152 
+
+
+
+JR 
+
+
+Z,2B4F,L-SINGLE 
+
+
+Jump forward if dealing with 
+a variable with a 'short name'. 
+
+
+The 'extra' codes of a long name are passed to the variables area. 
+
+
+2B3E L-CHAR 
+
+INC 
+
+HL 
+
+Point to each ’extra' code. 
+
+
+LD 
+
+A,(HL) 
+
+Fetch the code. 
+
+
+CP 
+
++21 
+
+Accept codes from +21 to +FF; 
+
+
+JR 
+
+C,2B3E, L-CHAR 
+
+ignore codes +00 to +20. 
+
+
+OR 
+
++20 
+
+Set bit 5, as for lower case 
+letters. 
+
+
+INC 
+
+DE 
+
+Transfer the codes in turn 
+
+
+LD 
+
+(DE),A 
+
+to the 2nd ’new' byte 
+onwards. 
+
+
+DJNZ 
+
+2B3E, L-CHAR 
+
+Go round the loop for all the 
+'extra' codes. 
+
+The last code of a 'long' name has to be 
+
+ORed with +80. 
+
+
+
+OR 
+
++80 
+
+Mark the code as required 
+
+
+LD 
+
+(DE),A 
+
+and overwrite the last code. 
+
+The first letter of the name of the variable being handled is now considered. 
+
+
+LD 
+
+A,+C0 
+
+Prepare the mark the letter 
+of a 'long' name. 
+
+2B4F L-SINGLE 
+
+LD 
+
+HL,(DEST) 
+
+Fetch the pointer to the letter. 
+
+
+XOR 
+
+(HL) 
+
+A holds +00 for a 'short' 
+name and +C0 for a ’long' name. 
+
+
+OR 
+
++20 
+
+Set bit 5, as for lower case 
+letters. 
+
+
+POP 
+
+HL 
+
+Drop the pointer now. 
+
+
+The subroutine L-FIRST is now called to enter the ’letter' into its appropriate location. 
+
+CALL 2BEA, L-FIRST Enter the letter and return 
+
+with FHL pointing to 'new 
+80-byte'. 
+
+The last value' can now be transferred to the variables area. Note that at this point HL always points to the location after the five 
+locations allotted to the number. 
+
+A 'RST 0028' instruction is used to call the CALCULATOR and the 'last value' is deleted. Flowever this value is not overwritten. 
+
+
+L-NUMERIC PUSH 
+
+HL 
+
+Save the ’destination’ pointer. 
+
+RST 
+
+0028,FP-CALC 
+
+Use the calculator. 
+
+DEFB 
+
++02, delete 
+
+This moves STKEND back five 
+
+DEFB 
+
++38, end-calc 
+
+bytes. 
+
+POP 
+
+HL 
+
+Restore the pointer. 
+
+LD 
+
+BC.+0005 
+
+Give the number a length' 
+of five bytes. 
+
+AND 
+
+A 
+
+Make HL point to the first 
+
+SBC 
+
+HL,BC 
+
+of the five locations and 
+
+JR 
+
+2BA6,L-ENTER 
+
+jump forward to make the 
+actual transfer. 
+
+
+Come here if considering a variable that 'exists already'. First bit 6 of FLAGS is tested so as to separate numeric variables from string 
+or array of string variables. 
+
+2B66 L-EXISTS BIT 6, (FLAGS) Jump forward if handling any 
+
+JR Z,2B72,L-DELETES kind of string variable. 
+
+For numeric variables the 'new' number overwrites the 'old' number. So first FHL has to be made to point to the location after the five 
+bytes of the existing entry. At present FHL points to the location before the five bytes. 
+
+LD DE,+0006 The five bytes of a number +T. 
+
+ADD FIL.DE FHL now points 'after'. 
+
+JR 2B59,L-NUMERIC Jump back to make the actual 
+
+transfer. 
+
+
+153 
+
+
+
+The parameters of the string variable are fetched and complete simple strings separated from 'sliced' strings and array strings. 
+
+
+2B72 
+
+L-DELETE$ LD 
+
+HL,(DEST) 
+
+Fetch the 'start'. Note: This 
+line is redundant. 
+
+
+LD 
+
+BC.(STRLEN) 
+
+Fetch the 'length'. 
+
+
+BIT 
+
+0,(FLAGX) 
+
+Jump if dealing with a complete 
+
+
+JR 
+
+NZ,2BAF,L-ADD$ 
+
+simple string; the old string will 
+need to be ’deleted’ in this case 
+only. 
+
+
+When dealing with a 'slice' of an existing simple string, a 'slice' of a string from an array of strings or a complete string from an array of 
+strings there are two distinct stages involved. The first is to build up the 'new' string in the work space, lengthening or shortening it as 
+required. The second stage is then to copy the 'new' string to its allotted room in the variables area. 
+
+However do nothing if the string has no 'length'. 
+
+LD A,B Return if the string is 
+
+OR C a null string. 
+
+RET Z 
+
+Then make the required number of spaces available in the work space. 
+
+
+PUSH 
+
+HL 
+
+Save the 'start' (DEST). 
+
+RST 
+
+0030,BC-SPACES 
+
+Make the necessary amount of 
+room in the work space. 
+
+PUSH 
+
+DE 
+
+Save the pointer to the 
+first location. 
+
+PUSH 
+
+BC 
+
+Save the 'length' for use later 
+on. 
+
+LD 
+
+D,H 
+
+Make DE point to the last 
+
+LD 
+
+E,L 
+
+location. 
+
+INC 
+
+HL 
+
+Make HL point 'one past’ the 
+new locations. 
+
+LD 
+
+LDDR 
+
+(HL),+20 
+
+Enter a 'space' character. 
+
+Copy this character into all the 
+new locations. Finish with HL 
+pointing to the first new 
+location. 
+
+
+The parameters of the string being handled are now fetched from the calculator stack. 
+
+PUSH HL Save the pointer briefly. 
+
+CALL 2BF1 ,STK-FETCH Fetch the 'new' parameters. 
+
+POP HL Restore the pointer. 
+
+Note: At this point the required amount of room has been made available in the work space for the 'variable in assignment’, e.g. For 
+statement - LET A$(4 to 8)="abcdefg" - five locations have been made. 
+
+The parameters fetched above as a 'last value' represent the string that is to be copied into the new locations with Procrustean 
+lengthening or shortening as required. 
+
+The length of the 'new' string is compared to the length of the room made available for it. 
+
+
+2B9B 
+
+
+L-LENGTH 
+
+
+EX 
+
+(SP),HL 
+
+'Length' of new area to HL. 
+'Pointer' to new area to stack. 
+
+AND 
+
+A 
+
+Compare the two 'lengths' 
+
+SBC 
+
+HL,BC 
+
+and jump forward if the 'new' 
+
+ADD 
+
+HL.BC 
+
+string will fit into the room. 
+
+JR 
+
+NC,2B9B, L-LENGTH 
+
+i.e. No shortening required. 
+
+LD 
+
+B,H 
+
+However modify the 'new' 
+
+LD 
+
+C,L 
+
+length if it is too long. 
+
+EX 
+
+(SP),HL 
+
+'Length' of new area to stack. 
+'Pointer' to new area to HL. 
+
+
+As long as the new string is not a 'null string' it is copied into the work space. Procrustean lengthening is achieved automatically if the 
+'new' string is shorter than the room available for it. 
+
+
+154 
+
+
+
+EX 
+
+DE,HL 
+
+'Start' of new string to HL. 
+'Pointer' to new area to DE. 
+
+LD 
+
+A,B 
+
+Jump forward if the 
+
+OR 
+
+C 
+
+'new' string is a 'null' 
+
+JR 
+
+Z,2BA3,L-IN-W/S 
+
+string. 
+
+LDIR 
+
+
+Otherwise move the 'new' 
+string to the work space. 
+
+
+The values that have been saved on the machine stack are restored. 
+
+
+2BA3 
+
+L-IN-W/S 
+
+POP 
+
+BC 
+
+'Length' of new area. 
+
+
+
+POP 
+
+DE 
+
+'Pointer' to new area. 
+
+
+
+POP 
+
+HL 
+
+The start - the pointer 
+
+
+to the 'variable in assignment' 
+which was originally in DEST. 
+L-ENTER is now used to pass 
+the ’new’ string to the variables 
+area. 
+
+
+THE 'L-ENTER' SUBROUTINE 
+
+This short subroutine is used to pass either a numeric value, from the calculator stack, or a string, from the work space, to its 
+appropriate position in the variables area. 
+
+The subroutine is therefore used for all except 'newly declared' simple strings and 'complete & existing' simple strings. 
+
+
+2BA6 L-ENTER EX 
+
+DE,HL 
+
+Change the pointers over. 
+
+LD 
+
+A,B 
+
+Check once again that the 
+
+OR 
+
+C 
+
+length is not zero. 
+
+RET 
+
+Z 
+
+
+PUSH 
+
+DE 
+
+Save the destination pointer. 
+
+LDIR 
+
+
+Move the numeric value or the 
+
+POP 
+
+HL 
+
+string 
+
+Return with the HL register 
+
+RET 
+
+
+pair pointing to the first byte 
+
+THE LET SUBROUTINE CONTINUES HERE 
+
+of the numeric value or the 
+string. 
+
+When handling a 'complete & existing' simple string the new string is entered as if it were a 'newly declared' simple string before the 
+
+existing version is 'reclaimed'. 
+
+2BAF L-ADD$ DEC 
+
+HL 
+
+Make HL point to the letter 
+
+DEC 
+
+HL 
+
+of the variable's name. 
+
+DEC 
+
+HL 
+
+i.e. DEST -3. 
+
+LD 
+
+A,(HL) 
+
+Pick up the letter. 
+
+PUSH 
+
+HL 
+
+Save the pointer to the 'existing 
+
+PUSH 
+
+BC 
+
+version'. 
+
+Save the 'length' of the 
+
+CALL 
+
+2BC6,L-STRING 
+
+'existing string'. 
+
+Use L-STRING to add the new 
+
+POP 
+
+BC 
+
+string to the variables area. 
+
+Restore the 'length'. 
+
+POP 
+
+HL 
+
+Restore the pointer. 
+
+INC 
+
+BC 
+
+Allow one byte for the letter 
+
+INC 
+
+BC 
+
+and two bytes for the length. 
+
+INC 
+
+BC 
+
+
+JP 
+
+19E8, RECLAIM-2 
+
+Exit by jumping to RECLAIM-2 
+
+'Newly declared’ simple strings are handled as follows: 
+
+which will reclaim the whole 
+of the existing version. 
+
+2BC0 L-NEW$ LD 
+
+A,+DF 
+
+Prepare for the marking of 
+
+
+the variable's letter. 
+
+
+155 
+
+
+
+LD 
+
+
+HL,(DEST) 
+
+(HL) 
+
+
+AND 
+
+
+Fetch the pointer to the 
+letter. 
+
+Mark the letter as required. 
+L-STRING is now used to add 
+the new string to the variables 
+area. 
+
+
+THE 'L-STRING' SUBROUTINE 
+
+The parameters of the 'new' string are fetched, sufficient room is made available for it and the string is then transferred. 
+
+
+L-STRING PUSH 
+
+AF 
+
+Save the variable's letter 
+
+CALL 
+
+2BF1 ,STK-FETCH 
+
+Fetch the 'start' and the 
+'length' of the 'new' string. 
+
+EX 
+
+DE.HL 
+
+Move the 'start' to HL. 
+
+ADD 
+
+HL,BC 
+
+Make HL point 'one-past' the 
+string. 
+
+PUSH 
+
+BC 
+
+Save the 'length'. 
+
+DEC 
+
+HL 
+
+Make HL point to the end of 
+the string. 
+
+LD 
+
+(DEST),HL 
+
+Save the pointer briefly. 
+
+INC 
+
+BC 
+
+Allow one byte for the letter 
+
+INC 
+
+BC 
+
+and two bytes for the length. 
+
+INC 
+
+BC 
+
+
+LD 
+
+HL, (E-LINE) 
+
+Make HL point to the 
+
+DEC 
+
+HL 
+
+'80-byte' at the end of the 
+variables area. 
+
+CALL 
+
+1655, MAKE-ROOM 
+
+Now open up the variables area. 
+Note: In effect 'BC' spaces are 
+made before the displaced 
+'80-byte'. 
+
+LD 
+
+HL,(DEST) 
+
+Restore the pointer to the 
+end of the 'new' string. 
+
+POP 
+
+BC 
+
+Make a copy of the length 
+
+PUSH 
+
+BC 
+
+of the 'new' string. 
+
+INC 
+
+BC 
+
+Add one to the length in case 
+the 'new' string is a 'null' 
+string. 
+
+LDDR 
+
+
+Now copy the 'new' string + 
+one byte. 
+
+EX 
+
+DE,HL 
+
+Make HL point to the byte 
+
+INC 
+
+HL 
+
+that is to hold the high-length. 
+
+POP 
+
+BC 
+
+Fetch the 'length 1 . 
+
+LD 
+
+(HL),B 
+
+Enter the high-length. 
+
+DEC 
+
+HL 
+
+Back one. 
+
+LD 
+
+(HL),C 
+
+Enter the low-length. 
+
+POP 
+
+AF 
+
+Fetch the variable’s letter. 
+
+
+THE 'L-FIRST' SUBROUTINE 
+
+This subroutine is entered with the letter of the variable, suitably marked, in the A register. The letter overwrites the 'old 80-byte' in the 
+variables area. The subroutine returns with the HL register pair pointing to the 'new 80-byte'. 
+
+
+L-FIRST 
+
+DEC 
+
+HL 
+
+Make HL point to the 'old 
+80-byte'. 
+
+
+LD 
+
+(HL),A 
+
+It is overwritten with the 
+letter of the variable. 
+
+
+LD 
+
+HL, (E-LINE) 
+
+Make HL point to the 'new 
+80-byte'. 
+
+
+DEC 
+
+RET 
+
+HL 
+
+Finished with all the 
+'newly declared variables'. 
+
+
+156 
+
+
+
+THE 'STK-FETCH' SUBROUTINE 
+
+This important subroutine collects the 'last value' from the calculator stack. The five bytes can be either a floating-point number, in 
+'short' or ’long' form, or set of parameters that define a string. 
+
+
+STK-FETCH LD 
+
+HL,(STKEND) 
+
+Get STKEND. 
+
+DEC 
+
+HL 
+
+Back one; 
+
+LD 
+
+B,(HL) 
+
+The fifth value. 
+
+DEC 
+
+HL 
+
+Back one. 
+
+LD 
+
+C,(HL) 
+
+The fourth one. 
+
+DEC 
+
+HL 
+
+Back one. 
+
+LD 
+
+D,(HL) 
+
+The third value. 
+
+DEC 
+
+HL 
+
+Back one. 
+
+LD 
+
+E,(HL) 
+
+The second value. 
+
+DEC 
+
+HL 
+
+Back one. 
+
+LD 
+
+A,(HL) 
+
+The first value. 
+
+LD 
+
+(STKEND).HL 
+
+Reset STKEND to its new 
+position 
+
+RET 
+
+
+Finished. 
+
+
+THE ’DIM’ COMMAND ROUTINE 
+
+This routine establishes new arrays in the variables area. The routine starts by searching the existing variables area to determine 
+whether there is an existing array with the same name. If such an array is found then it is 'reclaimed' before the new array is 
+established. 
+
+A new array will have all its elements set to zero, if it is a numeric array, or to 'spaces', if it is an array of strings. 
+
+
+2C02 DIM CALL 
+
+2C05 D-RPORT-C JP 
+
+CALL 
+
+JR 
+
+RES 
+
+CALL 
+
+CALL 
+
+
+An 'existing array' is reclaimed. 
+
+
+28B2, LOOK- VARS 
+NZ,1C8A,REPORT-C 
+
+2530,SYNTAX-Z 
+NZ,2C1 5,D-RUN 
+6,C 
+
+2996,STK-VAR 
+1BEE, CHECK-END 
+
+
+Search the variables area. 
+
+Give report C as there has been 
+an error. 
+
+Jump forward if in 
+'run time'. 
+
+Test the syntax for string arrays 
+as if they were numeric. 
+
+Check the syntax of the 
+parenthesised expression. 
+
+Move on to consider the 
+next statement as the syntax 
+was satisfactory. 
+
+
+2C15 
+
+D-RUN 
+
+JR 
+
+C,2C1F, D-LETTER 
+
+Jump forward if there is no 
+'existing array'. 
+
+
+
+PUSH 
+
+BC 
+
+Save the discriminator byte. 
+
+
+
+CALL 
+
+19B8, NEXT-ONE 
+
+Find the start of the next 
+variable 
+
+
+
+CALL 
+
+19E8, RECLAIM-2 
+
+Reclaim the 'existing array'. 
+
+
+
+POP 
+
+BC 
+
+Restore the discriminator byte. 
+
+The initial parameters of the new array are found. 
+
+
+2C1F 
+
+D-LETTER 
+
+SET 
+
+7,C 
+
+Set bit 7 in the discriminator 
+byte. 
+
+
+
+LD 
+
+B,+00 
+
+Make the dimension counter 
+
+
+
+
+
+zero. 
+
+
+
+PUSH 
+
+BC 
+
+Save the counter and the 
+discriminator byte. 
+
+
+
+LD 
+
+HL.+0001 
+
+The HL register pair is to 
+
+
+
+BIT 
+
+6,C 
+
+hold the size of the elements 
+
+
+
+JR 
+
+NZ.2C2D, D-SIZE 
+
+in the array, T for a string 
+
+
+
+LD 
+
+L,+05 
+
+array/ '5' for a numeric array. 
+
+2C2D 
+
+D-SIZE 
+
+EX 
+
+DE.HL 
+
+Element size DE. 
+
+
+157 
+
+
+
+The following loop is accessed for each dimension that is specified in the parenthesised expression of the DIM statement. The total 
+number of bytes required for the elements of the array is built up in the DE register pair. 
+
+
+D-NO-LOOP 
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD on each pass.. 
+
+LD 
+
+H,+FF 
+
+Set a 'limit value'. 
+
+CALL 
+
+2ACCJNT-EXP1 
+
+Evaluate a parameter. 
+
+JP 
+
+C,2A20, REPORT-3 
+
+Give an error if 'out of range'. 
+
+POP 
+
+HL 
+
+Fetch the dimension-counter 
+and the discriminator byte. 
+
+PUSH 
+
+BC 
+
+Save the parameter on each 
+pass through the loop. 
+
+INC 
+
+H 
+
+Increase the dimension counter 
+on each pass also. 
+
+PUSH 
+
+HL 
+
+Restack the dimension-counter 
+and the discriminator byte. 
+
+LD 
+
+H,B 
+
+The parameter is moved to 
+
+LD 
+
+L,C 
+
+the HL register pair. 
+
+CALL 
+
+2AF4,GET-HL*DE 
+
+The byte total is built up 
+
+EX 
+
+DE.HL 
+
+in HL and the transferred to 
+
+DE. 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the present character 
+
+CP 
+
++2C 
+
+and go around the loop again 
+
+JR 
+
+Z,2C2E, D-NO-LOOP 
+
+if there is another dimension. 
+
+)E register pair indicates the number of bytes required for the elements of the new , 
+
+n the machine stack. 
+
+
+indeed a closing bracket to the parenthesised expression. 
+
+CP 
+
++29 
+
+Is it a ')'? 
+
+JR 
+
+NZ,2C05,D-REPORT-C 
+
+Jump back if not so. 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD past it. 
+
+for the dimension-sizes. 
+
+
+POP 
+
+BC 
+
+Fetch the dimension-counter 
+and the discriminator byte. 
+
+LD 
+
+A,C 
+
+Pass the discriminator byte 
+to the A register for later. 
+
+LD 
+
+L,B 
+
+Move the counter to L. 
+
+LD 
+
+H,+00 
+
+Clear the H register. 
+
+INC 
+
+HL 
+
+Increase the dimension- 
+
+INC 
+
+HL 
+
+counter by two and double the 
+
+ADD 
+
+HL,HL 
+
+result and form the 
+
+ADD 
+
+HL,DE 
+
+correct overall length for 
+the variable by adding the 
+element byte total. 
+
+JP 
+
+C,1 FI 5, REPORT-4 
+
+Give the report 'Out of 
+memory' if required. 
+
+PUSH 
+
+DE 
+
+Save the element byte total. 
+
+PUSH 
+
+BC 
+
+Save the dimension counter 
+and the discriminator byte. 
+
+PUSH 
+
+HL 
+
+Save the overall length also. 
+
+LD 
+
+B,H 
+
+Move the overall length to BC. 
+
+LD 
+
+C,L 
+
+
+room is made available for the new array at the end of the variables area. 
+
+LD 
+
+HL, (E-LINE) 
+
+Make the HL register pair 
+
+DEC 
+
+HL 
+
+point to the '80-byte'. 
+
+CALL 
+
+1655, MAKE-ROOM 
+
+The room is made available. 
+
+INC 
+
+HL 
+
+HL is made to point to the first 
+
+
+new location. 
+
+
+The parameters are now entered. 
+
+
+158 
+
+
+
+LD 
+
+(HL),A 
+
+The letter, suitably marked, 
+is entered first. 
+
+POP 
+
+BC 
+
+The overall length is fetched 
+
+DEC 
+
+BC 
+
+and decreased by '3'. 
+
+DEC 
+
+BC 
+
+
+DEC 
+
+BC 
+
+
+INC 
+
+HL 
+
+Advance HL. 
+
+LD 
+
+(HL),C 
+
+Enter the low length. 
+
+INC 
+
+HL 
+
+Advance HL. 
+
+LD 
+
+(HL),B 
+
+Enter the high length. 
+
+POP 
+
+BC 
+
+Fetch the dimension counter. 
+
+LD 
+
+A,B 
+
+Move it to the A register. 
+
+INC 
+
+HL 
+
+Advance HL. 
+
+LD 
+
+(HL),A 
+
+Enter the dimension count. 
+
+The elements of the new array are 
+
+now 'cleared'. 
+
+
+LD 
+
+H,D 
+
+HL is made to point to the 
+
+LD 
+
+L,E 
+
+last location of the array 
+
+DEC 
+
+DE 
+
+and DE to the location before 
+that one. 
+
+LD 
+
+(HL),+00 
+
+Enter a zero into the last 
+
+BIT 
+
+6,C 
+
+location but overwrite it 
+
+JR 
+
+Z,2C7C, DIM-CLEAR 
+
+with 'space' if dealing 
+
+LD 
+
+(HL),+20 
+
+with an array of strings. 
+
+2C7C DIM-CLEAR POP 
+
+BC 
+
+Fetch the element byte total. 
+
+LDDR 
+
+
+Clear the array + one extra 
+location. 
+
+
+The 'dimension-sizes' are now entered. 
+
+
+POP 
+
+BC 
+
+Get a dimension-size. 
+
+LD 
+
+(HL),B 
+
+Enter the high byte. 
+
+DEC 
+
+HL 
+
+Back one. 
+
+LD 
+
+(HL),C 
+
+Enter the low byte. 
+
+DEC 
+
+HL 
+
+Back one. 
+
+DEC 
+
+A 
+
+Decrease the dimension 
+counter. 
+
+JR 
+
+NZ,2C7F, DIM-SIZES 
+
+Repeat the operation until all 
+the dimensions have been 
+
+RET 
+
+
+considered; then return. 
+
+
+THE 'ALPHANUM' SUBROUTINE 
+
+This subroutine returns with the carry flag set if the present value of the A register denotes a valid digit or letter. 
+
+
+2C88 
+
+ALPHANUM CALL 
+
+2D1B, NUMERIC 
+
+Test for a digit; carry will be 
+reset for a digit. 
+
+
+CCF 
+
+
+Complement the carry flag. 
+
+
+RET 
+
+C 
+
+Return if a digit; otherwise 
+continue on into 'ALPHA'. 
+
+
+THE 'ALPHA' SUBROUTINE 
+
+This subroutine returns with the carry flag set if the present value of the A register denotes a valid letter of the alphabet. 
+
+
+2C8D ALPHA CP 
+
++41 
+
+Test against 41 hex, the code 
+for 'A' 
+
+CCF 
+
+
+Complement the carry flag. 
+
+RET 
+
+NC 
+
+Return if not a valid character 
+code. 
+
+CP 
+
++5B 
+
+Test against 5B hex, 1 more 
+than code for 'Z'. 
+
+RET 
+
+C 
+
+Return if an upper case letter. 
+
+CP 
+
++61 
+
+Test against 61 hex, the code 
+for 'a'. 
+
+
+159 
+
+
+
+CCF 
+
+
+Complement the carry flag. 
+
+RET 
+
+NC 
+
+Return if not a valid character 
+code. 
+
+CP 
+
++7B 
+
+Test against 7B hex, 1 more 
+than the code for 'z'. 
+
+RET 
+
+
+Finished. 
+
+
+THE 'DECIMAL TO FLOATING POINT' SUBROUTINE 
+
+As part of syntax checking decimal numbers that occur in a BASIC line are converted to their floating-point forms. This subroutine reads 
+the decimal number digit by digit and gives its result as a 'last value' on the calculator stack. But first it deals with the alternative 
+notation BIN, which introduces a sequence of 0's and 1 's giving the binary representation of the required number. 
+
+
+2C9B 
+
+DEC-TO-FP 
+
+CP 
+
++C4 
+
+
+
+JR 
+
+NZ,2CB8,NOT-BIN 
+
+
+
+LD 
+
+DE.+0000 
+
+2CA2 
+
+BIN-DIGIT 
+
+RST 
+
+0020, NEXT-CHAR 
+
+
+
+SUB 
+
++31 
+
+
+
+ADC 
+
+A, +00 
+
+
+
+JR 
+
+NZ,2CB3, BIN-END 
+
+
+
+
+EX 
+
+DE.HL 
+
+
+
+CCF 
+
+
+
+
+ADC 
+
+HL,HL 
+
+
+
+JP 
+
+C.31AD, REPORT-6 
+
+
+
+EX 
+
+DE.HL 
+
+
+
+JR 
+
+2CA2, BIN-DIGIT 
+
+2CB3 
+
+BIN-END 
+
+LD 
+
+B,D 
+
+
+
+LD 
+
+C,E 
+
+
+
+JP 
+
+2D2B.STACK-BC 
+
+
+For other numbers, first any integer part is converted; 
+considered. 
+
+
+2CB8 
+
+NOT-BIN 
+
+CP 
+
++2E 
+
+
+
+JR 
+
+Z.2CCB, DECIMAL 
+
+
+
+CALL 
+
+2D3BJNT-TO-FP 
+
+
+
+CP 
+
++2E 
+
+
+
+JR 
+
+NZ,2CEB, E-FORMAT 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+
+
+CALL 
+
+2D1B, NUMERIC 
+
+
+
+JR 
+
+C,2CEB, E-FORMAT 
+
+
+
+JR 
+
+2CD5, DEC-STO-1 
+
+2CCB 
+
+DECIMAL 
+
+RST 
+
+0020, NEXT-CHAR 
+
+
+
+CALL 
+
+2D1B, NUMERIC 
+
+2CCF 
+
+DEC-RPT-C 
+
+JP 
+
+C,1 C8A,REPORT-C 
+
+
+
+RST 
+
+0028,FP-CALC 
+
+
+
+DEFB 
+
++A0,stk-zero 
+
+
+
+DEFB 
+
++38, end-calc 
+
+2CD5 
+
+DEC-STO-1 
+
+RST 
+
+0028,FP-CALC 
+
+
+
+DEFB 
+
++A1,stk-one 
+
+
+
+DEFB 
+
++C0,st-mem-0 
+
+
+Is the character a 'BIN'? 
+
+Jump if it is not 'BIN'. 
+
+Initialise result to zero in DE. 
+
+Get the next character. 
+
+Subtract the character code for 
+T. 
+
+0 now gives 0 with carry set; 1 
+gives 0 with carry reset. 
+
+Any other character causes a 
+jump to BIN-END and will be 
+checked for syntax during or 
+after scanning. 
+
+Result so far to FHL now. 
+
+Complement the carry flag. 
+
+Shift the result left, with the 
+carry going to bit 0. 
+
+Report overflow if more than 
+65535. 
+
+Return the result so far to DE. 
+
+Jump back for next 0 or 1 . 
+
+Copy result to BC for stacking. 
+
+Jump forward to stack the 
+result. 
+
+if the next character is a decimal, then the decimal fraction is 
+
+
+Is the first character a '.'? 
+
+If so, jump forward. 
+
+Otherwise, form a 'last value' of 
+the integer. 
+
+Is the next character a ’.'? 
+
+Jump forward to see if it is an 'E'. 
+Get the next character. 
+
+Is it a digit? 
+
+Jump if not (e.g. 1 .E4 is allowed). 
+Jump forward to deal with the 
+digits after the decimal point. 
+
+If the number started with a 
+decimal, see if the next 
+character is a digit. 
+
+Report the error if it is not. 
+
+Use the calculator to stack zero 
+as the integer part of such 
+numbers. 
+
+Use the calculator again. 
+
+Find the floating-point form of 
+the decimal number '1 ', and 
+
+
+160 
+
+
+
+
+
+DEFB 
+
++02, delete 
+
+save it in the memory area. 
+
+
+
+DEFB 
+
++38, end-calc 
+
+
+2CDA 
+
+NXT-DGT-1 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the present character. 
+
+
+
+CALL 
+
+2D22,STK-DIGIT 
+
+If it is a digit then stack it. 
+
+
+
+JR 
+
+C,2CEB, E-FORMAT 
+
+If not jump forward. 
+
+
+
+RST 
+
+0028,FP-CALC 
+
+Now use the calculator. 
+
+
+
+DEFB 
+
++E0, get-mem-0 
+
+For each passage of the loop, 
+
+
+
+DEFB 
+
++A4,stk-ten 
+
+the number saved in the memory 
+
+
+
+DEFB 
+
++05, division 
+
+area is fetched, divided by 10 
+
+
+
+DEFB 
+
++C0,st-mem-0 
+
+and restored: i.e. going from .1 
+to .01 to .001 etc. 
+
+
+
+DEFN 
+
++04, multiply 
+
+The present digit is multiplied 
+
+
+
+DEFB 
+
++0F, addition 
+
+by the 'saved number’ and 
+
+
+
+DEFB 
+
++38, end-calc 
+
+added to the 'last value'. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the next character. 
+
+
+
+JR 
+
+2CDA, NXT-DGT-1 
+
+Jump back (one more byte than 
+needed) to consider it. 
+
+Next consider any 'E notation', i.e. the form xEm or xem where m is a positive or negative integer. 
+
+2CEB 
+
+E-FORMAT 
+
+CP 
+
++45 
+
+Is the present character an 'E'? 
+
+
+
+JR 
+
+Z.2CF2, SIGN-FLAG 
+
+Jump forward if it is. 
+
+
+
+CP 
+
++65 
+
+Is it an ’e'? 
+
+
+
+RET 
+
+NZ 
+
+Finished unless it is so. 
+
+2CF2 
+
+SIGN-FLAG 
+
+LD 
+
+B.+FF 
+
+Use B as a sign flag, FF for '+'. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the next character. 
+
+
+
+CP 
+
++2B 
+
+Is it a '+’? 
+
+
+
+JR 
+
+Z,2CFE, SIGN-DONE 
+
+Jump forward. 
+
+
+
+CP 
+
++2D 
+
+Is it a '-'? 
+
+
+
+JR 
+
+NZ.2CFF, ST-E-PART 
+
+Jump if neither '+' not '-'. 
+
+
+
+INC 
+
+B 
+
+Change the sign of the flag. 
+
+2CFE 
+
+SIGN-DONE 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Point to the first digit. 
+
+2CFF 
+
+ST-E-PART 
+
+CALL 
+
+2D1B, NUMERIC 
+
+Is it indeed a digit? 
+
+
+
+JR 
+
+C,2CCF,DEC-RPT-C 
+
+Report the error if not. 
+
+
+
+PUSH 
+
+BC 
+
+Save the flag in B briefly. 
+
+
+
+CALL 
+
+2D3BJNT-TO-FP 
+
+Stack ABS m, where m is the 
+exponent. 
+
+
+
+CALL 
+
+2DD5,FP-TO-A 
+
+Transfer ABS m to A. 
+
+
+
+POP 
+
+BC 
+
+Restore the sign flag to B. 
+
+
+
+JP 
+
+C.31AD, REPORT-6 
+
+Report the overflow now if 
+
+
+
+AND 
+
+A 
+
+ABS m is greater than 255 or 
+
+
+
+JP 
+
+M, 31 AD, REPORT-6 
+
+indeed greater than 127 (other 
+values greater than about 39 will 
+be detected later). 
+
+
+
+INC 
+
+B 
+
+Test the sign flag in B; '+' 
+
+(i.e. +FF) will now set the zero 
+flag. 
+
+
+
+JR 
+
+Z.2D18, E-FP-JUMP 
+
+Jump if sign of m is '+'. 
+
+
+
+NEG 
+
+
+Negate m if sign is 
+
+2D18 
+
+E-FP-JUMP 
+
+JP 
+
+2D4F,E-TOO-FP 
+
+Jump to assign to the 'last value' 
+the result of x*10 A m. 
+
+
+THE ’NUMERIC’ SUBROUTINE 
+
+This subroutine returns with the carry flag reset if the present value of the A register denotes a valid digit. 
+
+2D1B NUMERIC CP 
+
++30 
+
+Test against 30 hex, the code 
+
+RET 
+
+C 
+
+for 'O'. 
+
+Return if not a valid character 
+
+CP 
+
++3A 
+
+code. 
+
+Test against the upper limit. 
+
+CCF 
+
+
+Complement the carry flag. 
+
+RET 
+
+
+Finished. 
+
+
+161 
+
+
+
+THE 'STK DIGIT' SUBROUTINE 
+
+This subroutine simply returns if the current value held in the A register does not represent a digit but if it does then the floating-point 
+form for the digit becomes the 'last value' on the calculator stack. 
+
+
+2D22 
+
+STK-DIGIT CALL 
+
+2D1B, NUMERIC 
+
+Is the character a digit? 
+
+
+RET 
+
+C 
+
+Return if not in range. 
+
+
+SUB 
+
++30 
+
+Replace the code by the actual 
+digit. 
+
+
+THE 'STACK-A' SUBROUTINE 
+
+This subroutine gives the floating-point form for the absolute binary value currently held in the A register. 
+
+
+2D28 
+
+STACK-A 
+
+LD 
+
+C,A 
+
+Transfer the value to the C 
+register. 
+
+
+
+LD 
+
+B,+00 
+
+Clear the B register 
+
+
+THE 'STACK-BC' SUBROUTINE 
+
+This subroutine gives the floating-point form for the absolute binary value currently held in the BC register pair. 
+
+The form used in this and hence in the two previous subroutines as well is the one reserved in the Spectrum for small integers n, where 
+-65535 <= n <= 65535. The first and fifth bytes are zero; the third and fourth bytes are the less significant and more significant bytes of 
+the 1 6 bit integer n in two's complement form (if n is negative, these two bytes hold 65536+n); and the second byte is a sign byte, 00 for 
+V and FF for 
+
+
+2D2B STACK-BC LD 
+
+IY.+5C3A 
+
+Re-initialise IY to ERR-NR. 
+
+XOR 
+
+A 
+
+Clear the A register. 
+
+LD 
+
+E,A 
+
+And the E register, to indicate 
+
+LD 
+
+D,C 
+
++ . 
+
+Copy the less significant byte to 
+
+D. 
+
+And the more significant byte 
+to C. 
+
+LD 
+
+C,B 
+
+LD 
+
+B,A 
+
+Clear the B register. 
+
+CALL 
+
+2AB6,STK-STORE 
+
+Now stack the number. 
+
+RST 
+
+0028,FP-CALC 
+
+Make HL point to 
+
+DEFB 
+
++38, end-calc 
+
+STKEND-5. 
+
+AND 
+
+A 
+
+Clear the carry flag. 
+
+RET 
+
+
+Finished. 
+
+THE 'INTEGER TO FLOATING-POINT' SUBROUTINE 
+
+
+This subroutine returns a 'last value' 
+
+on the calculator stack that is the 
+
+result of converting an integer in a BASIC line, i.e. 
+
+part of the decimal number or the line number, to its floating-point form. 
+
+Repeated calls to CFI-ADD+1 fetch each digit of the integer in turn. An exit is made when a code that does not represent 
+been fetched. 
+
+2D3B INT-TO-FP PUSH 
+
+AF 
+
+Save the first digit - in A. 
+
+RST 
+
+0028,FP-CALC 
+
+Use the calculator. 
+
+DEFB 
+
++A0,stk-zero 
+
+The 'last value' is now zero. 
+
+DEFB 
+
++38, end-calc 
+
+
+POP 
+
+AF 
+
+Restore the first digit. 
+
+
+Now a loop is set up. As long as the code represents a digit then the floating-point form is found and stacked under the 'last value’. The 
+’last value’ is then multiplied by decimal 10 and added to the 'digit' to form a new 'last value' which is carried back to the start of the 
+loop. 
+
+
+162 
+
+
+
+2D40 
+
+
+NXT-DGT-2 
+
+
+CALL 
+
+2D22.STK-DIGIT 
+
+If the code represents a digit 
+
+RET 
+
+C 
+
+then stack the floating-point 
+form. 
+
+RST 
+
+0028,FP-CALC 
+
+Use the calculator. 
+
+DEFB 
+
++01 .exchange 
+
+'Digit' goes under 'last value'. 
+
+DEFB 
+
++A4,stk-ten 
+
+Define decimal 10. 
+
+DEFB 
+
++04, multiply 
+
+'Last value' = 'last value' *1 0. 
+
+DEFB 
+
++0F, addition 
+
+'Last value' = 'last value+ 
+'digit'. 
+
+DEFB 
+
++38, end-calc 
+
+
+CALL 
+
+0074.CH-ADD+1 
+
+The next code goes into A. 
+
+JR 
+
+2D40, NXT-DGT-2 
+
+Loop back with this code. 
+
+
+163 
+
+

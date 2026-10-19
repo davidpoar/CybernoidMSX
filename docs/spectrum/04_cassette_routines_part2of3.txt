@@ -1,0 +1,6004 @@
+# Spectrum ROM Disassembly - The Cassette Handling Routines
+Part 2/3
+
+---
+
+JR 
+
+NZ, OABF, PO-AT-SET 
+
+printer. 
+
+LD 
+
+A, +16 
+
+Reverse the line number; 
+
+SUB 
+
+B 
+
+i.e. +00 - +15 becomes +16 - 
++01. 
+
+OAAC PO-AT-ERR JP 
+
+C,1 E9F.REPORT-B 
+
+If appropriate jump forward. 
+
+INC 
+
+A 
+
+The range +16 - +01 becomes 
+
+LD 
+
+B,A 
+
++17- +02. 
+
+INC 
+
+B 
+
+And now +18 - +03. 
+
+BIT 
+
+0, (TV-FLAG) 
+
+If printing in the lower part 
+
+JP 
+
+NZ,OC55,PO-SCR 
+
+of the screen then consider 
+whether scrolling is needed. 
+
+CP 
+
+(DF-SZ) 
+
+Give report 5 - Out of screen, 
+
+JP 
+
+C,0C86, REPORT-5 
+
+if required. 
+
+OABF PO-AT-SET JP 
+
+0D09.CL-SET 
+
+Return via CL-SET & PO-STORE. 
+
+And the TAB control character. 
+
+0AC2 PO-TAB LD 
+
+A,H 
+
+Fetch the first operand. 
+
+0AC3 PO-FILL CALL 
+
+0B03,PO-FETCH 
+
+The current print position. 
+
+ADD 
+
+A,C 
+
+Add the current column value. 
+
+DEC 
+
+A 
+
+Find how many ’spaces’, modulo 
+
+AND 
+
++1 F 
+
+32, are required and return 
+
+RET 
+
+Z 
+
+if the result is zero. 
+
+LD 
+
+D,A 
+
+Use 0 as the counter. 
+
+SET 
+
+0, (FLAGS) 
+
+Suppress ’leading space’. 
+
+OADO PO-SPACE LD 
+
+A, +20 
+
+Print ’D number’ of 
+
+CALL 
+
+OC3B.PO-SAVE 
+
+spaces. 
+
+DEC 
+
+D 
+
+
+JR 
+
+NZ, OADO, PO-SPACE 
+
+
+RET 
+
+
+Now finished. 
+
+
+PRINTABLE CHARACTER CODES. 
+
+The required character (or characters) is printed by calling PO-ANY followed by PO-STORE. 
+
+
+35 
+
+
+
+0AD9 PO-ABLE 
+
+
+CALL 
+
+
+OB24.PO-ANY 
+
+
+Print the character(s) 
+
+and continue into PO-STORE. 
+
+
+THE 'POSITION STORE' SUBROUTINE 
+
+The new position's 'line & column' values and the 'pixel' address are stored in the appropriate system variables. 
+
+
+OADC 
+
+PO-STORE 
+
+BIT 
+
+1, (FLAGS) 
+
+Jump forward if handling 
+
+
+
+JR 
+
+NZ, OAFC, PO-ST-PR 
+
+the printer. 
+
+
+
+BIT 
+
+0, (TV-FLAG) 
+
+Jump forward if handling the 
+
+
+
+JR 
+
+NZ, OAFO, PO-ST-E 
+
+lower part of the screen. 
+
+
+
+LD 
+
+(S-POSN),BC 
+
+Save the values that relate 
+
+
+
+LD 
+
+(DF-CC),HL 
+
+to the main part of the 
+
+
+
+RET 
+
+
+screen. Then return. 
+
+OAFO 
+
+PO-ST-E 
+
+LD 
+
+(S-POSNL).BC 
+
+Save the values that relate 
+
+
+
+LD 
+
+(ECHO-E),BC 
+
+to the lower part of the 
+
+
+
+LD 
+
+(DF-CCL).HL 
+
+screen. 
+
+
+
+RET 
+
+
+Then return. 
+
+OAFC 
+
+PO-ST-PR 
+
+LD 
+
+(P-POSN),C 
+
+Save the values that relate 
+
+
+
+LD 
+
+(PR-CC),HL 
+
+to the printer buffer. 
+
+
+
+RET 
+
+
+Then return. 
+
+THE 'POSITION FETCH' SUBROUTINE 
+
+
+The current position's parameters are fetched from the appropriate system variables. 
+
+0B03 
+
+PO-FETCH 
+
+BIT 
+
+1, (FLAGS) 
+
+Jump forward if handling 
+
+
+
+JR 
+
+NZ, OBI D, PO-F-PR 
+
+the printer. 
+
+
+
+LD 
+
+BC.(S-POSN) 
+
+Fetch the values relating 
+
+
+
+LD 
+
+HL,(DF-CC) 
+
+to the main part of the 
+
+
+
+BIT 
+
+0, (TV-FLAG) 
+
+screen and return if this 
+
+
+
+RET 
+
+Z 
+
+was the intention. 
+
+
+
+LD 
+
+BC.(S-POSNL) 
+
+Otherwise fetch the values 
+
+
+
+LD 
+
+HL.(DF-CCL) 
+
+relating to the lower part 
+
+
+
+RET 
+
+
+of the screen. 
+
+OBI D 
+
+PO-F-PR 
+
+LD 
+
+C,(P-POSN) 
+
+Fetch the values relating 
+
+
+
+LD 
+
+HL,(PR-CC) 
+
+to the printer buffer. 
+
+
+
+RET 
+
+
+
+
+THE 'PRINT ANY CHARACTER(S)' SUBROUTINE 
+
+Ordinary character codes, token codes and user-defined graphic codes, and graphic codes are dealt with separately. 
+
+
+CP 
+
++80 
+
+Jump forward with ordinary 
+
+JR 
+
+C,OB65,PO-CHAR 
+
+character codes. 
+
+CP 
+
++90 
+
+Jump forward with token 
+
+JR 
+
+NC,OB52,PO-T&UDG 
+
+codes and UDG codes. 
+
+LD 
+
+B,A 
+
+Move the graphic code. 
+
+CALL 
+
+OB38,PO-GR-1 
+
+Construct the graphic form. 
+
+CALL 
+
+0B03, PO-FETCH 
+
+HL has been disturbed so 
+’fetch' again. 
+
+LD 
+
+DE.+5C92 
+
+Make DE point to the start of the 
+graphic form; i.e. MEMBOT. 
+
+JR 
+
+OB7F.PO-ALL 
+
+Jump forward to print the 
+graphic character. 
+
+
+Graphic characters are constructed in an Ad Hoc manner in the calculator's memory area; i.e. MEM-0 & MEM-1 . 
+
+
+0B38 
+
+PO-GR-1 
+
+LD 
+
+HL.+5C92 
+
+This is MEMBOT. 
+
+
+
+CALL 
+
+0B3E, PO-GR-2 
+
+In effect call the following 
+subroutine twice. 
+
+0B3E 
+
+PO-GR-2 
+
+RR 
+
+B 
+
+Determine bit 0 (and later bit 2) 
+
+
+
+SBC 
+
+A, A 
+
+of the graphic code. 
+
+
+
+AND 
+
++0F 
+
+The A register will hold +00 or 
+
+
++0F depending on the value of 
+the bit in the code. 
+
+
+36 
+
+
+
+
+
+LD 
+
+C,A 
+
+Save the result in C. 
+
+
+
+RR 
+
+B 
+
+Determine bit 1 (and later bit 3) 
+
+
+
+SBC 
+
+A, A 
+
+of the graphic code. 
+
+
+
+AND 
+
++F0 
+
+The A register will hold +00 
+or +F0. 
+
+
+
+OR 
+
+C 
+
+The two results are combined. 
+
+
+
+LD 
+
+C,+04 
+
+The A register holds half the 
+
+0B4C 
+
+PO-GR-3 
+
+LD 
+
+(HL),A 
+
+character form and has to be 
+
+
+
+INC 
+
+HL 
+
+used four times. 
+
+
+
+DEC 
+
+C 
+
+This is done for the upper 
+
+
+
+JR 
+
+NZ.0B4C, PO-GR-3 
+
+half of the character form 
+
+
+
+RET 
+
+
+and then the lower. 
+
+Token codes and user-defined graphic codes are now separated. 
+
+
+0B52 
+
+PO-T&UDG 
+
+SUB 
+
++A5 
+
+Jump forward with token codes 
+
+
+
+JR 
+
+NC,OB5F,PO-T 
+
+
+
+
+ADD 
+
+A, +15 
+
+UDG codes are now +00 - +0F. 
+
+
+
+PUSH 
+
+BC 
+
+Save the current position 
+values on the machine stack. 
+
+
+
+LD 
+
+BC,(UDG) 
+
+Fetch the base address of the 
+
+
+
+JR 
+
+OB6A,PO-CHAR-2 
+
+UDG area and jump forward. 
+
+0B5F 
+
+PO-T 
+
+CALL 
+
+0C1 0.PO-TOKENS 
+
+Now print the token and return 
+
+
+
+JP 
+
+0B03.PO-FETCH 
+
+via PO-FETCH. 
+
+
+The required character form is identified. 
+
+
+0B65 
+
+PO-CHAR 
+
+PUSH 
+
+BC 
+
+The current position is saved. 
+
+
+
+LD 
+
+BC, (CHARS) 
+
+The base address of the 
+character area is fetched. 
+
+0B6A 
+
+PO-CHAR-2 
+
+EX 
+
+DE,HL 
+
+The print address is saved. 
+
+
+
+LD 
+
+HL.+5C3B 
+
+This is FLAGS. 
+
+
+
+RES 
+
+O.(HL) 
+
+Allow for a leading space 
+
+
+
+CP 
+
++20 
+
+Jump forward if the character 
+
+
+
+JR 
+
+NZ.0B76, PO-CHAR-3 
+
+is not a 'space'. 
+
+
+
+SET 
+
+O.(HL) 
+
+But 'suppress' if it is. 
+
+0B76 
+
+PO-CHAR-3 
+
+LD 
+
+H,+00 
+
+Now pass the character code 
+
+
+
+LD 
+
+L,A 
+
+to the HL register pair. 
+
+
+
+ADD 
+
+HL,HL 
+
+The character code is in 
+
+
+
+ADD 
+
+HL,HL 
+
+effect multiplied by 8. 
+
+
+
+ADD 
+
+HL,HL 
+
+
+
+
+ADD 
+
+HL,BC 
+
+The base address of the 
+character form is found. 
+
+
+
+POP 
+
+BC 
+
+The current position is fetched 
+
+
+
+EX 
+
+DE,HL 
+
+and the base address passed to 
+
+
+the DE register pair. 
+
+THE 'PRINT ALL CHARACTERS' SUBROUTINE 
+
+This subroutine is used to print all '8*8' bit characters. On entry the DE register pair holds the base address of the character form, the 
+HL register the destination address and the BC register pair the current 'line & column' values. 
+
+
+0B7F 
+
+PR-ALL 
+
+LD 
+
+A,C 
+
+Fetch the column number. 
+
+
+
+DEC 
+
+A 
+
+Move one column rightwards. 
+
+
+
+LD 
+
+A, +21 
+
+Jump forward unless a new 
+
+
+
+JR 
+
+NZ, 0893, PR-ALL-1 
+
+line is indicated. 
+
+
+
+DEC 
+
+B 
+
+Move down one line. 
+
+
+
+LD 
+
+C,A 
+
+Column number is +21 . 
+
+
+
+BIT 
+
+1, (FLAGS) 
+
+Jump forward if handling 
+
+
+
+JR 
+
+Z,0B93, PR-ALL-1 
+
+the screen. 
+
+
+
+PUSH 
+
+DE 
+
+Save the base address whilst 
+
+
+
+CALL 
+
+OECD, COPY-BUFF 
+
+the printer buffer is 
+
+
+
+POP 
+
+DE 
+
+emptied. 
+
+
+
+LD 
+
+A,C 
+
+Copy the new column number. 
+
+0B93 
+
+PR-ALL-1 
+
+CP 
+
+C 
+
+Test whether a new line is 
+
+
+37 
+
+
+
+
+
+PUSH 
+
+DE 
+
+being used. If it is 
+
+
+
+CALL 
+
+Z,OC55,PO-SCR 
+
+see if the display requires 
+
+
+
+POP 
+
+DE 
+
+to be scrolled. 
+
+Now consider the present state of INVERSE & OVER' 
+
+
+
+
+PUSH 
+
+BC 
+
+Save the position values 
+
+
+
+PUSH 
+
+HL 
+
+and the destination address 
+on the machine stack. 
+
+
+
+LD 
+
+A,(P-FLAG) 
+
+Fetch P-FLAG and read bit 0. 
+
+
+
+LD 
+
+B,+FF 
+
+Prepare the 'OVER-mask' in 
+
+
+
+RRA 
+
+
+the B register; i.e. OVER 0 
+
+
+
+JR 
+
+C.0BA4, PR-ALL-2 
+
+= +00 & OVER 1 - +FF. 
+
+
+
+INC 
+
+B 
+
+
+0BA4 
+
+PR-ALL-2 
+
+RRA 
+
+
+Read bit 2 of P-FLAG and 
+
+
+
+RRA 
+
+
+prepare the 'INVERSE-mask' 
+
+
+
+SBC 
+
+A, A 
+
+in the C register; i.e. 
+
+
+
+LD 
+
+C,A 
+
+INVERSE 0 = +00 & INVERSE 
+
+1 = +FF. 
+
+
+
+LD 
+
+A, +08 
+
+Set the A register to hold 
+
+
+
+AND 
+
+A 
+
+the ’pixel-line 1 counter and 
+clear the carry flag. 
+
+
+
+BIT 
+
+1, (FLAGS) 
+
+Jump forward if handling 
+
+
+
+JR 
+
+Z,0BB6, PR-ALL-3 
+
+the screen. 
+
+
+
+SET 
+
+1 ,(FLAGS2) 
+
+Signal 'printer buffer no longer 
+empty. 
+
+
+
+SCF 
+
+
+Set the carry flag to show that 
+the printer is being used. 
+
+0BB6 
+
+PR-ALL-3 
+
+EX 
+
+DE,HL 
+
+Exchange the destination 
+address with the base address 
+before entering the loop. 
+
+The character can now be printed. Eight passes of the loop are made 
+
+- one for each 'pixel-line'. 
+
+0BB7 
+
+PR-ALL-4 
+
+EX 
+
+AF,A'F’ 
+
+The carry flag is set when using 
+the printer. Save this flag in F'. 
+
+
+
+LD 
+
+A,(DE) 
+
+Fetch the existing 'pixel-line 1 . 
+
+
+
+AND 
+
+B 
+
+Use the 'OVER-mask' and then 
+
+
+
+XOR 
+
+(HL) 
+
+XOR the result with the 'pixel- 
+line' of the character form. 
+
+
+
+XOR 
+
+C 
+
+Finally consider the 'INVERSE- 
+mask'. 
+
+
+
+LD 
+
+(DE),A 
+
+Enter the result. 
+
+
+
+EX 
+
+AF,A'F' 
+
+Fetch the printer flag and 
+
+
+
+JR 
+
+C,0BD3,PR-ALL-6 
+
+jump forward if required. 
+
+
+
+INC 
+
+D 
+
+Update the destination address 
+
+0BC1 
+
+PR-ALL-5 
+
+INC 
+
+HL 
+
+Update the 'pixel-line' of 
+the character form. 
+
+
+
+DEC 
+
+A 
+
+Decrease the counter and loop 
+
+
+
+JR 
+
+NZ.0BB7, PR-ALL-4 
+
+back unless it is zero. 
+
+Once the character has been printed the attribute byte is to set as required. 
+
+
+
+EX 
+
+DE,HL 
+
+Make the H register hold a 
+
+
+
+DEC 
+
+H 
+
+correct high-address for the 
+character area. 
+
+
+
+BIT 
+
+1 .(FLAGS) 
+
+Set the attribute byte only if 
+
+
+
+CALL 
+
+Z.OBDB.PO-ATTR 
+
+handling the screen. 
+
+
+
+POP 
+
+HL 
+
+Restore the original 
+
+
+
+POP 
+
+BC 
+
+destination address and the 
+position values. 
+
+
+
+DEC 
+
+C 
+
+Decrease the column number 
+
+
+
+INC 
+
+HL 
+
+and increase the destination 
+
+
+
+RET 
+
+
+address before returning. 
+
+
+When the printer is being used the destination address has to be updated in increments of +20. 
+
+
+38 
+
+
+
+0BD3 PR-ALL-6 
+
+
+EX 
+
+AF.A'P 
+
+Save the printer flag again. 
+
+LD 
+
+A, +20 
+
+The required increment value. 
+
+ADD 
+
+A,E 
+
+Add the value and pass the 
+
+LD 
+
+E,A 
+
+result back to the E register. 
+
+EX 
+
+AF,A'F 
+
+Fetch the flag. 
+
+JR 
+
+0BC1.PR-ALL-5 
+
+Jump back into the loop. 
+
+
+THE 'SET ATTRIBUTE BYTE' SUBROUTINE 
+
+The appropriate attribute byte is identified and fetched. The new value is formed by manipulating the old value, ATTR-T, MASK-T and 
+P-FLAG. Finally this new value is copied to the attribute area. 
+
+
+OBDB 
+
+PO-ATTR 
+
+LD 
+
+A, FI 
+
+The high byte of the 
+
+
+
+RRCA 
+
+
+destination address is 
+
+
+
+RRCA 
+
+
+divided by eight and ANDed 
+
+
+
+RRCA 
+
+
+with +03 to determine which 
+
+
+
+AND 
+
++03 
+
+third of the screen is being 
+addressed; i.e. 00,01 or 02. 
+
+
+
+OR 
+
++58 
+
+The high byte for the 
+
+
+
+LD 
+
+H,A 
+
+attribute area is then formed. 
+
+
+
+LD 
+
+DE, (ATTR-T) 
+
+D holds ATTR-T, and 
+
+E holds MASK-T. 
+
+
+
+LD 
+
+A,(HL) 
+
+The old attribute value. 
+
+
+
+XOR 
+
+E 
+
+The values of MASK-T and 
+
+
+
+AND 
+
+D 
+
+ATTR-R are taken into 
+
+
+
+XOR 
+
+E 
+
+account. 
+
+
+
+BIT 
+
+6, (P-FLAG) 
+
+Jump forward unless dealing 
+
+
+
+JR 
+
+Z, OBFA, PO-ATTR-1 
+
+with PAPER 9. 
+
+
+
+AND 
+
++C7 
+
+The old paper colour is ignored 
+and depending on whether the 
+
+
+
+BIT 
+
+2, A 
+
+ink colour is light or dark 
+
+
+
+JR 
+
+NZ, OBFA, PO-ATTR-1 
+
+the new paper colour will be 
+
+
+
+XOR 
+
++38 
+
+black (000) or white (111). 
+
+OBFA 
+
+PO-ATTR-1 
+
+BIT 
+
+4, (P-FLAG) 
+
+Jump forward unless dealing 
+
+
+
+JR 
+
+Z.0C08, PO-ATTR-2 
+
+with INK 9. 
+
+
+
+AND 
+
++F8 
+
+The old ink colour is ignored and 
+depending on whether the paper 
+
+
+
+BIT 
+
+5, A 
+
+colour is light or dark the new 
+
+
+
+JR 
+
+NZ.0C08, PO-ATTR-2 
+
+ink colour will be black (000) 
+
+
+
+XOR 
+
++07 
+
+or white (111). 
+
+0C08 
+
+PO-ATTR-2 
+
+LD 
+
+(HL),A 
+
+Enter the new attribute value 
+
+
+
+RET 
+
+
+and return. 
+
+
+THE 'MESSAGE PRINTING' SUBROUTINE 
+
+This subroutine is used to print messages and tokens. The A register holds the 'entry number' of the message or token in a table. The 
+DE register pair holds the base address of the table. 
+
+
+PUSH 
+
+HL 
+
+The high byte of the last 
+
+LD 
+
+H,+00 
+
+entry on the machine stack is 
+
+EX 
+
+(SP),HL 
+
+made zero so as to suppress 
+
+
+
+trailing spaces (see below). 
+
+JR 
+
+0C14,PO-TABLE 
+
+Jump forward. 
+
+
+Enter here when expanding token codes. 
+
+
+0C10 PO-TOKENS LD DE,+0095 The base address of the token 
+
+table. 
+
+PUSPI AF Save the code on the stack. 
+
+(Range +00 - +5A; RND - COPY). 
+
+The table is searched and the correct entry printed. 
+
+
+0C14 
+
+PO-TABLE CALL 
+
+0C41.PO-SEARCH 
+
+
+JR 
+
+C,OC22,PO-EACH 
+
+
+LD 
+
+A, +20 
+
+
+Locate the required entry. 
+Print the message/token. 
+A 'space' will be printed 
+
+
+39 
+
+
+
+BIT 
+
+0, (FLAGS) 
+
+before the message/token 
+
+CALL 
+
+Z,0C3B, PO-SAVE 
+
+if required. 
+
+The characters of the message/token are printed in turn. 
+
+
+0C22 PO-EACH LD 
+
+A,(DE) 
+
+Collect a code. 
+
+AND 
+
++7F 
+
+Cancel any 'inverted bit'. 
+
+CALL 
+
+0C3B, PO-SAVE 
+
+Print the character. 
+
+LD 
+
+A,(DE) 
+
+Collect the code again. 
+
+INC 
+
+DE 
+
+Advance the pointer. 
+
+ADD 
+
+A, A 
+
+The 'inverted bit' goes to 
+
+JR 
+
+NC.0C22, PO-EACH 
+
+the carry flag and signals 
+the end of the message/token; 
+otherwise jump back. 
+
+Now consider whether a 'trailing space' is required. 
+
+
+POP 
+
+DE 
+
+For messages - D holds +00; 
+for tokens - D holds +00 - +5A. 
+
+CP 
+
++48 
+
+Jump forward if the last 
+
+JR 
+
+Z,OC35,PO-TRSP 
+
+character was a 
+
+CP 
+
++82 
+
+Return if the last character 
+
+RET 
+
+C 
+
+was any other before 'A'. 
+
+0C35 PO-TR-SP LD 
+
+A,D 
+
+Examine the value in D and 
+
+CP 
+
++03 
+
+return if it indicates a 
+
+RET 
+
+C 
+
+message, RND, INKEY$ or PI. 
+
+LD 
+
+A, +20 
+
+All other cases will require 
+a 'trailing space’. 
+
+
+THE 'PO-SAVE' SUBROUTINE 
+
+This subroutine allows for characters to be printed 'recursively'. The appropriate registers are saved whilst 'PRINT-OUT' is called. 
+
+
+0C3B PO-SAVE PUSH DE 
+
+EXX 
+
+RST 0010,PRINT-A-1 
+
+EXX 
+
+POP DE 
+
+RET 
+
+
+THE TABLE SEARCH' SUBROUTINE 
+
+The subroutine returns with the DE register pair pointing to the ii 
+space' is to be considered. 
+
+
+0C41 
+
+PO-SEARCH 
+
+PUSH 
+
+AF 
+
+
+
+EX 
+
+DE.HL 
+
+
+
+INC 
+
+A 
+
+0C44 
+
+PO-STEP 
+
+BIT 
+
+7,(HL) 
+
+
+
+INC 
+
+HL 
+
+
+
+JR 
+
+Z,0C44, PO-STEP 
+
+
+
+DEC 
+
+A 
+
+
+
+JR 
+
+NZ.0C44, PO-STEP 
+
+
+
+EX 
+
+DE,HL 
+
+
+
+POP 
+
+AF 
+
+
+
+CP 
+
++20 
+
+
+
+RET 
+
+C 
+
+
+
+LD 
+
+A,(DE) 
+
+
+
+SUB 
+
++41 
+
+
+
+RET 
+
+
+
+Save the DE register pair. 
+Save HL & BC. 
+
+Print the single character. 
+Restore HL & BC. 
+
+Restore DE. 
+
+Finished. 
+
+
+character of the required entry and the carry flag reset if a leading 
+
+
+Save the 'entry number'. 
+
+HL now holds the base address. 
+Make the range +01 - ?. 
+
+Wait for an 'inverted 
+character'. 
+
+Count through the entries 
+until the correct one is found. 
+
+DE points to the initial character. 
+Fetch the 'entry number' and 
+return with carry set for the 
+first thirty two entries. 
+
+However if the initial 
+character is a letter then a 
+leading space may be needed. 
+
+
+THE TEST FOR SCROLL' SUBROUTINE 
+
+This subroutine is called whenever there might be the need to scroll the display. This occurs on three occasions; i. when handling a 
+'carriage return' character; ii. when using AT in an INPUT line; & iii. when the current line is full and the next line has to be used. 
+
+On entry the B register holds the line number under test. 
+
+
+40 
+
+
+
+0C55 PO-SCR BIT 
+
+1, (FLAGS) 
+
+Return immediately if the 
+
+RET 
+
+NZ 
+
+printer is being used. 
+
+LD 
+
+DE,+0DD9 
+
+Pre-load the machine stack 
+
+PUSH 
+
+DE 
+
+with the address of 'CL-SET'. 
+
+LD 
+
+A,B 
+
+Transfer the line number. 
+
+BIT 
+
+0, (TV-FLAG) 
+
+Jump forward if considering 
+
+JP 
+
+NZ,0D02,PO-SCR-4 
+
+'INPUT ... AT 
+
+CP 
+
+(DF-SZ) 
+
+Return, via CL-SET, if the line 
+
+JR 
+
+C,0C86, REPORT-6 
+
+number is greater than the value 
+
+RET 
+
+NZ 
+
+of DF-SZ; give report 5 if it is 
+less; otherwise continue. 
+
+BIT 
+
+4, (TV-FLAG) 
+
+Jump forward unless dealing 
+
+JR 
+
+Z.0C88, PO-SCR-2 
+
+with an 'automatic listing'. 
+
+LD 
+
+E,(BREG) 
+
+Fetch the line counter. 
+
+DEC 
+
+E 
+
+Decrease this counter. 
+
+JR 
+
+Z,OCD2,PO-SCR-3 
+
+Jump forward if the listing 
+is to be scrolled. 
+
+LD 
+
+A, +00 
+
+Otherwise open channel 'K', 
+
+CALL 
+
+1601, CHAN-OPEN 
+
+restore the stack pointer, 
+
+LD 
+
+SP,(LIST-SP) 
+
+flag that the automatic 
+
+RES 
+
+4, (TV-FLAG) 
+
+listing has finished and 
+
+RET 
+
+
+return via CL-SET. 
+
+Report 5 - Out of screen 
+
+0C86 REPORT-5 RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++04 
+
+routine. 
+
+Now consider if the prompt 'scroll?' is required. 
+
+
+0C88 PO-SCR-2 DEC 
+
+(SCR-CT) 
+
+Decrease the scroll counter 
+
+JR 
+
+NZ,OCD2,PO-SCR-3 
+
+and proceed to give the prompt 
+only if is becomes zero. 
+
+Proceed to give the prompt message. 
+
+LD 
+
+A, +18 
+
+The counter is reset. 
+
+SUB 
+
+B 
+
+
+LD 
+
+(SCR-CT), A 
+
+
+LD 
+
+HL,(ATTR-T) 
+
+The current values of ATTR-T 
+
+PUSH 
+
+HL 
+
+and MASK-T are saved. 
+
+LD 
+
+A,(P-FLAG) 
+
+The current value of P-FLAG 
+
+PUSH 
+
+AF 
+
+is saved. 
+
+LD 
+
+A,+FD 
+
+Channel 'K' is opened. 
+
+CALL 
+
+1601, CHAN-OPEN 
+
+
+XOR 
+
+A 
+
+The message 'scroll?' is 
+
+LD 
+
+DE,+0CF8 
+
+message 'O'. This message is 
+
+CALL 
+
+0C0A,PO-MSG 
+
+now printed. 
+
+SET 
+
+5, (TV-FLAG) 
+
+Signal 'clear the lower screen 
+after a keystroke'. 
+
+LD 
+
+HL.+5C3B 
+
+This is FLAGS. 
+
+SET 
+
+3,(HL) 
+
+Signal 'L mode'. 
+
+RES 
+
+5,(HL) 
+
+Signal 'no key yet'. 
+
+EXX 
+
+
+Note: DE should be pushed also. 
+
+CALL 
+
+15D4, WAIT-KEY 
+
+Fetch a single key code. 
+
+EXX 
+
+
+Restore the registers. 
+
+CP 
+
++20 
+
+There is a jump forward to 
+
+JR 
+
+Z,0D00,REPORT-D 
+
+REPORT-D - 'BREAK - CONT 
+
+CP 
+
++E2 
+
+repeats' - if the keystroke 
+
+JR 
+
+Z,0D00, REPORT-D 
+
+was 'BREAK', 'STOP', 'N' or 
+
+OR 
+
++20 
+
+'n'; otherwise accept the 
+
+CP 
+
++6E 
+
+keystroke as indicating the 
+
+JR 
+
+Z,0D00, REPORT-D 
+
+need to scroll the display. 
+
+LD 
+
+A,+FE 
+
+Open channel 'S'. 
+
+CALL 
+
+1601, CHAN-OPEN 
+
+
+POP 
+
+AF 
+
+Restore the value of 
+
+
+41 
+
+
+
+LD 
+
+(P-FLAG),A 
+
+P-FLAG. 
+
+POP 
+
+HL 
+
+Restore the values of ATTR-T 
+
+LD 
+
+(ATTR-T), HL 
+
+and MASK-T. 
+
+
+The display is now scrolled. 
+
+
+0CD2 
+
+
+PO-SCR-3 
+
+
+CALL 
+
+ODFE,CL-SC-ALL 
+
+LD 
+
+B(DF-SZ) 
+
+INC 
+
+B 
+
+LD 
+
+C.+21 
+
+PUSH 
+
+BC 
+
+CALL 
+
+0E9B,CL-ADDR 
+
+LD 
+
+A,H 
+
+RRCA 
+
+
+RRCA 
+
+
+RRCA 
+
+
+AND 
+
++03 
+
+OR 
+
++58 
+
+LD 
+
+H,A 
+
+
+The whole display is scrolled. 
+The line and column numbers 
+for the start of the line 
+above the lower part of the 
+display are found and saved. 
+The corresponding attribute 
+byte for this character area is 
+then found. The HL register pair 
+holds the address of the 
+byte. 
+
+
+The line in question will have 'lower part' attribute values and the new line at the bottom of the display may have 'ATTR-P' values so the 
+attribute values are exchanged. 
+
+
+LD 
+
+DE.+5AE0 
+
+DE points to the first attribute 
+byte of the bottom line. 
+
+LD 
+
+A,(DE) 
+
+The value is fetched. 
+
+LD 
+
+C,(HL) 
+
+The ’lower part' value. 
+
+LD 
+
+B,+20 
+
+There are thirty two bytes. 
+
+EX 
+
+DE,HL 
+
+Exchange the pointers. 
+
+0CF0 PO-SCR-3A LD 
+
+(DE),A 
+
+Make the first exchange 
+
+LD 
+
+(HL),C 
+
+and then proceed to use the 
+
+INC 
+
+DE 
+
+same values for the thirty 
+
+INC 
+
+HL 
+
+two attribute bytes of the 
+
+DJNZ 
+
+OCFO.PO-SCR-3A 
+
+two lines being handled. 
+
+POP 
+
+BC 
+
+The line and column numbers of 
+the bottom line of the 'upper 
+part' are fetched before 
+
+RET 
+
+
+returning. 
+
+The 'scroll?' message 
+
+0CF8 DEFB 
+
++80 
+
+Initial marker - stepped over. 
+
+DEFB 
+
++73,+63,+72,+6F 
+
+s-c-r-o 
+
+DEFB 
+
++6C,+6C,+BF 
+
+1 - 1 - ? (inverted). 
+
+Report 0 - BREAK - CONT repeats 
+
+0D00 REPORT-D RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++0C 
+
+routine. 
+
+The lower part of the display is handled 
+
+as follows: 
+
+
+0D02 PO-SCR-4 CP 
+
++02 
+
+The 'out of screen' error is 
+
+JR 
+
+C,0C86, REPORT-5 
+
+given if the lower part is 
+
+ADD 
+
+A,(DF-SZ) 
+
+going to be 'too large' and a 
+
+SUB 
+
++19 
+
+return made if scrolling is 
+
+RET 
+
+NC 
+
+unnecessary. 
+
+NEG 
+
+
+The A register will now hold 
+'the number of scrolls to be 
+made'. 
+
+PUSH 
+
+BC 
+
+The line and column numbers 
+are now saved. 
+
+LD 
+
+B,A 
+
+The 'scroll number', ATTR-T 
+
+LD 
+
+HL, (ATTR-T) 
+
+MASK-T & P-FLAG are all 
+
+PUSH 
+
+HL 
+
+saved. 
+
+LD 
+
+HL, (P-FLAG) 
+
+
+PUSH 
+
+HL 
+
+
+CALL 
+
+0D40, TEMPS 
+
+The 'permanent' colour items 
+are to be used. 
+
+
+42 
+
+
+
+LD 
+
+
+A,B 
+
+
+The 'scroll number' is fetched. 
+
+
+The lower part of the screen is now scrolled 'A' number of times. 
+
+
+0D1C 
+
+PO-SCR-4A 
+
+PUSH 
+
+AF 
+
+Save the 'number'. 
+
+
+
+LD 
+
+HL,+5C6B 
+
+This is DF-SZ. 
+
+
+
+LD 
+
+B.(HL) 
+
+The value in DF-SZ is 
+
+
+
+LD 
+
+A,B 
+
+incremented; the B register 
+
+
+
+INC 
+
+A 
+
+set to hold the former value and 
+
+
+
+LD 
+
+(HL),A 
+
+the A register the new value. 
+
+
+
+LD 
+
+HL.+5C89 
+
+This is S-POSN-hi. 
+
+
+
+CP 
+
+(HL) 
+
+The jump is taken if only the 
+
+
+
+JR 
+
+C.OD2D.PO-SCR-4B 
+
+lower part of the display is 
+to be scrolled. (B = old DF-SZ). 
+
+
+
+INC 
+
+(HL) 
+
+Otherwise S-POSN-hi is 
+
+
+
+LD 
+
+B.+18 
+
+incremented and the whole 
+display scrolled. (B = +18) 
+
+0D2D 
+
+PO-SCR-4B 
+
+CALL 
+
+OEOO,CL-SCROLL 
+
+Scroll ’B' lines. 
+
+
+
+POP 
+
+AF 
+
+Fetch and decrement the 
+
+
+
+DEC 
+
+A 
+
+scroll number'. 
+
+
+
+JR 
+
+NZ,0D1 C,PO-SCR-4A 
+
+Jump back until finished. 
+
+
+
+POP 
+
+HL 
+
+Restore the value of 
+
+
+
+LD 
+
+(P-FLAG),L 
+
+P-FLAG. 
+
+
+
+POP 
+
+HL 
+
+Restore the values of ATTR-T 
+
+
+
+LD 
+
+( ATTR-T), HL 
+
+and MASK-T. 
+
+
+
+LD 
+
+BC,(S-POSN) 
+
+In case S-POSN has been 
+
+
+
+RES 
+
+0, (TV-FLAG) 
+
+changed CL-SET is called to 
+
+
+
+CALL 
+
+0DD9,CL-SET 
+
+give a matching value to DF-CC. 
+
+
+
+SET 
+
+0, (TV-FLAG) 
+
+Reset the flag to indicate that 
+
+
+
+POP 
+
+BC 
+
+the lower screen is being 
+
+
+
+RET 
+
+
+handled, fetch the line and 
+column numbers, and then 
+return. 
+
+
+THE TEMPORARY COLOUR ITEMS' SUBROUTINE 
+
+This is a most important subroutine. It is used whenever the 'permanent' details are required to be copied to the 'temporary' system 
+variables. First ATTR-T & MASK-T are considered 
+
+
+0D4D 
+
+TEMPS 
+
+XOR 
+
+A 
+
+A is set to hold +00. 
+
+
+
+LD 
+
+HL, (ATTR-P) 
+
+The current values of ATTR-P 
+
+
+
+BIT 
+
+0, (TV-FLAG) 
+
+and MASK-P are fetched. 
+
+
+
+JR 
+
+Z,0D5B, TEMPS-1 
+
+Jump forward if handing the 
+main part of the screen. 
+
+
+
+LD 
+
+H,A 
+
+Otherwise use +00 and the 
+
+
+
+LD 
+
+L.(BORDCR) 
+
+value in BORDCR instead. 
+
+0D5B 
+
+TEMPS-1 
+
+LD 
+
+(ATTR-T), HL 
+
+Now set ATTR-T & MASK-T. 
+
+Next P-FLAG is considered. 
+
+
+
+
+
+LD 
+
+HL.+5C91 
+
+This is P-FLAG. 
+
+
+
+JR 
+
+NZ.0D65, TEMPS-2 
+
+Jump forward if dealing with 
+the lower part of the screen 
+(A = +00). 
+
+
+
+LD 
+
+A,(HL) 
+
+Otherwise fetch the value of 
+
+
+
+RRCA 
+
+
+P-FLAG and move the odd bits 
+to the even bits. 
+
+0D65 
+
+TEMPS-2 
+
+XOR 
+
+(HL) 
+
+Proceed to copy the even bits 
+
+
+
+AND 
+
++55 
+
+of A to P-FLAG. 
+
+
+
+XOR 
+
+(HL) 
+
+
+
+
+LD 
+
+(HL),A 
+
+
+
+
+RET 
+
+
+
+
+THE 'CLS COMMAND' ROUTINE 
+
+In the first instance the whole of the display is 'cleared' - the 'pixels' are all reset and the attribute bytes are set to equal the value in 
+ATTR-P - then the lower part of the display is reformed. 
+
+
+43 
+
+
+
+0D6B 
+
+CLS 
+
+CALL 
+
+ODAF, CL-ALL 
+
+The whole of the display is 
+’cleared'. 
+
+0D6E 
+
+CLS-LOWER 
+
+LD 
+
+HL.+5C3C 
+
+This is TV-FLAG. 
+
+
+
+RES 
+
+5,(HL) 
+
+Signal 'do not clear the lower 
+screen after keystroke'. 
+
+
+
+SET 
+
+O.(HL) 
+
+Signal 'lower part'. 
+
+
+
+CALL 
+
+0D4D, TEMPS 
+
+Use the permanent values, i.e. 
+
+ATTR-T is copied from BORDCR. 
+
+
+
+LD 
+
+B.(DF-SZ) 
+
+The lower part of the screen is 
+
+
+
+CALL 
+
+0E44,CL-LINE 
+
+now 'cleared' with these values. 
+
+With the exception of the 
+
+attribute bytes for lines '22' & ’23' the attribute 
+
+! bytes for the lines in the lower part of the display will need to be 
+
+made equal to ATTR-P. 
+
+
+
+
+
+
+LD 
+
+HL.+5AC0 
+
+Attribute byte at start of line 
+'22'. 
+
+
+
+LD 
+
+A, (ATTR-P) 
+
+Fetch ATTR-P. 
+
+
+
+DEC 
+
+B 
+
+The line counter. 
+
+
+
+JR 
+
+0D8E, CLS-3 
+
+Jump forward into the loop. 
+
+0D87 
+
+CLS-1 
+
+LD 
+
+C,+20 
+
++20 characters per line. 
+
+0D89 
+
+CLS-2 
+
+DEC 
+
+HL 
+
+Go back along the line setting 
+
+
+
+LD 
+
+(HL),A 
+
+the attribute bytes. 
+
+
+
+DEC 
+
+C 
+
+
+
+
+JR 
+
+NZ.0D89, CLS-2 
+
+
+0D8E 
+
+CLS-3 
+
+DJNZ 
+
+0D87, CLS-1 
+
+Loop back until finished. 
+
+The size of the lower part of the display can now be fixed. 
+
+
+
+
+LD 
+
+(DF-SZ),+02 
+
+It will be two lines in size. 
+
+It now remains for the following 'house keeping' tasks to be performed. 
+
+
+0D94 
+
+CL-CHAN 
+
+LD 
+
+A,+FD 
+
+Open channel 'K'. 
+
+
+
+CALL 
+
+1601, CHAN-OPEN 
+
+
+
+
+LD 
+
+HL,(CURCHL) 
+
+Fetch the address of the 
+
+
+
+LD 
+
+DE,+09F4 
+
+current channel and make 
+
+
+
+AND 
+
+A 
+
+the output address +09F4 
+
+ODAO 
+
+CL-CHAN-A 
+
+LD 
+
+(HL),E 
+
+(= PRINT-OUT) and the 
+
+
+
+INC 
+
+HL 
+
+input address +10A8 
+
+
+
+LD 
+
+(HL),D 
+
+(= KEY-INPUT). 
+
+
+
+INC 
+
+HL 
+
+
+
+
+LD 
+
+DE,+1 0A8 
+
+
+
+
+CCF 
+
+
+First the output address 
+
+
+
+JR 
+
+C, ODAO, CL-CHAN-A 
+
+then the input address. 
+
+
+
+LD 
+
+BC.+1721 
+
+As the lower part of the 
+display is being handled the 
+'lower print line' will be 
+line '23'. 
+
+
+
+JR 
+
+0DD9,CL-SET 
+
+Return via CL-SET. 
+
+THE 'CLEARING THE WHOLE DISPLAY AREA' SUBROUTINE 
+
+This subroutine is called from; i. the CLS command routine, ii. the main execution routine, and iii. the automatic listing routine. 
+
+ODAF 
+
+CL-ALL 
+
+LD 
+
+HL.+0000 
+
+The system variable COORDS 
+
+
+
+LD 
+
+(COORDS), HL 
+
+is reset to zero. 
+
+
+
+RES 
+
+0,(FLAGS2) 
+
+Signal 'the screen is clear'. 
+
+
+
+CALL 0D94, CL-CHAN 
+
+Perform the ’house keeping' 
+
+
+
+
+
+tasks. 
+
+
+
+LD 
+
+A,+FE 
+
+Open channel 'S'. 
+
+
+
+CALL 
+
+1601, CHAN-OPEN 
+
+
+
+
+CALL 
+
+0D4D, TEMPS 
+
+Use the 'permanent' values. 
+
+
+
+LD 
+
+B.+18 
+
+Now ’clear’ the 24 lines 
+
+
+
+CALL 
+
+0E44.CL-LINE 
+
+of the display. 
+
+
+
+LD 
+
+HL,(CURCHL) 
+
+Ensure that the current 
+
+
+
+LD 
+
+DE,+09F4 
+
+output address is +09F4 
+
+
+44 
+
+
+
+
+LD 
+
+(HL),E 
+
+(PRINT-OUT). 
+
+
+INC 
+
+HL 
+
+
+
+LD 
+
+(HL),D 
+
+
+
+LD 
+
+(SCR-CT),+01 
+
+Reset the scroll counter. 
+
+
+LD 
+
+BC.+1821 
+
+As the upper part of the display 
+is being handled the 'upper print 
+line' will be Line 'O'. 
+
+Continue into CL-SET. 
+
+THE 'CL-SET' SUBROUTINE 
+
+
+
+This subroutine is entered with the BC register pair holding the line and column numbers of a character areas, or the C register holding 
+the column number within the printer buffer. The appropriate address of the first character bit is then found. The subroutine returns via 
+PO-STORE so as to store all the values in the required system variables. 
+
+0DD9 CL-SET 
+
+LD 
+
+HL.+5B00 
+
+The start of the printer buffer. 
+
+
+BIT 
+
+1, (FLAGS) 
+
+Jump forward if handling the 
+
+
+JR 
+
+NZ.0DF4, CL-SET-2 
+
+printer buffer. 
+
+
+LD 
+
+A,B 
+
+Transfer the line number. 
+
+
+BIT 
+
+0, (TV-FLAG) 
+
+Jump forward if handling the 
+
+
+JR 
+
+Z, ODEE, CL-SET-1 
+
+main part of the display. 
+
+
+ADD 
+
+A,(DF-SZ) 
+
+The top line of the lower 
+
+
+SUB 
+
++18 
+
+part of the display is called 
+'line +18' and this has to be 
+converted. 
+
+ODEE CL-SET-1 
+
+PUSH 
+
+BC 
+
+The line & column numbers are 
+saved. 
+
+
+LD 
+
+B,A 
+
+The line number is moved. 
+
+
+CALL 
+
+0E9B,CL-ADDR 
+
+The address for the start of the 
+line is formed in HL. 
+
+
+POP 
+
+BC 
+
+The line & column numbers are 
+fetched back. 
+
+0DF4 CL-SET-2 
+
+LD 
+
+A, +21 
+
+The column number is now 
+
+
+SUB 
+
+C 
+
+reversed and transferred to 
+
+
+LD 
+
+E,A 
+
+the DE register pair. 
+
+
+LD 
+
+D,+00 
+
+
+
+ADD 
+
+HL,DE 
+
+The required address is now 
+
+
+JP 
+
+OADC, PO-STORE 
+
+formed; and the address and 
+the line and column numbers 
+are stored by jumping to 
+
+PO-STORE. 
+
+THE 'SCROLLING' SUBROUTINE 
+
+
+The number of lines of the display that are to be scrolled has to be held on entry to the main subroutine in the B register. 
+
+ODFE CL-SC-ALL 
+
+LD 
+
+B,+1 7 
+
+The entry point after 'scroll?' 
+
+The main entry point - 
+
+from above and when scrolling for INPUT. .AT. 
+
+
+0E00 CL-SCROLL CALL 
+
+0E9B,CL-ADDR 
+
+Find the starting address of 
+
+
+
+
+the line. 
+
+
+LD 
+
+C,+08 
+
+There are eight pixel lines to 
+a complete line. 
+
+Now enter the main scrolling loop. The B register holds the number of the top line to be scrolled, the FHL register pair the starting 
+address in the display area of this line and the C register the pixel line counter. 
+
+0E05 CL-SCR-1 
+
+PUSH 
+
+BC 
+
+Save both counters. 
+
+
+PUSH 
+
+HL 
+
+Save the starting address. 
+
+
+LD 
+
+A,B 
+
+Jump forward unless 
+
+
+AND 
+
++07 
+
+dealing at the present 
+
+
+LD 
+
+A,B 
+
+moment with a 'third' of 
+
+
+JR 
+
+NZ,0E19,CL-SCR-3 
+
+the display. 
+
+
+The pixel lines of the top lines of the 'thirds' of the display have to be moved across the 2K boundaries. (Each 'third' = 2K.) 
+
+
+45 
+
+
+
+OEOD CL-SCR-2 
+
+
+EX 
+
+DE,HL 
+
+The result of this 
+
+LD 
+
+HL,+F8E0 
+
+manipulation is to leave HL 
+
+ADD 
+
+HL,DE 
+
+unchanged and DE pointing to 
+
+EX 
+
+DE,HL 
+
+the required destination. 
+
+LD 
+
+BC.+0020 
+
+There are +20 characters. 
+
+DEC 
+
+A 
+
+Decrease the counter as one line 
+is being dealt with. 
+
+LDIR 
+
+
+Now move the thirty two bytes. 
+
+
+The pixel lines within the 'thirds' can now be scrolled. The A register holds, on the first pass, +01 - +07, +09 - +0F or +1 1 - +1 7. 
+
+
+0E1 9 CL-SCR-3 EX DE,HL 
+
+LD HL,+FFE0 
+
+ADD HL,DE 
+
+EX DE,HL 
+
+LD B,A 
+
+AND +07 
+
+RRCA 
+RRCA 
+RRCA 
+
+LD C,A 
+
+LD A,B 
+
+LD B,+00 
+
+LDIR 
+
+LD B,+07 
+
+ADD HL,BC 
+
+AND +F8 
+
+JR NZ,0E0D,( 
+
+
+Again DE is made to point 
+to the required destination. 
+
+This time only thirty two 
+locations away. 
+
+Save the line number in B. 
+
+Now find how many characters 
+there are remaining in the 
+'third'. 
+
+Pass the 'character total' to the 
+C register. 
+
+Fetch the line number. 
+
+BC holds the 'character total' 
+and a pixel line from each of the 
+characters is ’scrolled 1 . 
+
+Now prepare to increment the 
+address to jump across a 'third' 
+boundary. 
+
+Increase FHL by +0700. 
+
+Jump back if there are any 
+.-SCR-2 'thirds' left to consider. 
+
+
+Now find if the loop has been used eight times - once for each pixel line. 
+
+
+POP 
+
+HL 
+
+INC 
+
+H 
+
+POP 
+
+BC 
+
+DEC 
+
+C 
+
+JR 
+
+NZ,0E05,CL-SR-1 
+
+
+Fetch the original address. 
+Address the next pixel line. 
+
+Fetch the counters. 
+
+Decrease the pixel line counter 
+and jump back unless eight lines 
+have been moved. 
+
+
+Next the attribute bytes are scrolled. Note that the B register still holds the number of lines to be scrolled and the C register holds zero. 
+
+
+CALL 
+
+0E88,CL-ATTR 
+
+The required address in the 
+attribute area and the number 
+of characters in 'B' lines are 
+found. 
+
+LD 
+
+HL.+FFE0 
+
+The displacement for all 
+
+ADD 
+
+HL,DE 
+
+the attribute bytes is 
+
+EX 
+
+DE,HL 
+
+thirty two locations away. 
+
+LDIR 
+
+
+The attribute bytes are 
+’scrolled'. 
+
+
+It remains now to clear the bottom line of the display. 
+
+LD B,+01 The B register is loaded with 
+
++01 and CL-LINE is entered. 
+
+
+THE 'CLEAR LINES' SUBROUTINE 
+
+This subroutine will clear the bottom 'B' lines of the display. 
+
+0E44 CL-LINE PUSH BC 
+
+CALL 0E9B,CL-ADDR 
+
+
+The line number is saved for the 
+duration of the subroutine. 
+
+The starting address for the line 
+is formed in HL. 
+
+
+46 
+
+
+
+LD 
+
+
+C,+08 
+
+
+Again there are eight pixel 
+lines to be considered. 
+
+
+Now enter a loop to clear all the pixel lines. 
+
+
+0E4A CL-LINE-1 
+
+
+0E4D CL-LINE-2 
+
+
+PUSH 
+
+BC 
+
+Save the line number and the 
+pixel line counter. 
+
+PUSH 
+
+HL 
+
+Save the address. 
+
+LD 
+
+A,B 
+
+Save the line number in A. 
+
+AND 
+
++07 
+
+Find how many characters are 
+
+RRCA 
+
+
+involved in 'B mod 8' lines. 
+
+RRCA 
+
+
+Pass the result to the 
+
+RRCA 
+
+
+C register. (C will hold +00 
+
+LD 
+
+C,A 
+
+i.e. 256 dec. for a 'third'.) 
+
+LD 
+
+A,B 
+
+Fetch the line number. 
+
+LD 
+
+B,+00 
+
+Make the BC register pair 
+
+DEC 
+
+C 
+
+hold 'one less' than the number 
+of characters. 
+
+LD 
+
+D,H 
+
+Make DE point to the first 
+
+LD 
+
+E,L 
+
+character. 
+
+LD 
+
+(HL),+00 
+
+Clear the pixel-byte of the 
+first character. 
+
+INC 
+
+DE 
+
+Make DE point to the second 
+
+LDIR 
+
+
+character and then clear the 
+pixel-bytes of all the other 
+characters. 
+
+LD 
+
+DE,+0701 
+
+For each 'third' of the 
+
+ADD 
+
+HL,DE 
+
+display HL has to be increased 
+by +0701. 
+
+DEC 
+
+A 
+
+Now decrease the line number. 
+
+AND 
+
++F8 
+
+Discard any extra lines and 
+
+LD 
+
+B,A 
+
+pass the 'third' count to B. 
+
+JR 
+
+NZ.0E4D, CL-LINE-2 
+
+Jump back if there are still 
+'thirds' to be dealt with. 
+
+
+Now find if the loop has been used eight times. 
+
+
+POP 
+
+HL 
+
+Update the address for each 
+
+INC 
+
+H 
+
+pixel line. 
+
+POP 
+
+BC 
+
+Fetch the counters. 
+
+DEC 
+
+C 
+
+Decrease the pixel line 
+
+JR 
+
+NZ.0E4A, CL-LINE-1 
+
+counter and jump back unless 
+finished. 
+
+
+Next the attribute bytes are set as required. The value in ATTR-P will be used when handling the main part of the display and the value 
+in BORDCR when handling the lower part. 
+
+
+CALL 
+
+0E88,CL-ATTR 
+
+The address of the first 
+attribute byte and the number 
+of bytes are found. 
+
+LD 
+
+H,D 
+
+HL will point to the first 
+
+LD 
+
+L,E 
+
+attribute byte and DE the 
+
+INC 
+
+DE 
+
+second. 
+
+LD 
+
+A, (ATTR-P) 
+
+Fetch the value in ATTR-P. 
+
+BIT 
+
+0, (TV-FLAG) 
+
+Jump forward if handling the 
+
+JR 
+
+Z,0E80,CI_-LINE-3 
+
+main part of the screen. 
+
+LD 
+
+A, (BORDCR) 
+
+Otherwise use BORDCR instead. 
+
+LD 
+
+(HL),A 
+
+Set the attribute byte. 
+
+DEC 
+
+BC 
+
+One byte has been done. 
+
+LDIR 
+
+
+Now copy the value to all the 
+attribute bytes. 
+
+POP 
+
+BC 
+
+Restore the line number. 
+
+LD 
+
+C.+21 
+
+Set the column number to the 
+
+RET 
+
+
+lefthand column and return. 
+
+
+47 
+
+
+
+THE 'CL-ATTR' SUBROUTINE 
+
+This subroutine has two separate functions. 
+
+i. For a given display area address the appropriate attribute address is returned in the DE register pair. Note that the value on entry 
+points to the 'ninth' line of a character. 
+
+ii. For a given line number, in the B register, the number of character areas in the display from the start of that line onwards is returned 
+in the BC register pair. 
+
+
+0E88 CL-ATTR LD 
+
+A,H 
+
+Fetch the high byte. 
+
+RRCA 
+
+
+Multiply this value by 
+
+RRCA 
+
+
+thirty two. 
+
+RRCA 
+
+DEC 
+
+A 
+
+Go back to the 'eight' line. 
+
+OR 
+
++50 
+
+Address the attribute area. 
+
+LD 
+
+H,A 
+
+Restore to the high byte and 
+
+EX 
+
+DE,HL 
+
+transfer the address to DE. 
+
+LD 
+
+H,C 
+
+This is always zero. 
+
+LD 
+
+L,B 
+
+The line number. 
+
+ADD 
+
+HL,HL 
+
+Multiply by thirty two. 
+
+ADD 
+
+HL.HL 
+
+
+ADD 
+
+HL,HL 
+
+
+ADD 
+
+HL,HL 
+
+
+ADD 
+
+HL,HL 
+
+
+LD 
+
+B,H 
+
+Move the result to the 
+
+LD 
+
+C,L 
+
+BC register pair before 
+
+RET 
+
+
+returning. 
+
+THE ’CL-ADDR' SUBROUTINE 
+
+For a given line number, in the B register, the appropriate display file address is formed in the FHL register 
+
+0E9B CL-ADDR LD 
+
+A, +18 
+
+The line number has to be 
+
+SUB 
+
+B 
+
+reversed. 
+
+LD 
+
+D,A 
+
+The result is saved in D. 
+
+RRCA 
+
+
+In effect '(A mod 8) * 32'. 
+
+RRCA 
+
+
+In a 'third' of the display 
+
+RRCA 
+
+
+the low byte for the: 
+
+AND 
+
++E0 
+
+1st. line = +00, 
+
+2nd. line = +20, etc. 
+
+LD 
+
+L,A 
+
+The low byte goes into L. 
+
+LD 
+
+A,D 
+
+The true line number is fetched. 
+
+AND 
+
++18 
+
+In effect '64 +8 * INT (A/8)' 
+
+OR 
+
++40 
+
+For the upper 'third' of the 
+display the high byte = +40, 
+middle 'third' = +48, and the 
+lower 'third' = +50. 
+
+LD 
+
+H,A 
+
+The high byte goes to H. 
+
+RET 
+
+
+Finished. 
+
+THE 'COPY' COMMAND ROUTINE 
+
+
+The one hundred and seventy six pixel lines of the display are dealt with one by one. 
+
+OEAC COPY Dl 
+
+
+The maskable interrupt is 
+disabled during COPY. 
+
+LD 
+
+B,+B0 
+
+The '176' lines. 
+
+LD 
+
+HL,+4000 
+
+The base address of the display. 
+
+The following loop is now entered. 
+
+0EB2 COPY-1 PUSH 
+
+HL 
+
+Save the base address and 
+
+PUSH 
+
+BC 
+
+the number of the line. 
+
+CALL 
+
+0EF4, COPY-LINE 
+
+It is called '176' times. 
+
+POP 
+
+BC 
+
+Fetch the line number and 
+
+POP 
+
+HL 
+
+the base address. 
+
+INC 
+
+H 
+
+The base address is updated by 
+'256' locations for each line of 
+pixels. 
+
+
+48 
+
+
+
+LD 
+
+A,H 
+
+Jump forward and hence round 
+
+AND 
+
++07 
+
+the loop again directly for the 
+
+JR 
+
+NZ.0EC9, COPY-2 
+
+eight pixel lines of a character 
+line. 
+
+For each new line of characters the base address has to be updated. 
+
+
+LD 
+
+A,L 
+
+Fetch the low byte. 
+
+ADD 
+
+A, +20 
+
+Update it by +20 bytes. 
+
+LD 
+
+L,A 
+
+The carry flag will be reset when 
+'within thirds' of the display. 
+
+CCF 
+
+
+Change the carry flag. 
+
+SBC 
+
+A, A 
+
+The A register will hold +F8 
+
+AND 
+
++F8 
+
+when within a 'third' but +00 
+when a new third' is reached. 
+
+ADD 
+
+A,H 
+
+The high byte of the 
+
+LD 
+
+H,A 
+
+address is now updated. 
+
+0EC9 COPY-2 DJNZ 
+
+0EB2, COPY-1 
+
+Jump back until '176' lines have 
+been printed. 
+
+JR 
+
+OEDA, COPY-END 
+
+Jump forward to the end 
+routine. 
+
+THE 'COPY-BUFF' SUBROUTINE 
+
+
+This subroutine is called whenever the printer buffer is to have its contents passed to the printer. 
+
+OECD COPY-BUFF Dl 
+
+
+Disable the maskable interrupt. 
+
+LD 
+
+HL.+5800 
+
+The base address of the printer 
+buffer. 
+
+LD 
+
+B,+08 
+
+There are eight pixel lines. 
+
+0ED3 COPY-3 PUSH 
+
+BC 
+
+Save the line number. 
+
+CALL 
+
+0EF4, COPY-LINE 
+
+It is called ’8 1 times. 
+
+POP 
+
+BC 
+
+Fetch the line number. 
+
+DJNZ 
+
+0ED3, COPY-3 
+
+Jump back until '8' lines 
+have been printed. 
+
+Continue into the COPY-END routine. 
+
+OEDA COPY-END LD 
+
+A, +04 
+
+Stop the printer motor. 
+
+OUT 
+
+(+FB),A 
+
+
+El 
+
+
+Enable the maskable interrupt 
+
+
+and continue into CLEAR-PRB. 
+
+
+THE 'CLEAR PRINTER BUFFER' SUBROUTINE 
+
+The printer buffer is cleared by calling this subroutine. 
+
+
+0EDF 
+
+CLEAR-PRB 
+
+LD 
+
+HL.+5B00 
+
+The base address of the printer 
+buffer. 
+
+
+
+LD 
+
+(PR-CC-lo),L 
+
+Reset the printer ’column'. 
+
+
+
+XOR 
+
+A 
+
+Clear the A register. 
+
+
+
+LD 
+
+B,A 
+
+Also clear the B register in 
+effect B holds dec. 256). 
+
+0EE7 
+
+PRB-BYTES 
+
+LD 
+
+(HL),A 
+
+The ’256’ bytes of the 
+
+
+
+INC 
+
+HL 
+
+printer buffer are all 
+
+
+
+DJNZ 
+
+0EE7, PRB-BYTES 
+
+cleared in turn. 
+
+
+
+RES 
+
+1 ,(FLAGS2) 
+
+Signal 'the buffer is empty'. 
+
+
+
+LD 
+
+C,+21 
+
+Set the printer position and 
+
+
+
+JP 
+
+0DD9.CL-SET 
+
+return via CL-SET & PO-STORE. 
+
+
+THE 'COPY-LINE' SUBROUTINE 
+
+The subroutine is entered with the HL register pair holding the base address of the thirty two bytes that form the pixel -line and the B 
+register holding the pixel-line number. 
+
+
+0EF4 
+
+COPY-LINE LD 
+
+A,B 
+
+Copy the pixel-line number. 
+
+
+CP 
+
++03 
+
+The A register will hold 
+
+
+SBC 
+
+A, A 
+
++00 until the last two lines 
+
+
+AND 
+
++02 
+
+are being handled. 
+
+
+49 
+
+
+
+OUT 
+
+(+FB),A 
+
+Slow the motor for the last two 
+
+LD 
+
+D,A 
+
+pixel lines only. 
+
+The D register will hold either 
+
+There are three tests to be made before 
+
+doing any 'printing'. 
+
++00 or +02. 
+
+OEFD COPY-L-1 CALL 
+
+1F54, BREAK-KEY 
+
+Jump forward unless the 
+
+JR 
+
+C,0F0C, COPY-L-2 
+
+BREAK key is being pressed. 
+
+LD 
+
+A, +04 
+
+But if it is then; 
+
+OUT 
+
+(+FB),A 
+
+stop the motor, 
+
+El 
+
+
+enable the maskable interrupt, 
+
+CALL 
+
+OEDF.CLEAR-PRB 
+
+clear the printer buffer and exit 
+
+RST 
+
+0008, ERROR-1 
+
+via the error handling routine 
+
+DEFB 
+
++0C 
+
+- 'BREAK-CONT repeats'. 
+
+0F0C COPY-L-2 IN 
+
+A,(+FB) 
+
+Fetch the status of the 
+
+ADD 
+
+A, A 
+
+printer. 
+
+RET 
+
+M 
+
+Make an immediate return if the 
+
+JR 
+
+NC, OEFD, COPY-L-1 
+
+printer is not present. 
+
+Wait for the stylus. 
+
+LD 
+
+C,+20 
+
+There are thirty two bytes. 
+
+Now enter a loop to handle these bytes. 
+
+0F14 COPY-L-3 LD 
+
+E,(HL) 
+
+Fetch a byte. 
+
+INC 
+
+HL 
+
+Update the pointer. 
+
+LD 
+
+B,+08 
+
+Eight bits per byte. 
+
+0F1 8 COPY-L-4 RL 
+
+D 
+
+Move D left. 
+
+RL 
+
+E 
+
+Move each bit into the carry. 
+
+RR 
+
+D 
+
+Move D back again, picking up 
+
+0F1E COPY-L-5 IN 
+
+A,(+FB) 
+
+the carry from E. 
+
+Again fetch the status of the 
+
+RRA 
+
+
+printer and wait for the 
+
+JR 
+
+NC,0F1E, COPY-L-5 
+
+signal from the encoder. 
+
+LD 
+
+A,D 
+
+Now go ahead and pass the 
+
+OUT 
+
+(+FB),A 
+
+'bit' to the printer 
+
+DJNZ 
+
+0F1 8, COPY-L-4 
+
+Note: bit 2 - low starts the 
+motor, bit 1 - high slows the 
+motor and bit 7 is high for the 
+actual 'printing'. 
+
+'Print' each bit. 
+
+DEC 
+
+C 
+
+Decrease the byte counter. 
+
+JR 
+
+NZ,0F1 4, COPY-L-3 
+
+Jump back whilst there are 
+
+RET 
+
+
+still bytes; otherwise return. 
+
+
+THE 'EDITOR' ROUTINES 
+
+The editor is called on two occasions: 
+
+i. From the main execution routine so that the user can enter a BASIC line into the system. 
+
+ii. From the INPUT command routine. 
+
+
+First the 'error stack pointer' is saved and an alternative address provided. 
+
+
+0F2C 
+
+EDITOR 
+
+LD 
+
+HL,(ERR-SP) 
+
+The current value is saved on 
+
+
+
+PUSH 
+
+HL 
+
+the machine stack. 
+
+0F30 
+
+ED-AGAIN 
+
+LD 
+
+HL.+107F 
+
+This is ED-ERROR. 
+
+
+
+PUSH 
+
+HL 
+
+Any event that leads to the 
+
+
+
+LD 
+
+(ERR-SP),SP 
+
+error handling routine being 
+used will come back to 
+ED-ERROR. 
+
+A loop is now entered to handle each keystroke. 
+
+
+0F38 
+
+ED-LOOP 
+
+CALL 
+
+15D4, WAIT-KEY 
+
+Return once a key has been 
+pressed. 
+
+
+
+PUSH 
+
+AF 
+
+Save the code temporarily. 
+
+
+50 
+
+
+
+LD 
+
+D,+00 
+
+Fetch the duration of the 
+
+LD 
+
+E, (PI P) 
+
+keyboard click. 
+
+LD 
+
+HL,+00C8 
+
+And the pitch. 
+
+CALL 
+
+03B5, BEEPER 
+
+Now make the 'pip'. 
+
+POP 
+
+AF 
+
+Restore the code. 
+
+LD 
+
+HL.+0F38 
+
+Pre-load the machine stack 
+
+PUSH 
+
+HL 
+
+with the address of ED-LOOP. 
+
+Now analyse the code obtained. 
+
+CP 
+
++18 
+
+Accept all character codes, 
+
+JR 
+
+NC,0F81 , ADD-CHAR 
+
+graphic codes and tokens. 
+
+CP 
+
++07 
+
+Also accept 
+
+JR 
+
+C.0F81, ADD-CHAR 
+
+
+CP 
+
++10 
+
+Jump forward if the code 
+
+JR 
+
+C,0F92,ED-KEYS 
+
+represents an editing key. 
+
+The control keys - INK to TAB -are now considered. 
+
+
+LD 
+
+BC,+0002 
+
+INK & PAPER will require 
+two locations. 
+
+LD 
+
+D,A 
+
+Copy the code to 0. 
+
+CP 
+
++16 
+
+Jump forward with INK & 
+
+JR 
+
+C,0F6C, ED-CONTR 
+
+PAPER' 
+
+AT & TAB would be handled as follows: 
+
+INC 
+
+BC 
+
+Three locations required. 
+
+BIT 
+
+7,(FLAGX) 
+
+Jump forward unless dealing 
+
+JP 
+
+Z, 1 0 1 E,ED-IGNORE 
+
+with INPUT LINE... . 
+
+CALL 
+
+15D4, WAIT-KEY 
+
+Get the second code. 
+
+LD 
+
+E,A 
+
+and put it in E. 
+
+The other bytes for the control characters are now fetched. 
+
+
+0F6C ED-CONTR CALL 
+
+15D4, WAIT-KEY 
+
+Get another code. 
+
+PUSH 
+
+DE 
+
+Save the previous codes. 
+
+LD 
+
+HL,(K-CUR) 
+
+Fetch K-CUR. 
+
+RES 
+
+0,(MODE) 
+
+Signal K mode'. 
+
+CALL 
+
+1655, MAKE-ROOM 
+
+Make two or three spaces. 
+
+POP 
+
+BC 
+
+Restore the previous codes. 
+
+INC 
+
+HL 
+
+Point to the first location. 
+
+LD 
+
+(HL),B 
+
+Enter first code. 
+
+INC 
+
+HL 
+
+Then enter the second code 
+
+LD 
+
+(HL),C 
+
+which will be Overwritten if 
+there are only two codes - i.e. 
+with INK & PAPER. 
+
+JR 
+
+0F8B,ADD-CH-1 
+
+Jump forward. 
+
+
+THE 'ADDCHAR' SUBROUTINE 
+
+This subroutine actually adds a code to the current EDIT or INPUT line. 
+
+
+0F81 
+
+ADD-CHAR 
+
+RES 
+
+0,(MODE) 
+
+Signal 'K mode'. 
+
+
+
+LD 
+
+HL, (K-CUR) 
+
+Fetch the cursor position. 
+
+
+
+CALL 
+
+1652, ONE-SPACE 
+
+Make a single space. 
+
+0F8B 
+
+ADD-CH-1 
+
+LD 
+
+(DE),A 
+
+Enter the code into the space 
+
+
+
+INC 
+
+DE 
+
+and signal that the cursor is to 
+
+
+
+LD 
+
+(K-CUR), DE 
+
+occur at the location after. Then 
+
+
+
+RET 
+
+
+return indirectly to ED-LOOP. 
+
+The editing keys are dealt with as follows: 
+
+
+0F92 
+
+ED-KEYS 
+
+LD 
+
+E,A 
+
+The code is transferred to 
+
+
+
+LD 
+
+C,+00 
+
+the DE register pair. 
+
+
+
+LD 
+
+HL.+0F99 
+
+The base address of the editing 
+key table. 
+
+
+
+ADD 
+
+HL,DE 
+
+The entry is addressed and 
+
+
+
+LD 
+
+E,(HL) 
+
+then fetched into E. 
+
+
+
+ADD 
+
+HL,DE 
+
+The address of the handling 
+
+
+51 
+
+
+
+
+
+PUSH 
+
+HL 
+
+
+routine is saved on the machine 
+stack. 
+
+
+
+LD 
+
+HL,(K-CUR) 
+
+
+The HL register pair is set and 
+
+
+
+RET 
+
+
+
+an indirect jump made to the 
+required routine. 
+
+THE 'EDITING 
+
+KEYS' TABLE 
+
+
+
+
+address 
+
+offset 
+
+character 
+
+address 
+
+offset 
+
+character 
+
+OFAO 
+
+09 
+
+EDIT 
+
+0FA5 
+
+70 
+
+DELETE 
+
+0FA1 
+
+66 
+
+cursor left 
+
+0FA6 
+
+7E 
+
+ENTER 
+
+0FA2 
+
+6A 
+
+cursor right 
+
+0FA7 
+
+CF 
+
+SYMBOL SHIFT 
+
+0FA3 
+
+50 
+
+cursor down 
+
+0FA8 
+
+D4 
+
+GRAPHICS 
+
+0FA4 
+
+85 
+
+cursor up 
+
+
+
+
+
+THE 'EDIT KEY' SUBROUTINE 
+
+When in 'editing mode' pressing the EDIT key will bring down the 'current BASIC line'. However in 'INPUT mode’ the action of the EDIT 
+key is to clear the current reply and allow a fresh one. 
+
+
+0FA9 ED-EDIT LD 
+
+HL,(E-PPC) 
+
+Fetch the current line number. 
+
+BIT 
+
+5,(FLAGX) 
+
+But jump forward if in 
+
+JP 
+
+NZ,1097,CLEAR-SP 
+
+'INPUT mode'. 
+
+CALL 
+
+196E,LINE-ADDR 
+
+Find the address of the start of 
+
+CALL 
+
+1695, LINE-NO 
+
+the current line and hence its 
+number. 
+
+LD 
+
+A,D 
+
+If the line number returned is 
+
+OR 
+
+E 
+
+zero then simply clear the 
+
+JP 
+
+Z,1097,CLEAR-SP 
+
+editing area. 
+
+PUSH 
+
+HL 
+
+Save the address of the line. 
+
+INC 
+
+HL 
+
+Move on to collect the 
+
+LD 
+
+C,(HL) 
+
+length of the line. 
+
+INC 
+
+HL 
+
+
+LD 
+
+B,(HL) 
+
+
+LD 
+
+HL.+000A 
+
+Add +0A to the length and test 
+
+ADD 
+
+HL,BC 
+
+that there is sufficient room 
+
+LD 
+
+B,H 
+
+for a copy of the line. 
+
+LD 
+
+C,L 
+
+
+CALL 
+
+1 F05, TEST-ROOM 
+
+
+CALL 
+
+1097.CLEAR-SP 
+
+Now clear the editing area. 
+
+LD 
+
+HL,(CURCHL) 
+
+Fetch the current channel 
+
+EX 
+
+(SP),HL 
+
+address and exchange it for the 
+address of the line. 
+
+PUSH 
+
+HL 
+
+Save it temporarily. 
+
+LD 
+
+A,+FF 
+
+Open channel ’A’ so that the 
+
+CALL 
+
+1601, CHAN-OPEN 
+
+line will be copied to the editing 
+
+
+
+area. 
+
+POP 
+
+HL 
+
+Fetch the address of the line. 
+
+DEC 
+
+HL 
+
+Goto before the line. 
+
+DEC 
+
+(E-PPC-lo) 
+
+Decrement the current line 
+number so as to avoid 
+printing the cursor. 
+
+CALL 
+
+1855, OUT-LINE 
+
+Print the BASIC line 
+
+INC 
+
+(E-PPC-lo) 
+
+Increment the current line 
+number. 
+
+Note: The decrementing of the 
+line number does not always 
+stop the cursor from being 
+printed. 
+
+LD 
+
+HL, (E-LINE) 
+
+Fetch the start of the line in 
+
+INC 
+
+HL 
+
+the editing area and step past 
+
+INC 
+
+HL 
+
+the line number and the 
+
+INC 
+
+HL 
+
+length to find the address 
+
+INC 
+
+HL 
+
+for K-CUR. 
+
+
+52 
+
+
+
+
+LD 
+
+(K-CUR),HL 
+
+
+
+POP 
+
+HL 
+
+Fetch the former channel 
+
+
+CALL 
+
+161 5, CHAN-FLAG 
+
+address and set the 
+
+
+RET 
+
+
+appropriate flags before 
+returning to ED-LOOP. 
+
+THE 
+
+'CURSOR DOWN EDITING' SUBROUTINE 
+
+
+0FF3 
+
+ED-DOWN BIT 
+
+5,(FLAGX) 
+
+Jump forward if in 
+
+
+JR 
+
+NZ, 1001, ED-STOP 
+
+'INPUT' mode’. 
+
+
+LD 
+
+HL.+5C49 
+
+This is E-PPC. 
+
+
+CALL 
+
+190F,LN-FETCH 
+
+The next line number is found 
+
+
+JR 
+
+106E.ED-LIST 
+
+and a new automatic listing 
+produced. 
+
+1001 
+
+ED-STOP LD 
+
+(ERR-NR),+10 
+
+’STOP in INPUT' report. 
+
+
+JR 
+
+1024, ED-ENTER 
+
+Jump forward. 
+
+THE 
+
+'CURSOR LEFT EDITING' SUBROUTINE 
+
+
+1007 
+
+ED-LEFT CALL 
+
+1031, ED-EDGE 
+
+The cursor is moved. 
+
+
+JR 
+
+1011, ED-CUR 
+
+Jump forward. 
+
+THE 
+
+'CURSOR RIGHT EDITING' SUBROUTINE 
+
+
+100C 
+
+ED-RIGHT LD 
+
+A,(HL) 
+
+The current character is tested 
+
+
+CP 
+
++0D 
+
+and if it is 'carriage return' 
+
+
+RET 
+
+Z 
+
+then return. 
+
+
+INC 
+
+HL 
+
+Otherwise make the cursor 
+come after the character. 
+
+1011 
+
+ED-CUR LD 
+
+(K-CUR),HL 
+
+Set the system variable K-CUR. 
+
+
+RET 
+
+
+
+THE 
+
+'DELETE EDITING' SUBROUTINE 
+
+
+1015 
+
+ED-DELETE CALL 
+
+1031, ED-EDGE 
+
+Move the cursor leftwards. 
+
+
+LD 
+
+BC,+0001 
+
+Reclaim the current 
+
+
+JP 
+
+19E8, RECLAIM-2 
+
+character. 
+
+THE 
+
+'ED-IGNORE' SUBROUTINE 
+
+
+101 E 
+
+ED-IGNORE CALL 
+
+15D4, WAIT-KEY 
+
+The next two codes from the 
+
+
+CALL 
+
+15D4, WAIT-KEY 
+
+key-input routine are ignored. 
+
+THE 
+
+'ENTER EDITING' SUBROUTINE 
+
+
+1024 
+
+ED-ENTER POP 
+
+HL 
+
+The address of ED-LOOP and 
+
+
+POP 
+
+HL 
+
+ED-ERROR are discarded. 
+
+1026 
+
+ED-END POP 
+
+HL 
+
+The old value of ERR-SP 
+
+
+LD 
+
+(ERR-SP),HL 
+
+is restored. 
+
+
+BIT 
+
+7,(ERR-NR) 
+
+Now return if there were 
+
+
+RET 
+
+NZ 
+
+no errors. 
+
+
+LD 
+
+SP,HL 
+
+Otherwise make an indirect 
+
+
+RET 
+
+
+jump to the error routine. 
+
+THE 
+
+'ED-EDGE' SUBROUTINE 
+
+
+
+The address of the cursor is in the HL register pair and will be decremented unless the cursor is already at the start of the line, 
+taken not to put the cursor between control characters and their parameters. 
+
+1031 
+
+ED-EDGE SCF 
+
+
+DE will hold either E-LINE 
+
+
+CALL 
+
+1 195,SET-DE 
+
+(for editing) or WORKSP 
+(for INPUTing). 
+
+
+SBC 
+
+HL,DE 
+
+The carry flag will become set 
+if the cursor is already to be at 
+
+
+ADD 
+
+HL,DE 
+
+the start of the line. 
+
+
+INC 
+
+HL 
+
+Correct for the subtraction. 
+
+
+53 
+
+
+
+
+
+POP 
+
+BC 
+
+Drop the return address. 
+
+
+
+RET 
+
+C 
+
+Return via ED-LOOP if the 
+carry flag is set. 
+
+
+
+PUSH 
+
+BC 
+
+Restore the return address. 
+
+
+
+LD 
+
+B,H 
+
+Move the current address of 
+
+
+
+LD 
+
+C,L 
+
+the cursor to BC. 
+
+Now enter a loop to check that control characters are not split from their parameters. 
+
+103E 
+
+ED-EDGE-1 
+
+LD 
+
+H,D 
+
+HL will point to the 
+
+
+
+LD 
+
+L,E 
+
+character in the line after 
+
+
+
+INC 
+
+HL 
+
+that addressed by DE. 
+
+
+
+LD 
+
+A.(DE) 
+
+Fetch a character code. 
+
+
+
+AND 
+
++F0 
+
+Jump forward if the code 
+
+
+
+CP 
+
++10 
+
+does not represent 
+
+
+
+JR 
+
+NZ, 1051, ED-EDGE-2 
+
+INK to TAB. 
+
+
+
+INC 
+
+HL 
+
+Allow for one parameter. 
+
+
+
+LD 
+
+A,(DE) 

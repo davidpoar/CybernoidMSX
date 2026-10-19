@@ -1,0 +1,9148 @@
+# Programming the Z80 - Part 3/4
+
+---
+
+
+
+ee ESN //////) he 
+eo Vy by 
+HL 8488 L HSE 
+
+
+\ 
+
+
+8438 62 6438 2 
+
+
+| a 
+== 
+
+
+349 
+
+
+PROGRAMMING THE 280 
+
+
+LDDR Repeating block load with decrement. 
+
+
+Function: (DE) < (HL); DE DE — 1; HL «HL — 1; 
+BC < BC — 1; Repeat until BC = 0 
+
+
+pufrfrfoprpr fod a byte 1: ED 
+Prfofr fr] fofofo) byte 2: Bs 
+
+
+Format: 
+
+
+Description: The contents of the memory location addressed by 
+HL are loaded into the memory location address- 
+ed by DE. Then DE, HL, and BC are all 
+decremented. If BC # 0, then the program counter 
+is decremented by 2 and the instruction re- 
+executed. 
+
+
+--- 1 
+ciate 
+Data Flow: i! 
+ri 
+14 ! 
+14! 
+Vy | 
+14 
+a | 
+Ll 
+[3 
+4 
+Timing: BC #0: 5 M cycles; 21 T states; 10.5 usec @ 2 
+
+
+MHz. 
+BC = 0:4M cycles; 16 T states; 8 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: PY N C 
+
+
+350 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Example: LDDR 
+Before: After: 
+Bi] om sae CY M0 YY) < 
+_D — WY NYY * 
+H L Wy YYy 
+osar| 81 _ 
+co osso[ oa YI) Yy 
+oot [oF | 7) 
+OBJECT CODE 062] 36 __—| — 
+
+
+351 
+
+
+PROGRAMMING THE Z80 
+
+
+LDI Block load with increment. 
+
+Function: (DE) «- (HL); DE « DE + 1; HL<HL + 1; 
+BC <« BC - 1 
+
+Format. 
+
+
+ty tt rfofr{ifol 7] byte 1: BD 
+BOROOROORC 2. 
+
+
+Description: The contents of the memory location addressed by 
+HLare loaded into the memory location addressed 
+by DE. Then both DE and HL are incremented, 
+and the register pair BC is decremented. 
+
+
+Data Fiow: oe 
+—— 6a 
+B c 
+D Ue ZA 
+HY L 
+Timing: 4M cycles; 16 T states; 8 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: PV N C 
+
+
+Reset if BC = 0 after 
+execution, set otherwise. 
+
+
+352 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Example: LDI 
+
+
+Before: After: 
+
+
+WH es los ay SEEES 
+> ee We Ysasx Ae 
+LEP OA AG ES 
+
+
+34B1 ~ MN yy 
+yp 
+OBJECT CODE 
+
+
+353 
+
+
+PROGRAMMING THE Z80 
+
+
+LDIR Repeating block load with increment. 
+
+
+Function: (DE) < (HL); DE< DE + 1; HL«HL +1; 
+BC < BC — 1; Repeat until BC = 0 
+
+
+itp fol | fej s byte 1: ED 
+tel | fofofefo} byte 2: Bo 
+
+
+Description: The contents of the memory location addressed by 
+HL are loaded into the memory location ad- 
+dressed by DE. Then both DE and HL are in- 
+cremented. BC is decremented. If BC #0 then 
+the program counter is decremented by 2 and the 
+instruction is re-executed. 
+
+
+Format: 
+
+
+os 
+
+
+2 
+Data Flow: ies abe, 
+\ Wd it 
+—— H Li 
+oY tid 
+(;! 
+6, i! 
+A 1,2! 
+i,t! 
+1, ! 
+$j! | 
+ee ee -+ | [ H 
+poannnan' jt 
+wo----- = 4 
+Timing: For BC #0: 5M cycles; 21 T states; 10.5 usec @ 2 
+MHz. 
+For BC = 0: 4M cycles; 16 T states; 8 usec @ 2 
+MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+354 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Before: After: 
+
+
+ee 
+a re | 
+
+
+H 
+
+
+Yiy III/IV 
+YY LPESLIII-N 
+
+
+\\ 
+
+
+4A03 12 4A03 
+4A04 F4 4A04 
+
+
+355 
+
+
+PROGRAMMING THE Z80 
+
+
+LD r, (HL) Load register r indirect from memory location 
+(HL). 
+
+Function: r « (HL) 
+
+Format: 
+
+
+eee aE 
+
+
+Description: The contents of the memory location addressed by 
+HL are loaded into the specified register. r 
+may be any one of: 
+
+
+A - lil E - 011 
+B — 000 H — 100 
+C — 001 L - 101 
+D — 010 
+Data Flow: 
+A 
+B 
+D 
+H 
+Timing: 2M cycles; 7 T states; 3.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Byte Codes: 
+
+
+r: A B C D E HL 
+7] 46] ae | 56] se| so] oe 
+
+
+356 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+§ 2 H PVN C 
+
+(no effect). 
+LD D, (HL) 
+Before: After: 
+
+
+a I), 
+Hf oc, 32) tL tt 
+
+
+357 
+
+
+PROGRAMMING THE Z80 
+
+
+NEG 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+| as 
+OBJECT 
+CODE 
+
+
+358 
+
+
+a] 
+
+
+Negate accumulator. 
+
+
+A<~0-A 
+
+
+fr} afrfotififols| byte 1: ED 
+fof1fojo}o|i1][o]o} byte 2: 44 
+
+
+The contents of the accumulator are subtracted 
+from zero (two’s complement) and the result is 
+stored back in the accumulator. 
+
+
+2 M cycles; 8 T states; 4 usec @ 2 MHz 
+implicit. 
+
+
+S H PON C 
+
+
+OOmOBORO 
+
+
+C will be set if A was 0 before the instruction. 
+P will be set if A was 80H. 
+
+
+NEG 
+
+
+Before: After: 
+
+
+SMU, 
+
+
+NOP 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+No operation. 
+
+
+Delay. 
+
+
+jofofolo}ofololo} oo 
+
+
+Nothing is done for 1 M cycle. 
+
+
+No action 
+Cc 
+E 
+L 
+
+
+rover 
+
+
+1 M cycle; 4 T states; 2 usec @ 2 MHz 
+
+
+Implicit 
+
+
+359 
+
+
+PROGRAMMING THE Z80 
+
+
+OR s Logical or accumulator and operand s. 
+Function: A<~AVsS 
+Format: 8: may be r, n, (HL), (IX+ d), or (IY + d) 
+
+
+byte 2: immediate 
+data 
+(HL) Fifofififofifrfo byte I: B6 
+
+
+r may be any one of: 
+
+
+A - lll E - 011 
+B — 000 H — 100 
+C ~ 001 L — 101 
+D — 010 
+Description: The accumulator and the specified operand are 
+
+
+logically ‘or’ed, and the result is stored in the ac- 
+cumulator. s is defined in the description of the 
+similar ADD instructions. 
+
+
+360 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 1: implicit; n: immediate; (HL): indirect; (IX + 
+d), (TY + d): indexed. 
+
+
+Byte Codes: OR rA B C DE HULL 
+87 |80| 81 {82 |] Bs | e4 | Bs 
+Flags: SZ H @v_N Cc 
+jeje) [ol] (e@/o[o} 
+Example: OR B 
+Before: After: 
+~ 2 = 
+B B 
+| Bo 
+lL | 
+OBJECT 
+CODE 
+
+
+361 
+
+
+PROGRAMMING THE Z80 
+
+
+OTDR Block output with decrement 
+Function: (C){HL); B B- 1; HL*-HL- 1; Repeat untii B = 0. 
+Format: 
+
+
+Pitti feof [s fe]: byte 1: ED 
+[fof fits jo] [1 | byte 2: BB 
+
+
+Description: The contents of the memory location addressed by 
+the HL register pair are output to the peripheral 
+device addressed by the contents of the C register. 
+Both the B register and the HL register pair are 
+then decremented. If B # 0, the program counter 
+is decremented by 2 and the instruction is re- 
+executed. C supplies bits AO to A7 of the address 
+bus. B supplies (after decrementation) bits A8 to 
+Al5, 
+
+
+Data Flow: 
+
+
+B = 0:4 Mcyceles; 16 T states; 8 usec @ 2 MHz. 
+B #0:5M cycles; 21 T states; 10.5 usec @ 2 MHz 
+
+
+Timing: 
+
+
+Addressing Mode: External. 
+
+
+Flags: SZ H PV N C 
+
+
+by tee ety 
+
+
+362 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Example: OTDR 
+
+
+Before: After: 
+
+
+af o | 6 |c YOK ts jc 
+[32] Porr 
+
+
+ES 
+
+| & | oor 02 004F 
+
+0050} 68 0050 
+ons co 
+
+OBJECT CODE l—~__] 
+
+
+363 
+
+
+PROGRAMMING THE 280 
+
+
+OTIR Block output with increment. 
+
+Function: (C) — (HL); B< B ~ 1; HL <— HL + I; Repeat 
+until B = 0 
+
+Format: 
+
+
+| 1 | ifs | 0 [| | | 0 [ | byte 1: ED 
+Lets fefeoys ft | byte 2: B3 
+
+
+Description: The contents of the memory location addressed by 
+the HL register pair are output to the peripheral 
+device addressed by the contents of the C register. 
+The B register is decremented and the HL register 
+pair is incremented. If B # 0, the program counter 
+is decremented by 2 and the instruction is re- 
+executed. C supplies bits AO to A7 of the address 
+bus. B supplies (after decrementation) bits A8 to 
+Al5. 
+
+
+Data Flow: 
+
+
+mmm ema 
+
+
+L 
+
+
+Timing: 4M cycles; 16 T states; 8 usec @ 2 MHz. 
+
+
+B = 0: 
+B #0:5Mcycles; 21 T states; 10.5 usec @ 2 MHz 
+
+
+Addressing Mode: External. 
+
+
+Flag Ss: S PY N C¢ 
+
+
+Z H 
+et dry 
+
+
+364 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Example: OTIR 
+
+
+Before: After: 
+
+
+B{_ 3 | 0 jc »>YYyyy 40 Ic 
+
+
+ee ee ee 
+
+
+OBJECT CODE 5553 
+
+
+365 
+
+
+PROGRAMMING THE Z80 
+
+
+OUT (C), r Output register r to port C. 
+
+
+Function: (C) <r 
+
+
+fete fot: ]s fos | byte 1: ED 
+pot tft fefott | byte 2 
+
+
+Description: The contents of the specified register are output to 
+the peripheral device addressed by the contents of 
+the C register. r may be any one of: 
+
+
+Format: 
+
+
+A - Ill FEF - 011 
+B — 000 H — 100 
+C — 001 L — 101 
+D — 010 
+
+
+Register C supplies bits AO to A7 of the address 
+bus. Register B supplies bits A8 to AlS. 
+
+
+Data Flow: 
+
+A PORT 
+
+B Cc ——+ 
+
+D E 
+
+H L 
+Timing: 3M cycles; 12 T states; 6 usec @ 2 MHz 
+Addressing Mode: External. 
+Flags: S$ Zz H PVN C 
+
+(no effect). 
+
+Byte Codes: r: 
+
+
+A 8B ¢ DE HULL 
+79 | a1 «9 [51 | 50 [51 [0 | 
+
+
+366 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Example: OUT (C), B 
+Before: After: 
+FI Fl 
+y 
+
+
+OBJECT CODE 
+
+
+367 
+
+
+PROGRAMMING THE Z80 
+
+
+OUT (N),A Output accumulator to peripheral port N. 
+
+
+Function: (N) -~A 
+
+
+Tif fo ifofofs 1] byte 1: D3 
+| +1 : iN = | | | byte 2: port address 
+
+
+Format: 
+
+
+Description: The contents of the accumulator are output to the 
+peripheral device addressed by the contents of the 
+memory location immediately following the op- 
+code. 
+
+
+Data Flow: 
+
+
+Timing: 3 M cycles, 11 T states; 5.5 usec @ 2 MHz 
+
+
+Addressing Mode: External. 
+
+
+Flags: PVN C 
+
+
+PLETE] tvetteco 
+
+
+Example; OUT (QA), A 
+
+
+Before: After: 
+
+
+“Ls J} [oa Jporr aft) ZZBEZrox 
+| os 
+
+
+OBJECT CODE 
+
+
+368 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+OUTD Output with decrement. 
+Function: (C) — (HL); BC — B - 1; HL <HL —- 1 
+Format: 
+
+
+fod fe fof] byte 1: ED 
+Pifoftfolifofi[s | byte 2: AB 
+
+
+Description: The contents of the memory location addressed by 
+the HL register pair are output to the peripheral 
+device addressed by the contents of the C register. 
+Then both the B register and the HL register pair 
+are decremented. C supplies bits AO to A7 of the 
+address bus. B supplies (after decrementation) A8 
+to AlS. 
+
+
+Data Flow: 
+
+
+| SE 
+MMA 
+
+
+YH 
+
+
+Timing: 4M cycles; 16 T states; 8 usec @ 2 MHz 
+Addressing Mode: External. 
+
+
+Flags: 
+PV NC 
+
+
+PTD Set if B = 0 after execution, 
+
+
+reset otherwise. 
+
+
+369 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: OUTD 
+
+
+Before: After: 
+
+
+ro 
+
+
+9A 
+22BF 48 22BF 
+
+
+OBJECT CODE 
+
+
+370 
+
+
+OUTI 
+Function: 
+Format: 
+Description: 
+Data Flow: 
+A 
+B 
+D 
+H 
+Timing: 
+Addressing Mode: 
+Flags: 
+
+
+4 
+TL 
+
+
+MMMM 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Output with increment. 
+
+
+(C) -— (HL); B+ B - 1; HL < HL + 1 
+
+
+dd dels} fel] bye t: ep 
+Pi fof fofofel: | +) byte 2: a3 
+
+
+The contents of the memory location addressed by 
+the HL register pair are output to the peripheral 
+device addressed by the C register. The B register 
+is decremented and the HL register pair is incre- 
+mented. 
+
+
+C supplies bits AO to A7 of the address bus. 
+B (after decrementation) supplies bits A8 to AIS. 
+
+
+4M cycles; 16 T states; 8 usec @ 2 MHz 
+
+
+External. 
+
+
+PY ON C 
+
+
+|? fo] fetal | Set if B = 0 after execution, 
+reset otherwise. 
+
+
+371 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: OUTI 
+
+
+After: 
+
+
+SS 
+
+
+ELE LITLE MM iin 
+IE YUU. 
+
+
+a a 
+
+
+OBJECT CODE 
+
+
+372 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+POP qq Pop register pair qq from stack. 
+Function: Wow + (SP); Whigns (SP + 1); SP SP + 2 
+Format: 
+
+
+Description: The contents of the memory location addressed by 
+the stack pointer are loaded into the low order of 
+the specified register pair and then the stack 
+pointer is incremented. The contents of the 
+memory location now addressed by the stack 
+pointer are loaded into the high order of the 
+register pair, and the stack pointer is again in- 
+cremented. qq may be any one of: 
+
+
+BC — 00 HL — 10 
+DE - 01 AF - 11 
+Data Flow: 
+A F 
+B Cc 
+D E 
+H L 
+SP 
+Timing: 3 M cycles; 10 T states; 5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Byte Codes: qq: 8C DE HL AF 
+
+
+[cu] pf ev] Fy 
+
+
+373 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: $ Zz H PY NC 
+(no effect). 
+Example: POP BC 
+Before: After: 
+
+
+0158 0188 
+lL | o1sc o1sc 
+OBJECT CODE 0150 osp{ 3 
+
+
+374 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+POP Ix POP IX register from stack. 
+Function: IX ow =< (SP); IX high «(SP + 1);SP* SP + 2 
+Format: 
+
+
+Petpet ett fet" | byte 1: DD 
+ift]rfofo]ofofi | byte 2: El 
+
+
+Description: The contents of the memory location addressed by 
+the stack pointer are loaded into the flow order of 
+the IX register, and the stack pointer is in- 
+cremented. The contents of the memory location 
+now addressed by the stack pointer are loaded in- 
+to the high order of the 1X register, and the stack 
+pointer is again incremented. 
+
+
+Data Flow: 
+
+
+Timing: 4M cycles; 14 T states; 7 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+375 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: 5 Zz H PV _N C¢ 
+(no effect). 
+Example: POP 1X 
+Before: After: 
+SP 090B 
+
+
+ee 0708 
+ed ee ooc| oa 
+0900 0700 
+
+
+OBJECT CODE rr ~_ 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+POP IY POP IY register from stack. 
+Function: IY low” (SP); LY high ~ (SP + 1);SP*SP + 2 
+Format: 
+
+
+pidegr fa} y fo} '} byte 1: FD 
+‘Lt [efe}e}eo]o] sy byte 2: El 
+
+
+Description: The contents of the memory location addressed by 
+the stack pointer are loaded into the low order of 
+the LY register, and then the stack pointer is incre- 
+mented. The contents of the memory location now 
+addressed by the stack pointer are loaded into the 
+high order of the LY register, and the stack pointer 
+is again incremented. 
+
+
+Data Flow: 
+
+
+Timing: 4M cycles; 14 T states; 2 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: SZ H PV N C 
+(no effect). 
+
+
+377 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: POP IY 
+Before: After: 
+a en ee //ES//// 
+
+
+a eS, 
+
+
+2005) 3005 | 
+
+
+OBJECT CODE 
+
+
+378 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+PUSH qq Push register pair onto stack. 
+Function: (SP ~— 1)=Qhigh> (SP — 2) + 4dlow: 
+SP < SP - 2 
+Format: 
+‘fa a] o} typo 
+Description: The stack pointer is decremented and the contents 
+
+
+of the high order of the specified register pair are 
+then loaded into the memory location addressed 
+by the stack pointer. The stack pointer is again 
+decremented and the contents of the low order of 
+the register pair are loaded into the memory loca- 
+tion currently addressed by the stack pointer. qq 
+may be any one of: 
+
+
+BC — 00 HL — 10 
+DE - 01 AF - 11 
+Data Flow: 
+Timing: 3 M cycles; I1 T states; 6.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Byte Codes: 49: BC DE HL AF 
+
+
+eDosfes] 
+
+
+379 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: § Zz H PVN C 
+
+
+PLC LL) ett. 
+
+
+Example: PUSH DE 
+Before: After: 
+0 E 0 E 
+SP 0081 ° GY DSW 
+
+
+| S| (Ar 
+OBJECT CODE 7 
+
+
+380 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+PUSH IX Push IX onto stack. 
+
+Function: (SP - 1) high (SP — 2) + IXjgy; 
+SP <— SP - 
+
+Format: 
+
+
+it fef fe fo]: | byte 1: pp 
+pede 0 BE S| byte 2: E5 
+
+
+Description: The stack pointer is decremented, and the contents 
+of the high order of the IX register are loaded into 
+the memory location addressed by the stack 
+pointer. The stack pointer is again decremented 
+and then the contents of the low order of the IX 
+register are loaded into the memory location ad- 
+dressed by the stack pointer. 
+
+
+Data Flow: 
+Ix ~ 
+DATA 
+=< 
+WY, 
+s° UML 
+Timing: 4M cycles; 15 T states; 7.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: 
+
+
+CLET |. FCT] oats 
+
+
+381 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: PUSH IX 
+Before: After: 
+ix | 04A2 | IX 04A2 
+sP 009% SY YY 
+
+
+OBJECT CODE 
+
+
+382 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+PUSH IY Push LY onto stack. 
+
+Function: (SP - 1) Il1Y high: (SP -— 2)—1Yjow: 
+SP <- SP - 2 
+
+Format: 
+
+
+| | | ; | i T+ | i |o | «| byte 1: FD 
+Pit tft fefols jo [1 | byte 2: Es 
+
+
+Description: The stack pointer is decremented and the contents 
+of the high order of the 1Y register are loaded into 
+the memory location addressed by the stack 
+pointer, The stack pointer is again decremented 
+and the contents of the low order of the LY register 
+are loaded into the memory location addressed by 
+the stack pointer. 
+
+
+Data Flow: 
+
+
+Timing: 3 M cycles; 15 T states; 7.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: 5 2 H PY N C 
+
+
+CT CELT LL] toettsy 
+
+
+383 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: PUSH IY 
+Before: After: 
+iY | 9OBF | iY “90BF | 
+
+
+eo, | RYYY BY 
+
+
+0084 
+a ee 
+
+
+OBJECT CODE 
+
+
+384 
+
+
+RLCA 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+Q7 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Rotate accumulator left with branch carry. 
+
+
+pefojofofojifrti| 
+
+
+The contents of the accumulator are rotated left 
+one bit position. The original contents of bit 7 is 
+moved to the carry flag as well as to bit 0. 
+
+
+we 
+
+
+1M cycle; 4 T states; 2 usec @ 2 MHz 
+
+
+Implicit. 
+
+
+s Zz H PVN C 
+| | | fo} | jole 
+C is set by bit 7 of A. 
+RLCA 
+
+
+Before: After: 
+
+
+a AS 9///// 58/7) 
+
+
+385 
+
+
+PROGRAMMING THE Z80 
+
+
+RES b,s Reset bit b of operand s. 
+Function: Sh 0 
+Format: S: 
+r Pita fofo) fo [| byte 1: CB 
+byte 2 
+(HL) 11 }1} byte 1: CB 
+ryt fo byte 2 
+
+
+ax +d) frfifofifafifo]i| byte 1: Dp 
+Fifa fofo}rfo}s]s] byte 2: cB 
+d byte 3: offset value 
+[jefe] [je] byte 4 
+(Y + d) Peftfatefi foi] byte i: Fp 
+
+
+byte 2: CB 
+
+
+FE 
+Bigia 
+a 
+TE 
+ERE 
+IEE] 
+
+
+i 
+
+
+byte 3: offset value 
+
+
+|} ofere—] tf fe] byte 4 
+
+
+b may be any one of: 
+
+
+0 — 000 4 — 100 
+1 — 001 5 — 101 
+2 — 010 6 — 110 
+3 - O11 7-111 
+
+
+r may be any one of: 
+
+
+A - ill E - Oll 
+B — 000 H —- 100 
+C - 001 L —- 10] 
+D -— 010 
+
+
+386 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Description: The specified bit of the location determined by s is 
+reset. s is defined in the description of the similar 
+BIT instructions. 
+
+
+Data Flow: 
+
+
+mo @W >} 
+~- moO 
+
+
+Timing: 
+
+
+Addressing Mode: r: implicit; (HL): indirect; (IX + d), (TY + d): in- 
+dexed. 
+
+
+Byte Codes: RES b,r 
+
+
+CB 0 
+
+
+| BF | 88 | 89 | 8a] 2B | sc 
+|e on |v | [oe 
+rae se [90] 9a 90 | oc [a0 
+A7 A2 A4 AS 
+AF AB AC AD 
+
+
+GO Eyeicacs 
+
+
+b OF 1 2 3 4 5 6 ? 
+RES b, (HL) ca [os] seo] ve [as] Je] 
+
+
+387 
+
+
+PROGRAMMING THE 280 
+
+
+RES b, (EX + d) a bs O + 2 3 4 5 6 7 
+CB— | e6| ae [96] 96 | Ae} AE | a6 {Be 
+RES b,(dY+d) *7 
+Flags: S$ Zz H PY N C 
+(No effect) 
+Examples: RES 1,H 
+Before: After: 
+
+
+( ae WEL, 
+
+
+OBJECT CODE 
+
+
+388 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+RET Return from subroutine 
+Function: PCiow * (SP); PChigh (SP + 1);SP “SP + 2 
+Format: 
+
+
+Ht rfejoji}ojoji jc 
+
+
+Description: The program counter is popped off the stack as 
+described for the POP instructions. The next in- 
+struction fetched is from the location pointed to 
+by PC, 
+
+
+Data Flow: 
+A 
+B Cc 
+D E 
+H L 
+Timing: 3 M cycles; 10 T states; 5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Flags: Ss Z H PVN C 
+
+
+(no effect) 
+
+
+389 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Example: RET 
+Before: After: 
+ech 0881) YEE 
+sP s? WM 
+es ee sai [ea 
+OBJECT CODE l—~___] li—~__| 
+
+
+390 
+
+
+RET ce 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Return from subroutine on condition. 
+
+
+If ce true: PCjlgw < (SP); PChigh + (SP + 1); 
+SP+SP + 2 
+
+
+Ltt bye fo }o fo | 
+
+
+If the condition is met, the contents of the pro- 
+gram counter are popped off the stack as described 
+for the POP instructions. The next instruction is 
+fetched from the address in PC. If the condition is 
+not met, instruction execution continues in 
+sequence. 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+cc may be any one of: 
+
+
+NZ — 000 PO — 100 
+Z — 001 PE — 101 
+NC — 010 P — 110 
+Cc - 011 M — If] 
+
+
+Condition met: 3 M cycles; 11 T states; 6.5 usec @ 
+2 MHz. 
+
+Condition not met: | M cycle; 5 T states; 2.5 usec 
+@ 2 MHz 
+
+
+Indirect. 
+
+
+391 
+
+
+PROGRAMMING THE Z80 
+
+
+Byte Codes: 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+392 
+
+
+cc: NZ Z NC C PO PE P M 
+
+
+[col cs] oofce] [= [oe 
+5. Zz H P/V Cc 
+[TCL TL LT J tovettecy 
+
+
+RET NC 
+Before: After: 
+F F 
+
+Pc SSL 
+se) § TEI 
+
+(> ( 
+8511 85 8511 
+e512] BI esi2{ Bl | 
+
+an V—~__] 
+
+
+RETI 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+THE Z80 INSTRUCTION SET 
+Return from interrupt. 
+
+
+PCiow * (SP); PChigh =< (SP + 1);SP<SP +2 
+
+
+fv [ifs fofi [fo [1 | byte 1: ED 
+pols jojo]: |: fol] byte 2: 4p 
+
+
+The program counter is popped off the stack as 
+described for the POP instructions. This instruc- 
+tion is recognized by Zilog peripheral devices as 
+the end of a peripheral service routine so as to 
+allow proper control] of nested priority interrupts. 
+An EI instruction must be executed prior to RETI 
+in order to re-enable interrupts. 
+
+
+4M cycles; 14 T states; 7 usec @ 2 MHz 
+
+
+Addressing Modes; Indirect. 
+
+
+Flags: 
+
+
+SZ H PV NC 
+(no effect). 
+
+
+393 
+
+
+PROGRAMMING THE Z80 
+
+
+Example: 
+
+
+OBJECT CODE. 
+
+
+394 
+
+
+RETI 
+Before: After: 
+co ny ne me / SW/////) 
+sel 82) PEE 
+8982 8982 
+eons BTC agpa} Bl 
+L—__ | I~ | 
+
+
+RETN 
+
+
+Function: 
+
+
+Forniat: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Return from non-maskable interrupt. 
+
+
+PClow + (SP); PChigh “(SP + 1); SP “SP + 
+2; IFF1 < IFF2 
+
+
+iby t petits jets] byte i: ED 
+fof fofofofijali] byte 2: 45 
+
+
+The program counter is popped off the stack as 
+described for the POP instructions. Then the con- 
+tents of the IFF2 (storage flip-flop) is copied back 
+into the IFF1 to restore the state of the interrupt 
+flag before the non-maskable interrupt. 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+4M cycles; 14 T states; 7 usec @ 2 MHz 
+
+
+Indirect. 
+
+
+395 
+
+
+PROGRAMMING THE Z80 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+396 
+
+
+S$ Z H P/AV_N C 
+(no effect). 
+RETN 
+Before: After: 
+it i B/W) 
+
+
+aB40 se40 
+
+
+RL s 
+
+
+Function: 
+
+
+Format: 
+
+
+(IX + d) 
+
+
+(LY + d) 
+
+
+Description: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Rotate left through carry operand s. 
+
+
+“i 
++ 
+
+° 
+
+A 
+
+
+of 
+
+
+Q 
+w 
+
+
+{+ foto}: {ofa || byte t: 
+fofo[o[:|o|-—+ | byte 2 
+
+
+=| 
+= | 
+fe | 
+fe | 
+= | 
+elt 
+|= || 
+= | 
+g 
+om 
+Q 
+we 
+
+
+Fo byte 2: 16 
+1 Ron byte 1: DD 
+2: CB 
+byte 3: offset value 
+: 16 
+PEEP EE [ef] byte 1: Fp 
+: CB 
+byte 3: offset value 
+
+
+'o | byte 4: 16 
+
+
+oOo ia 
+223 
+oa om 
+Nu Ps 
+
+
+d - 
+
+
+A- lll E — 011 
+B — 000 H — 100 
+C — 001 L —- 101 
+D — 010 
+
+
+The contents of the location of the specific 
+operand are shifted left one bit place. The con- 
+tents of the carry flag are moved to bit 0 and the 
+contents of bit 7 are moved to the carry flag. The 
+final result is stored back in the original location. s 
+is defined in the description of the similar RLC in- 
+structions. 
+
+
+397 
+
+
+PROGRAMMING THE Z80 
+
+
+Data Flow: 
+
+
+xo Dp > 
+
+
+Timing: 
+
+
+usec 
+S: M cycles: | T states: |@2 MHz: 
+2 8 4 
+
+
+(HL) 4 15 7.5 
+6 23 11.5 
+6 23 11.5 
+
+
+Addressing Mode: rr: implicit; (HL): indirect; (IX + d), (LY + d): in- 
+
+
+dexed. 
+Byte Codes: RL r tT! A B € DE HL 
+cof popup} apis 
+C is set by bit 7 of source. 
+Example: RL E 
+Before: After: 
+= [a |r WEL 
+<—— [_« Je VUE 
+OBJECT CODE 
+
+
+398 
+
+
+RLA 
+
+
+Function: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Rotate accumulator left through carry flag. 
+
+
+L f= 79! 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+17 
+
+
+OBJECT CODE 
+
+
+cf A 
+
+
+ejofotifoltity a 
+
+
+The contents of the accumulator are shifted left 
+one bit position. The contents of the carry flag are 
+moved into bit 0 and the original contents of bit 7 
+are moved into the carry flag. (9 bit rotation.) 
+
+
+1 M cycle; 4 T states; 2 usec @ 2 MHz 
+
+
+Implicit. 
+5 Zz H PV NC 
+| tL | jo} | fole| 
+C is set by bit 7 of A. 
+RLA 
+Before: After: 
+
+
+aL or | ot dF CET ET. « 
+
+
+399 
+
+
+PROGRAMMING THE Z80 
+
+
+RLC r Rotate register r left with branch carry. 
+
+
+Function: 
+<b <! <——0 
+Cf t 
+
+
+Format: 
+tt fefef fofrty| byte 1: CB 
+fofofol[o] ej] byte 2 
+
+
+Description: The contents of the specified register are rotated 
+left. The original contents of bit 7 are moved to 
+the carry flag as well as bit 0. r may be any one of: 
+
+
+A - Ill E - 011 
+B — 000 H — 100 
+Cc — 001 L - 101 
+D — 010 
+
+Data Flow: 
+
+Timing: 2M cycles; 8 T states; 4 usec @ 2 MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Byte Codes: tf: 
+
+
+: A B C DE HL 
+ce-| o7 | 00} 01 | o2| 03 | 04] 05, 
+
+
+400 
+
+
+Flags: 
+
+
+Example; 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+ele Jol le(ole 
+
+
+C is set by bit 7 of source register. 
+RLC B 
+
+
+Before: After: 
+
+
+eBL_2 JL % |} *\*GFV/A ZZ 
+
+
+401 
+
+
+PROGRAMMING THE Z80 
+
+
+RLC (HL) 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Rotate left with branch carry memory location 
+(HL). 
+
+
+, 
+(HL) 
+
+
+ifr fofofrfofr]a| byte 1: CB 
+pofofof}ojoli{ ilo} byte 2: 06 
+
+
+The contents of the memory location addressed by 
+the contents of the HL register pair are rotated left 
+one bit position and the result is stored back at 
+that iocation. The contents of bit 7 are moved to 
+the carry flag as well as to bit 0. 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+402 
+
+
+4M cycles; 15 T states; 7.5 usec @ 2 MHz 
+
+
+Indirect. 
+
+
+4 H @v N C 
+e/e! [Oo] lelole| 
+
+
+C is set by bit 7 of the memory location. 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Exaniple: RLC (HL) 
+
+
+Before: After: 
+
+
+OBJECT CODE 
+
+
+403 
+
+
+PROGRAMMING THE Z80 
+
+
+RLC (1X +d) Rotate left with branch carry memory location (LX 
+
+
+Function: 
+
+
+Format. 
+
+
+Description, 
+
+
+Data Fiow: 
+
+
++ d) 
+
+
+Left fof efi] fo]: | byte 1: Dp 
+Pe yrfefef pops | byte 2: CB 
+
+
+byte 3: offset value 
+fofofofo}o}s | jo} byte 4: 06 
+
+
+The contents of the memory location addressed by 
+the contents of the 1X register plus the given offset 
+value are rotated left and the result is stored back 
+at that location. The contents of bit 7 are moved 
+to the carry flag as well as to bit 0. 
+
+
+404 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Timing: 6 M cycles; 23 T states; 11.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indexed. 
+
+
+Flags: 5 Z HH @v N C 
+
+
+Example: RLC (IX + 1) 
+Before: After: 
+[2s WHA 
+
+
+[op 
+0482 
+| 
+| me 
+aan 
+
+
+OBJECT CODE 
+
+
+405 
+
+
+PROGRAMMING THE Z80 
+
+
+RLC (T¥ +d) Rotate left with carry memory location (LY + d). 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Fiow: 
+
+
+406 
+
+
+—d———--—--—+] byte 3: offset value 
+}o foto }ojo}y ji fo} byte 4: 06 
+
+
+The contents of the memory location addressed by 
+the contents of the IY register plus the given offset 
+value are rotated left and the result is stored back 
+at the location. The contents of bit 7 are moved to 
+the carry flag as well as bit 0. 
+
+
+Timing: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+6 M cycles; 23 T states; 11.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indexed. 
+
+
+Flags: 
+
+
+Example: 
+
+
+FD 
+cB 
+
+
+OBJECT CODE 
+
+
+§ Z H Pv N C 
+feje] jo} [eloje| 
+C is set by bit 7 of memory location. 
+
+
+RLC (I¥ + 2) 
+
+
+| 
+0023} A2 023 Gy sWy7 
+oo | 
+
+
+407 
+
+
+PROGRAMMING THE Z80 
+
+
+RLD Rotate left decimal. 
+
+
+Function: A aa FE [H} 
+_ 
+
+
+pormae PPP feb tT fefy byte 1: ED 
+otf fet ytd byte 2: 6F 
+
+
+Description: The 4 low order bits of the memory location ad- 
+dressed by the contents of HL are moved to the 
+high order bit positions of that same location. The 
+4 high order bits are moved to the 4 low order bits 
+of the accumulator. The low order of the ac- 
+cumulator is moved to the 4 low order bits of the 
+memory location originally specified. All of these 
+operations occur simultaneously. 
+
+
+Data Flow: 
+
+
+MMMM 
+Pe 
+
+
+|} 
+|_DATA 
+
+
+Timing: 5 M cycles; 18 T states; 9 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+408 
+
+
+Flags: 
+
+
+Examples: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+ee oc ieor 
+
+
+Before: After: 
+
+
+Bar2 A/S) 
+an i 
+
+
+409 
+
+
+PROGRAMMING THE Z80 
+
+
+RR s Rotate right s through carry. 
+Function: 
+Lef7 —=of=[ + 
+3 c 
+Format: 
+
+
+r fof rfofof {of i]s] byte 1: CB 
+Fof of of ij ibe} byte 2 
+
+(AL) [of sfof ol tfof ifr} byte 1: CB 
+
+ofofoliyrii{: fol byte 2: 1E 
+
+(x + d) pfofofsfofafofr byte i: DD 
+
+tf fofofsfofr fe | byte 2: CB 
+<~—_—____—__d——_—__+| _ byte 3: offset value 
+
+Fofofojrfifrfs fol byte 4: 1E 
+
+ay+d) [1{+}ufi[sfrfols] byte 1: FD 
+
+rf fofoyafojr] t| byte 2: CB 
+
+
+byte 3: offset value 
+
+
+pofototi |i jis |e] byte 4: 1B 
+
+
+r may be any one of: 
+
+
+A - lll E —- Oll 
+B — 000 H — 100 
+Cc — 001 L — 101 
+D — 010 
+Description: The contents of the location determined by the 
+
+
+specific operand are shifted right. The contents of 
+the carry flag are moved to bit 7 and the contents 
+of bit 0 are moved to the carry flag. The final 
+result is stored back in the original location. s is 
+defined in the description of the similar RLC in- 
+structions. 
+
+
+410 
+
+
+THE 280 INSTRUCTION SET 
+
+
+Data Flow: 
+
+
+Iv DB > 
+cemom 
+
+
+Timing: 
+
+
+usec 
+M _ T states: | @ 2 MHz: 
+
+
+Addressing Mode: r: implicit; (HL): indirect; (LX + d), (TY + d): in- 
+
+
+dexed. 
+Byte Codes: RR ir: mn A BC DE 
+cofie ie [ie [aie fic ro 
+Flags: P/V oN 
+
+
+ele] Jol lejole 
+
+
+C is set by bit 0 of source data, 
+
+
+Example: RR H 
+Before: After: 
+
+
+-—~__ | 
+
+
+OBJECT CODE 
+
+
+41) 
+
+
+PROGRAMMING THE Z80 
+
+
+RRA Rotate accumulator right through carry. 
+Function: 
+7 ——- 6G 
+A Cf 
+Format: 
+popofotrfiyij ft) ae 
+Description: The contents of the accumulator are shifted right- 
+
+
+one bit position. The contents of the carry flag 
+are moved to bit 7 and the contents of bit 0 are 
+moved to the carry flag (9-bit rotation), 
+
+
+Data Flow: 
+
+
+Timing: 1 M cycle; 4 T states; 2 usec @ MHz 
+
+
+Addressing Mode: Implicit. 
+
+
+Flags: $ Zz H PVN C 
+
+
+_| | jo} | [ole 
+
+
+C is set by bit 0 of A. 
+
+
+Example: RRA 
+Before: After: 
+
+
+AZ) 
+OBJECT CODE 
+
+
+412 
+
+
+Function: 
+
+
+Format; S! 
+
+
+(HL) 
+
+
+(IX + d) 
+
+
+(LY + d) 
+
+
+Description: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Rotate right with branch carry s. 
+
+
+sis any of r, (HL), (LX + d), (IY + d). 
+oliloly ia byte 1: CB 
+
+
+jo fofofo}i byte 2 
+tf fofots fo fs [i | byte 1: CB 
+
+
+°o 
+
+
+Eigia 
+Bigia 
+re|fell= 
+Bligig 
+Eigia 
+AEE 
+=e FEE 
+Bigg! 
+Oo mo 
+mm ND 
+om 
+
+
+Hi | byte 2: CB 
+d byte 3: offset value 
+: OF 
+: FD 
+byte 2: CB 
+
+
+Co Fe 
+a 
+ee = 
+mo o 
+— ff 
+
+
+byte 3: offset value 
+
+
+0 pofofifilsfo| byte 4: OE 
+
+
+r may be any one of: 
+
+
+: 
+
+
+A - Ill E — O81 
+B — 000 H — 100 
+C - O11 L — 101 
+D — 010 
+
+
+The contents of the location determined by the 
+specified operand are rotated right and the result 
+
+
+similar RLC instructions. 
+
+
+413 
+
+
+PROGRAMMING THE Z80 
+
+
+Data Flow: 
+
+
+Timing; 
+
+
+(HL) 
+(IX + d) 
+(lY + d) 
+
+
+Addressing Mode: _r: implicit; (HL): indirect; (IX + d), (LY + d): in- 
+
+
+dexed. 
+Byte codes: RRC ros A B C D €— HU 
+ce oF | 08 | 09 | 08 0B Joc [00 | 
+Flags: S$ 2 H  @wn ie 
+
+
+OOMMMUEO 
+
+
+C is set by bit 0 of source data. 
+Example: RRC (HL) 
+
+
+Before 
+[str WHEL 
+
+
+afr] 06 VY YY 
+| oe i—~~__] 
+-—~_ 
+
+
+OBJECT CODE 
+
+
+4i4 
+
+
+RRCA 
+
+
+Function: 
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE 280 INSTRUCTION SET 
+
+
+Rotate accumulator right with branch carry. 
+
+
+pofepop ay yy t |i] oF 
+
+
+The contents of the accumulator are rotated right 
+one bit position. The contents of bit 0 are moved 
+to the carry flag as well as to bit 7. 
+
+
+WM XAF < 
+a ee 
+
+
+I M cycle; 4 T states; 2 usec @ 2 MHz 
+
+
+Implicit. 
+
+
+3 PVN C 
+
+
+TT THIOL ole! 
+
+
+C is set by bit 0 of A, 
+
+
+RRCA 
+
+
+Before: After: 
+
+
+415 
+
+
+PROGRAMMING THE Z80 
+
+
+RRD Rotate right decimal. 
+, maa 
+Function: aly a[3 oO [Ht 
+
+
+Format: Pili fofofifs fo] || byte i: ED 
+Poff fofopeft || byte 2: 67 
+
+
+Description: The 4 high order bits of the memory location ad- 
+dressed by the contents of the HL register pair are 
+moved to the low order 4 bits of that location. The 
+4 low order bits are moved to the 4 low order bits 
+of the accumulator. The low order bits of the ac- 
+cumulator are moved to the 4 high order bit posi- 
+tions of the memory location originally specified. 
+All of the above operations occur simultaneously. 
+
+
+Data Flow: 
+
+
+Timing: 5 M cycles; 18 T states; 9 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+416 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+$ H @v nN c 
+
+
+(ele. lol elo 
+
+
+y=] 
+
+
+RD 
+
+
+PROGRAMMING THE Z80 
+
+
+RST p 
+
+
+Function: 
+
+
+Format: 
+
+
+Description: 
+
+
+Data Flow: 
+
+
+418 
+
+
+Restart at p. 
+
+
+— 2; PChigh —0; Clow - p 
+
+
+NED rare 
+
+
+The contents of the program counter are pushed 
+onto the stack as described for the PUSH instruc- 
+tions. The specified value for p is then loaded into 
+the PC and the next instruction is fetched from 
+this new address. p may be any one of: 
+
+
+OOH — 000 20H — 100 
+08H — 001 28H — 101 
+10H — 010 30H — 110 
+18H — O11 38H — 111 
+
+
+This instruction performs a jump to any of eight 
+starting addresses in low memory and requires only 
+a single byte. It may be used as a fast response to 
+an interrupt. 
+
+
+stack] 
+WIT 
+WU); 
+
+
+= 
+WWW ae 
+
+
+THE Z80 INSTRUCTION SET 
+Timing: 3M cycles; 11 T states; 5.5 usec @ 2 MHz 
+
+
+Addressing Mode: Indirect. 
+
+
+Byte Codes: p: 00 08 10 18 20 28 30 38 
+
+
+[o7} cr} 02] oF] & Je |r fer 
+
+
+Flags: 5 2 
+
+
+H PY ON C 
+CLIT ITLL) coette. 
+Example: RST 38H 
+Before: After: 
+sp s* YY EE YU 
+
+
+OBJECT CODE 
+
+
+419 
+
+
+PROGRAMMING THE 280 
+
+
+SBC A,s Subtract with borrow accumulator and specified 
+operand. 
+Function: A«+A-s-C 
+Format: s: may be r,n, (HL), (IX + d), or (IY + d) 
+| CRED ESS 
+mn (] fot fi [i [ fo] byte 1: DE 
+byte 2: immediate 
+oe) ata 
+(HL) [i fofojr[rf{i[ifo] byte: 9E 
+(xX+d) [rfrfojrfrfrjols) byte t: pp 
+itofet tit f{tfo] 9 
+byte 3: offset value 
+qy¥+d) (itil fefefr fo] ty byte i: Fp 
+ttofoti | [fifo] byte 2: 98 
+byte 3: offset value 
+
+
+r may be any one of: 
+
+
+A- lll E - Ol 
+B — 000 H — 100 
+Cc — 001 L — 101 
+D — 010 
+Description: The specified operand s, summed with the con- 
+
+
+tents of the carry flag, is subtracted from the con- 
+tents of the accumulator, and the result is placed 
+in the accumulator. s is defined in the description 
+of the similar ADD instructions. 
+
+
+420 
+
+
+Data Flow: 
+
+
+Timing: 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Addressing Mode: r: implicit; n: immediate; (HL): indirect; (LX + 
+
+
+Byte Codes: 
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+d), (FLY + d): indexed. 
+
+
+PROGRAMMING THE Z80 
+
+
+SBC HL,ss Subtract with borrow HL and register pair ss. 
+
+
+Function: HL«-HL —-ss—-—C 
+
+
+df fef ft fol: | byte i: ED 
+ol t{s sfofol' | oj byte 2 
+
+
+Description: The contents of the specified register pair plus the 
+contents of the carry flag are subtracted from the 
+contents of the HL register pair and the result is 
+stored back in HL. ss may be any one of: 
+
+
+Format: 
+
+
+BC — 00 HL — 10 
+DE - Ol SP — 11 
+
+
+Data Flow: 
+
+
+Timing: 4M cycles; 15 T states; 7.5 usec @ 2 MHz 
+Addressing Mode: I\mplicit. 
+
+
+Byte Codes: SS: BC DE HL SP 
+
+
+©o- [a]2[]>| 
+
+
+422 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Flags: HPN C 
+
+
+ele] lel lel le 
+
+
+His set if borrow from bit 12. 
+C is set if borrow. 
+
+
+Example: SBC HL, DE 
+
+Before: After: 
+( (| LLL 
+(eI —— 
+
+
+423 
+
+
+PROGRAMMING THE Z80 
+
+
+SCF Set carry flag. 
+Function: Cc<+1 
+Format: 
+
+
+pofofeyifotrpiyiy 37 
+
+
+Description: The carry flag is set. 
+
+
+Timing: 1M cycle; 4 T states; 2 usec @ 2 MHz 
+
+
+Addressing Mode: implicit. 
+
+
+Flags: $ pV NC 
+
+
+Z H 
+
+
+424 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+SET b,s Set bit b of operand 
+Function: Sh wl 
+Format: Ss: 
+
+
+r byte I: CB 
+byte 2 
+(HL) pififofotrfofr fe] byte 1: CB 
+byte 2 
+ax+d Leitlet ttt ted ] byte a: pp 
+byte 2: CB 
+
+
+[4g , | byte 3: offset value 
+
+
+a cee 
+ay+d) Libti | | tt tel] byte 1: FD 
+Pit tpopop feta yr byte 2: CB 
+byte 3: offset value 
+pra fb] 1] | 0 byte 4 
+
+
+A - fll E — 001 
+B — 000 H — 100 
+C ~ 001 L — 101 
+D — 010 
+
+
+0 ~ 000 4 — 100 
+1 — O01 5 ~ 101 
+2 — 010 6 — 110 
+3 -— 011 7-111 
+Description: The specified bit of the location determined by s is 
+
+
+set. s is defined in the description of the similar 
+BIT instructions. 
+
+
+425 
+
+
+PROGRAMMING THE 280 
+
+
+Data Flow: 
+
+
+miogm } 
+
+
+Timing: uSeC 
+2 
+4 
+6 
+6 
+
+
+8 4 
+15 7.5 
+23 11.5 
+23 11.5 
+
+
+Addressing Mode: 1: implicit; (HL): indirect; (IX + d), (LY + d): in- 
+
+
+dexed. 
+
+
+Byte Codes: SET b,r 
+
+
+CB- 0 
+
+
+[ele lo| ele lele 
+F2 | F3 
+
+
+efele Fa 
+
+7 | Fe | Fs | F9 | FA) FB | FC 
+b OO 3 2 3 4 5 6 7F 
+SET b, (IX + d) | co} ce] ob] pe | es | e& | Fo [re | 
+
+
+SET b, (IY + d) 
+
+
+SET b, (HL) 
+
+
+426 
+
+
+Flags: 
+
+
+Example: 
+
+
+B 
+
+
+OBJECT CODE 
+
+
+SET 7,A 
+
+
+Before: 
+
+
+(a 
+
+
+H 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+PVN C 
+(no effect) 
+
+
+After: 
+
+
+\ YUM 
+
+
+427 
+
+
+PROGRAMMING THE Z80 
+
+
+SLA s 
+
+
+Function: 
+
+
+Format: Ss. 
+
+
+(HL) 
+
+
+(IX + d) 
+
+
+(iY + d) 
+
+
+Description: 
+
+
+428 
+
+
+Arithmetic shift left operand s. 
+
+
+Cea 
+Cc s 
+
+
+1 
+
+
+=| 
+
+
+1 
+
+
+_ 
+
+
+a. 
+
+
+= 
+
+
+r may be any one of: 
+
+
+: CB 
+
+: Offset value 
+: 26 
+
+: FD 
+
+: CB 
+
+: offset value 
+
+
+: 26 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Data Flow: 
+
+
+Timing: usec 
+S. ‘veles. T states: | @ 2 MHz: 
+r 2 
+
+
+15 
+11.5 
+1E.5 
+
+
+Addressing Mode: — +r: implicit; (HL): indirect; (IX + d), (FY + d): in- 
+
+
+dexed. 
+Byte Codes: SLA fr cof [2 [21 [ee | [oe [5] 
+Flags: HOV N ¢ 
+
+
+(e]e| fol lelole. 
+
+
+C is set by bit 7 of source data. 
+
+
+Exaniple: SLA (HL) 
+Before: After: 
+F WEL 
+
+
+H OFF2 L H OFF2 L 
+
+
+B OFF2 OFF2 
+
+
+OBJECT CODE 
+
+
+429 
+
+
+PROGRAMMING THE Z80 
+
+
+SRA s 
+
+
+Function: 
+
+
+Format: 
+
+
+Shift right arithmetic s. 
+
+
+PL? a 8 | | 
+
+
+$ C 
+s 
+r Pfs fofofsfofr]s| byte 1: CB 
+fofofs fot pry} byte 2 
+(HL) Pufefofofs pole]: | byte 1: CB 
+Pofotrfojr yr |s fo. byte 2: 2E 
+
+
+ax +4)['['foprf fifo}: | byte 1: pp 
+
+
+['{*}ofo]: fo] |] byte 2: cB 
+byte 3: offset value 
+fof o| 0 | uf hi fo | byte 4: 2E 
+
+
+fofof:fofi fi [is fo] 
+(TY + d) nn i buf da fo fy | byte 1: FD 
+
+
+Description: 
+
+
+430 
+
+
+Lif fofe]: fo}: |i} byte 2: cB 
+
+
+<———_--—-- d--_—-_—~]| byte 3: offset value 
+pofofrfojt [st {o} byte 4: 2 
+
+
+t may be any one of: 
+
+
+A — lil E - 011 
+B — 000 H — 100 
+Cc — 001 L — 10] 
+D — 010 
+
+
+The contents of the location determined by the 
+specific operand are arithmetically shifted right. 
+The contents of bit 0 are moved to the carry flag 
+and the contents of bit 7 remain unchanged. The 
+final result is stored at the original location. s is 
+defined in the description of the similar RLC in- 
+structions. 
+
+
+THE 280 INSTRUCTION SET 
+
+
+| 
+Data Flow: Ls 
+
+
+Tuning: 
+
+
+USEC 
+M cycles: | T states: | @ 2 MHz: 
+
+
+Addressing Mode: 1: implicit: (HL): indirect; (LX + d), (IY + d): in- 
+dexed. 
+
+
+Byte Codes: SRA fr 
+
+
+CB- iy Bel m[2|as! “ool 2c xc [25] 
+
+
+Flags: H @vn Cc 
+
+
+(ele, lol _leiole 
+
+
+C is set by bit 0 of source data. 
+
+
+Example: SRA A 
+Before: After: 
+
+
+OBJECT CODE 
+
+
+431 
+
+
+PROGRAMMING THE Z80 
+
+
+SRL s 
+
+
+Function: 
+
+
+Format: s: 
+
+
+(HL) 
+
+
+(IX + d) 
+
+
+(IY + d) 
+
+
+Description: 
+
+
+432 
+
+
+Logical shift right s. 
+
+
+oI] 
+$ ¢c 
+
+
+Li} fe] oj yf oj i]t] byte 2: CB 
+
+
+———| byte 3: offset value 
+ofojr{i{s{i[t fo] byte 4: 3B 
+
+
+r may be any one of: 
+
+
+A — Ill E - 011 
+B — 000 H — 100 
+C — 001 L — 101 
+D —- 010 
+
+
+The contents of the location determined by the 
+specific operand are logically shifted right. A zero 
+is moved into bit 7 and the contents of bit 0 are 
+moved into the carry flag. The final result is stored 
+back in the original location. 
+
+
+Data Flow: 
+
+
+Tiniing: 
+
+
+Addressing Mode: 
+
+
+Byte Codes: 
+
+
+Flags: 
+
+
+Exaiple: 
+
+
+OBJECT CODE 
+
+
+THE Z80 iNSTRUCTION SET 
+
+
+r: implicit; (HL): indirect; (IX + d), (TY + d): in- 
+dexed. 
+
+
+SRL r r A B C OD 
+
+
+SEE 
+
+
+H @vnc 
+
+
+ele| lol jeje! 
+
+
+C is set by bit 0 of source data. 
+
+
+SRL E 
+
+Before: After: 
+(oe Wl Ys * 
+E WIM « 
+
+
+433 
+
+
+PROGRAMMING THE 280 
+
+
+SUB A, s Subtract operand s from accumulator. 
+
+
+Function: 
+
+
+Format: 
+
+
+(HL) 
+
+
+(IX + d) 
+
+
+(IY + d) 
+
+
+Description: 
+
+
+434 
+
+
+-~A-sS 
+
+
+> 
+
+
+s: may ber, n, (HL), (IX + d) or (IY + d) 
+
+
+‘Tojo ft jo 
+‘Tefeys fey 
+
+
+> HOOMeee 
+
+2 TEETH El EE 
+
+FTE OM EEE 
+
+2 ty tel tel ey ie} cE] EEL! 
+
+Soames 
+
+FTE MEE Ee | 
+
+> THEE Ee al 
+re} fe} TH fel | 
+
+
+A - 111 E - oli 
+B — 000 H — 100 
+C — 001 L — 101 
+D — 010 
+
+
+byte 1: 
+
+
+byte 2: 
+data 
+
+
+96 
+
+byte 1: 
+byte 2: 
+byte 3: 
+byte I: 
+byte 2: 
+
+
+byte 3: 
+
+
+D6 
+
+
+immediate 
+
+
+DD 
+96 
+
+
+offset value 
+
+
+FD 
+
+
+96 
+
+
+offset value 
+
+
+The specified operand s is subtracted from the ac- 
+cumulator and the result is stored in the ac- 
+cumulator. The operand s is defined in the 
+description of the similar ADD instructions. 
+
+
+Data Flow: 
+
+
+A 
+
+
+Timing: 
+
+
+Addressing Mode: 
+
+
+Byte Codes: 
+
+
+Flags: 
+
+
+Example: 
+
+
+OBJECT CODE 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+r: implicit; n: immediate; (HL): indirect; (IX + 
+d), (TY + d): indexed 
+
+
+SUB A,r - A B C DE HL 
+7 | 90| 91 | 92| 99 | 94 | 95 
+S H PN C 
+
+
+OOmOmONC 
+
+
+SUB A,B 
+
+Before: After: 
+
+. WY Uy 
+s[ 3 [at 
+
+
+435 
+
+
+PROGRAMMING THE Z80 
+
+
+XOR s 
+
+
+Function: 
+
+
+Format: 
+
+
+(1X + d) 
+
+
+(TY + d) 
+
+
+Exclusive or accumulator and s. 
+
+
+A«~AWs 
+gs: may be r,n, (HL), (IX + d), or (LY + d) 
+
+
+= 
+fe 
+= 
+| 
+= 
+| 
+
+
+byte 1: EE 
+
+
+byte 2: immediate 
+data 
+
+
+AE 
+
+
+byte 1: DD 
+byte 2: AE 
+
+
+byte 3: offset value 
+
+
+r may be any one of: 
+
+
+Description; 
+
+
+436 
+
+
+A - Ill E - Oli 
+B — 000 H — 100 
+C —- 001 L — 101 
+D — 010 
+
+
+The accumulator and the specified operand s are 
+exclusive ‘or’ed, and the result is stored in the ac- 
+cumulator. s is defined in the description of the 
+similar ADD instructions. 
+
+
+THE Z80 INSTRUCTION SET 
+
+
+Date Flow: 
+
+
+Al 
+
+
+Wi 
+| 
+
+
+Timing: 
+
+
+n 
+
+(HL) 
+(IX + d) 
+(TY + d) 
+
+
+Addressing Modes: r: implicit; n: immediate; (HL): indirect; (IX + 
+d), (FY + d): indexed 
+
+
+Byte Codes: XOR r Ti ~ BoC OD 
+aos [ao ]aaPaa] cao 
+Flags: $ Zz H @vN c¢c 
+jeje! [do] [@olo| 
+Exaiple: XOR A, BIH 
+Before: After: 
+| WELLL 
+
+
+437 
+
+
+ns) 
+ADDRESSING TECHNIQUES 
+
+
+INTRODUCTION 
+
+
+This chapter will present the general theory of addressing and the 
+various techniques which have been developed to facilitate the retrieval 
+of data. In a second section, the specific addressing modes available in 
+the Z80 will be reviewed, along with their advantages and limitations. 
+Finally, in order to familiarize the reader with the various trade-offs 
+possible, an applications section will demonstrate possible trade-offs 
+between the various addressing techniques by studying specific applica- 
+tion programs. 
+
+Because the Z80 has several 16-bit registers, in addition to the pro- 
+gram counter, which can be used to specify an address, it is important 
+that the Z80 user understand the various addressing modes, and in par- 
+ticular, the use of the index registers. Complex retrieval modes may be 
+omitted at the beginning stage. However, all the addressing modes are 
+useful in developing programs for this microprocessor. Let us now 
+study the various alternatives available. 
+
+
+POSSIBLE ADDRESSING MODES 
+
+
+Addressing refers to the specification, within an instruction, of the 
+location of the operand on which the instruction will operate. The main 
+addressing methods will now be examined. They are all illustrated in 
+Figure 5.1. 
+
+
+Implicit Addressing (or ‘‘Implied,"’ or ‘‘Register’’) 
+
+
+Instructions which operate exclusively on registers normally use //77- 
+plicit addressing. This is illustrated in Figure 5.1. An implicit instruc- 
+
+
+438 
+
+
+ADDRESSING TECHNIQUES 
+
+
+tion derives its name from the fact that it does not specifically contain 
+the address of the operand on which it operates. Instead, its opcode 
+specifies one or more registers, usually the accumulator, or else any 
+other register(s). Since internal registers are usually few in number 
+(commo'tly eight), this will require a small number of bits. As an exam- 
+ple, three bits within the instruction will point to one out of eight inter- 
+nal registers. Such instructions can, therefore, normally be encoded 
+within eight bits. This is an important advantage, since an eight-bit in- 
+struction normally executes faster than any two- or three-byte instruc- 
+tion. 
+An example of an implicit instruction is: 
+
+
+LD A, B 
+
+
+which specifies ‘“‘transfer the contents of BintoA”’ (Load A from B.) 
+Irmmediate Addressing 
+
+
+Immediate addressing is illustrated in Figure 5.1. The eight-bit op- 
+code is followed by an 8- or 16-bit literal (a constant). This type of 
+instruction is needed, for example, to load an eight-bit value in an 
+eight-bit register. Since the microprocessor is equipped with 16-bit reg- 
+isters, it may also be necessary to load 16-bit literals. An example of an 
+immediate instruction is: 
+
+
+ADD A, 0H 
+
+
+The second word of this instruction contains the literal ‘‘0’’, which is 
+added to the accumulator. 
+
+
+Absolute Addressing 
+
+
+Absolute addressing usually refers to the way in which data is retrieved 
+from or placed in memory, in which an opcode is followed by a 16-bit 
+address. Absolute addressing, therefore, requires three-byte instruc- 
+tions. An example of absolute addressing is: 
+
+
+LD (1234H), A 
+
+
+It specifies that the contents of the accumulator are to be stored at 
+memory location ‘‘1234’* hexadecimal. 
+
+The disadvantage of absolute addressing is to require a three-byte in- 
+struction. In order to improve the efficiency of the microprocessor, 
+another addressing mode may be made available, whereby only one 
+word is used for the address: direct addressing. 
+
+
+439 
+
+
+PROGRAMMING THE Z80 
+
+
+IMPLICIT/IMPLIED 
+
+
+IMMEDIATE 
+
+
+EXTENDED/ABSOLUTE 
+
+
+DIRECT/SHORT 
+
+
+INDEXED 
+
+
+7 0 
+I 
+OPCODE A 1R 
+
+
+OPCODE 
+
+
+LITERAL | 
+oe naearae wee sas = 
+OPCODE 
+FULL 16-BIT 
+
+
+ADDRESS 
+
+
+OPCODE 
+SHORT ADDRESS 
+
+
+OPCODE X REG 
+DISPLACEMENT 
+
+
+OR ADDRESS 
+
+
+Fig. 5.1: Basic Addressing Modes 
+
+
+440 
+
+
+ADDRESSING TECHNIQUES 
+
+
+Direct Addressing (or ‘‘Short,’’ or ‘‘Relative’’) 
+
+
+In this addressing mode, the opcode is followed by an eight-bit ad- 
+dress. This is also illustrated in Figure 5.1. The advantage of this ap- 
+proach is to require only two bytes instead of three for absolute ad- 
+dressing. The disadvantage is to limit all addressing within this mode to 
+addresses 0 to 255 or else —128 to +127. When using 0 to 255 (‘‘page 
+zero’’), this is also called short addressing, or 0-page addressing. When- 
+ever short addressing is available, absolute addressing is often called ex- 
+tended addressing by contrast. The range ~ 128 to +127 is used with 
+branch instructions. This is called relative addressing. 
+
+
+Relative Addressing 
+
+
+Normal jump or branch instructions require eight bits for the op- 
+code, plus the 16-bit address to which the program has to jump. Just as 
+in the preceding example, this mode has the disadvantage of requiring 
+three words, i.e., three memory cycles. To provide more efficient 
+branching, relative addressing uses only a two-word format. The first 
+word is the branch specification, usually along with the test it is imple- 
+menting. The second word is a displacement. Since the displacement 
+must be positive or negative, a relative branching instruction allows a 
+branch forward to 127 locations (seven-bits) or a branch backwards to 
+128 locations (usually +129 or —126, since PC will have been incre- 
+cremented by 2). Because most loops tend to be short, relative branch- 
+ing can be used most of the time and results in significantly improved 
+performance for such short routines. As an example, we have already 
+used the instruction JR NC, which specifies a ‘‘jump if no carry’’ toa 
+location within 127 words of the branch instruction (more precisely 
++129 to — 126). 
+
+The two advantages of relative addressing are improved performance 
+(fewer bytes used, higher speed) and program relocatability (indepen- 
+dence from absolute addresses). 
+
+
+Indexed Addressing 
+
+
+Indexed addressing is a technique used to access the elements of a 
+block or of a table successively. This will be illustrated by examples 
+later in this chapter. The principle of indexed addressing is that the in- 
+struction specifies both an index register and an address. The contents 
+of the register are added to the address to provide the final address. In 
+this way, the address could be the beginning of a table in the memory. 
+
+
+441 
+
+
+PROGRAMMING THE Z80 
+
+
+The index register would then be used to access all the elements of a 
+table successively in an efficient way. (This requires the availability of 
+increment/decrement instructions for the index register). In practice, 
+restrictions often exist which may limit the size of the index register, or 
+the size of the address or displacement field. 
+
+
+INDEX REGISTER 
+
+
+—_ BASE 
+
+
+BASE 
+
+
+displacement 
+
+
+MEMORY 
+
+
+Fig. 5.2: Addressing (Pre-indexing) 
+
+
+Pre-Indexing and Post-Indexing 
+
+
+Two modes of indexing may be distinguished. Pre-indexing is the 
+usual indexing mode in which the final address is the sum of a displace- 
+ment or address and of the contents of the index register. It is shown in 
+Figure 5,2, assuming an 8-bit displacement field and a 16-bit index 
+register. 
+
+Post-indexing treats the contents of the displacement field like the 
+address of the actual displacement, rather than the displacement itself. 
+This is illustrated in Figure 5.3. In post-indexing, the final address is the 
+sum of the contents of the index register plus the contents of the mem- 
+ory word designated by the displacement field. This feature utilizes, in 
+fact, a combination of indirect addressing and pre-indexing. But we 
+have not defined indirect addressing yet. Let us do that. 
+
+
+442 
+
+
+ADDRESSING TECHNIQUES 
+
+
+MEMORY Y index} 
+
+
+OPCODE 
+ADDRESS 
+
+
+ADDRESS 
+
+
+POINTER = BASE 
+
+
+Fig. 5.3: Indirect Indexed Addressing (Post-Indexing) 
+
+
+Indirect Addressing 
+
+
+We have already seen that two subroutines may wish to exchange a 
+large quantity of data stored in the memory. More generally, several 
+programs, or several subroutines, may need to access a common block 
+of information. To preserve the generality of the program, it is desira- 
+ble not to keep such a block at a fixed memory location. In particular, 
+the size of this block might grow or shrink dynamically, and it may 
+have to reside in various areas of the memory, depending on its size. It 
+would, therefore, be impractical to try to access this block using abso- 
+lute addresses, that is without rewriting the program every time. 
+
+The solution to this problem lies in depositing the starting address of 
+the block at a fixed memory location. This is analogous to a situation in 
+which several persons need to get into a house, and only one key exists. 
+By convention, the key to the house will be hidden under the mat. Every 
+user will then know where to look (under the mat) to find the key to the 
+house (or, perhaps, to find the address of the scheduled meeting, to 
+propose a stricter analogy). Indirect addressing, therefore, normally 
+
+
+443 
+
+
+PROGRAMMING THE Z80 
+
+
+uses an opcode (16 bits in the case of the Z80) followed by a 16-bit ad- 
+dress. This address is used to retrieve a word from the memory. Usu- 
+ally, it will be a 16-bit word (in our case, two bytes) within the memory 
+since it is an address. This is illustrated by Figure 5.4. The two bytes at 
+the specified address Al contain ‘‘A2’*. A2 is then interpreted as the ac- 
+tual address of the data that one wishes to access. 
+
+
+INSTRUCTION MEMORY 
+
+
+OPCODE 
+
+
+INDIRECT 
+ADDRESS Ay 
+
+
+FINAL 
+
+
+ADDRESS (A:) 
+
+
+Fig. 5.4: Indirect Addressing 
+
+
+Indirect addressing is particularly useful any time that pointers are 
+used. Various areas of the program can then refer to these pointers to 
+access a word or a block of data conveniently and elegantly. The final 
+address may also be obtained by pointing within the instruction to a 
+16-bit register in which it is contained. This is called ‘‘register indirect.”’ 
+
+
+Combinations of Modes 
+
+
+The above addressing modes may be combined. In particular, it 
+should be possible in a completely generai addressing scheme to use 
+many levels of indirection. The address A2 could be interpreted as an 
+indirect address again, and so on. 
+
+Indexed addressing can also be combined with indirect access. This 
+allows the efficient access to word n of a block of data, provided one 
+knows where the pointer to the starting address is (see figure 5.2). 
+
+
+444 
+
+
+ADDRESSING TECHNIQUES 
+
+
+We have now become familiar with all usual addressing modes that 
+can be provided in a system. Most microprocessor systems, because of 
+the limitation on the complexity of an MPU, which must be realized 
+within a single chip, do not provide all possible modes but only a small 
+subset of these. The Z80 provides a good subset of possibilities. Let us 
+examine them now. 
+
+
+Z80 ADDRESSING MODES 
+Implied Addressing (Z80) 
+
+
+Implied addressing is essentially used by single-byte instructions 
+which operate on internal registers. Whenever implicit instructions 
+operate exclusively on internal registers, they require only one cycle to 
+execute. 
+
+Examples of instructions using implied (or ‘‘register’’) addressing 
+are: LDr,r’; ADD A,r; ADC A,s; SUBs; SBC A,s; ANDs; ORs; 
+XOR s; CPs; INCr. 
+
+Zilog further distinguishes between ‘‘register addressing’’ and ‘‘im- 
+plied addressing.’’ Implied addressing is then limited, in that definition, 
+to instructions that do not have a specific field to point to an internal 
+register. This introduces one more addressing mode. This is one reason 
+why the number of addressing modes is insufficient to characterize the 
+capabilities of a microprocessor. 
+
+
+Immediate Addressing (Z30) 
+
+
+Since the Z80 has both single-length registers (eight bits), and double- 
+length register pairs (16 bits), it provides two types of immediate ad- 
+dressing, both with 8-bit and 16-bit literals. Instructions are then 
+either two or three bytes long. The first byte contains the constant, or 
+literal, to be loaded in a register or used for an operation. Exceptions 
+are LD IX and LD IY, which require 16-bit opcodes. 
+
+Examples of instructions using the immediate addressing mode are: 
+
+
+LD r,n (two bytes) 
+LD dd,nn (three bytes) 
+
+
+and 
+ADD A,n (two bytes) 
+
+
+When the literal is two bytes long, the mode is called ‘‘immediate ex- 
+tended,’’ in the case of the Z80. 
+
+
+445 
+
+
+PROGRAMMING THE Z80 
+
+
+Absolute or ‘‘Extended’’ Addressing (280) 
+
+
+By definition, absolute addressing requires three bytes, The first byte 
+is the opcode and the next two bytes are the 16-bit address specifying 
+the memory location (the ‘‘absolute address’’). 
+
+By contrast with ‘‘short addressing’’ (eight-bit address), this mode is 
+also called ‘‘extended addressing.”’ 
+
+Examples of instructions using extended addressing are: 
+
+
+LD HL, (nn) and JP nn 
+
+
+where nn represents the 16-bit memory address, and (nn) represents the 
+contents of the specified location. 
+
+
+Modified Zero-Page Addressing (Z80) 
+
+
+Zero-page addressing is not available in the Z80, except through the 
+CALL instruction. The special addressing mode used by this instruction 
+is called ‘‘modified zero -page addressing.”’ 
+
+The CALL instruction contains a 3-bit field in bit positions bs bg by 
+used to point to one of 8 locations in page 0 of memory. The effective 
+address is bsb4b3000 and is loaded into PC. Since it requires only a 
+single byte, this instruction executes rapidly, and is easily generated in 
+hardware. It was generally used to respond to multiple interrupts (up to 
+8). Its disadvantage is either to limit the execution sequence to 16 loca- 
+tions, or to require a jump eliminating the speed advantage. This is 
+because each of the 8 branch addresses are 16- bytes apart. 
+
+This instruction is used less frequently now that priority interrupt 
+controller chips (PIC’s) have become available (see refs C201 or C207 
+for a detailed description of PIC’s). A PIC will automatically output a 
+three-byte absolute Jump in response to an interrupt acknowledge. 
+
+This instruction is now generally used as a restart. 
+
+
+Relative Addressing (Z80) 
+
+
+By definition, relative addressing requires two bytes. The first one is 
+the ‘‘jump relative’’ opcode, whereas the second one specifies the dis- 
+placement and its sign. 
+
+In order to differentiate this mode from the absolute jump instruc- 
+tion, it is labeled ‘‘JR’’. 
+
+From a timing standpoint, this instruction should be examined with 
+caution. Whenever a test fails, i.e., whenever there is no branch, this in- 
+
+
+446 
+
+
+ADDRESSING TECHNIQUES 
+
+
+struction requires only seven ‘*T cycles.’’ This is because the next 
+instruction to ve executed is already pointed to by the program counter. 
+
+However, when the test succeeds, i.e., whenever the jump takes 
+place, this instruction requires 12 ‘‘T-states’’; a new effective address 
+must be computed and loaded into the program counter. 
+
+When computing the duration of the execution of a program seg- 
+ment, caution must be exercised. Whenever one is not sure whether or 
+not the jump will succeed, one must take into consideration the fact 
+that sometimes the jump will require 12 T-states, (condition met), 
+sometimes 7 (condition not met). 
+
+When designing a loop, execution will, therefore, be faster using a 
+JR(Jump Relative) testing a condition usually not mef, such as a non- 
+zero condition for the counter. 
+
+When JR’s are used outside of loops, and the condition under test is 
+unknown, an average timing value is often used for the duration 
+of JR. 
+
+This timing problem does not apply to the unconditional jump JR e. It 
+does not test any condition, and always lasts 12 T-states. 
+
+
+Indexed Addressing (Z80) 
+
+
+This addressing mode did not exist in the 8080, and was added to the 
+Z80 (as well as the two index registers). As a result, it became necessary 
+to add an extra byte to the opcode, making it a 16-bit opcode in the Z80 
+instruction set (LDIR is another example of a 16-bit opcode). The 
+structure of an indexed instruction is shown on Figure 5.5. 
+
+
+\ LITERAL | BYTE 4 
+
+
+La ee ees cae ee ee ns ne cs sees ur vl! 
+
+
+Fig. 5.5: Indexed Addressing Has 2-byte Opcode 
+
+
+447 
+
+
+PROGRAMMING THE Z80 
+
+
+Instructions allowing indexed addressing are: 
+LD, ADD, INC, RLC, BIT, SET 
+
+
+This mode will be used extensively in the programs Operating on 
+blocks of data, tables or lists. 
+
+
+Indirect Addressing (280) 
+
+
+The Z80 provides a limited indirect addressing capability called 
+‘‘Register Indirect Addressing.’’ In this mode, each of the 16-bit regis- 
+ter pairs BC, DE, HL may be used as a memory address. 
+
+Whenever they point to 16-bit data, they point to the lower part. The 
+higher part resides at the next (higher) sequential address. 
+
+
+Combinations of Modes 
+
+
+Combinations of modes are essentially non-existent, except that in- 
+structions referring to two operands may use a different type of ad- 
+dressing for each. 
+
+Thus, a /oad or an arithmetic instruction may access one operand in 
+the immediate mode, and the other one through an indexed access. 
+
+Also, the bit addressing mechanism may access the eight-bit byte 
+through one of three addressing modes, as explained in the previous 
+paragraph. 
+
+The specific addressing modes available for each instruction are indi- 
+cated in the tables of the preceding chapter. 
+
+
+Bit Addressing 
+
+
+Bit addressing is generally not considered an addressing mode if ad- 
+dressing is defined as accessing a byte. However, whether defined as a 
+mode or a group of instructions, it is a valuable facility. Since it is de- 
+fined as an ‘‘addressing mode’’ in Zilog nomenclature, it will be so de- 
+scribed here. It is specific to the Z80 and was not provided on the 8080. 
+
+Bit addressing refers to the access mechanism to specified bits. The 
+Z80 is equipped with special instructions for setting, resetting and test- 
+ing specified bits in a memory location or a register. The specified byte 
+may be accessed through one of three addressing modes: register, regis- 
+ter-indirect, and indexed. Three bits are used within the opcode to select 
+one of eight bits. 
+
+
+448 
+
+
+ADDRESSING TECHNIQUES 
+
+
+USING THE Z80 ADDRESSING MODES 
+Long and Short Addressing 
+
+
+We have already used relative jump instructions in various programs 
+that we have developed. They are self-explanatory. One interesting 
+question is: What can we do if the permissible range for branching is 
+not sufficient for our needs? One simple solution is to use a so called 
+long jump. This is simply a jump to a location which contains an abso- 
+lute or ‘‘long’’ jump specification: 
+
+
+JRNC,$ + 3 BRANCH TO CURRENT ADDRESS 
++3 IF C CLEAR 
+JP FAR OTHERWISE JUMP TO FAR 
+
+
+(NEXT INSTRUCTION) 
+
+
+The two-line program above will result in branching to location FAR 
+whenever the carry is set. This solves our long-jump problem. Let us 
+therefore now consider the more complex addressing modes, i.e., in- 
+dexing and indirection. 
+
+
+Use of Indexing for Sequential Block Accesses 
+
+
+Indexing is primarily used to address successive locations within a 
+table. The restriction is that the maximum length must be less than 256 
+so that the displacement can reside in an eight-bit index register. 
+
+We have learned to check for a character. Now we will search a table 
+of 100 elements for the presence of a ‘*’. The starting address for this 
+table is called BASE. The table has only 100 elements. The program ap- 
+pears below: (see flowchart on Figure 5.6): 
+
+
+SEARCH LD IX, BASE 
+
+
+LD A,’*’ 
+
+LD B, COUNT 
+TEST CP (IX) 
+
+JR  Z, FOUND 
+
+INC IX 
+
+DEC B 
+
+
+JR NZ, TEST 
+NOTFND 
+
+
+An improved program will be presented below in the section on 
+Block Transfer. 
+
+
+449 
+
+
+PROGRAMMING THE Z80 
+TO ELEMENT 0 
+ELEMENT 
+
+
+STARFOUND 
+
+
+NO 
+
+
+POINT TO 
+NEXT ELEMENT 
+
+
+NOT FOUND 
+
+
+Fig. 5.6: Character Search Flowchart 
+
+
+A Block Transfer Routine for Fewer Than 256 Elements 
+
+
+We will call ‘““COUNT”’ the number of elements in the block to be 
+moved. The number is assumed to be less than 256. FROM is the base 
+address of the block. TO is the base of the memory area where it should 
+be moved. The algorithm is quite simple: we will move a word at a time, 
+keeping track of which word we are moving by storing its position in 
+the counter C. The program appears below: 
+
+
+BLKMOV_ LD IX, FROM 
+
+
+LD IY, TO 
+LD C, COUNT 
+NEXT LD A, (IX) GET WORD 
+LD (Y),A 
+INC IX 
+INC IY 
+DEC C 
+
+
+JR NZ, NEXT 
+Let us examine it: 
+
+
+BLKMOV LD  IX,FROM 
+LD IY,TO 
+LD C,COUNT 
+
+
+These three instructionsinitialize registers LX, IY, and C respectively, as 
+
+
+450 
+
+
+ADDRESSING TECHNIQUES 
+
+
+A Lg yes 4 MEMORY 
+
+
+c[ coun] 
+. 
+
+
+Ix DESTINATION : Li : Py Ye 
+LY Ue ‘if 
+3 Vigeds - - 
+YEE: 
+
+
+Fig. 5.7: Block Transfer: Initializing the Register 
+
+
+illustrated in Figure 5.7. Index register IX is used as the source pointer, 
+and will be incremented regularly. Index register IY is used as the desti- 
+nation pointer, and would be incremented regularly. Register C is load- 
+ed with the maximum number of elements to be transferred (limited to 
+256 since this is an eight-bit register) and will be decremented regularly. 
+Whenever C decrements to zero, all elements have been transferred. 
+The next two instructions: 
+
+
+NEXT LD A, (IX) 
+LD (IY),A 
+
+
+load the contents of the memory location pointed to by LX into the ac- 
+cumulator, then transfer it into the memory location pointed to by reg- 
+ister TY. In other words, these two instructions transfer an element of 
+the source block into the destination block. The two index registers are 
+then incremented: 
+
+
+INC IX 
+INC IY 
+
+
+And the counter register is decremented: 
+DEC C 
+
+
+Finally, as long as the counter is not 0, the program loops back to the 
+label NEXT: 
+
+
+JR NZ, NEXT 
+
+
+451 
+
+
+PROGRAMMING THE Z80 
+
+
+This is an example of the possible utilization of index registers. How- 
+ever, let us compare it to the same program written for another micro- 
+processor, the MOS Technology 6502, which is also equipped with an 
+indexing capability, but uses different conventions (i.e., has different 
+limitations on a general-purpose indexing facility). The program appears 
+below: 
+
+
+LDX #NUMBER 
+
+
+NEXT LDA FROM, X 
+STA TO, X 
+DEX 
+BNE NEXT 
+
+
+Without going into the details of the above program, the reader will 
+immediately notice how much shorter it is than the previous one. This is 
+because the index register X is used as a variable displacement, whereas 
+BASE and DEST are used as the fixed source and destination ad- 
+dresses. 
+
+This example should point out that although in theory indexing is a 
+powerful facility, it does not necessarily lead to efficient coding, due to 
+the addressing limitations imposed on it in the case of various micro- 
+processors. Truly general-purpose indexing requires the possibility of a 
+16-bit displacement or address field as well as a 16-bit index register. 
+
+However, it should be noted that this specific problem is solved, in 
+the Z80 by the presence of specialized instructions. A general-purpose 
+block transfer will now be described which can be implemented in just 
+four instructions. However, to be fair to the Z80, let us suggest addi- 
+tional exercises for the reader: 
+
+
+Exercise 5.1: Write the block transfer program for the Z80 in the style 
+of the above program for the 6502, i.e., assuming that the index register 
+contains a displacement, Assume thai the source and the destination 
+block are located in page 0, i.e., at addresses 0 to 256. Naturally, it will 
+be assumed that the number of elements within each biock is smail 
+enough that they do not overlap. 
+
+
+Exercise 5.2: Assume now that the source and the destination blocks are 
+located anywhere in the memory, except that they are both within the 
+same page. Rewrite the above program in that case. 
+
+
+Generalized Block Transfer Routine (More Than 256 Elements) 
+
+
+The register allocation and the memory map are shown in F igure 5.8. 
+
+
+452 
+
+
+ADDRESSING TECHNIQUES 
+
+
+The program is shown below: 
+
+
+LD BC, COUNT NUMBER OF BYTES 
+
+LD DE, TO DESTINATION ADDRESS 
+LD HL, FROM START ADDRESS 
+
+LDIR TRANSFER ALL BYTES 
+
+
+Memory used: 11 bytes 
+Timing: 21 cycles/byte 
+
+
+The first instruction is: 
+LD BC, COUNT 
+
+
+It loads the number of elements to be transferred (a 16-bit value) into 
+the register pair BC. The next two instructions initialize the register pair 
+DE and the register pair HL respectively: 
+
+
+LD DE, TO 
+LD HL, FROM 
+
+
+Finally the fourth instruction: 
+LDIR 
+
+
+performs the complete transfer. 
+
+LDIR is an: automated block-transfer instruction. Its power should 
+be obvious from this exampie. LDIR results in the following sequence: 
+The contents of the memory location pointed to by H and L are trans- 
+ferred into the memory location pointed to by DE: (DE) =(HL). Next, 
+DE is incremented: DE = DE + 1. Then, HL is incremented: HL = 
+HL + 1. Next, BC is decremented: BC = BC — 1. If BC becomes 0, the 
+instruction is terminated. Otherwise, the instruction is repeated. 
+
+
+D E 
+
+
+REGISTERS COUNT PF 
+
+
+MEMORY 
+Fig. 5.8: A Block Transfer-Memory Map 
+
+
+FROM 
+
+
+SOURCE 
+
+
+453 
+
+
+PROGRAMMING THE Z80 
+
+
+The value and power of the LDIR instruction should be apparent at 
+this point without further comments. Similarly, our search for the char- 
+acter ‘‘star’’can be improved by the use of an automated instruction, 
+CPIR, special to the Z80. The corresponding program appears below: 
+
+
+LD A,’* 
+
+LD BC, COUNT 
+
+LD HL, STRING 
+STAR CPIR 
+
+JR Z, STAR 
+NOSTAR  --- 
+
+
+The first instruction loads the accumulator with the code for the 
+character star. Next, the register pair BC is initialized to the count of 
+the number of words to be searched within the block: 
+
+
+LD BC, COUNT 
+
+
+The register pair H and L is set to the starting address of the block to 
+be searched (STRING). The automated instruction is then executed: 
+
+
+LD HL, STRING 
+CPIR 
+
+
+The CPIR instruction is an automated compare instruction. The con- 
+tents of the memory location specified by the address contained in H 
+and L is compared to the contents of the accumulator. If the compari- 
+son succeeds, then Z of the flags register will be set to 1. Then, the reg- 
+ister pair H and L is decremented. The instruction is repeated until 
+either the pair BC goes to 0 or else the comparison succeeds. After the 
+instruction CPIR is executed, it is therefore necessary to test the Z flag 
+to determine whether the comparison has succeeded (the CPIR might 
+have looped through 64K words without success in the extreme case). 
+This is the purpose of the last instruction of the program: 
+
+
+JR Z, STAR 
+
+
+Exercise 5.3: Rewrite the above program so that a search proceeds 
+backwards. (Hint: Use the CPIR instruction) “‘Continue the block 
+transfer until star is found.”’ 
+
+
+Let us now develop a program combining the features of the two pre- 
+vious ones. We will implement the block transfer from location FROM 
+
+
+454 
+
+
+ADDRESSING TECHNIQUES 
+to location TO, which shall stop automatically whenever an escape 
+character, ‘‘star’’, is found. The program appears below: 
+
+
+LD BC, COUNT 
+LD HL, FROM 
+
+
+LD DE, TO 
+LD A,™* DECIMITER 
+TEST CP (FROM) COMPARE WITH MEMORY 
+
+CHARACTER 
+
+JR Z, END END IF SUCCESS 
+
+LDI TRANSFER CHARACTER AND 
+UPDATE POINTERS AND 
+COUNT 
+
+JR PE, TEST KEEP TESTING UNLESS DONE 
+
+
+P INDICATES WHETHER BC = 0 
+
+
+The first three instructions of the program perform the usual inittali- 
+zation, setting up the counter registers and the source and destination 
+pointers: 
+
+
+LD BC, COUNT 
+LD HL, FROM 
+LD DE, TO 
+
+
+The star character is deposited, ‘‘as usual’’ into the accumulator, so 
+that it can be compared to the character read from a memory location. 
+
+
+LD A, ‘* 
+This is exactly what is done by the next instruction: 
+TEST CP (FROM) 
+
+
+The success or failure of the comparison is determined by testing the Z 
+bit. The Z bit will have been set if the comparison has succeeded. This is 
+performed by the next instruction: 
+
+
+JR Z, END 
+The next instruction is an automated transfer instruction: 
+LDI 
+
+
+This instruction transfers the character, and updates the pointers and 
+the count in a single instruction. LDI transfers the contents pointed to 
+by H and L into the memory location pointed to by D and E: (DE) = 
+(HL). It increments DE and HL: 
+
+
+DE = DE + 1 
+HL = HL + 1 
+
+
+455 
+
+
+PROGRAMMING THE Z80 
+
+
+Finally, it decrements BC: BC becomes BC —1. The particularity of 
+this instruction is that the P/V flag is set if BC decrements to ‘‘0’’ and 
+reset otherwise. This will be explicitly tested by the last instruction in 
+the program to determine whether exit should occur: 
+
+
+JR PE, TEST 
+Adding Two Blocks 
+
+
+A program will be developed here to add.element! by‘ element two 
+blocks starting respectively at addresses BLK1, and BLK2, and having 
+equal numbers of elements, COUNT. The program is shown below: 
+
+
+BLKADD LD IX, BLK1 
+LD TY, BLK2 
+LD B, COUNT 
+
+
+XOR A 
+
+LOOP LD A, IX + 0) 
+ADC A, (IY + 0) 
+LD (IX), A 
+DEC IX 
+DEC IY 
+DEC B 
+
+
+JR NZ, LOOP 
+
+
+B} COUNTER 
+
+
+MEMORY 
+
+
+REGISTERS 
+
+
+BLK 2 
+
+
+Fig. 5.9: Adding Two Blocks: BLK1=BLK1 + BLK2 
+
+
+456 
+
+
+ADDRESSING TECHNIQUES 
+
+
+The memory layout is shown in Figure 5.9. The program is straightfor- 
+ward. The number of elements to be added is loaded into the counter 
+register B, and the two index registers [X and IY are initialized to their 
+values BLK1 and BLK2: 
+
+
+BLK ADD LD IX, BLKI 
+
+
+LD IY, BLK2 
+LD B, COUNT 
+The carry bit is then cleared in anticipation of the first addition: 
+XOR A 
+The first element is loaded into the accumulator: 
+LOOP LD A, (IX + 0) 
+
+
+The corresponding element of BLK2 is then added to it: 
+ADC A, (IY +0) 
+
+and finally saved into the element of BLK1: 
+LD (IX), A 
+
+The two pointer registers X and Y are decremented: 
+
+
+DEC IX 
+DEC IY 
+
+
+as well as the counter register: 
+DEC B 
+
+As long as the counter register is not 0, the addition loop is executed: 
+JR NZ, LOOP 
+
+
+Exercise 5.4: Can you use the above program to perform a 32-bit addi- 
+tion? 
+
+
+Exercise 5.5: Can you use the above program to perform a 64-bit addi- 
+tion? 
+
+
+Exercise 5.6: Modify the above program so that the result is stored ina 
+separate block starting at address BLK3. 
+
+
+Exercise 5.7: Modify the above program to perform a subtraction 
+rather than an addition. 
+
+
+457 
+
+
+PROGRAMMING THE Z80 
+
+
+Exercise 5.8: Modify the original program above so that BLKI and 
+BLK2 are at the top of each block rather than the botiom (see Fig.5.10). 
+
+
+TRANSFER 
+
+
+x 
+
+
+ELEMENT COUNTER 
+
+
+DESTINATION BLOCK 
+
+
+Fig. 5.10: Memory Organization for Block Transfer 
+
+
+SUMMARY 
+
+
+A complete description of addressing modes has been presented. It 
+has been shown that the Z80 offers many possible mechanisms, and the 
+specific addressing modes available on the Z80 have been analyzed. 
+Finally, several application programs have been presented to demon- 
+strate the value of the various addressing mechanisms, Programming 
+the Z80 efficiently requires an understanding of these mechanisms. 
+They will be used throughout the programs in the remainder of this 
+book. 
+
+
+EXERCISES 
+
+
+5.9: Write a program to add the first 10 bytes of a table stored at loca- 
+tion “BASE”’, The result will have 16 bits. (This is a checksum com- 
+putation). 
+
+5.10: Can you solve the same problem without using the indexing 
+mode? 
+
+
+458 
+
+
+ADDRESSING TECHNIQUES 
+
+
+5.d1: Reverse the order of the 10 bytes of this table. Store the result 
+at address ““REVER’”’. 
+
+
+5.12: Search the same table for its largest element. Store it at memory 
+address “LARGE”’, 
+
+
+5.13: Add together the corresponding elements of three tables, whose 
+bases are BASEI, BASE2, BASE3. The length of these tables is stored 
+in page zero at address ““LENGTH’”’, 
+
+
+459 
+
+
+6 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+INTRODUCTION 
+
+
+We have iearned so far how to exchange information between the 
+memory and the various registers of the processor. We have learned to 
+manage the registers and to use a variety of instructions to manipulate 
+the data. We must now learn to communicate with the external world. 
+This is called input/output. 
+
+Input refers to the capture of data from outside peripherals (key- 
+board, disk, or physical sensor). Output refers to the transfer of data 
+from the microprocessor or the memory to external devices such as a 
+printer, a CRT, a disk, or actual sensors and relays. 
+
+Wewill proceed intwo steps. First, we will learn to perform the input / 
+output operations required by common devices. Secondly, we will 
+learn to manage several input/output devices simultaneously, i.e., to 
+schedule them. This second part will cover, in particular, polling vs. in- 
+terrupts, 
+
+
+INPUT/OUTPUT 
+
+
+In this section we will learn to sense or to generate simple signals, 
+such as pulses. Then we will study techniques for enforcing or measur- 
+ing correct timing. We will then be ready for more complex types of in- 
+put/output, such as high-speed serial and parallel transfers. 
+
+
+The Z80 Input/Output Instructions 
+
+
+The Z80 is equipped with a special set of input and output instruc- 
+tions. Most eight-bit microprocessors are not equipped with a special 
+set of input and output instructions, and use the general instruction set 
+
+
+460 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+on input/output devices. The Z80, like the 8080, is equipped with basic 
+input and output instructions. However, the Z80 is also equipped with 
+additional I/O instructions. These will be described in more detail here 
+in order to facilitate understanding of the programs that will be pre- 
+sented throughout this section. 
+
+The basic input and output instructions are respectively: IN A, (n) 
+and OUT (n),A. These two instructions are inherited from the 8080. 
+They will respectively read or write one byte between the selected port 
+and the accumulator. The actual addressing process is such that the I,O 
+device address ‘‘n’’ is gated on lines AO through A7 of the address bus), 
+while the contents of the accumulator appear on address lines A8 through 
+A15. When only 256 devices are addressed, it may be necessary to zero 
+the contents of the accumulator explicitly if any of the address lines A8 
+through A1lS may be decoded by an 1/O device. In the simpie examples 
+that follow, we will assume that fewer than 256 devices are present and 
+that they are not connected to addresses A8 through AI5, so that it will 
+not be necessary to zero the contents of the accumulator explicitly, for 
+example prior to using the IN instruction. 
+
+A special input instruction: IN r, (C), allows using the contents of 
+register C as the I/O device address. When using this instruction, the 
+contents of register B automatically provide the top part of the address 
+(A8 through A15), The specified register r is loaded from the specified 
+address. ‘‘r’’ may be any of the usual seven generai-purpose registers. 
+
+
+Generate a Signal 
+
+
+In the simplest case, an output device will be turned off (or on) from 
+the computer. In order to change the state of the output device, the pro- 
+grammer will merely change a level from a logical ‘‘0”’ to a logical ‘‘1’’, 
+or from ‘‘1’’ to ‘‘0’’. Let us assume that an external relay is connected 
+to bit *‘0’’ of a register called “OUT1’’. In order to turn it on, we will 
+simply write a ‘‘1’’ into the appropriate bit position of the register. We 
+assume here that OUTI represents the address of this output register 
+within our system. A program which will turn the relay on is: 
+
+
+TURNON LD A, 00000001 B LOAD PATTERN INTO A 
+OUT (OUTI), A OUTPUT IT TO DEVICE 
+
+
+where OUT is the output instruction. 
+
+We have assumed that the state of the other seven bits of the register 
+OUTI is irrelevant. However, this is often not the case. These bits 
+might be connected to other relays. Let us, therefore, improve this sim- 
+ple program. We want to turn the relay on, without changing the state 
+
+
+461 
+
+
+PROGRAMMING THE Z80 
+
+
+of any other bit within this register, We will assume that it is possible to 
+read and write the contents of this register. Our improved program now 
+becomes: 
+
+
+TURNON IN A, (OUT1) READ CONTENTS OF OUT! 
+OR 00000001B FORCE BIT “0” TO “1” INA 
+OUT (OUT1),A 
+
+
+The program first reads the contents of location OUTI, then per- 
+forms an inclusive OR on its contents. This only changes bit position 0 
+to ‘‘f’’, and leaves the rest of the register intact. (For more details on 
+the OR operation, refer to Chapter 4.) This is illustrated by Figure 6.1. 
+
+
+BEFORE AFTER 
+
+
+DATA 8US 
+RELAY 
+
+
+Out! Outi 
+
+
+Fig. 6.1: Turning on a Relay 
+Pulses 
+
+
+Generating a pulse is accomplished exactly as in the case of the /eve/ 
+above. An output bit is first turned on, then later turned off. This re- 
+sults in a pulse. This is illustrated in Figure 6.2. This time, however, an 
+additional problem must be solved: one must generate the pulse for the 
+correct length of time. Let us, therefore, study the generation of a com- 
+puted delay. 
+
+
+Ou OUTPUT PORT SIGNAL 
+REGISTER 
+
+
+wae «=N USEC —— 
+
+
+ee ee ee 
+
+
+Ow | ima 
+
+
+THE PROGRAM: SELECT OUTPUT PORT 
+
+LOAD OU FPUT PORT REGISTER WITH PATTERN 
+WAIT {LOOP FOR N USEC) 
+
+LOAD OUTPUT FORT WITH ZERO 
+
+RETURN 
+
+
+Fig. 6.2: A Programmed Pulse 
+
+
+462 
+
+
+INPUT/OUTPUT TECHNIQUES 
+Delay Generation and Measurement 
+
+
+A delay may be generated by software or by hardware methods. We 
+will here study the way to perform it by program, and later show how it 
+can also be accomplished with a hardware counter, called a program- 
+mable interval timer (PIT). 
+
+
+Programmed delays are achieved by counting. A counter register is 
+loaded with a value, then is decremented. The program loops on itself 
+and keeps decrementing until the counter reaches the value ‘‘0’*. The 
+total length of time used by this process will implement the required 
+delay. As an example, let us generate a delay of 67 clock cycles: 
+
+
+DELAY LD A, 5 A IS COUNTER 
+NEXT DEC A DECREMENT 
+JP NZ, NEXT NEXT TEST 
+
+
+This program loads A with the value 5. The next instruction decre- 
+ments A and the following instruction will cause a branch to NEXT to 
+occur as long as A does not decrement to ‘‘0’’. When A finally decre- 
+ments to zero, the program will exit from this loop and execute what- 
+ever instruction follows. The logic of the program is simple and appears 
+in the flowchart of Figure 6.3. 
+
+Let us now compute the effective delay which will be implemented by 
+the program. In the Appendix section of the book, we will look up the 
+number of cycles required by each of these instructions: 
+
+LDA in the immediate mode, requires nine clock cycles. DEC will use 
+four cycles. Finally, JP will use seven cycles except during the last itera- 
+tion, where it will use 12 cycles. When looking up the number of cycles 
+for JP in the table, verify that two possibilities exist: if the branch does 
+not occur, JP will only require seven cycles. If the branch does succeed, 
+which will usually be the case during the ioop, then 12 cycles are re- 
+quired. 
+
+The timing is, therefore, seven cycles for the first instruction, plus 11 
+cycles for the next two, multiplied by the number of times the loop will 
+be executed, plus an extra five-cycle delay for the last unsuccessful JP: 
+
+
+Delay = 7+ 11 x 54+ 5 = 67 cycles 
+
+
+Assuming a .5 microsecond cycle, this programmed delay will be 33.5 
+microseconds. 
+
+
+463 
+
+
+PROGRAMMING THE Z80 
+
+
+COUNTER = VALUE 
+
+
+DECREMENT COUNTER 
+
+
+OUT 
+
+
+Fig. 6.3: Basic Delay Flowchart 
+
+
+The delay loop which has been described is used by most input/output 
+programs. It should be well understood. Try to do the following exercises: 
+
+
+Exercise 6.1: What are the maximum and the minimum delays which 
+can be implemented with these three instructions? 
+
+
+Exercise 6.2: Modify the program to obtain a delay of about 100 micro- 
+seconds. 
+
+
+If one wishes to implement a longer delay, a simple solution is to add 
+extra instructions in the program, between DEC and JP. The simplest 
+way to do so is to add NOP instructions. (The NOP does nothing for 
+four cycles.) 
+
+
+Longer Delays 
+
+
+Generating longer delays by software can be achieved through using 
+
+
+464 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+a wider counter. A register pair can be used to hold a 16-bit count. To 
+simplify, let us assume that the lower count is ‘‘0’’. The lower byte will 
+be loaded with ‘‘255’’, the maximum count, then go through a decre- 
+mentation loop. Whenever it is decremented to ‘‘0’’, the upper byte of 
+the counter will be decremented by !. Whenever the upper byte is decre- 
+mented to the value ‘‘0’’, the program terminates. If more precision is 
+required in the delay generation, the lower count can have a non-null 
+value. In this case, we would write the program just as explained and 
+add at the end the three-line delay generation program, which has been 
+described above. 
+
+A 24-bit delay program appears below: 
+
+DEL24 LD B, COUNTH COUNTER HIGH (8 BITS) 
+
+DELI16 LD DE, ~—1 
+
+LOOPA LD HL, COUNTL COUNTER LOW 
+
+
+LOOPB ADD HL, DE DECREMENT IT 
+JR C, LOOPB GO ON UNTIL NULL 
+DJINZ LOOPA DECREMENT B AND JUMP 
+
+
+Note that DE is loaded with ‘‘—1’’, and used to decrement the 16-bit 
+counter HL. 
+
+Naturally, still longer delays could be generated by using more than 
+three words. This is analogous to the way an odometer works on a car. 
+When the right-most wheel goes from ‘‘9’’ to ‘‘0’’, the next wheel to the 
+left is incremented by 1. This is the general principle when counting 
+with multiple discrete units. 
+
+However, the main disadvantage of this method is that when one is 
+counting delays, the microprocessor will be doing nothing else for hun- 
+dreds of milliseconds or even seconds. If the computer has nothing else 
+to do, this is perfectly acceptable. However, in general the microcom- 
+puter should be available for other tasks, so that longer delays are nor- 
+mally not implemented by software. In fact, even short delays may be 
+objectionable in a system if it is to provide some guaranteed response 
+time in given situations. Hardware delays must then be used. In addi- 
+tion, if interrupts are used, timing accuracy may be lost if the counting 
+loop can be interrupted. 
+
+
+Exercise 6.3: Write a program to implement a 100 ms delay (typical of a 
+Teletype). 
+
+
+Hardware Delays 
+
+
+Hardware delays are implemented by using a programmabie interval 
+timer or ‘‘timer’’ in short. A register of the timer is loaded with a value. 
+
+
+465 
+
+
+PROGRAMMING THE Z80 
+
+
+The difference is that the timer will automatically decrement the 
+counter periodically. The period can usually be adjusted or selected by 
+the programmer. Whenever the timer has decremented to ‘‘Q’’, it will 
+normally send an interrupt to the microprocessor. It may also set a 
+status bit which can be sensed periodically by the computer. The use of 
+interrupts will be explained later in this chapter. 
+
+Other timer operating modes may include starting from ‘‘0’" and 
+counting the duration of the signal, or, counting the number of pulses 
+received. When functioning as an interval timer, the timer ts said to 
+operate in a one-shot mode. When counting pulses, it is said to operate 
+in a pulse counting mode. Some timer devices may even include mul- 
+tiple registers and a number of optional facilities which the programmer 
+can select. 
+
+
+Sensing Pulses 
+
+
+The problem with sensing pulses is the reverse of that of generating 
+pulses, and includes one more difficulty: whereas an output pulse is 
+generated under program control, input pulses occur asynchronously 
+with the program. in order to detect a pulse, two methods may be used: 
+polling and interrupts. Interrupts will be discussed later in this chapter. 
+
+Let us now consider the polling technique. Using this technique, the 
+program reads the value of a given input register continuously, testing a 
+bit position, perhaps bit O. It will be assumed that bit 0 is originally 
+**Q’’. Whenever a pulse is received, this bit will take the value ‘‘1°’, The 
+program continuously monitors bit 0 until it takes the value ‘‘1’’. When 
+a “*1’’ is found, the pulse has been detected. The program appears 
+below: 
+
+
+POLL IN A, (INPUT) READ INPUT REGISTER 
+ON BIT O,A TEST FOR 0 
+JR Z, POLL KEEP POLLING IF 0 
+
+
+Conversely, let us assume that the input line is normally ‘‘1’’ and that 
+we wish to detect a ‘‘0’’. This is the usual case for detecting a START 
+bit, when monitoring a line connected to a Teletype. The program ap- 
+pears below: 
+
+
+POLL IN A, (INPUT) READ INPUT REGISTER 
+BIT O,A SET Z FLAG 
+JR NZ, POLL TEST IS REVERSED 
+START... 
+
+
+466 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+Monitoring the Duration 
+
+
+Monitoring the duration of the pulse may be accomplished in the 
+same way as computing the duration of an output pulse. Either a hard- 
+ware or a software technique may be used. When monitoring a pulse by 
+software, a counter is regularly incremented by 1, then the presence of 
+the pulse is verified. If the pulse is still present, the program loops upon 
+itself. Whenever the pulse disappears, the count contained in the 
+counter register is used to compute the effective duration of the pulse. 
+The program appears below: 
+
+
+DURTN LD B,90 CLEAR COUNTER 
+AGAIN IN A,(INPUT) READ INPUT 
+
+BIT 0,A MONITOR BIT 0 
+
+JR Z, AGAIN WAIT FOR A “1” 
+LONGER INC B INCREMENT COUNTER 
+
+IN A,(INPUT) CHECK BIT 0 
+
+BIT O,A 
+
+
+JR NZ, LONGER WAIT FOR A “0” 
+
+
+Naturally, we assume that the maximum duration of the pulse will 
+not cause register B to overflow. If this were the case, the program 
+would have tobe changed to take that into account (or elseit wouldbe a 
+programming error!). 
+
+Since we now know how to sense and generate pulses, let us capture 
+or transfer larger amounts of data. Two cases will be distinguished: 
+serial data and parallel data. Then we will apply this knowledge to ac- 
+tual input/output devices. 
+
+
+PARALLEL WORD TRANSFER 
+
+
+It is assumed here that eight bits of transfer data are available in par- 
+allel at address ‘‘INPUT”’ (see Fig. 6.4). The microprocessor must read 
+the data word at this location whenever a status word indicates that it is 
+valid. The status information will be assumed to be contained in bit 7 of 
+address ‘‘STATUS?’’. We will here write a program which will read and 
+automatically save each word of data as it comes in. To simplify, we 
+will assume that the number of words to be read is known in advance 
+and is contained in location ‘“COUNT?”’. If this information were not 
+available, we would test for a so-called break character, such as a 
+rubout, or perhaps the character ‘‘*’’. We have learned to do this al- 
+ready. 
+
+
+467 
+
+
+PROGRAMMING THE Z80 
+
+
+1/0 DEVICE 
+
+
+Fig. 6.4: Parallel Word Transfer - The Memory 
+
+
+The flowchart appears in Figure 6.5. It ts quite straightforward. We 
+test the status information until it becomes ‘‘1’’, indicating that a word 
+is ready. When the word is ready, we read it and save it at an appropri- 
+ate memory location. We then decrement the counter and test whether 
+it has decremented to ‘‘0’’. If so, we are finished; if not, we read the 
+next word. A simple program which implements this algorithm appears 
+below: 
+
+
+PARAL LD A, (COUNT) READ COUNT INTOA 
+
+
+LD B, A B IS COUNTER 
+WATCH IN A, (STATUS) LOOK FOR ‘DATA READY’ 
+TRUE 
+
+
+BIT 7,A BIT 7 IS ‘1’? IF DATA READY 
+JP Z, WATCH DATA VALID? 
+
+IN A, (INPUT) READ DATA 
+
+PUSH AF SAVE DATA INTO STACK 
+
+
+* 
+
+
+468 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+DEC B DECREMENT COUNT 
+JP NZ, WATCH DO IT UNTIL ZERO 
+
+
+It is assumed that the ‘‘data ready”’ flag is automatically cleared when 
+STATUS is read, as is usually the case on a device controller. 
+The first two instructions initialize the counter register B: 
+
+
+PARAL LD A, (COUNT) 
+LD B, A 
+
+
+Note that there is no easy way to load B only from memory. One must 
+either load A, then transfer its contents to B, or load B and C 
+simultaneously. 
+
+
+POLLING OR SERVICE REQUEST 
+
+
+READ COUNT 
+
+
+WORD READY? 
+TRANSFER 
+WORD 
+
+
+DECREMENT 
+COUNTER 
+
+
+OUT 
+
+
+Fig. 6.5: Parallel Word Transfer: Flowchart 
+
+
+469 
+
+
+PROGRAMMING THE Z80 
+
+
+The next three instructions of the program read the status informa- 
+tion and cause a loop to occur as long as bit seven of the status register 
+is ‘‘0’’. (It is the sign bit, i.e., bit N.) 
+
+
+IN A, (STATUS) 
+BIT 7,A **IN’’ DOES NOT SET THE FLAGS 
+JP Z, WATCH 
+When JP fails, data is valid and we can read it: 
+IN A, (INPUT) 
+
+
+The word has now been read from address INPUT where it was, and 
+must be saved. Assuming that a sufficient stack area is available, we 
+can use: 
+
+
+PUSH AF 
+
+
+which saves A (and F) in the stack. If the stack is full, or the number of 
+words to be transferred is large, we could not push them on the stack 
+and we would have to transfer them to a designated memory area, us- 
+ing, for example, an indexed instruction. However, this would require 
+an extra instruction to increment or decrement the index register. 
+PUSH is faster (only 11 clock cycles). 
+
+The word of data has now been read and saved. We will simply decre- 
+ment the word counter and test whether we are finished: 
+
+
+DEC B 
+JP NZ,WATCH 
+
+
+We keep looping until the counter eventually decrements to ‘‘0’’. 
+
+This nine-instruction program can be called a benchmark. A bench- 
+mark program is a carefully optimized program designed to test the 
+capabilities of a given processor in a specific situation. Parallel trans- 
+fers are one such typical situation. This program has been designed for 
+maximum speed and efficienty. Let us now compute the maximum 
+transfer speed of this program. We will assume that COUNT is con- 
+tained in memory. The duration of every instruction is determined by 
+inspecting the table at the end of the book and is found to be the follow- 
+ing: 
+
+
+PARAL LD A, (COUNT) 13 
+B 4 
+
+
+LD ,A 
+WATCH IN A, (STATUS) 11 
+BIT = 7, 8 
+
+
+A 
+JP Z, WATCH = 7/12 
+
+
+470 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+IN A, (INPUT) 11 
+PUSH AF 3 
+DEC B 4 
+JP NZ, WATCH 7/12 
+
+
+The minimum execution time is obtained by assuming that data is 
+available every time that we sample STATUS. In other words, the first 
+JP will be assumed to fail every time. Timing is then: 
+
+
+13+44+ (11 +8 +7+ 11 + 11 + 4 + 7) + COUNT 
+
+
+Neglecting the first 17 cycles necessary to initialize the counter regis- 
+ter, the time used to transfer one word is 59 clock cycles or 29.5 micro- 
+seconds with a 2 MHz clock. 
+
+The maximum data transfer rate is, therefore: 
+
+
+] 
+
+
+————— = 33 K bytes per second 
+
+29.5 (10°) 
+
+Exercise 6.4: Assume that the number of words to be transferred ts 
+greater than 256. Modify the program accordingly and determine the 
+fmpact on the maximum data transfer rate. 
+
+
+Exercise 6.5: Modify this program in order to try to improve its speed: 
+l—using JR instead of JP 
+2—using DINZ 
+3—using INIR or INDR 
+
+Was the above program truly optimal? 
+
+
+We have now learned to perform high-speed parallel transfers. Let us 
+consider a more complex case. 
+
+
+BIT SERIAL TRANSFER 
+
+
+A serial input is one in which the bits of information (0’s or 1’s) come 
+in successively on a line. These bits may come in at regular intervals. 
+This is normally called synchronous transmission. Or, they may come 
+as bursts of data at random intervals. This is called asynchronous trans- 
+mission. We will develop a program which can work in both cases. The 
+principle of the capture of sequential data is simple: we will watch an 
+input line, which will be assumed to be line 0. When a bit of data is de- 
+tected on this line, we will read the bit in, and shift it into a holding reg- 
+ister. Whenever eight bits have been assembled, we will preserve the 
+byte of data into the memory and assemble the next one. In order to 
+simplify, we will assume that the number of bytes to be received is 
+
+
+471 
+
+
+PROGRAMMING THE Z80 
+
+
+known in advance. Otherwise, we might, for example, have to watch 
+for a special break character, and stop the bit-serial transfer at this 
+point. We have learned to do that. The flowchart for this program ap- 
+pears in Figure 6.6. The program appears below: 
+
+
+SERIAL LD Cc, 0 CLEAR INPUT WORD 
+LD A, (COUNT) LOAD B WITH BYTE COUNT: 
+LD B, A 
+
+LOOP IN A, (INPUT) READ PORT 
+BIT 7,4 BIT 7 IS STATUS, BIT 01S DATA 
+JR Z, LOOP WAIT FOR A “1” 
+SRL A SHIFT DATA BIT INTO CARRY 
+RL Cc SAVE INPUT B INTO C 
+
+
+JR NC, LOOP CONTINUE UNTIL 8 BITS IN 
+POLLING OR SERVICE REQUEST 
+
+
+READ WORD COUNT 
+
+
+BIT READY? 
+
+
+; YES 
+STORE BIT 
+INCREMENT COUNTER 
+NO 
+“ WORD- ASSEMBLED? 
+,YES: 
+STORE WORD 
+
+
+RESET BIT COUNTER 
+DECREMENT WORD COUNT 
+
+
+, NO 
+WORD COUNT=0? 
+| —s-ves 
+
+
+DONE 
+
+
+NO 
+
+
+Fig. 6.6: Bit Serial Transfer—Flowchart 
+
+
+472 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+PUSH BC SAVE WORD IN STACK 
+LD C, 01H RESET MARKER BIT 
+DEC B DECREMENT BYTE COUNTER 
+
+
+JR NZ, LOOP ASSEMBLE NEXT WORD 
+
+This program has been designed for efficiency and will use new tech- 
+niques which we will explain (see Fig. 6.7). 
+
+The conventions are the following: memory location COUNT is as- 
+sumed to contain a count of the number of words to be transferred. 
+Register C will be used to assemble eight consecutive bits coming in. 
+Address INPUT refers to an input register. It is assumed that bit posi- 
+tion 7 of this register is a status flag, or a clock bit. When it is ‘‘0’*, data 
+is not valid. When it is ‘‘1'*, the data is valid. The data itself will be as- 
+sumed to appear in bit position 0 of this same address. In many in- 
+stances, the status information will appear on a different register than 
+the data register. It should be a simple task, then, to modify this pro- 
+gram accordingly. In addition, we will assume that the first bit of data 
+to be received by this program is guaranteed to be a ‘‘!’’. It indicates 
+that the real data follows. If this were not the case, we will later see an 
+obvious modification to take care of it. The program corresponds ex- 
+actly to the flowchart of Fig. 6.6. The first few lines of the program im- 
+plement a waiting loop which tests whether a bit is ready. To determine 
+whether a bit is ready, we read the input register, then test the zero bit 
+(Z). As long as this bit is ‘‘0’’, the instruction JR will succeed, and we 
+will branch back to the loop. Whenever the status (or clock) bit 
+becomes true (‘‘1’’), then JR willfail and the next instruction will be 
+executed. 
+
+This initial sequence of instructions corresponds to arrow | in Fig. 
+6.7. 
+
+At this point, the accumulator contains a ‘‘1’* in bit position 7 and 
+the actual data bit in bit position 0. The first data bit to arrive is going 
+to be a “‘1’’. However, the following bits may be either ‘‘0”’ or ‘‘1’*. We 
+now wish to preserve the data bit which has been collected in position 0. 
+The instruction: 
+
+
+SRL A 
+shifts the contents of the accumulator right by one position. This causes 
+the right-most bit of A, which is our data bit, to fall into the carry bit. 
+
+
+We will now preserve this data bit into register C (this process is illus- 
+trated by arrows 2 and 3 in Fig. 6.7): 
+
+
+RLC 
+
+
+473 
+
+
+PROGRAMMING THE Z80 
+
+
+ofan, ent oF a 
+An ae ft 
+Np ie YEE: 
+INPUT 
+? o 
+
+
+Fig. 6.7: Serial-to-Parallel: The Registers 
+
+
+The effect of this instruction is to read the carry bit into the right-most 
+bit position of C. At the same time, the left-most bit of C falls into the 
+carry bit. (if you have any doubts about the rotation operation, refer to 
+Chapter 4!) 
+
+It is important to remember that a rotation operation will both save 
+the carry bit, here into the right-most bit position, and also recondition 
+the carry bit with the value of bit 7. 
+
+Here, a ‘‘0’’ will fall into the carry. The next instruction: 
+
+
+JR NC, LOOP 
+
+
+tests the carry and branches back to address LOOP as long as the carry 
+
+
+474 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+is ‘‘O’’. This is our automatic bit counter. It can readily be seen that, as a 
+result of the first RL, C will contain ‘‘00000001°°. Eight shifts later, the 
+‘*1°? will finally fall into the carry bit and stop the branching. This is an 
+ingenious way to implement an automatic loop counter without having 
+to waste an instruction to decrement the contents of an index register. 
+This technique is used in order to shorten the program and improve its 
+performance. 
+
+When JR NC finally fails, 8 bits will have been assembled into C. 
+This value should be preserved in the memory. This is accomplished by 
+the next instruction (arrow4 on Fig. 6.7): 
+
+
+PUSH BC 
+
+
+Weare here saving the contents of B and C into the stack. Saving into 
+the stack is possible only if there is enough room in the stack. Provided 
+that this condition is met, it is usually the fastest way to preserve a word 
+in the memory, even though we save an unnecessary register (B). The 
+stack pointer is updated automatically. If we were not pushing a word 
+in the stack, we would have to use one more instruction to update a 
+memory pointer. We could equivalently perform an indexed addressing 
+operation, but that would also involve decrementing or incrementing 
+the index, using extra time. 
+
+After the first word of data has been saved, there is no longer any 
+guarantee that the first data bit to come in will be a ‘‘1"’. It can be any- 
+thing. We must, therefore, reset the contents to ‘‘00000001’’ so that we 
+can keep using it as a bit counter. This is performed by the next instruc- 
+tion: 
+
+
+LD C, 01H 
+
+
+Finally, we will decrement the word counter, since a word has been 
+assembled, and test whether we have reached the end of the transfer. 
+This is accomplished by the next two instructions: 
+
+
+DEC B 
+JR NZ, LOOP 
+
+
+The above program has been designed for speed, so that one may 
+capture a fast input stream of data bits. Once the program terminates, 
+it is naturally advisable to immediately read away from the stack the 
+words that have been saved there and transfer them elsewhere into the 
+memory. We have already learned to perform such a block transfer in 
+Chapter 2. 
+
+
+475 
+
+
+PROGRAMMING THE Z80 
+
+
+Exercise 6.6: Compute the maximum speed at which this program will 
+be able to read serial bits. Look up the number of cycles required by 
+every instruction in the table at the end of this book, then compute the 
+time which will elapse during execution of this program. To compute 
+the length of time which will be used by a loop, simply multiply the 
+total duration of this loop, expressed in microseconds, by the number 
+of times it will be executed. Also, when computing the maximum speed, 
+assume that a data bit will be ready every time that the input location ts 
+sensed. 
+
+
+This program is more difficult to understand than the previous ones. 
+Let us look at it again (refer to Fig. 6.6) in more detail, examining some 
+trade-offs. 
+
+A bit of data comes into bit position 0 of ‘‘INPUT”’ from time to 
+time. There might be, for example, three ‘‘ls’’ in succession. We must, 
+therefore, differentiate between the successive bits coming in. This is 
+the function of the ‘‘clock”’ signal. 
+
+The clock (or STATUS) signal tells us that the input bit is now valid. 
+Before reading a bit, we will therefore first test the status bit. If the 
+status is ‘‘0’’, we must wait. If it is ‘*1’’, then the data bit is good. 
+
+We assume here that the status signal is connected to bit 7 of register 
+INPUT. 
+
+
+Exercise 6.7: Can you explain why bit 7 is used for status, and bit 0 for 
+data? Does it matter? 
+
+
+Once we have captured a data bit, we want to preserve it in a safe 
+location, then shift it left, so that we can get the next bit. 
+
+Unfortunately, the accumulator is used to read and test both data 
+and status in this program. If we were to accumulate data in the accu- 
+mulator, bit position 7 would be erased by the status bit. 
+
+
+Exercise 6.8: Can you suggest a way to test status without erasing the 
+contents of the accumulator (a special instruction)? If this can be done, 
+could we use the accumulator to accumulate the successive bits coming 
+in? Can you improve speed by using an ‘‘automated jump’’? 
+
+
+Exercise 6.9: Rewrite the program, using the accumulator to store the 
+bits coming in. Compare it to the previous one in terms of speed and 
+number of instructions. 
+
+
+Let us address two more possible variations. 
+We have assumed that, in our particular example, the very first bit to 
+come in would be a special signal, guaranteed to be ‘‘1’’. However, in 
+
+
+476 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+general, it may be anything. 
+
+
+Exercise 6.10: Modify the program above, assuming that the very first 
+bit to come in is valid data (not to be discarded), and can be ‘'0”’ or 
+“2”, Hint: our ‘bit counter”’ should still work correctly, if you initial- 
+ize it with the correct value. 
+
+
+Finally, we have been saving the assembled word in the stack, to gain 
+time. We could naturally save it in a specified memory area. 
+
+
+Exercise 6.11: Modify the program above, and save the assembled word 
+in the memory area Starting at BASE. 
+
+
+Exercise 6.12: Modify the program above se that the transfer will stop 
+when the character ‘‘S’' is detected in the input stream. 
+
+
+Fhe Hardware Alternative 
+
+
+As usual for most standard input/output algorithms, it is possible to 
+implement this procedure by hardware. The chip is called a UART. It 
+will automatically accumulate the bits. However, when one wishes to 
+reduce the component count, this program, or a variation of it, will be 
+used instead. 
+
+
+Exercise 6.13: Modify the program, assuming that data is available in bit 
+position 0 of location INPUT, while the status information is available 
+in bit position 0 of address INPUT + I. 
+
+
+BASIC 1/0 SUMMARY 
+
+
+We have now learned to perform elementary input/output opera- 
+tions as well as to manage a stream of parallel data or serial bits. We are 
+now ready to communicate with real input/output devices. 
+
+
+COMMUNICATING WITH INPUT/OUTPUT DEVICES 
+
+
+In order to exchange data with input/output devices, we will first 
+have to ascertain whether data is available, if we want to read it; or 
+whether the device is ready to accept data, if we want to send it. Two 
+procedures may be used: handshaking and interrupts. Let us study 
+handshaking first. 
+
+
+Handshaking 
+
+
+Handshaking is generally used to communicate between any two 
+
+
+477 
+
+
+PROGRAMMING THE Z80 
+
+
+REAOY? 
+{READ 
+STATUS] 
+
+
+Status 
+REGISTER 
+
+
+Qureut 
+REGISTER 
+
+
+OUTPUT 
+
+
+MPU DEVICE 
+
+
+VOCHIP 
+
+
+Fig. 6.8: Handshaking (Output) 
+
+
+asynchronous devices, i.e., between any two devices which are not syn- 
+chronized. For example, if we want to send a word to a parallel printer, 
+we must first make sure that the input buffer of this printer is available. 
+We will, therefore, ask the printer: Are you ready? The printer will say 
+‘‘yes’’ or ‘‘no.”’ If it is not ready we will wait. If it is ready, we will send 
+the data (see Fig. 6.8). 
+
+
+DEVICE 
+
+
+STATUS 
+REGISTER 
+
+
+Fig. 6.8a: Handshaking (Input) 
+
+
+Conversely, before reading data from an input device, we will verify 
+whether the data is valid. We will ask: ‘‘Is data valid?’’ And the device 
+will tell us ‘‘yes’* or ‘‘no.’* The ‘‘yes or no’’ may be indicated by status 
+bits, or by other means (see Fig. 6.8a). 
+
+As an analogy, whenever you wish to exchange information with 
+someone who Is independent and might be doing something eise at the 
+time, you should ascertain that he is ready to communicate with you. 
+The usual rule of courtesy is to shake his hand. Data exchange may then 
+follow. This is the procedure normally used in communicating with in- 
+
+
+478 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+put/output devices. 
+Let us now illustrate this procedure with a simple example. 
+
+
+Sending a Character To The Printer 
+
+
+The character will be assumed to be contained in memory location 
+CHAR. The program to print it appears below: 
+
+
+WAIT IN A, (STATUS) 
+BIT 7,A TEST IF READY 
+JR Z, WAIT OTHERWISE WAIT 
+LD A, (CHAR) GET CHARACTER 
+OUT (PRNTD),A  PRINTIT 
+JR WAIT GO FOR NEXT 
+
+
+The print program is straightforward and uses the handshaking pro- 
+cedure which has been described above. The data paths are shown in 
+Figure 6.9. 
+
+
+STATUS 
+
+
+CHAR DATA 
+I PRINTER 
+Cc DATA 
+MEMORY Z80 
+
+
+Fig. 6.9: Printer—Data Paths 
+
+
+The character (called DATA) is located at memory location CHAR. 
+First, the status of the printer is checked. Whenever bit 7 of the status 
+
+
+479 
+
+
+PROGRAMMING THE Z80 
+
+
+register becomes 1, it indicates that the printer is ready for output, i.e., 
+its output buffer is available. At this point, the character is loaded into 
+the accumulator, then output to the printer, via the accumulator. As 
+long as the status bit remains 0, the program wi!l remain in a loop, 
+called WAIT in the program. 
+
+
+Exercise 6.14: How many instructions would be saved in the above pro- 
+gram if it were possible to load data directly into register C as well as 
+output the contents of register C directly? 
+
+
+Exercise 6.15: When using an actual printer, it is usually necessary to 
+send a start order before using the device. Modify this program to gen- 
+erate such an order, assuming that the start command is obtained by 
+writing al in bit position 0 of the STATUS register, which is assumed 
+to be bidirectional. 
+
+
+Exercise 6.16: If the BIT instruction were not available, could you use 
+another instruction instead, in line 4 of the program? If so, explain the 
+advantage of using the BIT instruction, if any. 
+
+
+Exercise 6.17: Modify the program above to print a string of n charac- 
+ters, where n will be assumed to be less than 255. 
+
+
+Exercise 6.18: Modify the above program to print a string of characters 
+until a “‘carriage-return’’ code is encountered. 
+
+
+Let us now complicate the output procedure by requiring a code con- 
+version and by outputting to several devices at a time: 
+
+
+Output To a Seven-Segment LED 
+
+
+A traditional seven-segment light-emitting diode (LED) may display 
+the digits ‘‘0”’ through ‘‘9’’, or even ‘‘0’’ through ‘‘F’’ hexadecimal by 
+lighting combinations of its 7 segments. A seven-segment LED is shown 
+in Figure 6.10. The characters that may be generated with this LED 
+appear in Figure 6.11. 
+
+The segments of an LED are labeled ‘‘a’”’ through ‘‘g”’ in Figure 6.10. 
+
+For example, ‘‘0’’ will be displayed by lighting the segments abcdef. 
+Let us assume, now, that bit ‘‘0’’ of an output port is connected to seg- 
+ment ‘‘a’’, that ‘‘1’* is connected to segment ‘‘b’’, and so on. Bit 7 is 
+not used. The binary code required to light up fedcba (to display ‘‘0’’) 
+is, therefore, ‘‘0111111°’. In hexadecimal this is ‘‘3F’’. Do the follow- 
+ing exercise. 
+
+
+480 
+
+
+INPUT/QUTPUT TECHNIQUES 
+
+
+iat iit ee 
+T™ aa 
+AA aA 
+Nd 
+
+
+Ade 
+. TEN LAF 
+— [| AIL I) Ub 
+Peel rt fre re 
+ABIL cle 
+
+
+Fig. 6.11: Hexadecimal Characters Generated 
+with a Seven-Segment LED 
+
+
+481 
+
+
+PROGRAMMING THE Z80 
+
+
+Exercise 6.19: Compute the seven-segment equivalent for the hexadeci- 
+mal digits “0”? through “‘F’’. Fill out the table below: 
+
+
+LED code LEX code LED code 
+
+
+4 8 
+, 5 9 
+6 A 
+7 B 
+
+
+Let us now display hexadecimal values on severa/ LED’s. 
+
+
+Driving Multiple LED’s 
+
+
+An LED has no memory. It will display the data only as long as its 
+segment lines are active. In order to keep the cost of an LED display 
+low, the microprocessor will display information on each of the LED’s 
+in turn. The rotation between the LED’s must be fast enough so that 
+there is no apparent biinking. This implies that the time spent from one 
+LED to the next is less than 100 milliseconds. Let us design a program 
+which will accomplish this. Register C will be used to point to the LED 
+on which we want to display a digit. The accumulator is assumed to 
+contain the hexadecimal value to be displayed on the LED. Our first 
+concern is to convert the hexadecimal value into its seven-segment rep- 
+resentation. In the preceding section, we have built the equivalence 
+table. Since we are accessing a table, we will use the indexed addressing 
+mode, where the displacement index will be provided by the hexadeci- 
+mal value. This means that the seven-segment code for hexadecimal 
+digit ‘‘3”’ is obtained by looking up the third element of the table after 
+the base. The address of the base will be called SEGBAS. The program 
+appears below: 
+
+
+LEDS LD E,A A CONTAINS HEX DIGIT 
+LD D, 0 USE “DE” AS DISPLACEMENT 
+LD HL, SEGBAS USE ‘“‘HL’”’ AS INDEX 
+ADD HL, DE TABLE ADDRESS 
+LD A, (HL) READ CODE FROM TABLE 
+LD B, 50H DELAY VALUE = ANY 
+LARGE NBR 
+OUT (C), A OUTPUT FOR SET DURATION 
+DELAY DEC B DELAY COUNTER 
+
+
+482 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+JR NZ, DELAY KEEP LOOPING 
+
+DEC Cc C 1S PORT NUMBER 
+LD A,C 
+
+CP MINLED DONE FOR LAST LED? 
+JR NZ, OUT 
+
+
+LD BC, (MAXLED) IF SO, RESET C TO TOP LED 
+OUT RET 
+
+
+The program assumes that register C contains the address of the LED 
+to be illuminated next, and that the accumulator A contains the digit to 
+be displayed. 
+
+The program first looks up the seven-segment code corresponding to 
+the hexadecimal value contained in the accumulator. Registers D and E 
+are used as a displacement field, and registers H and L are used as a 
+16-bit index register. The code for the hexadecimal digit is added to the 
+base address of the table: 
+
+
+LEDS LD E,A 7-SEGMENT CODE 
+LD D, 0 
+LD HL, SEGBAS 
+ADD HL, DE 
+
+
+A delay loop is then implemented, so that the code obtained from the 
+table is displayed for an appropriate duration. Here the constant ‘‘50”’ 
+hexadecimal has been arbitrarily chosen: 
+
+
+LD A, (HL) READ CODE FROM TABLE 
+LD B, 50H DELAY VALUE 
+
+
+The delay is accomplished using a classic delay loop. The first instruc- 
+tion: 
+OUT (C), A 
+
+
+outputs the contents of the accumulator at the 1/O port pointed to by 
+register C (the LED number). The next two instructions implement the 
+delay loop: 
+
+
+DELAY DEC B 
+JR NZ, DELAY 
+
+
+Once the delay has been implemented, we must simply decrement the 
+LED pointer, and make sure that we loop around to the highest LED 
+address if the smallest LED address has been reached: 
+
+
+DEC Cc 
+
+
+483 
+
+
+PROGRAMMING THE Z80 
+
+
+LD A,C 
+
+CP MINLED 
+
+JR NZ, OUT 
+
+LD BC, (MAXLED) 
+OUT RET 
+
+
+It is assumed here that the above program has been written as a sub- 
+routine, and the iast instruction is then RET: <‘return from subroutine’. 
+
+
+Exercise 6.20: It is usually necessary to turn off the segment drivers for 
+the LED prior to displaying the digit. Modify the above program by 
+adding the necessary instructions (output ‘‘Q0’’ as the character code 
+prior to outputting the character). 
+
+
+Exercise 6.21: What would happen to the display if the DELAY label 
+were moved up by one line position? Would this change the timing? 
+Would this change the appearance of the display? 
+
+
+Exercise 6.22: You will notice that the first four instructions of the pro- 
+gram are, in fact, performing a 16-bit indexed memory access. How- 
+ever, it seems clumsy, without using the indexing mechanism, Assume 
+that the SEGBAS address is known in advance, Call SEGBSH the 
+high-order part of this address, and SEGBSL the low part of this ad- 
+dress. Store SEGBSH in the high-order part of the LX register. Now 
+write the above program, using the Z80 index-addressing mechanism, 
+and using SEGBSL as the displacement field of the instrucion. What 
+are the advantages and disadvantages of this approach? 
+
+
+Exercise 6.23: Assuming that the above program is a subroutine, you 
+will notice that it uses registers B, D, E, H and L internally, and modi- 
+fies their contents. If the subroutine may freely use the memory area 
+designated by address T1, T2, T3, T4, T5, could you add instructions at 
+the beginning and at the end of this program which will guarantee that, 
+when the subroutine returns, the contents of registers B, D, E, Hand L, 
+will be the same as when the subroutine was entered? 
+
+
+Exercise 6.24: Same exercise as above, but assume that the memory 
+area Tl, etc., is not available to the subroutine. (Hint: remember that 
+there is a built-in mechanism in every computer for preserving informa- 
+‘ton in a chronological order.) 
+
+
+We have now solved common input/output problems. Let us con- 
+sider the case of a common peripheral: the Teletype. 
+
+
+484 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+Teletype Input-Output 
+
+
+The Teletype is a serial device. It both sends and receives words of in- 
+formation in a serial format. Each character is encoded in an 8-bit 
+ASCII format (the ASCI] table appears at the end of this book). In ad- 
+dition, every character is preceded by a ‘‘start’’ bit, and terminated by 
+two ‘stop’ bits. In the so-called 20-milliamp current loop interface, 
+which is most frequently used, the state of the line is normally a ‘‘1’’, 
+This is used to indicate to the processor that the line has not been cut. A 
+start is a ‘‘1’*-to-‘‘0”’ transition. It indicates to the receiving device that 
+data bits follow. The standard Teletype is a 10-characters-per-second 
+device. We have just established that each character requires 11 bits. 
+This means that the Teletype will transmit 110 bits per second. It is said 
+to be a 110-baud device. We will design a program to serialize bits out 
+to the Teletype at the correct speed. 
+
+
+al ieee 2 STOP PULSES 
+MARK = -7— | Stor 1, SoP? 
+SPACE --——— if2tsftat ste] 7] a. 9 10 
+! 
+9.09 ms i 
+
+
+Fig. 6.12: Format of a Teletype Word 
+
+
+One-hundred-and-ten bits per second implies that bits are separated 
+by 9.09 milliseconds. This will have to be the duration of the delay loop 
+to be implemented between successive bits. The format of a Teletype 
+word appears in Figure 6.12. The flowchart for bit input appears in 
+Figure 6.13. The program follows: 
+
+
+TTYIN IN A, (STATUS) 
+
+
+BIT 7,A DATA READY? 
+JR Z, TTYIN OTHERWISE WAIT 
+CALL DELAY! CENTER OF PULSE 
+
+
+IN A, (TTYBIT) START BIT 
+OUT (TTYBIT), A ECHO IT 
+CALL DELAY9 NEXT PULSE (9 MS) 
+LD B, 08H BIT COUNT 
+
+NEXT IN A, (TTYBIT) READ DATA BIT 
+OUT (TTYBIT), A ECHOIT 
+SRL A SAVE IT IN CARRY 
+
+
+485 
+
+
+PROGRAMMING THE Z80 
+
+
+TTYIN 
+
+
+START BIT? 
+WAIT 4.5 ms 
+ECHO START BIT 
+WAIT 9.09 ms 
+SHIFT IN DATA BiT 
+ECHO IT 
+CHARACTER 
+ASSEMBLED? 
+
+YES 
+WAIT 9.09 ms 
+OUTPUT STOP BIT 
+WAIT 13.59 ms 
+
+
+Fig. 6.13: TTY Input with Echo 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+RR Cc PRESERVE IT INTO C 
+CALL DELAY9 NEXT PULSE (9 MS) 
+DEC B DECREMENT BIT COUNT 
+
+
+JR NZ, NEXT 
+
+IN A, (TTYBIT) READ STOP BIT 
+OUT (TTYBIT), A ECHOIT 
+
+CALL DELAY9 SKIP SECOND STOP 
+
+
+Fig. 6.14: Teletype Program 
+
+
+Let us examine the program in detail, First, the status of the Teletype 
+must be tested to determine if a character is available: 
+
+
+TTYIN IN A, (STATUS) 
+BIT 7,A 
+JR Z, TTYIN 
+The ‘‘BIT’’ instruction is a useful Z80 facility which allows testing 
+any bit in any data register. It does not modify the contents of the regis- 
+ter under test. The Z flag is set if the specified bit is 0, and reset other- 
+wise. 
+This program will, therefore, loop until the status finally becomes 
+**1’’_ It is a classic polling loop. 
+Note also that, since the STATUS does not need to be preserved, we 
+could advantageously use 
+
+
+AND — 10000000B 
+instead of 
+
+
+BIT 7,A 
+
+
+Using the AND instruction saves two bytes. However, it destroys the 
+contents of A (acceptable here). 
+When optimizing a program, remember that each new instruction 
+may introduce side-effects. 
+Next, a 4.5 ms delay is implemented in order to sense the start bit in 
+the middle of the pulse. 
+CALL DELAYI 
+
+
+where DELAYI is the delay subroutine implementing the required 
+delay. The first bit to come is the start bit. It should be echoed to the 
+Teletype, but otherwise ignored. This is done by the next instructions: 
+
+
+TTYIN IN A, (TTYBIT) 
+OUT (TTYBIT), A 
+
+
+487 
+
+
+PROGRAMMING THE 280 
+
+
+We must then wait for the first data bit. The necessary delay is equal! to 
+9.09 milliseconds and is implemented by a subroutine: 
+CALL DELAY9 
+
+
+Register B is used as a counter and is loaded with the value 8 in order to 
+capture the 8 data bits: 
+
+
+LD B, 08H 
+
+
+Next, each data bit will be read in turn into the accumulator, then 
+echoed. It is assumed to arrive in bit position 0 of the accumulator. The 
+data bit will then be preserved into register C, where it will be shifted in. 
+The transfer from A to C is performed through the carry bit: 
+
+NEXT IN A, (TTYBIT) 
+OUT (TTYBIT), A 
+
+SRL A 
+
+Cc C 
+
+
+This sequence is illustrated in Figure 6.15. 
+
+
+A I/O SPACE 
+
+
+COUNTER 
+
+
+Fig. 6.15: Teletype Input 
+
+
+Next, the usual 9 millisecond delay is implemented, the bit-counter is dec- 
+remented, and the loop is entered again as long as the eight bits have 
+not been captured: 
+
+
+CALL DELAY9 
+
+DEC B 
+
+JR NZ, NEXT 
+Finally, the STOP bit 1s captured, and echoed. It is usually sufficient to 
+send a single STOP bit, however both could be sent back using two 
+more instructions: 
+
+
+IN A, (TTYBIT) 
+OUT (TTYBIT), A 
+CALL DELAY9 
+RET 
+
+
+488 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+The program should be examined with attention. The logic is quite 
+simple. The new fact is that whenever a bit is read from the Teletype (at 
+address TTYBIT), it is echoed back to the Teletype. This is a standard 
+feature of the Teletype. Whenever a user presses a key, the information 
+is transmitted to the processor-and then back to the printing mechanism 
+of the Teletype. This verifies that the transmission lines are working 
+and that the processor is operating when a character is, indeed, printing 
+correctly on the paper. 
+
+
+SET BIT 
+COUNTER TO 
+ELEVEN 
+
+
+OUTPUT 
+A BIT 
+
+
+DELAY 
+9,1 msec 
+
+
+SEND START 
+BIT 
+
+
+SEND DATA 
+BITS 
+
+
+SEND STOP 
+BIT 
+
+
+Fig. 6.16: Teletype Output 
+
+
+Exercise 6,25: Write the delay routine which results in the 9.09 millisec- 
+ond delay. (DELAY subroutine) 
+
+
+Exercise 6.26: Using the example of the program developed above, 
+write a PRINTC program which will print on the Teletype the contents 
+of memory location CHAR (see Fig. 6.15). 
+
+
+The answer appears below: 
+
+
+PRINTC LD B, 11 COUNTER = I! BITS 
+LD A, (CHAR) GET CHARACTER 
+OR A CLEAR CARRY = START BIT 
+RLA CARRY INTO A 
+
+
+439 
+
+
+PROGRAMMING THE Z80 
+
+
+NEXT OUT (TTYBIT),A OUTPUT 
+
+
+CALL DELAY 
+
+RRA NEXT BIT 
+
+SCF CARRY = 1 (STOP BIT) 
+DEC B BIT COUNT 
+
+JR NZ, NEXT 
+
+RET 
+
+
+Register B is used as a bit counter for the transmission. The contents 
+of bit 0 of A will be sent to the Teletype line (‘“‘TTYBIT’’). Note how 
+the carry is used to provide a ninth bit (the START bit). Also, note that 
+the carry is cleared by: 
+
+
+OR A 
+At the end of the program, the carry is set to one by: 
+SCF 
+
+
+in order to generate a stop bit. 
+
+
+Exercise 6.27: Modify the program so that it waits fora START bit in- 
+stead of a STATUS bit. 
+
+
+Printing a String of Characters 
+
+
+We will assume that the PRINTC routine (see Exercise 6.26) takes 
+care of printing a character on our printer, or display,or any output de- 
+vice. We will here print the contents of memory locations (START) to 
+(START + N). 
+
+The program is straightforward (see Figure 6.17): 
+
+& 
+
+
+PSTRING LD B, NBR LENGTH OF STRING 
+LD HL, START BASE ADDRESS 
+NEXT LD A, (HL) GET CHARACTER 
+CALL PRINTC PRINT IT 
+INC HL NEXT ELEMENT 
+DEC B 
+JR NZ, NEXT DO IT AGAIN 
+RET 
+
+
+490 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+MEMORY 
+
+
+B 
+
+
+COUNTER 
+
+
+START +N > 
+
+
+TO PRIMTER 
+OUTPUT REGISTER 
+
+
+Fig. 6.17: Printing 2 Memory Block 
+
+
+PERIPHERAL SUMMARY 
+
+
+We have now described the basic programming techniques used to 
+communicate with typical input/output devices. In addition to the data 
+transfer, it will be necessary to condition one or more control registers 
+within each I/O device in order to condition the transfer speeds, the in- 
+terrupt mechanism, and the various other options correctly. The man- 
+ual for each device should be consulted. (For more details on the spe- 
+cific algorithms for exchanging information with all the usual peripher- 
+als, the reader is referred to our book, C207, Microprocessor Interfac- 
+ing Techniques.) 
+
+We have now learned to manage single devices. However, in a real 
+system, all peripherals are connected to the buses, and may request 
+service simultaneously. How are we going to schedule the processor’s 
+time? 
+
+
+INPUT/OUTPUT SCHEDULING 
+
+
+Since input/output requests may occur simultaneously, a scheduling 
+mechanism must be implemented in every system to determine in which 
+order service will be granted. Three basic input/output techniques are 
+used, which can be combined with each other. They are: polling, inter- 
+rupt, DMA. Polling and interrupts will be described here. DMA is 
+purely a hardware technique, and as such will not be described here. (It 
+is covered in the reference books C201 and C207.) 
+
+
+491 
+
+
+PROGRAMMING THE Z80 
+
+
+Polling 
+
+
+Conceptually, polling is the simplest method for managing multiple 
+peripherals. With this strategy, the processor interrogates the devices 
+connected to the buses in turn. If a device requests service, the service 
+is granted. If it does not request service, the next peripheral is exam- 
+ined. Polling is used not just for the devices, but for any device service 
+routine. 
+
+As an example, if the system is equipped with a Teletype, a tape re- 
+corder, and a CRT display, the polling routine would interrogate the 
+Teletype: ‘‘Do you have a character to transmit?’* It would interrogate 
+the Teletype output routine, asking: ‘‘Do you have a character to 
+send?’’ Then, assuming that the answers are negative so far, it would 
+interrogate the tape-recorder routines, and finally the CRT display. If 
+only one device is connected to a system, polling will be used as well to 
+determine whether it needs service. As an example, the flowcharts for 
+reading a paper-tape reader and for printing on a printer appear in Fig- 
+ures 6.20 and 6.21. 
+
+
+DATA BUS 
+POLLING 
+
+
+INTERRUPT 
+
+
+DMA 
+
+
+EE 
+
+
+MPU 
+
+
+wo eee eee 
+
+
+Fig. 6.18: Three Methods of I/O Control 
+
+
+492 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+Example: a polling loop for devices 1, 2, 3, 4 (see Fig. 6.19): 
+POLL4 IN A, (STATUS 1) GET STATUS OF DEVICE 1 
+
+
+BIT 7,A SERVICE REQUEST? 
+CALL NZ, ONE BIT 7 = 1? 
+
+IN A, (STATUS2) DEVICE 2 
+
+BIT 7A 
+
+
+CALL NZ, TWO 
+
+IN A, STATUS3) DEVICE 3 
+BIT 7,A 
+
+CALL NZ, THREE 
+
+IN A, (STATUS4) DEVICE 4 
+
+
+BIT 7,A 
+CALL NZ, FOUR 
+JR POLIL4 NO REQUEST, TRY AGAIN 
+
+
+Bit 7 of the status register for each device is ‘‘1’’ when it wants serv- 
+ice. When a request is sensed, this program branches to the device 
+handier, at address ONE for device 1, TWO for device 2, etc. 
+
+A fine point is worth noting here. For each instruction, it is impor- 
+tant to verify carefully the way in which it affects the condition codes. 
+It should be noted that the input instruction does not change the flags. 
+If a memory-load instruction has been used instead of an input instruc- 
+tion, bit 7 of the input would automatically be reflected as the SIGN 
+bit in the flags register. The special instruction ‘‘BIT 7,A’’ would be- 
+come unnecessary. However, because the IN instruction does not 
+change the flags, this extra test must be included in the program. 
+
+In some hardware implementations, input/output devices may be 
+treated as memory devices for purposes of addressing. This is called 
+memory-mapped input/output. In this case, the IN instruction would 
+be replaced by an LD instruction and the rest of the program would be 
+modified as indicated above. 
+
+The advantages of polling are obvious: it is simple, does not require 
+any hardware assistance, and keeps all input/output synchronous with 
+the program operation. Its disadvantage is Just as obvious: most of the 
+processor’s time is wasted looking at devices that do not need service. 
+In addition, by wasting so much time, the processor might give service 
+to a device too late. 
+
+Another mechanism is, therefore, desirable in order to guarantee that 
+the processor’s time can be used to perform useful computations rather 
+than polling devices needlessly all the time. However, let us stress that 
+polling is used extensively whenever a microprocessor has nothing bet- 
+
+
+493 
+
+
+PROGRAMMING THE 280 
+
+
+A 
+REQUESTING 
+SERVICE? 
+
+
+SERVICE ROUTINE 
+FOR DEVICE A 
+
+
+SERVICE ROUTINE 
+FOR DEVICE B 
+
+
+c 
+REQUESTING 
+SERVICE? 
+
+
+SERVICE ROUTINE 
+FOR DEVICE C 
+
+
+Fig. 6.19: Polling Loop Flowchart 
+
+
+SET READER 
+ENABLE ON 
+
+
+READ CHARACTER 
+
+
+Fig. 6.20: Reading from a Paper-Tape Reader 
+
+
+494 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+LOAD PUNCH 
+OR PRINTER 
+BUFFER 
+
+
+TRANSMIT 
+DATA 
+
+
+Fig. 6.21: Printing on a Punch or Printer 
+
+
+ter to do, as it keeps the overall organization simple. Let us examine the 
+essential alternative to polling: interrupts. 
+
+
+Interrupts 
+
+
+The concept of interrupts is illustrated in Figure 6.18. A special hard- 
+ware line, the interrupt line, is connected to a specialized pin of the mi- 
+croprocessor. Multiple input/output devices may be connected to this 
+interrupt line. When any one of them needs service, it sends a level or a 
+pulse on this line. An interrupt signal is the service request from an in- 
+put/output device to the processor. Let us examine the response of the 
+processor to this interrupt. 
+
+In any case, the processor completes the instruction that it was cur- 
+rently executing; otherwise, this would create chaos inside the micro- 
+processor. Next, the microprocessor should branch to an interrupt-han- 
+dling routine which will process the interrupt. Branching to such a sub- 
+routine implies that the contents of the program counter must be saved 
+on the stack. An interrupt must, therefore, cause the automatic preser- 
+vation of the program counter on the stack, \n addition, the flag regis- 
+ter F should be also preserved automatically, as its contents will be 
+altered by any subsequent instruction. Finally, if the interrupt-handling 
+
+
+495 
+
+
+PROGRAMMING THE Z80 
+
+
+routine should modify any internal registers, these internal registers 
+should also be preserved on the stack (see Figures 6.22 and 6.23). 
+
+
+Fig. 6.23: Saving Some Working Registers 
+
+
+After all these registers have been preserved, one can branch to the 
+appropriate interrupt-handling address. At the end of this routine, all 
+the registers should be restored, and a special interrupt return should be 
+executed so that the main program will resume execution. Let us exam- 
+ine in more detail the interrupt lines of the Z80. 
+
+
+£80 Interrupts 
+
+
+An interrupt is a signal sent to the microprocessor, which may re- 
+quest service at any time and is asynchronous to the program. When- 
+ever a program branches to a subroutine, such branching is synchron- 
+Ous to program execution, i.e., scheduled by the program. An inter- 
+rupt, however, may occur at any time, and will generally suspend the 
+execution of the current program (without the program knowing it). 
+Because it may happen at any time relative to program execution, it is 
+called asynchronous. 
+
+Three interruption mechanisms are provided on the Z80: the bus re- 
+quest (BUSRQ), the non-maskable interrupt (NMJ and the usual inter- 
+rupt (INT). 
+
+Let us examine these three types. 
+
+
+496 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+The Bus Request 
+
+
+The bus request is the highest priority interrupt mechanism on the ° 
+Z80. The interrupt sequence for the Z80 is shown in Figure 6.24. As a 
+general rule, no interrupt will be sensed by the Z80 until the current 
+machine cycle is completed. The NMI and INT interrupts will not be 
+taken into account until the current instruction is finished. However, 
+the BUSRQ will be handled at the end of the current machine cycle, 
+without necessarily waiting for the end of the instruction. It is used for 
+
+
+ves 
+
+
+Hg 
+aS 
+
+
+3a Ma 
+
+
+6uSeG =o 
+
+
+RESET 
+BUSED FF 
+x. se | 
+| 33 ze | 
+
+
+ves ss | 
+ma | 
+
+
+Fig. 6.24: Interrupt Sequence 
+
+
+497 
+
+
+PROGRAMMING THE Z80 
+
+
+a direct memory access (DMA), and will cause the Z80 to go into DMA 
+mode (see ref. C201 for an explanation of the DMA mechanism). If the 
+end of an instruction has been reached, and if any NMI or INT were 
+pending, they would be memorized internally in the Z80 by setting spe- 
+cialized flip-flops: the NMI flip-flop, and the INT flip-flop. In DMA 
+mode, the Z80 suspends operation and releases its data-bus and 
+address-bus in the high-impedance state. This mode is normally used by 
+a DMA controller to perform transfers between a high-speed input- 
+output device and the memory, using the microprocessor data-bus and 
+address-bus. The end of a DMA operation is indicated to the Z80 by 
+BUSRQ changing levels. At this point, the Z80 will resume normal 
+operation. In particular, it will first check whether its internal NMI or 
+INT flip-flops had been set and, if so, execute the corresponding inter- 
+rupts. 
+
+The DMA should normally not be of concern to the programmer, un- 
+less timing is important. If a DMA controller is present in the system, 
+the programmer must understand that the DMA may delay the 
+response to an NMI or an INT. 
+
+
+The Non-Maskable Interrupt 
+
+
+This type of interrupt cannot be inhibited by the programmer. It is 
+therefore said to be non-maskable, hence its name. It will always be ac- 
+cepted by the Z80 upon completion of the current instruction, assuming 
+no bus request was received. (If an NMI is received during a BUSRQ, 
+it will set the internal NMI flip-flop, and will be processed at the end of 
+the BUSRQ.) 
+
+The NMI will cause an automatic push of the program counter into 
+the stack and branch to address 0066H: the two bytes representing the 
+address 0066H will be installed in the program counter. They represent 
+the start address of the handling routine for the NMI (see figure 6.25). 
+
+This interrupt mechanism has been designed for speed, as it is used in 
+case of ‘‘emergencies’’. Therefore, it does not offer the flexibility of the 
+maskable interrupt mode, described below. 
+
+Note also that an interrupt routine must have been loaded at address 
+006H prior to using the NMI. 
+
+
+498 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+Fig. 6.25: NMI Forces Automatic Vectoring 
+
+
+NMI causes an automatic restart at location 0066H. The sequence of 
+events is the following: 
+
+
+PC ———— = STACK (preserve program counter) 
+IFFQ—_—SsOIFF2 (preserve IFF) 
+
+0 —a—e FFI (reset IFF) 
+
+JUMP TO 0066H (execute interrupt handler) 
+
+
+Also, the status of interrupt-mask-bit flip-flop (IFF1) at the time that 
+NMI was received is preserved automatically into IFF2. Then, IFF1 is re- 
+set in order to prevent any further interrupts. This feature is important to 
+prevent the loss of lower-priority INT’s and simplifies the external hard- 
+ware: the status of a pending INT is preserved internally in the Z80. 
+
+The NMI interrupt is normally used for high priority events such as a 
+real-time clock or a power failure. 
+
+The return from an NMI is accomplished by a special instruction, RETN: 
+“return from non-maskable interrupt.’? The contents of IFF1 are restored 
+from IFF2, and the contents of the program counter PC are restored from 
+their location in the stack. Since IFF1 had been reset during execution 
+of the NMI, no external INT’s could be accepted during the NMI: there 
+has been no loss of information. 
+
+Upon termination of the interrupt handler, the sequence is: 
+
+
+IFF2 = _—SsST FFI (restore IFF) 
+STACK =r PC {restore program counter) 
+
+
+Note that, once IFF1 is restored, maskable interrupt enable status is 
+restored. 
+
+
+499 
+
+
+PROGRAMMING THE Z80 
+
+
+Interrupt 
+
+
+The ordinary, maskable, interrupt INT may operate in one of three 
+modes. They are specific to the Z80, as the 8080 is equipped with only a 
+single interrupt mode. The ordinary interrupt INT may also be masked 
+selectively by the programmer. Setting the interrupt flip-flops IFF1 and 
+IFF2 to a ‘‘1’’ will authorize interruptions. Setting them to a ‘‘0’’ 
+(masking them) will prevent detection of INT. The EI instruction is 
+used to set them, and the DI instruction is used to reset them. IFF1 and 
+IFF2 are set or reset simultaneously. During execution of the EI and DI 
+instructions, INT’s are disabled in order to prevent any loss of informa- 
+tion. 
+
+Let us now examine the three interrupt modes: 
+
+
+Interrupt Mode 0 
+
+
+This mode is identical to the 8080 interrupt mode. The Z80 will 
+operate in interrupt mode 0 either when initially started (when the RE- 
+SET signal has been applied) or else when an IMO instruction has been 
+executed. Once mode 0 has been set, an interrupt will be recognized if 
+the interrupt enable flip-flop IFF1 is set to 1, provided no bus-request 
+or non-maskable interrupt occurs at the same time. The interrupt will 
+be detected only at the end of an instruction. Essentially, the Z80 will 
+respond to the interrupt by generating an IORQ (as well as an M1 sig- 
+nal), and then do nothing, except wait. 
+
+It is the responsibility of an external device to recognize the IORQ 
+and Mi (this is called an interrupt acknowledge or INTA) and to place 
+an instruction on the data-bus. The Z80 expects an instruction to be 
+placed on its data bus by the external device within the next cycle. Typi- 
+cally, an RST or a CALL instruction is placed on the bus. Both of these 
+instructions automatically preserve the program-counter in the stack, 
+and cause branching to a specific address. The advantage of the RST in- 
+struction is that it resides within a single byte, i.e., it executes rapidly. 
+Its disadvantage is to branch to only one of eight possible locations in 
+page zero (addresses 0 through 225). The advantage of the CALL in- 
+struction is that it is a general-purpose branch instruction which speci- 
+fies a full 16-bit address. However, it requires three bytes and therefore 
+executes less rapidly. 
+
+
+Note that once the interrupt processing starts, all further interrupts 
+are disabled. IFF1 and IFF2 are automatically set to ‘0’’. It is then the 
+responsibility of the programmer to insert an El instruction (Enable In- 
+
+
+500 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+terrupts) at the appropriate location within his program if he wishes to 
+enable interrupts, and, in any case, before returning from the interrupt. 
+
+The detailed sequence corresponding to the mode 0 interrupt is 
+shown in Figure 6.26. 
+
+
+MODE 0 MODE 1 MODE 2 
+| GISABLE (NIERRUPTS | DISABLE INTERRUPIS SSaae NieReuris: | 
+i ieFl ope? 2 Q H “23 sb2 oy : 
+
+
+wer RR? = 0 i 
+a f 
+
+
+MORE BVIES 
+REQUIRED FOR 
+INSTRUCTION 
+
+
+Et (ENABLE INTERRUPTS] 
+
+
+READ F 
+
+OF waSTRUCTION PC STACK Lab VECTOR 
+
+AME, 1G2Q LOW} a ae 
+JUMP TO 0038 | r= STACK 
+
+
+lam VECTOR 
+TAS.E ADDRESS: 
+EG + VECTOR 
+
+
+Git STARTING 
+ASrAESS FROM 
+
+
+READ NEXT BYTE 
+(NORMAL MEM, READ 
+WITH PC STATIONARY) 
+
+
+RET 
+STACK PE 
+
+
+SECTOR TABLE 
+
+
+AJMP TS NEW LOCATION: 
+
+STARE INTERRUPT 
+eS SERVICE ROUTINE 
+CALL OR RST 
+
+
+(a 
+
+
+EE CENAZ.ES INTERRUPTS} 
+Lu 
+
+
+| EXECUTE INSTRUCTION £ 
+[ve 
+
+
+Fig. 6.26: Interrupt Modes 
+
+
+The return from the interrupt is accomplished by an RETI instruc- 
+tion. Let us remind the programmer at this point that he/she is usually 
+responsible for explicitly clearing the interrupt which has been serviced 
+on the I/O device, and always for restoring the interrupt disable flag in- 
+side the Z80. However, the peripheral controller may use the INTA sig- 
+nal to clear the INT request, thus freeing the programmer of this chore. 
+
+In addition, should the interrupt-handling routine modify the con- 
+tents of any of the internal registers, the programmer is specifically re- 
+sponsible for preserving these registers in the stack prior to executing 
+the interrupt-handling routine. Otherwise, the contents of these regis- 
+ters will be destroyed, and when the interrupted program resumes exe- 
+
+
+501 
+
+
+PROGRAMMING THE Z80 
+
+
+cution, it will fail. For example, assuming that registers A, B, C, D, BE, 
+H and L will be used within the interrupt handler, they will have to be 
+
+
+saved (see Figure 6.27). 
+
+
+DECREASING 
+ADDRESSES 
+
+
+STACK 
+Fig. 6.27: Saving the Registers 
+
+
+The corresponding program is: 
+
+
+SAVREG PUSH AF 
+PUSH BC 
+PUSH DE 
+PUSH HL 
+
+
+Upon completion of the interrupt-handling routine, these registers must 
+be restored. The interrupt handler will terminate with the following se- 
+quence of instructions: 
+
+
+POP HL 
+
+POP DE 
+
+POP BC 
+
+POP AF 
+
+EI (unless EI was used earlier in 
+
+
+the routine) 
+
+
+Additionally, if registers IX and IY are used by the routine they must 
+also be preserved, then restored. 
+
+
+502 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+Interrupt Mode I 
+
+
+This interrupt mode is set by executing the IM1 instruction. It is an 
+automated interrupt handler which causes an automatic branch to loca- 
+tion 0038H. It is therefore essentially analogous to the NMI interrupt 
+mechanism except that it may be masked. The Z80 automatically pre- 
+serves the contents of PC into the stack (see Figure 6.28). 
+
+
+INT 0 
+
+
+gutomatic 38[ ] INTERRUPT 
+
+
+vecioring 
+
+
+PROGRAM sp 
+
+
+automatic 
+
+
+| PCL _|J LOCATION OF 
+BCH __ [J INTERRUPTION 
+
+
+MEMORY 
+
+
+38 f= 
+preserve 
+
+
+0038 STACK 
+
+
+(avtomatic} 
+
+
+Fig. 6.28: Mode 1 Interrupt 
+
+
+This automated interrupt response, which ‘‘vectors’’ all interrupts to 
+memory location 38H, minimizes the amount of external hardware nec- 
+essary for using interrupts. Its possible disadvantage is to cause a 
+branch to a single memory location. In case several devices are con- 
+nected to the INT line, the program starting at location 38H will be re- 
+sponsible for determining which device requested service. This problem 
+will be addressed below. 
+
+One precaution must be taken with respect to the timing of this inter- 
+rupt: when performing programmed input/output transfers, the Z80 
+will ignore any data that may be present in the data bus during the cycle 
+which follows the interrupt (the interrupt acknowledge cycle). 
+
+
+503 
+
+
+PROGRAMMING THE 280 
+
+
+Interrupt Mode 2 (Vectored Interrupts) 
+
+
+This mode is set by executing an IM2 instruction. It is a powerful 
+mode which allows automatic vectoring of interrupts. The interrupt 
+vector is an address supplied by the peripheral device which generated 
+the interrupt, and used as a memory pointer to the start address of the 
+interrupt-handling routine. The addresssing mechanism provided by 
+the Z80 in mode 2 is indirect, rather than direct. Each peripheral sup- 
+plies a seven-bit branching address which is appended to the 8-bit ad- 
+dress contained in the special I register in the Z80. The right-most bit of 
+the final 16-bit address bit 0 is set to ‘‘0’’. This resulting address points 
+to an entry in a table anywhere in the memory. This table may contain 
+up to eight double-word entries. Each of these double words is the ad- 
+dress of the interrupt handler for the corresponding device. This is illus- 
+trated in Figures 6.29 and 6.30. 
+
+
+So 
+
+
+= INT 
+
+
+DEVICE 2X VECTOR 
+
+
+MEMORY 
+
+
+Fig. 6.29: Mode 2 Interrupt 
+
+
+The interrupt table may have up to 128 entries. 
+
+In this mode, the Z80 also automatically pushes the contents of the 
+program counter into the stack. This is obviously necessary, since PC 
+will be reloaded with the contents of the interrupt table entry corre- 
+sponding to the vector provided by the device. 
+
+
+Interrupt Overhead 
+
+
+For a graphic comparison of the polling process vs. the interrupt 
+process, refer to Figure 6.18, where the polling process is illustrated on 
+the top, and the interrupt process underneath. It can be seen that in the 
+polling technique the program wastes a lot of time waiting, 
+
+
+504 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+PC 01 52 VECTOR oso ZIT 
+[00 00 WWM), 
+BEFORE 0504 yy yg 
+
+
+| _— 
+(lee 
+(ee 
+
+
+AFTER 
+
+
+automatic vectoring 
+
+
+MEMORY 
+
+
+Fig. 6.30: Mode 2- A Practical Example 
+
+
+Using interrupts, the program is interrupted, the interrupt is serviced, 
+then the program resumes. However, the obvious disadvantage of an 
+interrupt is to introduce several additional instructions at the beginning 
+and at the end, resulting in a delay before the first instruction of the de- 
+vice handler can be executed. This is additional overhead. 
+
+
+Exercise 6.28: Using the table indicating the number of cycles per in- 
+struction, in the Appendix, compute how much time will be lost to save 
+and then restore registers A, B, D, H. 
+
+
+Having clarified the operation of the interrupt lines, let us now con- 
+sider two important remaining problems: 
+
+
+I—How do we resolve the problem of multiple devices triggering an 
+
+
+505 
+
+
+PROGRAMMING THE Z80 
+
+
+interrupt at the same time? 
+2—How do we resolve the problem of an interrupt occurring while 
+another interrupt is being serviced? 
+
+
+Multiple Devices Connected to a Single Interrupt Line 
+
+
+Whenever an interrupt occurs, the processor branches to a specified 
+address. Before it can do any effective processing, the interrupt han- 
+dling routine must determine which device triggered the interrupt. Two 
+methods are available to identify the device, as usual: a software 
+method and a hardware method. 
+
+In the software method, polling is used: the microprocessor interro- 
+gates each of the devices in turn and asks them, ‘‘Did you trigger the in- 
+terrupt?’’ If the answer is negative, it interrogates the next one. This 
+process is illustrated in Figure 6.31. A sample program is: 
+
+
+POLINT IN A, (STATUS1) READ STATUS 
+
+
+BIT 7,A DID DEVICE REQUEST INT? 
+JP ——- NZ, ONE HANDLE IT IF SO 
+
+IN __A, (STATUS2) 
+
+BIT 7A 
+
+JP =—- NZ, TWO 
+
+etc, --- 
+
+
+The hardware method uses additional components but provides the 
+address of the interrupting device simultaneously with the interrupt re- 
+quest. The device now universally used to provide this facility is called a 
+*‘PIC’’, or priority-interrupt-controller. Such a PIC will automatically 
+
+INT 1 POLLING INTERRUPT VECTORED 
+
+
+SERVICE 
+ROUTINE 
+
+
+SERVICE 
+ROUTINE P 
+SERVICE 
+ROUTINE N 
+
+
+Fig. 6.31: Polled vs. Vectored Interrupt 
+
+
+506 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+place on the data bus the actual required branching address for the in- 
+terrupting peripheral. 
+
+To be more precise, when operating in mode 0, the PIC will supply a 
+one-byte RST or a three-byte CALL on the data bus in response to the 
+interrupt acknowledge, thus automating the interrupt vectoring, and 
+minimizing the overhead. 
+
+Note that a subroutine call instruction is required as the Z80 does not 
+save the PC when operating in mode 0. 
+
+In most cases, the speed of reaction to an interrupt is not crucial, and 
+a polling approach is used. If response time is'a primary consideration, 
+a hardware approach must be used. 
+
+
+Simultaneous Interrupts 
+
+
+The next problem which may occur is that a new interrupt can be trig- 
+gered during the execution of an interrupt-handling routine. Let us 
+examine what happens and how the stack is used to solve the problem. 
+We have indicated in Chapter 2 that this was another essential role of 
+the stack, and the time has come now to demonstrate its use. We will 
+refer to Figure 6.33 to illustrate multiple interrupts. Time elapses from 
+left to right in the illustration. The contents of the stack are shown at 
+the bottom of the illustration. Looking at the jeft, at time TO, program 
+P is in execution. Moving to the right, at time T], interrupt I1 occurs. 
+We will assume that the interrupt mask was enabled, authorizing I1. 
+Program P will be suspended. This is shown at the bottom of the illus- 
+tration. The stack will contain the program counter and the status reg- 
+ister of program P, at least, plus any optional registers that might be 
+saved by the interrupt handler or 11 itself. 
+
+
+1/0 
+eeo TINTERFAC 
+n 
+
+
+INT 
+
+
+Fig. 6.32: Several Devices May Use the Same Interrupt Line 
+
+
+At time T1, interrupt I] starts executing until time T2. At time T2, in- 
+terrupt 12 occurs. We will assume that interrupt I2 has a higher priority 
+than interrupt I!. If it had a lower priority, it would be ignored until I1 
+had been completed. At time T2, the registers for I] are stacked, and 
+this appears at the bottom of the illustration. Again, the contents of the 
+program counter and AF are pushed into the stack. In addition, the 
+routine for 12 might decide to save an additional few registers. 12 will 
+now execute to completion at time T3. 
+
+
+507 
+
+
+PROGRAMMING THE Z80 
+
+
+When 12 terminates, the contents of the stack are automatically 
+popped back into the Z80, and this is illustrated at the bottom of Figure 
+6.33. Thus, automatically 11 resumes execution. Unfortunately, at time 
+T4, an interrupt 13 of higher priority occurs again. We can see at the 
+bottom of the illustration that again the registers for I! are pushed into 
+the stack. Interrupt 13 executes from T4 to T5 and terminates at TS. At 
+
+
+TIME to i 1; Ty Sy Ik Ty 
+
+
+PROGRAM P en 
+INTERRUPT Tf, (re en Reloaded by 
+INTERRUPT 1, ’ et 
+
+f oo | 
+
+
+INTERRUPT J, 
+
+
+| ou 
+~“ OHH Oo 
+T T T 
+
+
+’ 2 . ‘1 t 
+
+
+Fig. 6.33: Stack Contents During Multiple Interrupts 
+
+
+that time, the contents of the stack are popped into Z80, and interrupt 
+Il resumes execution. This time it runs to completion and terminates at 
+T6. At T6, the remaining registers that have been saved in the stack are 
+popped into Z80, and program P may resume execution. The reader 
+will verify that the stack is empty ‘« this point. In fact, the number of 
+dashed lines indicating program suspension indicates at the same time 
+how many levels there are in the stack. 
+
+
+Exercise 6.29; Assume that the area available to the stack is limited to 
+300 locations in a specific programm, Assume that all the registers must 
+always be saved and that the programmer allows interrupts to be nest- 
+ed, 1.€., to interrupt each other. Which is the maximum number of 
+Simultaneous interrupts that can be handled? Will any other factor con- 
+tribute to still reduce further the maximum number of simultaneous in- 
+terrupts? 
+
+
+It must be stressed, however, that, in practice, microprocessor sys- 
+tems are normally connected to a small number of devices using inter- 
+rupts. It is, therefore, unlikely that a high number of simultaneous in- 
+terrupts will occur in such a system. 
+
+We have now solved ali the problems usually associated with inter- 
+rupts. Their use is, in fact, simple and they should be employed to ad- 
+vantage even by the novice programmer. 
+
+
+508 
+
+
+INPUT/OUTPUT TECHNIQUES 
+
+
+SUMMARY 
+
+
+In this chapter we have presented the range of techniques used to 
+communicate with the outside world. From elementary input/output 
+routines to more complex programs for communication with actual 
+peripherals, we have learned to develop all the usua] programs and have 
+even examined the efficiency of benchmark programs in the case of a 
+parallel transfer and a parallel-to-serial conversion. Finally, we have 
+learned to schedule the operation of multiple peripherals by using poll- 
+ing and interrupts. Naturally, many other exotic input/output devices 
+might be connected to a system. With the array of techniques which 
+have been presented so far, and with an understanding of the peripher- 
+als involved, it should be possible to solve most common problems. 
+
+In the next chapter, we will examine the actual characteristics of the 
+input/output interface chips usually connected to a Z80. Then, we will 
+consider the basic data structures that the programmer may use. 
+
+
+Exercise 6.30: Compute the overhead when operating in mode 0, as- 
+suming that all registers are saved, and that an RST is received in re- 
+sponse to the interrupt acknowledge, The overhead ts defined as the 
+total delay incurred, exclusive of the instructions required to implement 
+the interrupt processing proper. 
+
+
+Exercise 6.31: A 7-segment LED display can also display digits other 
+than the hex alphabet. Compute the codes for: H, I, J, L, O, P, S, U, 
+Yoh, 1,3, 4,7, 0, p, , t, u, y. 
+
+
+Exercise 6.32: The flowchart for interrupt managentent appears in Fig- 
+ure 6.34 Answer the following questions: 
+a— What is done by hardware, what is done by software? 
+b—What is the use of the mask? 
+c—How many registers should be preserved? 
+d—How its the interrupting device identified? 
+e— What does the RETI instruction do? How does it differ from a 
+subroutine return? 
+f—Suggest a way to handle a stack overfiow situation. 
+g—What is the overhead (‘‘lost time’’) introduced by the interrupt 
+mechanisin? 
+
+
+509 
+
+
+PROGRAMMING THE Z80 
+
+
+510 
+
+
+NEXT INSTRUCTION 
+
+
+PRESERVE REGISTERS 
+{if necessary) 
+UNSET MASK 
+IDENTIFY DEVICE 
+{it necessary) 
+EXECUTE ROUTING 
+
+
+RESTORE REGISTERS 
+
+
+RETURN 
+
+
+Fig. 6.34: Interrupt Logic 
+
+
+7 
+INPUT/OUTPUT DEVICES 
+
+
+INTRODUCTION 
+
+
+We have learned how to program the Z80 microprocessor in most 
+usual situations. However, we should make a special mention of the 
+input/output chips normally connected to the microprocessor. Be- 
+cause of the progress in LSI integration, new chips have been intro- 
+duced which did not exist before. As a result, programming a system 
+requires, naturally, first to program a microprocessor itself, and then 
+to program the input/output chips. In fact, it is often more difficult 
+to remember how to program the various control options of an input/ 
+output chip than to program the microprocessor itself! This is not be- 
+cause the programming in itself is more difficult, but because each of 
+these devices has its own idiosyncrasies. We are going to examine here 
+first the most general input/output device, the programmable input/ 
+output chip (in short a ‘‘PIO’’), then some Zilog I/O devices. 
+
+
+The ‘‘Standard PIO”’ 
+
+
+There is no ‘‘standard PIO’’. However, each PIOdeviceis essentially 
+analogous in function to all similar PIO’s produced by other 
+manufacturers for the same purpose. The purpose of a PIO is to 
+provide a multiport connection for input/output devices. (A ‘‘port’’ is 
+simply a set of 8 input/output lines.) Each PIO provides at least 
+two sets of 8-bit lines for I/O devices. Each I/O device needs a data 
+buffer in order to stabilize the contents of the data bus on output at 
+least. Our PIO will, therefore, be equipped at a minimum with a 
+buffer for each port. 
+
+In addition, we have established that the microcomputer will use 
+a handshaking procedure, or else interrupts to communicate with the 
+
+
+S11 
+
+
+PROGRAMMING THE Z80 
+
+
+I/O device. The PIO will also use a similar procedure to communicate 
+with the peripheral. Each PIO must, therefore, be equipped with at 
+least two control lines per port to implement the handshaking 
+function. 
+
+The microprocessor will also need to be able to read the status of 
+each port. Each port must be equipped with one or more Status bits. 
+Finally, a number of options will exist within each PIO to configure its 
+resources. The programmer must be able to access a special register 
+within the PIO to specify the programming options. This is the 
+controi-register. In some cases the status information is part of the 
+control register. 
+
+
+28| IRSo] Rod 
+G) pa 
+
+DATA BUS &2/ |8a5| |82z PORT A 
+wZ a= > pa >m 
+~ Zz > 
+
+REGISTER | 5) <____.» PORT B 
+
+SELECT | — RSI 
+IRQA CB2 
+IRQB CBI 
+
+
+Fig. 7.1: Typical PIO 
+
+
+One essential faculty of the PIO is the fact that each line may be 
+configured as either an input or an output line. The diagram of 
+a PIO appears in illustration 7.1. The programmer may specify 
+whether any line will be input or output. In order to program the 
+direction of the lines, a data-direction register is provided for each 
+port. A “0” in a bit position of the data-direction register specifies an 
+input. A ‘‘1’’ specifies an output. 
+
+It may be surprising to see that a ‘‘0’’ is used for input and a ‘‘1”’ 
+for output when really ‘‘0’’ should correspond to output and “‘1’’ to 
+input. This is quite deliberate: whenever power is applied to the 
+system, it is of great importance that all the I/O lines be configured as 
+input, Otherwise, if the microcomputer is connected to some 
+
+
+512 
+
+
+INPUT/OUTPUT DEVICES 
+
+
+dangerous peripheral, it might activate it by accident. When a reset is 
+applied, ali registers are normally zeroed and that will result in con- 
+figuring ali input lines of the PIO as inputs. The connection to the 
+microprocessor appears on the left of the illustration. The PIO 
+naturally connects to the 8-bit data bus, the microprocessor address 
+bus, and the microprocessor control-bus. The programmer will simply 
+specify the address of any register that it wishes to access within the 
+PIO. 
+
+
+The Internal Control Register 
+
+
+The Control Register of the PIO provides a number of options for 
+generating or sensing interrupts, or for implementing automatic hand- 
+shake functions. The complete description of the facilities provided is 
+not necessary here. Simply, the user of any practical system which uses 
+a PIO will have to refer to the data-sheet showing the effect of setting 
+the various bits of the control register. Whenever the system is 
+initialized, the programmer will have to load the control register of the 
+PIO with the correct contents for the expected application (see ref. 
+D380 for a detailed description). 
+
+
+i" a - 
+INTERFACE A 
+
+
+CHIP SELECT = PERIPHERAL 
+SL Las wee B 
+
+
+REGISTER 
+
+
+| SELECT [i 
+_— DIRECTION 
+
+
+DDRB) 
+
+
+CT 
+PF] CONTROL 
+
+
+(CRB) 
+
+
+STATUS 
+
+
+Fig. 7.2: Using a PIO-Load Control Register 
+
+
+$13 
+
+
+PROGRAMMING THE Z80 
+
+
+5 INTERFACE A | KW PAP 
+
+
+\cu SELECT 
+
+
+mu PERIPHERAL K— > PBO-PB7 
+
+| By INTERFACE B p 
+aS 
+
+a 
+
+RE DATA 
+
+fet! = DIRECTION 
+: DDRB 
+
+Pe CONTROL 
+
+terres camec? | o 
+
+
+REGISTER 
+SELECT 
+
+
+EN 
+RESET 
+
+
+(CRE) cB 
+IRQB « CB2 
+
+
+Fig. 7.3: Using a PIO-Load Data Direction 
+
+
+IRQA cn 
+— CRAYT 
+DB-D7 ay | DATA BUS - ma} CONTROL | 
+
+
+DDRA 
+Lt DATA 
+| 
+
+
+. Pages: 
+—] Fo] PERIPHERAL | 4 pag paz 
+CONTROL a Es INTERFACE A 
+J 77 PERIPHERAL 
+[oa seer | By PERIPHERAL | VS" pp9-pa7 
+REGISTER eendiguner se: 
+
+
+SELECT YC DATA 
+oN imeem! DIRECTION 
+
+
+(DDRB) 
+
+
+RESET —» 
+eerste 
+P————|_ CONTROL 
+(CRB) 
+as g 
+
+
+Fig. 7.4; Using a PlO-Read Status 
+
+
+514 
+
+
+INPUT/OUTPUT DEVICES 
+
+
+INT. CA 1 
+IRQA (a2 
+
+
+00-D7 <=) CONTROL 
+(DDRA 
+DATA 
+BUS INPUT DIRECTION 
+S. or 
+“PERIPHERAL |: ; 
+PA] INTERFACE A | [New PH-PH” 
+{cu SELECT CO pee. PB? 
+) REGISTER 
+DIRECTION 
+EN TDDRB) 
+RESET 
+CONTROL 
+(CRB) at 
+i a 
+Fig. 7.5: Using a PIO Read INPUT 
+Programming 2 PIO 
+
+
+A typical sequence, when using a PIO channel, is the following (as- 
+suming an input): 
+
+
+Load the control register 
+
+This is accomplished by a programmed transfer between a Z80 re- 
+gister (usually the accumulator) and the PIO control register. This sets 
+the options and operating mode of the PIO (see Figure 7. 2). It is nor- 
+mally done only once at the beginning of a program. 
+
+
+Load the direction register 
+This specifies the direction in which the 1/O lines will be used. (See 
+Figure 7.3.) 
+
+
+Read the status 
+The status register indicates whether a valid byte is available on in- 
+
+
+put. (See Figure 7.4), 
+
+
+Read the port 
+The byte is read into the Z80. (See Figure 7.5). 
+
+
+515 
+
+
+PROGRAMMING THE Z80 
+
+
+Do ARDY 
+D, ASTA 
+Dy 
+DATA Dy 
+BU D Ao 
+° D. Ay PORTA 
+D ; A> vo 
+D 7 A 3 
+Ay 
+PORT B/A SEL As 
+A 
+CONTROL/DATA SEL 780. PIO Q 5 
+PIO 7 
+CONTROL CHIP ENABLE — 
+™ ———' . 
+IORG P 8 0 
+ca ae 
+82 
+INTERRUPT INT By 
+CONTROL INT ENABLE IN 84 tporre 
+INT ENABLE OUT Bs vO 
+Be 
+CLOCK p By 
++5 BRDY 
+POWER < GND 8516 
+Fig. 7.6: Z80 PIO pinout 
+The Zilog Z80 PIO 
+
+
+The Z80 PIO is a two-port PIO whose architecture is essentially 
+compatible with the standard model we have described. The actual 
+pinout is shown in Figure 7, 6, and a block diagram is shown in Figure 
+7.7. 
+
+Each PIO port has six registers: an 8-bit input register, a 9-bit 
+output register, a 2-bit mode-control register, an 8-bit mask register, 
+an 8-bit input/output select (direction register), and a 2-bit mask- 
+control register. The last three registers are used only when the port is 
+programmed to operate in the bit mode. 
+
+The PIO may operate in one of four modes, as selected by the con- 
+tents of the mode-control registers (2 bits). They are: byte output, 
+byte input, byte bidirectional bus, and bit mode. 
+
+The two bits of the mask control registers are loaded by the pro- 
+grammer, and specify the high or low state of a peripheral device 
+which is to be monitored, and conditions for which an interrupt can be 
+generated. ; 
+
+_ The 8-bit input/output select register allows any pin to be either an 
+input or an output when operating in that mode. 
+
+
+516 
+
+
+INPUT/OUTPUT DEVICES 
+
+
+1/0 SELECT 
+DATA OUT 
+
+
+2 
+
+
+! 
+MODE mask ||| |Z 
+CONTROL CONTROL] | 37) 
+(4 § 
+
+
+DECODING 
+
+
+AND | HANDSHAKE | 
+CONTROL CONTROL 
+
+
+1/0 SELECT 
+
+
+INT INTERRUPT 22 
+INTE-IN CONTROL 
+INTE-OUT 
+
+
+a 
+
+
+DATA OUT 
+
+
+DATA IN 
+
+
+CONTROL 
+
+
++§ 
+
+
+HANDSHAKE 
+
+
+Fig. 7.7: Z80 PIO Block Diagram 
+
+
+PORT 
+
+
+DATA 
+IN 
+
+
+READY 
+SFROBE 
+
+
+J 
+5 
+o DATA 
+) SE OF 
+a 
+
+
+PORT 
+
+
+DATA 
+iN 
+
+
+READY 
+STROBE 
+
+
+517 
+
+
+PROGRAMMING THE Z80 
+
+
+Programming the Zilog PIO 
+
+
+A typical sequence for using a PIO, say in bit mode, would be the 
+following: 
+Load the mode control register to specify the bit mode. 
+Load the input/output select register of port A to specify that 
+lines 0-5 are inputs and lines 6 and 7 are outputs. 
+Then a word would be read by reading the contents of the input 
+buffer. 
+Additionally, the mask register could be used to specify the status 
+conditions. 
+For a detailed description of the operation of the PIO, the reader is 
+referred to the companion volume in this series, the Z80 Applications 
+Book, 
+
+
+The Z80 SiO 
+
+
+The SIO (Serial Input/Output) is a dual-channel peripheral chip de- 
+signed to facilitate asynchronous communications in serial form. It in- 
+cludes a UART, i.e., a universal asynchronous receiver-transmitter. 
+Its essential function is serial-to-parailel and parallel-to-serial conver- 
+sion. However, this chip is equipped with sophisticated capabilities, 
+like automatic handling of complex byte-oriented protocols, such as 
+IBM bisync as well as HDLC and SDLC, two byte-oriented protocols. 
+
+Additionally, it can operate in synchronous mode like a USRT, and 
+generate and check CRC codes. It offers a choice of calling, interrupt, 
+and block-transfer modes. The complete description of this device is 
+beyond the scope of this introductory book and appears in the 
+Z80 Applications Book, 
+
+
+Other 1/O Chips 
+
+
+Because the Z80 is commonly used as a replacement for the 8080, it 
+has been designed so that it can be associated with almost any of the 
+usual 8080 input/output chips, as well as the specific I/O chips manu- 
+factured by Zilog. All the 8080 input/output chips may be considered 
+for use in a Z80 system. 
+
+
+518 
+
+
+INPUT/OUTPUT DEVICES 
+
+
+SUMMARY 
+
+
+In order to make effective use of input/output components it is 
+necessary to understand in detail the function of every bit, or group of bits, 
+within the various control registers. These complex new chips automate a 
+number of procedures that had to be carried out by software or special 
+logic before. In particular, a good deal of the handshaking procedures are 
+automated within components such as an SIO. Also, interrupt handling 
+and detection may be internal. With the information that has been pre- 
+sented in the preceding chapter, the reader should be able to understand 
+what the functions of the basic signals and registers are. Naturally, still 
+newer components are going to be introduced which will offer a hardware 
+implementation of still more complex algorithms. 
+
+
+519 
+
+
+8 
+APPLICATION EXAMPLES 
+
+
+INTRODUCTION 
+
+
+This chapter is designed to test your new programming skills by pre- 
+senting a collection of utility programs. These programs or ‘‘routines”’ 
+are frequently encountered in applications, and are generally called 
+‘utility routines.’* They will require a synthesis of the knowledge and 
+techniques presented so far. 
+
+We are going to fetch characters from an I/O device and process 
+them in various ways. But first, let us clear an area of the memory (this 
+may not be necessary—each of these programs is only presented as a 
+programming example). 
+
+
+CLEARING A SECTION OF MEMORY 
+
+
+We want to clear (zero) the contents of the memory from address 
+BASE + 1 to address BASE + LENGTH, where LENGTH is less then 
+256. 
+
+
+The program is: 
+ZEROM LD B, LENGTH LOAD B WITH LENGTH 
+
+
+LD A,0 CLEAR A 
+LD HL, BASE POINT TO BASE 
+
+CLEAR LD (HL), A CLEAR A LOCATION 
+INC HL POINT TO NEXT 
+DEC B DECREMENT COUNTER 
+JR NZ, CLEAR END OF SECTION? 
+RET 
+
+
+In the above program, the length of the section of memory is as- 
+sumed to be equal to LENGTH. The register pair HL is used as a point- 
+er to the current word which will be cleared. Register B is used, as 
+
+
+520 
+
+
+APPLICATION EXAMPLES 
+
+
+usual, as a counter. 
+
+The accumulator A is loaded only once with the value 0 (all zeros), 
+then copied into the successive memory locations. 
+
+In a memory test program, for example, this utility routine could be 
+used to zero the contents of a block. Then the memory test program 
+would usually verify that its contents remained 0. 
+
+The above was a straightforward implementation of a clearing rou- 
+tine. Let us improve on it. 
+
+The improved program appears below. 
+
+
+ZEROM LD B, LENGTH 
+LD HL, BASE 
+LOOP LD (HL), 0 
+
+
+INC HL 
+DJNZ LOOP 
+RET 
+
+
+The two improvements were obtained by eliminating the LD A, 0 in- 
+struction and loading a ‘‘zero’’ directly into the location pointed to by H 
+and L, and also by using the special Z80 instruction DJNZ. 
+
+This improvement example should demonstrate that every time a 
+program is written, even though it may be correct, it can usually be im- 
+Proved by examining it carefully. Familiarity with the complete con- 
+struction set is essential for bringing about such improvements. These 
+improvements are not just cosmetic. They improve the execution time 
+of the program, require fewer instructions and therefore less memory 
+space, and also generally improve the readability of the program and, 
+therefore, its chances of being correct. 
+
+
+Exercise 8.1: Write a memory test program which zeroes a 256-word 
+block, then verifies that each location ts 0. Then, it will write ail l’s and 
+verify the contents of the block, Then it will write 01010101 and verify 
+the contents, Finally, it will write 10101010, and verify the contents. 
+
+
+Exercise 8.2: Modify the above program so that it will fill the memory 
+section with alternating 0’s and I’s (all 0’s, then all I’s). 
+
+
+Let us now poll our I/O devices to find which one needs service. 
+
+
+POLLING I/O DEVICES 
+
+
+We will assume that those I/O devices are connected to our sys- 
+tem. Their status registers are located at addresses IOSTATUSI, 
+IOSTATUS2, IOSTATUS3. The program is: 
+
+
+521 
+
+
+PROGRAMMING THE Z80 
+
+
+TEST IN A, (STATUS1) READ 10 STATUS!1 
+BIT 7,A TEST “READY” BIT (BIT 7) 
+JP NZ, FOUND! JUMP TO HANDLER 1 
+IN A, (STATUS2) SAME FOR DEVICE 2 
+BIT 7T,A 
+JP NZ, FOUND2 
+IN A, (STATUS3) SAME FOR DEVICE 3 
+BIT 7,A 
+JP NZ, FOUND3 
+(failure exit) 
+
+
+The MASK will contain, for example, ‘‘10000000’’ if we test bit posi- 
+tion 7. As a result of the BIT instruction, the Z bit of the status flags 
+will be set to 1 if ““MASK AND STATUS”? is non-zero, i.e., if the cor- 
+responding bit of STATUS matches the one in MASK. The JP NZ in- 
+struction (jump if non-equal to zero) will then result in a branch to the 
+appropriate FOUND routine. 
+
+
+GETTING CHARACTERS IN 
+
+
+Assume we have just found that a character is ready at the keyboard. 
+Let us accumulate characters in a memoryarea called BUFFER until we 
+encounter a special character called SPC, whose code has been previ- 
+ously defined. 
+
+The subroutine GETCHAR will fetch one character from the key- 
+board (see Chapter 6 for more details) and leave it in the accumulator. 
+We assume that 256 characters maximum will be fetched before an SPC 
+character is found. 
+
+
+STRING LD HL, BUFFER POINT TO BUFFER 
+NEXT CALL GETCHAR GET A CHARACTER 
+
+
+CP SPC CHECK FOR SPECIAL CHAR 
+JR Z, OUT FOUND IT? 
+LD (HL), A STORE CHAR IN BUFFER 
+INC HL NEXT BUFFER LOCATION 
+JR NEXT GET NEXT CHAR 
+
+OUT RET 
+
+
+Exercise 8.3: Let us improve this basic routine: 
+a—Echo the character back to the device (for a Teletype, for example). 
+b—Check that the input string is no longer than 256 characters. 
+
+
+We now have a string of characters in a memory buffer. Let us proc- 
+
+
+522 
+
+
+APPLICATION EXAMPLES 
+ess them in various ways. 
+
+
+TESTING A CHARACTER 
+
+
+Let us determine if the character at memory location LOC is equal to 
+0, 1, or 2: 
+
+
+ZOT LD A, (CHAR) GET CHARACTER 
+
+
+CP 00 IS IT A ZERO? 
+
+JP Z, ZERO JUMP TO ROUTINE 
+CP 01 A ONE? 
+
+JP Z, ONE 
+
+CP 02 A TWO? 
+
+JP Z, TWO 
+
+
+JP NOTFND FAILURE 
+
+
+We simply read the character, then use the CP instruction to check its 
+value. 
+Let us run a different test now. 
+
+
+BRACKET TESTING 
+
+
+Let us determine if the ASCII character at memory location LOC is a 
+digit between O and 9: 
+
+
+BRACK LD A,(CHAR) GET CHARACTER 
+
+
+AND 7FH MASK OUT PARITY BIT 
+CP 30H ASCII 0 
+
+JR C, OUT CHAR TOO LOW? 
+
+CP 39H ASCII 9 
+
+JR NC, OUT CHAR TOO HIGH? 
+
+CP A FORCE ZERO FLAG 
+
+
+OUT RET EXIT 
+
+
+ASCII ‘0’ is represented in hexadecimal by ‘‘30’’ or by ‘‘DO’’, de- 
+pending upon whether the parity bit is used or not. Similarly, ASCII 
+‘*9’* is represented in hexadecimal by ‘‘39’’ or by ‘‘B9’’. 
+
+The purpose of the second instruction of the program is to delete bit 
+7, the parity bit, in case it was used, so that the program is applicable to 
+both cases. The value of the character is then compared to the ASCH 
+values for ‘‘0’’ and ‘‘9’’. When using a comparison instruction, the Z 
+flag is set if the comparison succeeds. The carry bit is set in the case of 
+borrow, and reset otherwise. In other words, when using the CP in- 
+struction, the carry bit will be set if the value of the literal that appears 
+
+
+523 
+
+
+PROGRAMMING THE Z80 
+
+
+in the instruction is greater than the value contained in the accumu- 
+lator. It will be reset (‘‘0’’) if less than or equal. 
+
+The last instruction, CP A, forces a ‘‘0”’ into the Z flag. The Z flag is 
+used to indicate to the calling routine that the character in CHAR was 
+indeed in the interval (0, 9). Other conventions can be used, such as 
+loading a digit in the accumulator in order to indicate the result of the 
+test. 
+
+
+Exercise 8.4: Is the following program equivalent to the one above?: 
+
+
+LD A, (CHAR) 
+
+
+SUB 30H 
+
+JP M, OUT 
+SUB 10 
+
+JP P, OUT 
+ADD 10 
+
+
+Exercise 8.5: Determine if an ASCH character contained in the accumu- 
+lator is a letter of the alphabet. 
+
+When using an ASCII table, you will notice that parity is often used. 
+For example, the ASCII for ‘‘0’’ is ‘‘0110000’’, a 7-bit code. However, 
+if we use odd parity, for example, we guarantee that the total number 
+of ones in a word is odd; then the code becomes: ‘‘10110000’’. An extra 
+**1?" is added to the left. This is ‘‘BO”’ in hexadecimal. Let us therefore 
+develop a program to generate parity. 
+
+
+PARITY GENERATION 
+This program will generate an even parity in bit position 7: 
+PARITY LD A, (CHAR) GET CHARACTER 
+
+
+AND 7FH CLEAR PARITY BIT 
+JR PE, OUT CHECK IF PARITY 
+ALREADY EVEN 
+OR 80H SET PARITY BIT 
+OUT LD (LOC), A STORE RESULT 
+
+
+The program uses the internal parity detection circuit available in the 
+Z80. . 
+
+The third instruction: JR PE, OUT checks whether parity of the 
+word in the accumulator is already even. This instruction will succeed if 
+the parity is even, ‘‘PE’’, and will exit. 
+
+If the parity is not even, i.e., if the jump instruction failed, then the 
+parity is odd, and a ‘‘1’’ must be written in bit position 7. This is the 
+
+
+524 
+
+
+APPLICATION EXAMPLES 
+
+
+purpose of the fourth instruction: 
+OR 80H 
+
+
+Finally, the resulting value is saved in memory location LOC. 
+
+
+Exercise 8.6: The above problem was too simple to solve, using the in- 
+ternal parity detection circuitry. AS an exercise, you are requested to 
+solve the same problem without using this circuitry. Shift the contents 
+of the accumulator, and count the number of I’s in order to determine 
+which bit should be written into the parity position. 
+
+
+Exercise 8.7: Using the above program as an example, verify the parity 
+ofa word. You must compute the correct parity, then compare it to the 
+one expected. 
+
+
+CODE CONVERSION: ASCII TO BCD 
+
+
+Converting ASCII to BCD is very simple. We will observe that the 
+hexadecimal representation of ASCII characters 0 to 9 is 30 to 39 or BO 
+to B9, depending on parity. The BCD representation is simply obtained 
+by dropping the ‘‘3”’ or the ‘‘B’’, i.e., masking off the left nibble (4 
+bits): 
+
+
+ASCBCD CALL BRACK CHECK THAT CHAR 180 TO 9 
+JP NZ, ILLEGAL EXIT IF ILLEGAL CHAR 
+LD A, (CHAR) GET CHARACTER 
+AND OF MASH HIGH NIBBLE 
+LD (BCDCHAR), A STORE RESULT 
+
+
+Exercise 8.8: Write a program to convert BCD to ASCH. 
+
+
+Exercise 8.9: Write a program to convert BCD to binary (more diffi- 
+cult), 
+
+Hint:N, N,N, No in BCDis((N; x 10) + N.) x 10 + N,) x 10 + Noin 
+binary. 
+
+To multiply by 10, use a left shift (= x2), another left shift (= x4), 
+an ADC (= x5), another left shift (= x 10). 
+
+In full BCD notation, the first word may contain the count of BCD 
+digits, the next nibble contain the sign, and every successive nibble con- 
+tain a BCD digit (we assume no decimal point). The last nibble of the 
+block may be unused. 
+
+
+CONVERT HEX TO ASCII 
+
+
+e,4? 
+
+
+A contains one hexadecimal digit. We simply need to add a ‘‘3”’ (ora 
+
+
+525 
+
+
+PROGRAMMING THE Z80 
+
+
+‘*B’’) into the left nibble: 
+
+
+AND FH ZERO LEFT NIBBLE (optional) 
+ADD A, 30H ASCII 
+
+CP A, 3AH CORRECTION NECESSARY? 
+JP M, OUT 
+
+ADD A,7 CORRECTION FOR A TO F 
+
+
+Exercise 8.10: Convert HEX to ASCH, assuming a packed format (two 
+hex digits in A). 
+
+
+FINDING THE LARGEST ELEMENT OF A TABLE 
+
+
+The beginning address of the table is contained at memory address 
+BASE in page zero. The first entry of the table is the number of bytes it 
+contains. This program will search for the largest element of the table. 
+Its value will be left in A, and its position will be stored in memory loca- 
+tion INDEX. 
+
+This program uses registers A, B, H and L, and will use indirect ad- 
+dressing, so that it can search a table anywhere in the memory (see Fig- 
+ure 8.1). 
+
+
+MAX LD HL, BASE TABLE ADDRESS 
+LD B, (HL) NBR OF BYTES IN TABLE 
+LD A,0 CLEAR MAXIMUM VALUE 
+LD (INDEX), HL INITIALIZE INDEX 
+INC HL NEXT ENTRY 
+
+LOOP CP (HL) COMPARE ENTRY 
+JR NC,NOSWITCH JUMP IF LESS THAN MAX 
+LD A, (HL) LOAD NEW MAX VALUE 
+LD (INDEX), HL LOAD NEW MAX VALUE 
+
+NOSWITCH INC HL POINT TO NEXT ENTRY 
+DEC B DECREMENT COUNTER 
+JR NZ, LOOP KEEP GOING IF NOT ZERO 
+RET 
+
+
+This program tests the nth entry first. If it is greater than 0, the entry 
+goes in A, and its location is remembered into INDEX. The (n-1)st en- 
+try is then tested, etc. 
+
+This program works for positive integers. 
+
+
+Exercise 8.11: Modify the program so that it works also for negative 
+numbers in two’s complement. 
+
+
+Exercise 8.12: Will this program also work for ASCH characters? 
+Exercise 8.13: Write a program which will sort n numbers in ascending 
+526 
+
+
+APPLICATION EXAMPLES 
+
+
+POINTER TO INDEX 
+MAX 
+
+
+COUNT=N BASE 
+“ELEMENT 1 
+
+
+ELEMENT N 
+
+
+A CURRENT MAX 
+
+
+B COUNTER 
+
+
+5 
+
+
+Fig. 8.1: Largest Element in a Table 
+
+
+order. 
+
+
+Exercise 8.14: Write a program which will sort n names (3 characters 
+each) in alphabetical order. 
+
+
+SUM OF N ELEMENTS 
+
+
+This program will compute the 16-bit sum of N entries of a table. The 
+starting address of the table is contained at memory address BASE, in 
+page zero. The first entry of the table contains the number of elements 
+N. The 16-bit sum will be left in memory locations SUMLO and 
+SUMHI. If the sum should require more than 16 bits, only the lower 16 
+will be kept. (The high order bits are said to be truncated.) 
+
+This program will modify registers A, B, H, L, IX. It assumes 256 
+elements maximum (see Figure 8.2). 
+
+
+SUMIG LD HL, BASE POINT TO TABLE BASE 
+
+
+LD B, (HL) READ LENGTH INTO 
+COUNTER 
+
+INC HL POINT TO FIRST ENTRY 
+
+LD IX,SUMLO POINT TO RESULT, LOW 
+
+LD A,O CLEAR RESULT 
+
+
+527 
+
+
+PROGRAMMING THE Z80 
+
+
+LD (iX+0),A LOW 
+LD (1X+1),A AND HIGH 
+ADLOOP LD A, (HL) GET TABLE ENTRY 
+ADD A, (IX +0) COMPUTE PARTIAL SUM 
+LD (IX+0), A STORE IT AWAY 
+JR NC, NOCARRY CHECK FOR CARRY 
+INC (UX+1) ADD CARRY TO HIGH BYTE 
+NOCARRY INC HL POINT TO NEXT ENTRY 
+DEC B DECREMENT BYTE COUNT 
+
+
+JR NZ,ADLOOP KEEP ADDING TILL END 
+
+
+LENGTH =N 
+ELEMENT 1 
+
+
+ELEMENT N 
+
+
+Fig. 8.2: Sum of N Elements 
+
+
+This program is straightforward and should be self-explanatory. 
+
+
+Exercise 8.15: Modify this program to: 
+a—compute a 24-bit sum 
+
+b—compute a 32-bit sum 
+
+c—detect any overflow. 
+
+
+A CHECKSUM COMPUTATION 
+
+
+A checksum is a digit or set of digits computed from a block of suc- 
+cessive characters. The checksum is computed at the time the data is 
+
+
+528 
+
+
+APPLICATION EXAMPLES 
+
+
+stored and put at the end. In order to verify the integrity of the data, the 
+data is read, then the checksum is recomputed and compared against 
+the stored value. A discrepancy indicates an error or a failure. 
+
+Several algorithms are used. Here, we will exclusive-OR ail bytes in a 
+table of N elements, and leave the resuit in the accumulator. As usual, 
+the base of the table is stored at address BASE in page zero. The first 
+entry of the table is its number of elements N. The program modifies A, 
+B, H. L. N must be less than 256. 
+
+
+CHECKSUM LD HL, BASE LEAD ADDRESS OF TABLE 
+INTO HL 
+LD iB, (HL) GET N = LENGTH 
+XORA CLEAR CHECKSUM 
+INC HL POINT TO FIRST ELEMENT 
+CHLOOP XOR (HL) COMPUTE CHECKSUM 
+INC HL POINT TO NEXT ELEMENT 
+DEC B DECREMENT COUNTER 
+
+
+JR  NZ,CHLOOP DO IT AGAIN IF NOT END 
+LD (CHECKSUM),A PRESERVE CHECKSUM 
+RET 
+
+
+COUNT THE ZEROES 
+
+
+This program will count the number of zeroes in our usual table, and 
+leave it in location TOTAL. It modifies A, B, C, H, L. 
+
+
+ZEROS LD HL, BASE POINT TO TABLE 
+
+
+LD B, (HL) READ LENGTH INTO COUNTER 
+LD C,0 ZERO TOTAL 
+INC HL POINT TO FIRST ENTRY 
+ZLOOP LD _ A, (HL) GET ELEMENT 
+OR 0 SET ZERO FLAG 
+JR NZ,NOTZ IS IT A ZERO? 
+INC C IF SO, INCREMENT ZERO COUNT 
+NOTZ INC HL POINT TO NEXT ENTRY 
+DEC B DECREMENT LENGTH COUNTER 
+JR NZ, ZLOOP 
+LD A,C 
+
+
+LD (TOTAL), A SAVE IT 
+
+
+Exercise 8.16: Modify this program to count 
+a—the number of stars (the character ***”’ ) 
+b—the number of letters of the alphabet 
+c—the number of digits between “‘0’’ and ‘‘9”’ 
+
+
+529 
+
+
+PROGRAMMING THE 280 
+
+
+BLOCK TRANSFER 
+
+
+Let us pick up every third entry in the source block at address FROM 
+and store it into a block at address TO: 
+
+
+FER3 LD HL, FROM 
+
+
+LD DE, TO SET UP POINTERS 
+LD BC, SIZE 
+LOOP LDI AUTOMATED TRANSFER 
+INC HL 
+INC HL SKIP 2 ENTRIES 
+
+
+JR PE, LOOP 
+
+
+BCD BLOCK TRANSFER 
+
+
+We will push up BCD digits in the memory, i.e, shift 4-bit nibbles 
+(see Figure 8.3). The program appears below: 
+
+
+O—XZ_-Q@- LLL 
+I cece pbb Ki 
+ss S<heteteside ssh 
+
+
+7/7 
+
+
+COUNT 
+O 
+Fig. 8.3: BCD Block Transfer -The Memory 
+
+DMOV LD B, COUNT 
+
+LD HL, BLOCK 
+
+MOR A A =0 
+LOOP RLD 
+
+INC HL POINT TO NEXT BYTE 
+
+DJNZ LOOP DEC COUNT LOOP UNTIL ZERO 
+
+
+530 
+
+
+APPLICATION EXAMPLES 
+
+
+The program uses the RLD instruction, which we have not used yet. 
+RLD rotates a BCD digit left between A and (HL). (HL) or M designate 
+the contents of the memory location pointed to by H and L. 
+
+
+M LOW goes into M HIGH 
+M HIGH goes into A LOW 
+A LOW goes into M LOW 
+
+
+Here, ‘‘low’’ and ‘“‘high’’ refer to a 4-bit nibble. 
+
+In order to use the powerful DJNZ instruction, register B is used as 
+the digit counter. HL is set to point to the beginning of the block. 
+
+A is used to store the left digit displaced by each rotation between 
+two successive accesses to the block. 
+
+By convention, ‘‘0’’ will be entered at the bottom of the block. 
+
+
+COMPARE TWO SIGNED 16-BIT NUMBERS 
+
+
+IX points to the first number N1. 
+IY points to N2 (see Figure 8.4). 
+
+
+The program sets the carry bit if NIl< N2, and the Z bit if N1 = N2. 
+COMP LD B, (IX +1) GET SIGN OF NI 
+LD A,B 
+AND 80H TEST SIGN, CLEAR CY 
+JR NZ, NEGM1 N1IS NEG 
+BIT 7, IY +1) 
+
+
+RET NZ N2 IS NEG 
+LD A,B 
+CP (IY #1) SIGNS ARE BOTH POS 
+RET NZ 
+LD A,(IX) 
+CP (IY) 
+RET 
+NEGMI XOR (IY +1) 
+RLA SIGN BIT INTO CY 
+RET C SIGNS DIFFERENT 
+LD A,B 
+CP (IY +1) BOTH SIGNS NEG 
+RET NZ 
+LD A, (IX) 
+CP (IY) 
+RET 
+
+
+The program first tests the signs of NI and N2. If N1 is negative, a 
+
+
+531 
+
+
+PROGRAMMING THE Z80 
+
+
+jump occurs to NEGM\. Otherwise, the top of the program is executed. 
+
+
+MEMORY 
+
+
+mands 
+
+
+NI, RIGH 
+
+
+N1, HIGH 
+
+
+N2, LOW 
+N2, HIGH 
+
+
+Fig. 8.4: Comparing Two Signed Numbers 
+
+
+| HIGH ADDRESSES 
+
+
+Note that the BIT instruction is used in the 5th line to test directly the 
+sign bit of N2 in the memory: 
+
+
+BIT 7, UY + 1) 
+
+
+The same could have been done for N1, except that we will need the 
+value of NI shortly. It is therefore simpler to read NI from memory 
+and preserve it into B: 
+
+
+COMP LD B, (IX + 1) 
+
+
+It is necessary to preserve N1 into B because the AND may destroy the 
+contents of A: 
+
+
+LD A,B 
+AND 80H 
+
+
+Note also that a conditional return is used (line 6): 
+
+
+RET NZ 
+
+
+532 
+
+
+APPLICATION EXAMPLES 
+
+
+This is a powerful feature of the Z80 which simplifies programming. 
+Note that the comparison instruction executes directly on the con- 
+tents of memory, in indexed mode: 
+
+
+CP (IY + 1) 
+
+
+When comparing the two numbers, the most significant byte is com- 
+pared first, the least significant one second. 
+
+Note the extensive use of the indexing mechanism in this program, 
+which results in efficient code. 
+
+
+BUBBLE-SORT 
+
+
+Bubble-sort is a sorting technique used to arrange the elements of a 
+table in ascending or descending order. The bubble-sort technique de- 
+rives its name from the fact that the smallest element ‘‘bubbles up’’ to 
+the top of the table. Every time it ‘‘collides’’ with a ‘‘heavier’’ element, 
+it jumps over it. 
+
+A practical example of a bubble-sort is shown on Figure 8.5 The list 
+to be sorted contains: (10, 5, 0, 2, 100), and must be sorted in descend- 
+ing order (‘‘0’’ on top). The algorithm is simple, and the flowchart is 
+shown on Figure 8.7 
+
+The top two (or else bottom two) elements are compared. If the lower 
+one is less (‘‘lighter’’) than the top one; they are exchanged. Otherwise 
+not. For practical purposes, the exchange, if it occurs, will be remem- 
+bered in a flag called ‘‘EXCHANGED’’. The process is then repeated 
+on the next pair of elements, etc., until all elements have been com- 
+pared two by two. 
+
+This first pass is illustrated by steps 1, 2, 3, 4, 5, 6 on Figure 8.5, go- 
+ing from the bottom up. (Equivalently we could go from the top down.) 
+
+If no elements have been exchanged, the sort is complete. If an ex- 
+change has occurred, we start all over again. 
+
+Looking at Figure 8.6, it can be seen that four passes are necessary in 
+this example. 
+
+The process is simple, and is widely used. 
+
+One additional complication resides in the actual mechanism of the 
+
+
+exchange. 
+When exchanging A and B, one may not write 
+A=B8B 
+B=A 
+

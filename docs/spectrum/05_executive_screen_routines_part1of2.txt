@@ -1,0 +1,6004 @@
+# Spectrum ROM Disassembly - The Executive Routines
+Part 1/2
+
+---
+
+THE EXECUTIVE ROUTINES 
+
+
+THE 'INITIALISATION' ROUTINE 
+
+The main entry point to this routine is at START/NEW (1 1 CB). When entered from START (0000), as when power is first applied to the 
+system, the A register holds zero and the DE register the value +FFFF. Flowever the main entry point can also be reached following 
+the execution of the NEW command routine. 
+
+THE 'NEW COMMAND' ROUTINE 
+
+
+11B7 
+
+NEW 
+
+Dl 
+
+
+Disable the maskable interrupt. 
+
+
+
+LD 
+
+A,+FF 
+
+The NEW flag. 
+
+
+
+LD 
+
+DE,(RAMTOP) 
+
+The existing value of RAMTOP 
+is preserved. 
+
+
+
+EXX 
+
+
+Load the alternate registers 
+
+
+
+LD 
+
+BC,(P-RAMT) 
+
+with the following system 
+
+
+
+LD 
+
+DE, (RASP/PIP) 
+
+variables. All of which will 
+
+
+
+LD 
+
+HL,(UDG) 
+
+also be preserved. 
+
+
+
+EXX 
+
+
+
+The main entry point. 
+
+
+
+
+1 1 CB 
+
+START/NEW 
+
+LD 
+
+B,A 
+
+Save the flag for later. 
+
+
+
+LD 
+
+A, +07 
+
+Make the border white in 
+
+
+
+OUT 
+
+(+FE),A 
+
+colour. 
+
+
+
+LD 
+
+A,+3F 
+
+Set the 1 register to hold 
+
+
+
+LD 
+
+1 , A 
+
+the value of +3F. 
+
+
+
+DEFB 
+
++00, +00, +00 
+
+Wait 24 T states. 
+
+
+
+DEFB 
+
++00, +00, +00 
+
+
+Now the memory is checked. 
+
+
+
+11 DA 
+
+RAM-CHECK 
+
+LD 
+
+H,D 
+
+Transfer the value in DE 
+
+
+
+LD 
+
+L,E 
+
+(START = +FFFF, NEW = 
+RAMTOP). 
+
+11 DC 
+
+RAM-FILL 
+
+LD 
+
+(HL),+02 
+
+Enter the value of +02 into 
+
+
+
+DEC 
+
+HL 
+
+every location above +3FFF. 
+
+
+
+CP 
+
+H 
+
+
+
+
+JR 
+
+NZ,11 DC, RAM-FILL 
+
+
+11E2 
+
+RAM-READ 
+
+AND 
+
+A 
+
+Prepare for true subtraction. 
+
+
+
+SBC 
+
+HL,DE 
+
+The carry flag will become 
+
+
+
+ADD 
+
+HL,DE 
+
+reset when the top is reached. 
+
+
+
+INC 
+
+HL 
+
+Update the pointer. 
+
+
+
+JR 
+
+NC.11EF, RAM-DONE 
+
+Jump when at top. 
+
+
+
+DEC 
+
+(HL) 
+
++02 goes to +01. 
+
+
+
+JR 
+
+Z.11EF, RAM-DONE 
+
+But if zero then RAM is faulty. 
+Use current HL as top. 
+
+
+
+DEC 
+
+(HL) 
+
++01 goes to +00. 
+
+
+
+JR 
+
+Z.11E2, RAM-READ 
+
+Step to the next test unless it 
+fails. 
+
+1 1 EF 
+
+RAM-DONE 
+
+DEC 
+
+HL 
+
+HL points to the last actual 
+location in working order. 
+
+
+Next restore the 'preserved' system variables. (Meaningless when coming from START.) 
+
+
+EXX 
+
+
+Switch registers. 
+
+LD 
+
+(P-RAMT),BC 
+
+Restore P-RAMT, RASP/PIP 
+
+LD 
+
+(RASP/PIP), DE 
+
+&UDG 
+
+LD 
+
+EXX 
+
+(UDG),HL 
+
+
+INC 
+
+B 
+
+Test the START/NEW flag. 
+
+JR 
+
+Z, 1219, RAM-SET 
+
+Jump forward if coming from 
+the NEW command routine. 
+
+
+59 
+
+
+
+Overwrite the system variables when coming from START and initialise the user-defined graphics area. 
+
+
+LD 
+
+(P-RAMT).HL 
+
+Top of physical RAM. 
+
+LD 
+
+DE.+3EAF 
+
+Last byte of 'U' in character 
+set. 
+
+LD 
+
+BC.+00A8 
+
+There are this number of bytes 
+in twenty one letters. 
+
+EX 
+
+DE,HL 
+
+Switch the pointers. 
+
+LDDR 
+
+
+Now copy the character forms 
+of the letter 'A' to 'Ll 1 . 
+
+EX 
+
+DE,HL 
+
+Switch the pointers back. 
+
+INC 
+
+HL 
+
+Point to the first byte. 
+
+LD 
+
+(UDG),HL 
+
+Now set UDG. 
+
+DEC 
+
+HL 
+
+Down one location. 
+
+LD 
+
+BC.+0040 
+
+Set the system variables 
+
+LD 
+
+(RASP/PIP), BC 
+
+RASP & PIP. 
+
+The remainder of the routine is common 
+
+to both the START and the NEW operations. 
+
+1219 RAM-SET LD 
+
+(RAMTOP),HL 
+
+Set RAMTOP. 
+
+LD 
+
+HL,+3C00 
+
+Initialise the system variable 
+
+LD 
+
+(CHARS), HL 
+
+CHARS. 
+
+Next the machine stack is set up. 
+
+LD 
+
+HL,(RAMTOP) 
+
+The top location is made to 
+
+LD 
+
+(HL),+3E 
+
+hold +3E. 
+
+DEC 
+
+HL 
+
+The next location is left holding 
+zero. 
+
+LD 
+
+SP,HL 
+
+These two locations represent 
+the 'last entry'. 
+
+DEC 
+
+HL 
+
+Step down two locations to 
+
+DEC 
+
+HL 
+
+find the correct value for 
+
+LD 
+
+(ERR-SP),HL 
+
+ERR-SP. 
+
+The initialisation routine continues with: 
+
+IM 
+
+1 
+
+Interrupt mode 1 is used. 
+
+LD 
+
+IY.+5C3A 
+
+IY holds +ERR-NR always. 
+
+El 
+
+
+The maskable interrupt can now 
+be enabled. The real-time clock 
+will be updated and the keyboard 
+scanned every 1 /50th of a 
+second. 
+
+LD 
+
+HL.+5CB6 
+
+The base address of the 
+
+LD 
+
+(CHANS), HL 
+
+channel information area. 
+
+LD 
+
+DE.15AF 
+
+The initial channel data 
+
+LD 
+
+BC.+001 5 
+
+is moved from the table 
+
+EX 
+
+DE,HL 
+
+(15AF) to the channel 
+
+LDIR 
+
+
+information area. 
+
+EX 
+
+DE,HL 
+
+The system variable DATADD 
+
+DEC 
+
+HL 
+
+is made to point to the last 
+
+LD 
+
+(DATADD),HL 
+
+location of the channel data. 
+
+INC 
+
+HL 
+
+And PROG & VARS to the 
+
+LD 
+
+(PROG).HL 
+
+the location after that. 
+
+LD 
+
+(VARS),HL 
+
+
+LD 
+
+(HL),+80 
+
+The end-marker of the 
+variables area. 
+
+INC 
+
+HL 
+
+Move on one location to find 
+
+LD 
+
+(E-LINE), HL 
+
+the value for E-LINE. 
+
+LF 
+
+(HL),+0D 
+
+Make the edit-line be a single 
+
+INC 
+
+HL 
+
+'carriage return' character. 
+
+LD 
+
+(HL),+80 
+
+Now enter an end-marker. 
+
+INC 
+
+HL 
+
+Move on one location to find 
+
+LD 
+
+(WORKSP),HL 
+
+the value for WORKSP, STKBOT 
+
+LD 
+
+(STKBOT),HL 
+
+& STKEND. 
+
+
+60 
+
+
+
+LD 
+
+(STKEND),HL 
+
+LD 
+
+A, +38 
+
+LD 
+
+(ATTR-P),A 
+
+LD 
+
+(ATTR-T),A 
+
+LD 
+
+(BORDCR),A 
+
+LD 
+
+HL.+0523 
+
+LD 
+
+(REPDEL),HL 
+
+DEC 
+
+(KSTATE-0) 
+
+DEC 
+
+(KSTATE-4) 
+
+LD 
+
+HL.+15C6 
+
+LD 
+
+DE.+5C10 
+
+LD 
+
+BC,+000E 
+
+LDIR 
+
+
+SET 
+
+1, (FLAGS) 
+
+CALL 
+
+OEDF.CLEAR-PRB 
+
+LD 
+
+(DF-SZ),+02 
+
+CALL 
+
+0D6B,CLS 
+
+XOR 
+
+A 
+
+LD 
+
+DE.+1538 
+
+CALL 
+
+OCOA.PO-MSG 
+
+SET 
+
+5, (TV-FLAG) 
+
+JR 
+
+12A9, MAIN-1 
+
+
+Initialise the colour system 
+variables to : FLASH 0, 
+BRIGHT 0, PAPER 7, & INK 0. 
+
+Initialise the system 
+variables REPDEL& REPPER. 
+Make KST ATE-0 hold +FF 
+Make KST ATE-4 hold +FF 
+Next move the initial stream 
+data from its table to the 
+streams area. 
+
+Signal 'printer in use' 
+and clear the printer buffer. 
+
+Set the size of the lower 
+part of the display and clear 
+the whole display. 
+
+Now print the message 
+'© 1982 Sinclair Research Ltd’ 
+on the bottom line. 
+
+Signal 'the lower part will 
+required to be cleared. 
+
+Jump forward into the main 
+execution loop. 
+
+
+THE 'MAIN EXECUTION' LOOP 
+
+The main loop extends from location 12A2 to location 15AE and it controls the 'editing mode', the execution of direct commands and the 
+production of reports. 
+
+
+12A2 
+
+MAIN-EXEC 
+
+LD 
+
+(DF-SZ),+02 
+
+The lower part of the screen 
+is to be two lines in size. 
+
+
+
+CALL 
+
+1795, AUTO-LIST 
+
+Produce an automatic listing. 
+
+12A9 
+
+MAIN-1 
+
+CALL 
+
+16B0,SET-MIN 
+
+All the areas from E-LINE 
+onwards are given their 
+minimum configurations. 
+
+12AC 
+
+MAIN-2 
+
+LD 
+
+A, +00 
+
+Channel 'K' is opened before 
+
+
+
+CALL 
+
+1601, CHAN-OPEN 
+
+calling the EDITOR. 
+
+
+
+CALL 
+
+0F2C, EDITOR 
+
+The EDITOR is called to allow 
+the user to build up a BASIC line. 
+
+
+
+CALL 
+
+1B17, LINE-SCAN 
+
+The current line is scanned for 
+correct syntax. 
+
+
+
+BIT 
+
+7,(ERR-NR) 
+
+Jump forward if the syntax is 
+
+
+
+JR 
+
+NZ.12CF, MAIN-3 
+
+correct. 
+
+
+
+BIT 
+
+4,(FLAGS2) 
+
+Jump forward if other than 
+
+
+
+JR 
+
+Z, 1303, MAIN-4 
+
+channel 'K' is being used. 
+
+
+
+LD 
+
+HL, (E-LINE) 
+
+Point to the start of the line 
+with the error. 
+
+
+
+CALL 
+
+1 1 A7.REMOVE-FP 
+
+Remove the floating-point 
+forms from this line. 
+
+
+
+LD 
+
+(ERR-NR),+FF 
+
+Reset ERR-NR and jump back 
+
+
+
+JR 
+
+12AC, MAIN-2 
+
+to MAIN-2 leaving the listing 
+unchanged. 
+
+The 'edit-line' has passed syntax and the three types of line that are possible have to be distinguished from 
+
+12CF 
+
+MAIN-3 
+
+LD 
+
+HL, (E-LINE) 
+
+Point to the start of the line. 
+
+
+
+LD 
+
+(CH-ADD).HL 
+
+Set CH-ADD to the start also. 
+
+
+
+CALL 
+
+19FB, E-LINE-NO 
+
+Fetch any line number into BC. 
+
+
+
+LD 
+
+A,B 
+
+Is the line number a valid 
+
+
+
+OR 
+
+C 
+
+one? 
+
+
+
+JR 
+
+NZ.155D, MAIN-ADD 
+
+Jump if it is so, and add the new 
+line to the existing program. 
+
+
+61 
+
+
+
+RST 
+
+0018 
+
+Fetch the first character of 
+
+CP 
+
++0D 
+
+the line and see if the line is 
+
+
+
+’carriage return only'. 
+
+JR 
+
+Z,12A2, MAIN-EXEC 
+
+If it is then jump back. 
+
+
+The 'edit-line' must start with a direct BASIC command so this line becomes the first line to be interpreted. 
+
+
+BIT 
+
+0,(FLAGS2) 
+
+CALL 
+
+NZ,0DAF,CL-ALL 
+
+CALL 
+
+OD6E.CLS-LOWER 
+
+LD 
+
+A, +19 
+
+SUB 
+
+(S-POSN-hi) 
+
+LD 
+
+(SCR-CT).A 
+
+SET 
+
+7, (FLAGS) 
+
+LD 
+
+(ERR-NR), +FF 
+
+LD 
+
+(NSPPC),+01 
+
+CALL 
+
+1B8A, PROG-RUN 
+
+
+Clear the whole display unless 
+the flag says it is unnecessary. 
+Clear the lower part anyway. 
+
+Set the appropriate value 
+for the scroll counter. 
+
+Signal 'line execution'. 
+
+Ensure ERR-NR is correct. 
+
+Deal with the first statement in 
+the line. 
+
+Now the line is interpreted. 
+
+Note: The address 1303 goes on 
+to the machine stack and is 
+addressed by ERR-SP. 
+
+
+After the line has been interpreted and all the actions consequential to it have been completed a return is made to MAIN-4, so that a 
+report can be made. 
+
+
+1303 MAIN-4 
+
+
+1313 MAIN-G 
+
+
+133C MAIN-5 
+
+
+HALT 
+
+RES 
+
+5, (FLAGS) 
+
+BIT 
+
+1 ,(FLAGS2) 
+
+CALL 
+
+NZ, OECD, COPY-BUFF 
+
+LD 
+
+A, (ERR-NR) 
+
+INC 
+
+A 
+
+PUSH 
+
+AF 
+
+LD 
+
+HL.+0000 
+
+LD 
+
+(FLAGX), H 
+
+LD 
+
+(X-PTR-hi), H 
+
+LD 
+
+(DEFADD), HL 
+
+LD 
+
+HL.+0001 
+
+LD 
+
+(STRMS-6),HL 
+
+CALL 
+
+16B0,SET-MIN 
+
+RES 
+
+5, (FLAGX) 
+
+CALL 
+
+OD6E.CLS-LOWER 
+
+SET 
+
+5, (TV-FLAG) 
+
+POP 
+
+AF 
+
+LD 
+
+B,A 
+
+CP 
+
++0A 
+
+JR 
+
+C,133C, MAIN-5 
+
+ADD 
+
+A, +07 
+
+CALL 
+
+15EF, OUT-CODE 
+
+LD 
+
+A, +20 
+
+RST 
+
+0010,PRINT-A-1 
+
+LD 
+
+A,B 
+
+LD 
+
+DE,+1391 
+
+CALL 
+
+0C0A.PO-MSG 
+
+XOR 
+
+A 
+
+LD 
+
+DE,+1 536 
+
+CALL 
+
+0C0A,PO-MSG 
+
+LD 
+
+BC,(PPC) 
+
+CALL 
+
+1A1B.OUT-NUM1 
+
+LD 
+
+A,+3A 
+
+RST 
+
+0010,PRINT-A-1 
+
+
+The maskable interrupt must be 
+enabled. 
+
+Signal 'ready for a new key'. 
+Empty the printer buffer if 
+it has been used. 
+
+Fetch the error number and 
+increment it. 
+
+Save the new value. 
+
+The system variables 
+FLAGX, X-PTR-hi & 
+
+DEFADD are all set to zero. 
+
+Ensure that stream +00 
+points to channel 'K' 
+
+Clear all the work areas and the 
+calculator stack. 
+
+Signal 'editing mode'. 
+
+Clear the lower screen. 
+
+Signal 'the lower screen will 
+require clearing'. 
+
+Fetch the report value. 
+
+Make a copy in B. 
+
+Jump forward with report 
+numbers '0 to 9'. 
+
+Add the ASCII letter 
+offset value. 
+
+Print the report code and 
+follow it with a 'space'. 
+
+Fetch the report value and 
+use it to identify the 
+required report message. 
+
+Print the message and follow 
+it by a 'comma' and a 'space'. 
+
+Now fetch the current line 
+number and print it as well. 
+Follow it by a 
+
+
+62 
+
+
+
+
+
+LD 
+
+C,(SUBPPC) 
+
+Fetch the current statement 
+
+
+
+LD 
+
+B,+00 
+
+number into the BC register 
+
+
+
+CALL 
+
+1A1B.OUT-NUM1 
+
+pair and print it. 
+
+
+
+CALL 
+
+1097,CLEAR-SP 
+
+Clear the editing area. 
+
+
+
+LD 
+
+A,(ERR-NR) 
+
+Fetch the error number again. 
+
+
+
+INC 
+
+A 
+
+Increment it as usual. 
+
+
+
+JR 
+
+Z, 1386, MAIN-9 
+
+If the program was completed 
+successfully there cannot be 
+any 'CONTinuing' so jump. 
+
+
+
+CP 
+
++09 
+
+If the program halted with 
+
+
+
+JR 
+
+Z, 1373, MAIN-6 
+
+'STOP statement' or 'BREAK 
+
+
+
+CP 
+
++15 
+
+into program' CONTinuing will 
+
+
+
+JR 
+
+NZ, 1376, MAIN-7 
+
+be from the next statement; 
+
+1373 
+
+MAIN-6 
+
+INC 
+
+(SUBPPC) 
+
+otherwise SUBPPC is unchanged. 
+
+1376 
+
+MAIN-7 
+
+LD 
+
+BC.+0003 
+
+The system variables OLDPPC 
+
+
+
+LD 
+
+DE,+5C70 
+
+& OSPCC have now to be made 
+to hold the CONTinuing line 
+and statement numbers. 
+
+
+
+LD 
+
+HL.+5C44 
+
+The values used will be those in 
+
+
+
+BIT 
+
+7,(NSPPC) 
+
+PPC & SUBPPC unless NSPPC 
+
+
+
+JR 
+
+Z, 1384, MAIN-8 
+
+indicates that the 'break' 
+
+
+
+ADD 
+
+HL,BC 
+
+occurred before a 'jump'. 
+
+1384 
+
+MAIN-8 
+
+LDDR 
+
+
+(i.e. after a GO TO statement 
+etc.) 
+
+1386 
+
+MAIN-9 
+
+LD 
+
+(NSPPC),+FF 
+
+NSPPC is reset to indicate 
+'no jump'. 
+
+
+
+RES 
+
+3, (FLAGS) 
+
+'K mode' is selected. 
+
+
+
+JP 
+
+12AC, MAIN-2 
+
+And finally the jump back is 
+made but no program listing 
+will appear until requested. 
+
+
+THE REPORT MESSAGES 
+
+Each message is given with the last character inverted (+80 hex.). 
+
+
+1391 
+
+DEFB +80 
+
+- initial byte is stepped over. 
+
+1392 
+
+Report 0 
+
+-'OK' 
+
+1394 
+
+Report 1 
+
+- 'NEXT without FOR' 
+
+13A4 
+
+Report 2 
+
+- ’Variable not found 1 
+
+13B6 
+
+Report 3 
+
+- ’Subscript wrong' 
+
+13C6 
+
+Report 4 
+
+- 'Out of memory' 
+
+13D2 
+
+Report 5 
+
+- 'Out of screen' 
+
+13DF 
+
+Report 6 
+
+- 'Number too big' 
+
+13ED 
+
+Report 7 
+
+- 'RETURN without GOSUB' 
+
+1401 
+
+Report 8 
+
+- 'End of file' 
+
+140C 
+
+Report 9 
+
+- 'STOP statement' 
+
+141 A 
+
+Report A 
+
+- 'Invalid argument' 
+
+142A 
+
+Report B 
+
+- 'Integer out of range' 
+
+143E 
+
+Report C 
+
+- 'Nonsense in BASIC' 
+
+144F 
+
+Report D 
+
+- 'BREAK - CONT repeats' 
+
+1463 
+
+Report E 
+
+- 'Out of DATA' 
+
+146E 
+
+Report F 
+
+- 'Invalid file name' 
+
+147F 
+
+Report G 
+
+- 'No room for line' 
+
+148F 
+
+Report FI 
+
+- 'STOP in INPUT' 
+
+149C 
+
+Report 1 
+
+- 'FOR without NEXT' 
+
+14AC 
+
+Report J 
+
+- 'Invalid I/O device' 
+
+14BE 
+
+Report K 
+
+- 'Invalid colour' 
+
+14CC 
+
+Report L 
+
+- 'BREAK into program' 
+
+14DE 
+
+Report M 
+
+- 'RAMTOP no good' 
+
+14EC 
+
+Report N 
+
+- 'Statement lost' 
+
+UFA 
+
+Report O 
+
+- 'Invalid stream’ 
+
+1508 
+
+Report P 
+
+- 'FN without DEF' 
+
+1516 
+
+Report Q 
+
+- 'Parameter error' 
+
+1525 
+
+Report R 
+
+- 'Tape loading error' 
+
+
+63 
+
+
+
+There are also the following two messages. 
+
+1537 ' - a 'comma' and a 'space' 
+
+1539 '© 1982 Sinclair Research Ltd' 
+
+
+Report G - No room for line 
+
+
+1555 
+
+REPORT-G LD 
+
+A, +10 
+
+'G' has the code '10+07+30' 
+
+
+LD 
+
+BC.+0000 
+
+Clear BC. 
+
+
+JP 
+
+1313.MAIN-G 
+
+Jump back to give the report. 
+
+
+THE 'MAIN-ADD' SUBROUTINE 
+
+This subroutine allows for a new BASIC line to be added to the existing BASIC program in the program area. If a line has both an old 
+and a new version then the old one is 'reclaimed'. A new line that consists of only a line number does not go into the program area. 
+
+
+MAIN-ADD LD 
+
+(E-PPC).BC 
+
+Make the new line number the 
+’current line'. 
+
+LD 
+
+HL,(CH-ADD) 
+
+Fetch CH-ADD and save the 
+
+EX 
+
+DE,HL 
+
+address in DE. 
+
+LD 
+
+HL.+1555 
+
+Push the address of REPORT-G 
+
+PUSH 
+
+HL 
+
+on to the machine stack. 
+
+ERR-SP will now point to 
+REPORT-G. 
+
+LD 
+
+HL,(WORKSP) 
+
+Fetch WORKSP. 
+
+SCF 
+
+
+Find the length of the line 
+
+SBC, 
+
+HL,DE 
+
+from after the line number to 
+the 'carriage return' character 
+inclusively. 
+
+PUSH 
+
+HL 
+
+Save the length. 
+
+LD 
+
+H,B 
+
+Move the line number to the 
+
+LD 
+
+L,C 
+
+HL register pair. 
+
+CALL 
+
+196E.LINE-ADDR 
+
+Is there an existing line 
+with this number? 
+
+JR 
+
+NZ,157D,MAIN-ADD1 
+
+Jump if there was not. 
+
+CALL 
+
+19B8, NEXT-ONE 
+
+Find the length of the 'old' 
+
+CALL 
+
+19E8, RECLAIM-2 
+
+line and reclaim it. 
+
+MAIN-ADD1 POP 
+
+BC 
+
+Fetch the length of the 
+
+LD 
+
+A,C 
+
+'new' line and jump forward 
+
+DEC 
+
+A 
+
+if it is only a 'line number 
+
+OR 
+
+B 
+
+and a carriage return'. 
+
+JR 
+
+15AB.MAIN-ADD2 
+
+
+PUSH 
+
+BC 
+
+Save the length. 
+
+INC 
+
+BC 
+
+Four extra locations will be 
+
+INC 
+
+BC 
+
+needed. 
+
+INC 
+
+BC 
+
+i.e. two for the number & 
+
+INC 
+
+BC 
+
+two for the length. 
+
+DEC 
+
+HL 
+
+Make HL point to the location 
+before the ’destination'. 
+
+LD 
+
+DE,(PROG) 
+
+Save the current value of 
+
+PUSH 
+
+DE 
+
+PROG to avoid corruption when 
+adding a first line. 
+
+CALL 
+
+1655, MAKE-ROOM 
+
+Space for the new line is created 
+
+POP 
+
+HL 
+
+The old value of PROG is 
+
+LD 
+
+(PROG),HL 
+
+fetched and restored. 
+
+POP 
+
+BC 
+
+A copy of the line length 
+
+PUSH 
+
+BC 
+
+(without parameters) is taken. 
+
+INC 
+
+DE 
+
+Make DE point to the end 
+location of the new area 
+
+LD 
+
+HL,(WORKSP) 
+
+and HL to the 'carriage 
+
+DEC 
+
+HL 
+
+return' character of the new 
+
+DEC 
+
+HL 
+
+line in the editing area. 
+
+LDDR 
+
+
+Now copy over the line. 
+
+LD 
+
+HL,(E-PPC) 
+
+Fetch the line's number. 
+
+
+64 
+
+
+
+15AB 
+
+
+EX 
+
+DE,HL 
+
+Destination into HL & 
+number into DE. 
+
+POP 
+
+BC 
+
+Fetch the new line's length. 
+
+LD 
+
+(HL),B 
+
+The high length byte. 
+
+DEC 
+
+HL 
+
+
+LD 
+
+(HL),C 
+
+The low length byte. 
+
+DEC 
+
+HL 
+
+
+LD 
+
+(HL),E 
+
+The low line number byte. 
+
+DEC 
+
+HL 
+
+
+LD 
+
+(HL),D 
+
+The high line number byte. 
+
+MAIN-ADD2 POP 
+
+AF 
+
+Drop the address of REPORT- 
+
+JP 
+
+12A2, MAIN-EXEC 
+
+Jump back and this time do 
+produce and automatic listing. 
+
+
+THE 'INITIAL CHANNEL INFORMATION' 
+
+Initially there are four channels - 'S', 'R', & 'P' - for communicating with the 'keyboard', 'screen', 'work space' and 'printer'. For each 
+channel the output routine address comes before the input routine address and the channel's code. 
+
+
+15AF 
+
+DEFB 
+
+F4 09 
+
+
+DEFB 
+
+A8 10 
+
+
+DEFB 
+
+4B 
+
+15B4 
+
+DEFB 
+
+F4 09 
+
+
+DEFB 
+
+C4 15 
+
+
+DEFB 
+
+53 
+
+15B9 
+
+DEFB 
+
+81 OF 
+
+
+DEFB 
+
+C4 15 
+
+
+DEFB 
+
+52 
+
+15BE 
+
+DEFB 
+
+F4 09 
+
+
+DEFB 
+
+C4 15 
+
+
+DEFB 
+
+50 
+
+15C3 
+
+DEFB 
+
+80 
+
+Report J 
+
+- Invalid I/O device 
+
+15C4 
+
+REPORT-J 
+
+RST 
+
+
+DEFB +12 
+
+
+- PRINT-OUT 
+
+- KEY-INPUT 
+-’K’ 
+
+- PRINT-OUT 
+
+- REPORT-J 
+-'S' 
+
+-ADD-CHAR 
+
+- REPORT-J 
+-'R' 
+
+- PRINT-OUT 
+
+- REPORT-J 
+
+- 'P' 
+
+- End marker. 
+
+
+1-1 Call the error handling 
+
+routine 
+
+
+THE 'INITIAL STREAM DATA' 
+
+Initially there are seven streams - +FD to +03. 
+
+
+15C6 
+
+DEFB 
+
+01 00 
+
+- stream +FD leads to channel 
+
+'K' 
+
+15C8 
+
+DEFB 
+
+06 00 
+
+- stream +FE " 
+
+'S' 
+
+15CA 
+
+DEFB 
+
+0B 00 
+
+- stream +FF " 
+
+■R’ 
+
+15CC 
+
+DEFB 
+
+01 00 
+
+- stream +00 " 
+
+'K' 
+
+15CE 
+
+DEFB 
+
+01 00 
+
+- stream +01 " 
+
+'K' 
+
+15D0 
+
+DEFB 
+
+06 00 
+
+- stream +02 " 
+
+'S' 
+
+15D2 
+
+DEFB 
+
+10 00 
+
+- stream +03 " 
+
+'P' 
+
+
+THE 'WAIT-KEY' SUBROUTINE 
+
+This subroutine is the controlling subroutine for calling the current input subroutine. 
+
+
+WAIT-KEY BIT 
+
+5, (TV-FLAG) 
+
+Jump forward if the flag 
+
+JR 
+
+NZ,15DE,WAIT-KEY1 
+
+indicates the lower screen 
+does not require clearing. 
+
+SET 
+
+3, (TV-FLAG) 
+
+Otherwise signal 'consider 
+the mode as having changed’. 
+
+WAIT-KEY1 CALL 
+
+15E6, INPUT-AD 
+
+Call the input subroutine 
+indirectly via INPUT-AD. 
+
+RET 
+
+C 
+
+Return with acceptable codes. 
+
+JR 
+
+Z,15DE,WAIT-KEY1 
+
+Both the carry flag and the 
+zero flag are reset if 'no key is 
+being pressed’; otherwise 
+signal an error. 
+
+
+65 
+
+
+
+0008, ERROR-1 
++07 
+
+
+Call the error handling 
+routine. 
+
+
+Report 8 - End of file 
+15E4 REPORT-8 RST 
+DEFB 
+
+
+THE 'INPUT-AD' SUBROUTINE 
+
+The registers are saved and HL made to point to the input address. 
+
+
+15E6 INPUT-AD EXX 
+
+PUSH HL 
+
+LD HL.(CURCHL) 
+
+INC HL 
+
+INC HL 
+
+JR 15F7, CALL-SUB 
+
+
+Save the registers. 
+
+Fetch the base address for the 
+current channel information. 
+Step past the output address. 
+
+Jump forward. 
+
+
+THE 'MAIN PRINTING' SUBROUTINE 
+
+The subroutine is called with either an absolute value or a proper character code in the A register. 
+
+
+15EF 
+
+OUT-CODE 
+
+LD 
+
+E.+30 
+
+Increase the value in the 
+
+
+
+ADD 
+
+A.E 
+
+A register by +30. 
+
+15F2 
+
+PRINT-A-2 
+
+EXX 
+
+PUSH 
+
+HL 
+
+Again save the registers. 
+
+
+
+LD 
+
+HL.(CURCHL) 
+
+Fetch the base address for the 
+current channel. This will point 
+
+
+to an output address. 
+
+Now call the actual subroutine. HL points to the output or the input address as directed. 
+
+
+15F7 CALL-SUB LD 
+
+E,(HL) 
+
+Fetch the low byte. 
+
+INC 
+
+HL 
+
+
+LD 
+
+D,(HL) 
+
+Fetch the high byte. 
+
+EX 
+
+DE.HL 
+
+Move the address to the HL 
+
+CALL 
+
+162C, CALL-JUMP 
+
+register pair. 
+
+Call the actual subroutine. 
+
+POP 
+
+HL 
+
+Restore the registers. 
+
+EXX 
+
+RET 
+
+
+Return will be from here 
+
+THE 'CHAN-OPEN' SUBROUTINE 
+
+unless an error occurred. 
+
+This subroutine is called with the A register holding a valid stream number - normally +FD to +03. Then 
+
+a particular channel will be made the current channel. 
+
+
+1601 CHAN-OPEN ADD 
+
+A, A 
+
+The value in the A register is 
+
+ADD 
+
+A, +16 
+
+doubled and then increased by 
+
+LD 
+
+L.A 
+
++1 6. The result is moved to L. 
+
+LD 
+
+H.+5C 
+
+The address 5C1 6 is the base 
+
+LD 
+
+E,(HL) 
+
+address for stream +00. 
+
+Fetch the first byte of the 
+
+INC 
+
+HL 
+
+required stream's data; then 
+
+LD 
+
+D,(HL) 
+
+the second byte. 
+
+LD 
+
+A.D 
+
+Give an error if both bytes 
+
+OR 
+
+E 
+
+are zero; otherwise jump 
+
+JR 
+
+NZ, 1610, CHAN-OP-1 
+
+forward. 
+
+Report O - Invalid stream 
+
+160E REPORT-O RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++17 
+
+routine. 
+
+Using the stream data now find 
+
+the base address of the channel information associated with that stream. 
+
+1610 CHAN-OP-1 DEC 
+
+DE 
+
+Reduce the stream data. 
+
+LD 
+
+HL, (CHANS) 
+
+The base address of the whole 
+
+
+channel information area. 
+
+
+66 
+
+
+
+ADD 
+
+
+HL,DE 
+
+
+Form the required address in 
+this area. 
+
+
+THE 'CHAN-FLAG' SUBROUTINE 
+
+The appropriate flags for the different channels are set by this subroutine. 
+
+
+CHAN-FLAG 
+
+LD 
+
+(CURCHL),HL 
+
+The HL register pair holds the 
+base address for a particular 
+channel. 
+
+
+RES 
+
+4,(FLAGS2) 
+
+Signal 'using other than channel 
+’K". 
+
+
+INC 
+
+HL 
+
+Step past the output 
+
+
+INC 
+
+HL 
+
+and the input addresses and 
+
+
+INC 
+
+HL 
+
+make HL point to the 
+
+
+INC 
+
+HL 
+
+channel code. 
+
+
+LD 
+
+C,(HL) 
+
+Fetch the code. 
+
+
+LD 
+
+HL.+162D 
+
+The base address of the 'channel 
+code look-up table'. 
+
+
+CALL 
+
+16DC, INDEXER 
+
+Index into this table and locate 
+the required offset; but return if 
+
+
+RET 
+
+NC 
+
+there is not a matching channel 
+code. 
+
+
+LD 
+
+D,+00 
+
+Pass the offset to the 
+
+
+LD 
+
+E,(HL) 
+
+DE register pair. 
+
+
+ADD 
+
+HL,DE 
+
+Jump forward to the appropriate 
+
+CALL-JUMP 
+
+JP 
+
+(HL) 
+
+flag setting routine. 
+
+
+THE 'CHANNEL CODE LOOK-UP' TABLE 
+
+
+162D 
+
+DEFB 
+
+4B 06 
+
+- channel 'K', 
+
+offset +06, 
+
+address 
+
+1634 
+
+162F 
+
+DEFB 
+
+53 12 
+
+- channel 'S', 
+
+offset +12, 
+
+address 
+
+1642 
+
+1631 
+
+DEFB 
+
+50 IB 
+
+- channel 'P', 
+
+offset +1B, 
+
+address 
+
+1 64D 
+
+1633 
+
+DEFB 
+
+00 
+
+- end marker. 
+
+
+
+
+
+THE 'CHANNEL 'K' FLAG' SUBROUTINE 
+
+
+1634 
+
+CHAN-K 
+
+SET 
+
+0, (TV-FLAG) 
+
+Signal 'using lower screen' 
+
+
+
+RES 
+
+5, (FLAGS) 
+
+Signal 'ready for a key’. 
+
+
+
+SET 
+
+4,(FLAGS2) 
+
+Signal 'using channel ’K". 
+
+
+
+JR 
+
+1646,CHAN-S-1 
+
+Jump forward. 
+
+
+THE 'CHANNEL 'S' FLAG' SUBROUTINE 
+
+
+1642 
+
+CHAN-S 
+
+RES 
+
+0, (TV-FLAG) 
+
+Signal 'using main screen'. 
+
+1646 
+
+CHAN-S-1 
+
+RES 
+
+1, (FLAGS) 
+
+Signal 'printer not being used’. 
+
+
+
+JP 
+
+0D4D, TEMPS 
+
+Exit via TEMPS so as to set the 
+
+
+colour system variables. 
+
+THE 'CHANNEL 'P' FLAG' SUBROUTINE 
+
+
+164D CHAN-P SET 1, (FLAGS) 
+
+RET 
+
+
+Signal 'printer in use'. 
+
+
+THE 'MAKE-ROOM' SUBROUTINE 
+
+This is a very important subroutine, it is called on many occasions to 'open up' an area. In all cases the FHL register pair points to the 
+location after the place where 'room' is required and the BC register pair holds the length of the 'room' needed. When a single space 
+only is required then the subroutine is entered at ONE-SPACE. 
+
+
+1652 
+
+ONE-SPACE LD 
+
+BC.+0001 
+
+Just the single extra location 
+is required. 
+
+1655 
+
+MAKE-ROOM PUSH 
+
+HL 
+
+Save the pointer. 
+
+
+CALL 
+
+1 F05, TEST-ROOM 
+
+Make sure that there is sufficient 
+memory available for the task 
+being undertaken. 
+
+
+POP 
+
+HL 
+
+Restore the pointer. 
+
+
+67 
+
+
+
+CALL 
+
+1664, POINTERS 
+
+Alter all the pointers before 
+making the 'room'. 
+
+LD 
+
+HL, (STKEND) 
+
+Make HL hold the new STKEND. 
+
+EX 
+
+DE,HL 
+
+Switch 'old' and 'new'. 
+
+LDDR 
+
+
+Now make the 'room' 
+
+RET 
+
+
+and return. 
+
+
+Note: This subroutine returns with the HL register pair pointing to the location before the new 'room' and the DE register pair pointing to 
+the last of the new locations. The new 'room' therefore has the description: '(HL)+1' to '(DE)' inclusive. 
+
+However as the 'new locations' still retain their 'old values' it is also possible to consider the new 'room' as having been made after the 
+original location '(HL)' and it thereby has the description '(HL)+2' to (DE)+T. 
+
+In fact the programmer appears to have a preference for the 'second description’ and this can be confusing. 
+
+THE ’POINTERS' SUBROUTINE 
+
+Whenever an area has to be 'made' or 'reclaimed' the system variables that address locations beyond the 'position' of the change have 
+to be amended as required. On entry the BC register pair holds the number of bytes involved and the HL register pair addresses the 
+location before the 'position'. 
+
+
+1664 
+
+POINTERS PUSH 
+
+AF 
+
+These registers are saved. 
+
+
+PUSH 
+
+HL 
+
+Copy the address of the 
+’position'. 
+
+
+LD 
+
+HL.+5C4B 
+
+This is VARS, the first of the 
+
+
+LD 
+
+A,+0E 
+
+fourteen system pointers. 
+
+
+A loop is now entered to consider each pointer in turn. Only those pointers that point beyond the 'position' are changed. 
+
+
+166B PTR-NEXT 
+
+
+167F PTR-DONE 
+
+
+Now find the size of the 
+
+
+LD 
+
+E,(HL) 
+
+INC 
+
+HL 
+
+LD 
+
+D,(HL) 
+
+EX 
+
+(SP),HL 
+
+AND 
+
+A 
+
+SBC 
+
+HL,DE 
+
+ADD 
+
+HL,DE 
+
+EX 
+
+(SP),HL 
+
+JR 
+
+NC.167F, PTR-DONE 
+
+PUSH 
+
+DE 
+
+EX 
+
+DE.HL 
+
+ADD 
+
+HL,BC 
+
+EX 
+
+DE,HL 
+
+LD 
+
+(HL),D 
+
+DEC 
+
+HL 
+
+LD 
+
+(HL),E 
+
+INC 
+
+HL 
+
+POP 
+
+DE 
+
+INC 
+
+HL 
+
+DEC 
+
+A 
+
+JR 
+
+NZ.166B, PTR-NEXT 
+
+block to be moved. 
+
+EX 
+
+DE,HL 
+
+POP 
+
+DE 
+
+POP 
+
+AF 
+
+AND 
+
+A 
+
+SBC 
+
+HL,DE 
+
+LD 
+
+B,H 
+
+LD 
+
+C,L 
+
+INC 
+
+BC 
+
+
+Fetch the two bytes of the 
+current pointer. 
+
+Exchange the system variable 
+with the address of the 'position'. 
+The carry flag will become 
+set if the system variable's 
+address is to be updated. 
+Restore the 'position'. 
+
+Jump forward if the pointer is 
+to be left: otherwise change it. 
+Save the old value. 
+
+Now add the value in BC 
+to the old value. 
+
+Enter the new value into the 
+system variable - high byte 
+before low byte. 
+
+Point again to the high byte. 
+Fetch the old value. 
+
+Point to the next system 
+variable and jump back until all 
+fourteen have been considered. 
+
+
+Put the old value of STKEND in 
+HL and restore the other 
+registers. 
+
+Now find the difference 
+between the old value of 
+STKEND and the 'position'. 
+Transfer the result to BC 
+and add '1 ' for the inclusive 
+
+
+byte. 
+
+
+68 
+
+
+
+ADD HL,DE Reform the old value of 
+
+EX DE,HL STKEND and pass it to DE 
+
+RET before returning. 
+
+THE 'COLLECT A LINE NUMBER' SUBROUTINE 
+
+On entry the HL register pair points to the location under consideration. If the location holds a value that constitutes a suitable high byte 
+for a line number then the line number is returned in DE. However if this is not so then the location addressed by DE is tried instead; 
+and should this also be unsuccessful line number zero is returned. 
+
+
+168F LINE-ZERO DEFB 
+
++00 
+
+Line number zero. 
+
+DEFB 
+
++00 
+
+
+1691 LINE-NO-A EX 
+
+DE,HL 
+
+Consider the other pointer. 
+
+LD 
+
+DE.+168F 
+
+Use line number zero. 
+
+The usual entry point is at LINE-NO. 
+
+
+
+1695 LINE-NO LD 
+
+A,(HL) 
+
+Fetch the high byte and 
+
+AND 
+
++C0 
+
+test it. 
+
+JR 
+
+NZ, 1691, LINE-NO-A 
+
+Jump back if not suitable. 
+
+LD 
+
+D,(HL) 
+
+Fetch the high byte. 
+
+INC 
+
+HL 
+
+
+LD 
+
+E,(HL) 
+
+Fetch the low byte and 
+
+RET 
+
+
+return. 
+
+THE 'RESERVE' SUBROUTINE 
+
+This subroutine is normally called by using RST 0030,BC-SPACES. 
+
+
+On entry here the last value on the machine stack is WORKSP and the value above it is the number of spaces that is to be 'reserved'. 
+This subroutine always makes 'room' between the existing work space and the calculator stack. 
+
+169E RESERVE LD 
+
+HL,(STKBOT) 
+
+Fetch the current value of 
+
+DEC 
+
+HL 
+
+STKBOT and decrement it to 
+get the last location of the 
+work space. 
+
+CALL 
+
+1655, MAKE-ROOM 
+
+Now make 'BC spaces'. 
+
+INC 
+
+HL 
+
+Point to the first new space 
+
+INC 
+
+HL 
+
+and then the second. 
+
+POP 
+
+BC 
+
+Fetch the old value of 
+
+LD 
+
+(WORKSP), BC 
+
+WORKSP and restore it. 
+
+POP 
+
+BC 
+
+Restore BC - number of spaces. 
+
+EX 
+
+DE,HL 
+
+Switch the pointers, 
+
+INC 
+
+HL 
+
+Make HL point to the first of 
+the displaced bytes. 
+
+RET 
+
+
+Now return. 
+
+Note: It can also be considered that the subroutine returns with the DE register pair pointing to a 'first extra byte' and the HL register 
+pair pointing to a 'last extra byte', these extra bytes having been added after the original '(HL)+T location. 
+
+THE 'SET-MIN' SUBROUTINE 
+
+
+
+This subroutine resets the editing area and the areas after it to their minimum sizes. In effect it 'clears' the areas. 
+
+16B0 SET-MIN LD 
+
+HL, (E-LINE) 
+
+Fetch E-LINE. 
+
+LD 
+
+(HL),+0D 
+
+Make the editing area hold 
+
+LD 
+
+(K-CUR),HL 
+
+only the 'carriage return' 
+
+INC 
+
+HL 
+
+character and the end marker. 
+
+LD 
+
+(HL),+80 
+
+
+INC 
+
+HL 
+
+Move on to clear the work 
+
+LD 
+
+(WORKSP), HL 
+
+space. 
+
+Entering here will 'clear' the work space and the calculator stack. 
+
+
+16BF SET-WORK LD 
+
+HL, (WORKSP) 
+
+Fetch the WORKSP. 
+
+LD 
+
+(STKBOT),HL 
+
+This clears the work space. 
+
+
+69 
+
+
+
+Entering here will 'clear' only the calculator stack. 
+
+
+16C5 SET-STK LD HL,(STKBOT) Fetch STKBOT. 
+
+LD (STKEND),HL This clears the stack. 
+
+In all cases make MEM address the calculator's memory area. 
+
+
+PUSH 
+
+HL 
+
+Save STKEND. 
+
+LD 
+
+HL.+5C92 
+
+The base of the memory area. 
+
+LD 
+
+(MEM),HL 
+
+Set MEM to this address. 
+
+POP 
+
+HL 
+
+Restore STKEND to the HL 
+
+RET 
+
+
+register pair before returning. 
+
+
+THE 'RECLAIM THE EDIT-LINE' SUBROUTINE' 
+
+16D4 REC-EDIT LD DE, (E-LINE) Fetch E-LINE. 
+
+JP 19E5, RECLAIM-1 Reclaim the memory. 
+
+
+THE 'INDEXER' SUBROUTINE 
+
+This subroutine is used on several occasions to look through tables. The entry point is at INDEXER. 
+
+
+16DB 
+
+INDEXER-1 INC 
+
+HL 
+
+Move on to consider the next 
+pair of entries. 
+
+16DC 
+
+INDEXER LD 
+
+A,(HL) 
+
+Fetch the first of a pair of 
+
+
+AND 
+
+A 
+
+entries but return if it is 
+
+
+RET 
+
+Z 
+
+zero - the end marker. 
+
+
+CP 
+
+c 
+
+Compare it to the supplied 
+code. 
+
+
+INC 
+
+HL 
+
+Point to the second entry. 
+
+
+JR 
+
+NZ,16DB, INDEXER-1 
+
+Jump back if the correct entry 
+has not been found. 
+
+
+SCF 
+
+
+The carry flag is set upon a 
+
+
+RET 
+
+
+successful search. 
+
+
+THE 'CLOSE #' COMMAND ROUTINE 
+
+This command allows the user to CLOSE streams. Flowever for streams +00 to +03 the 'initial' stream data is restored and these 
+streams cannot therefore be CLOSEd. 
+
+
+16E5 CLOSE 
+
+
+16FC CLOSE-1 
+
+
+CALL 
+
+171 E.STR-DATA 
+
+CALL 
+
+1701 .CLOSE-2 
+
+LD 
+
+BC.+0000 
+
+LD 
+
+DE.+A3E2 
+
+EX 
+
+DE,HL 
+
+ADD 
+
+HL,DE 
+
+JR 
+
+C.16FC, CLOSE-1 
+
+LD 
+
+BC.+15D4 
+
+ADD 
+
+HL,BC 
+
+LD 
+
+C,(HL) 
+
+INC 
+
+HL 
+
+LD 
+
+B,(HL) 
+
+EX 
+
+DE,HL 
+
+LD 
+
+(HL),C 
+
+INC 
+
+HL 
+
+LD 
+
+(HL),B 
+
+RET 
+
+
+
+The existing data for the stream 
+is fetched. 
+
+Check the code in that 
+stream's channel. 
+
+Prepare to make the stream's 
+data zero. 
+
+Prepare to identify the use of 
+streams +00 to +03. 
+
+The carry flag will be set with 
+streams +04 to +0F. 
+
+Jump forward with these 
+streams; otherwise find the 
+correct entry in the 'initial 
+stream data' table. 
+
+Fetch the initial data 
+for streams +00 to +03. 
+
+Now enter the data; either 
+zero & zero, or the initial 
+values. 
+
+
+THE 'CLOSE-2' SUBROUTINE 
+
+The code of the channel associated with the stream being closed has to be 'K', ’S’, or ’P’. 
+
+1701 CLOSE-2 PUSH HL Save the address of the 
+
+stream's data. 
+
+
+70 
+
+
+
+
+LD 
+
+HL, (CHANS) 
+
+Fetch the base address of the 
+
+
+ADD 
+
+HL,BC 
+
+channel information area and 
+find the channel data for the 
+stream being CLOSEd. 
+
+
+INC 
+
+HL 
+
+Step past the subroutine 
+
+
+INC 
+
+HL 
+
+addresses and pick up 
+
+
+INC 
+
+HL 
+
+the code for that channel. 
+
+
+LD 
+
+C,(HL) 
+
+
+
+EX 
+
+DE,HL 
+
+Save the pointer. 
+
+
+LD 
+
+HL.+1716 
+
+The base address of the 'CLOSE 
+stream look-up’ table. 
+
+
+CALL 
+
+16DC, INDEXER 
+
+index into this table and locate 
+the required offset. 
+
+
+LD 
+
+C,(HL) 
+
+Pass the offset to the BC 
+
+
+LD 
+
+B,+00 
+
+register pair. 
+
+
+ADD 
+
+HL,BC 
+
+Jump forward to the 
+
+
+JP 
+
+(HL) 
+
+appropriate routine. 
+
+THE 
+
+'CLOSE STREAM LOOK-UP' TABLE 
+
+
+1716 
+
+DEFB 
+
+4B 05 
+
+- channel offset +05, address 1 71 C 
+
+1718 
+
+DEFB 
+
+53 03 
+
+- channel 'S', offset +03, address 1 71 C 
+
+171A 
+
+DEFB 
+
+50 01 
+
+- channel 'P', offset +01, address 1 71 C 
+
+Note: 
+
+There is no end marker at the end of this table. 
+
+
+THE 
+
+'CLOSE STREAM' SUBROUTINE. 
+
+
+1 71 C 
+
+CLOSE-STR POP 
+
+HL 
+
+Fetch the channel information 
+
+
+RET 
+
+
+pointer and return. 
+
+THE 
+
+'STREAM DATA' SUBROUTINE 
+
+
+This subroutine returns in the BC register pair the stream data for a given stream. 
+
+171 E 
+
+STR-DATA CALL 
+
+1 E94,STK-TO-A 
+
+The given stream number is 
+taken off the calculator stack. 
+
+
+CP 
+
++10 
+
+Give an error if the stream 
+
+
+JR 
+
+C,1 727,STR-DATA1 
+
+number is greater than +0F. 
+
+Report 0 - invalid stream 
+
+
+
+1725 
+
+REPORT-O RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+
+DEFB 
+
++17 
+
+routine. 
+
+Continue with valid stream numbers. 
+
+
+
+1727 
+
+STR-DATA1 ADD 
+
+A, +03 
+
+Range now +03 to +12; 
+
+
+RLCA 
+
+
+and now +06 to +24. 
+
+
+LD 
+
+HL.+5C10 
+
+The base address of the 
+stream data area. 
+
+
+LD 
+
+C,A 
+
+Move the stream code to the 
+
+
+LD 
+
+B,+00 
+
+BC register pair. 
+
+
+ADD 
+
+HL,BC 
+
+index into the data area 
+
+
+LD 
+
+C,(HL) 
+
+and fetch the two data bytes 
+
+
+INC 
+
+HL 
+
+into the BC register pair. 
+
+
+LD 
+
+B,(HL) 
+
+
+
+DEC 
+
+HL 
+
+Make the pointer address the 
+
+
+RET 
+
+
+first of the data bytes before 
+returning. 
+
+THE 'OPEN #' COMMAND ROUTINE 
+
+
+
+This command allows the user to OPEN streams. A channel code must be supplied and it must be 'K', 'k', 'S', 's', 
+Note that no attempt is made to give streams +00 to +03 their initial data. 
+
+
+1736 OPEN RST 
+
+DEFB 
+
+
+0028,FP-CALC 
++01, exchange 
+
+
+Use the CALCULATOR. 
+Exchange the stream number 
+
+
+'P', or 'p'. 
+
+
+71 
+
+
+
+DEFB 
+
++38, end-calc 
+
+and the channel code. 
+
+CALL 
+
+171 E,STR-DATA 
+
+Fetch the data for the stream. 
+
+LD 
+
+A,B 
+
+Jump forward if both bytes of 
+
+OR 
+
+C 
+
+the data are zero, i.e. the 
+
+JR 
+
+Z, 1756, OPEN-1 
+
+stream was in a closed state. 
+
+EX 
+
+DE,HL 
+
+Save DE. 
+
+LD 
+
+HL, (CHANS) 
+
+Fetch CHANS - the base 
+
+ADD 
+
+HL,BC 
+
+address of the channel 
+
+INC 
+
+HL 
+
+information and find the 
+
+INC 
+
+HL 
+
+code of the channel 
+
+INC 
+
+HL 
+
+associated with the stream 
+
+LD 
+
+A,(HL) 
+
+being OPENed. 
+
+EX 
+
+DE,HL 
+
+Return DE. 
+
+CP 
+
++4B 
+
+The code fetched from the 
+
+JR 
+
+Z, 1756, OPEN-1 
+
+channel information area 
+
+CP 
+
++53 
+
+must be 'K', 'S' or 'P'; 
+
+JR 
+
+Z, 1756, OPEN-1 
+
+give an error if it is not. 
+
+CP 
+
++50 
+
+
+JR 
+
+NZ, 1725, REPORT-O 
+
+
+1756 OPEN-1 CALL 
+
+175D, OPEN-2 
+
+Collect the appropriate data 
+
+LD 
+
+(HL),E 
+
+in DE. 
+
+Enter the data into the 
+
+INC 
+
+HL 
+
+two bytes in the stream 
+
+LD 
+
+(HL),D 
+
+information area. 
+
+RET 
+
+
+Finally return. 
+
+THE 'OPEN-2' SUBROUTINE 
+
+The appropriate stream data bytes for the channel that is associated with the stream being OPENed are found. 
+
+175D OPEN-2 PUSH 
+
+HL 
+
+Save HL 
+
+CALL 
+
+2BF1 ,STK-FETCH 
+
+Fetch the parameters of the 
+
+LD 
+
+A,B 
+
+channel code. 
+
+Give an error if the 
+
+OR 
+
+C 
+
+expression supplied is a null 
+
+JR 
+
+NZ, 1767, OPEN-3 
+
+expression; i.e. OPEN #5,"". 
+
+Report F - Invalid file name 
+
+1765 REPORT-F RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++0E 
+
+routine. 
+
+Continue if no error occurred. 
+
+1767 OPEN-3 PUSH 
+
+BC 
+
+The length of the expression 
+
+LD 
+
+A,(DE) 
+
+is saved. 
+
+Fetch the first character. 
+
+AND 
+
++DF 
+
+Convert lower case codes to 
+
+LD 
+
+C,A 
+
+upper case ones. 
+
+Move code to the C register. 
+
+LD 
+
+HL.+177A 
+
+The base address of the 
+
+CALL 
+
+16DC, INDEXER 
+
+'OPEN stream look-up' table. 
+
+Index into this table and locate 
+
+JR 
+
+NC, 1765, REPORT-F 
+
+the required offset. 
+
+Jump back if not found. 
+
+LD 
+
+C,(HL) 
+
+Pass the offset to the BC 
+
+LD 
+
+B,+00 
+
+register pair. 
+
+ADD 
+
+HL,BC 
+
+Make HL point to the start of 
+
+POP 
+
+BC 
+
+the appropriate subroutine. 
+
+Fetch the length of the 
+
+JP 
+
+(HL) 
+
+expression before jumping to 
+
+THE 'OPEN STREAM LOOK-UP' TABLE 
+
+the subroutine. 
+
+177A DEFB 
+
+4B 06 
+
+- channel 'K', offset +06, address 1781 
+
+
+72 
+
+
+
+177C 
+
+DEFB 
+
+53 08 
+
+- channel 'S', offset +08, address 1785 
+
+177E 
+
+DEFB 
+
+50 0A 
+
+- channel 'P', offset +0A, address 1789 
+
+1780 
+
+DEFB 
+
+00 
+
+- end marker; 
+
+THE 
+
+'OPEN-K' SUBROUTINE 
+
+
+
+1781 
+
+OPEN-K LD 
+
+E.+01 
+
+The data bytes will be +01 
+
+
+JR 
+
+178B, OPEN-END 
+
+& +00. 
+
+THE 
+
+'OPEN-S' SUBROUTINE 
+
+
+
+1785 
+
+OPEN-S LD 
+
+E,+06 
+
+The data bytes will be +06 
+
+
+JR 
+
+178B, OPEN-END 
+
+& +00. 
+
+THE 
+
+'OPEN-P' SUBROUTINE 
+
+
+
+1789 
+
+OPEN-P LD 
+
+E.+10 
+
+The data bytes will be +10 
+& +00. 
+
+178B 
+
+OPEN-END DEC 
+
+BC 
+
+Decrease the length of the 
+
+
+LD 
+
+A,B 
+
+expression and give an error 
+
+
+OR 
+
+C 
+
+if it was not a single 
+
+
+JR 
+
+NZ,1765,REPORT-F 
+
+character; otherwise clear the 
+
+
+LD 
+
+D,A 
+
+D register, fetch HL and 
+
+
+POP 
+
+HL 
+
+return. 
+
+
+RET 
+
+
+
+
+THE 'CAT, ERASE, FORMAT & MOVE' COMMAND ROUTINES 
+
+In the standard SPECTRUM system the use of these commands leads to the production of report O - Invalid stream. 
+
+1793 CAT-ETC. JR 1725, REPORT-O Give this report. 
+
+THE 'LIST & LLIST' COMMAND ROUTINES 
+
+The routines in this part of the 1 6K program are used to produce listings of the current BASIC program. Each line has to have its line 
+number evaluated, its tokens expanded and the appropriate cursors positioned. 
+
+The entry point AUTO-LIST is used by both the MAIN EXECUTION routine and the EDITOR to produce a single page of the listing. 
+
+
+AUTO-LIST LD 
+
+(LIST-SP),SP 
+
+The stack pointer is saved 
+allowing the machine stack to 
+be reset when the listing is 
+finished, (see PO-SCR,OC55) 
+
+LD 
+
+(TV-FLAG), +10 
+
+Signal 'automatic listing in the 
+main screen'. 
+
+CALL 
+
+0DAF,CL-ALL 
+
+Clear this part of the screen. 
+
+SET 
+
+0, (TV-FLAG) 
+
+Switch to the editing area. 
+
+LD 
+
+B.(DF-SZ) 
+
+Now clear the lower part 
+
+CALL 
+
+0E44.CL-LINE 
+
+of the screen as well. 
+
+RES 
+
+0, (TV-FLAG) 
+
+Then switch back. 
+
+SET 
+
+0,(FLAGS2) 
+
+Signal 'screen is clear'. 
+
+LD 
+
+HL,(E-PPC) 
+
+Now fetch the 'current' line 
+
+LD 
+
+DE.(S-TOP) 
+
+number and the 'automatic' 
+line number. 
+
+AND 
+
+A 
+
+If the 'current' number is 
+
+SBC 
+
+HL,DE 
+
+less than the 'automatic' 
+
+ADD 
+
+HL,DE 
+
+number then jump forward to 
+
+JR 
+
+C,1 7E1 .AUTO-L-2 
+
+update the 'automatic' number. 
+
+
+The 'automatic' number has now to be altered to give a listing with the 'current' line appearing near the bottom of the screen. 
+
+
+PUSH 
+
+DE 
+
+Save the 'automatic 1 number. 
+
+CALL 
+
+196E,LINE-ADDR 
+
+Find the address of the 
+
+LD 
+
+DE,+02C0 
+
+start of the 'current' line 
+
+EX 
+
+DE.HL 
+
+and produce an address roughly 
+
+
+73 
+
+
+
+SBC 
+
+HL,DE 
+
+EX 
+
+(SP),HL 
+
+CALL 
+
+196E.LINE-ADDR 
+
+POP 
+
+BC 
+
+
+a 'screen before it' (negated). 
+Save the ’result’ on the machine 
+stack whilst the ’automatic’ line 
+address is also found (in HL). 
+The ’result’ goes to the BC 
+register pair. 
+
+
+A loop is now entered. The ’automatic’ line number is increased on each pass until it is likely that the ’current’ line will show on a listing. 
+
+
+17CE 
+
+AUTO-L-1 
+
+PUSH 
+
+BC 
+
+Save the 'result'. 
+
+
+
+CALL 
+
+19B8, NEXT-ONE 
+
+Find the address of the start 
+of the line after the present 
+'automatic' line (in DE). 
+
+
+
+POP 
+
+BC 
+
+Restore the ’result’. 
+
+
+
+ADD 
+
+HL,BC 
+
+Perform the computation and 
+
+
+
+JR 
+
+C.17E4, AUTO-L-3 
+
+jump forward if finished. 
+
+
+
+EX 
+
+DE,HL 
+
+Move the next line's address 
+
+
+
+LD 
+
+D.(HL) 
+
+to the HL register pair and 
+
+
+
+INC 
+
+HL 
+
+collect its line number. 
+
+
+
+LD 
+
+E.(HL) 
+
+
+
+
+DEC 
+
+HL 
+
+
+
+
+LD 
+
+(S-TOP), DE 
+
+Now S-TOP can be updated and 
+
+
+
+JR 
+
+17CE, AUTO-L-1 
+
+the test repeated with the new 
+line. 
+
+Now the 'automatic' listing can be made. 
+
+
+
+17E1 
+
+AUTO-L-2 
+
+LD 
+
+(S-TOP),HL 
+
+When E-PPC is less than S-TOP. 
+
+17E4 
+
+AUTO-L-3 
+
+LD 
+
+HL,(S-TOP) 
+
+Fetch the top line's number 
+
+
+
+CALL 
+
+196E.LINE-ADDR 
+
+and hence its address. 
+
+
+
+JR 
+
+Z.17ED, AUTO-L-4 
+
+If the line cannot be found 
+
+
+
+EX 
+
+DE,HL 
+
+use DE instead. 
+
+17ED 
+
+AUTO-L-4 
+
+CALL 
+
+1833, LIST-ALL 
+
+The listing is produced. 
+
+
+
+RES 
+
+4, (TV-FLAG) 
+
+The return will be to here 
+
+
+
+RET 
+
+
+unless scrolling was needed to 
+
+
+show the current line. 
+
+
+THE ’LUST’ ENTRY POINT 
+
+The printer channel will need to be opened. 
+
+17F5 LUST LD A, +03 Use stream +03. 
+
+JR 17FB, LIST-1 Jump forward. 
+
+
+THE 'LIST' ENTRY POINT 
+
+The 'main screen’ channel will need to be opened. 
+
+
+17F9 
+
+LIST 
+
+LD 
+
+A, +02 
+
+Use stream +02. 
+
+17FB 
+
+LIST-1 
+
+LD 
+
+(TV-FLAG), +00 
+
+Signal 'an ordinary listing in 
+the main part of the screen’. 
+
+
+
+CALL 
+
+2530,SYNTAX-Z 
+
+Open the channel unless 
+
+
+
+CALL 
+
+NZ, 1601, CHAN-OPEN 
+
+checking syntax. 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+With the present character in 
+
+
+
+CALL 
+
+2070,STR-ALTER 
+
+the A register see if the stream 
+is to be changed. 
+
+
+
+JR 
+
+C, 181 F, LIST-4 
+
+Jump forward if unchanged. 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Is the present character 
+
+
+
+CP 
+
++3B 
+
+a';'? 
+
+
+
+JR 
+
+Z, 1814, LIST-2 
+
+Jump if it is. 
+
+
+
+CP 
+
++2C 
+
+Is it a ','? 
+
+
+
+JR 
+
+NZ.181A, LIST-3 
+
+Jump if it is not. 
+
+1814 
+
+LIST-2 
+
+RST 
+
+0020, NEXT-CHAR 
+
+A numeric expression must 
+
+
+
+CALL 
+
+1C82.EXPT-1NUM 
+
+follow, e.g. LIST #5,20 
+
+
+
+JR 
+
+1822, LIST-5 
+
+Jump forward with it. 
+
+181A 
+
+LIST-3 
+
+CALL 
+
+1CE6, USE-ZERO 
+
+Otherwise use zero and 
+
+
+
+JR 
+
+1822, LIST-5 
+
+also jump forward. 
+
+
+74 
+
+
+
+Come here if the stream was unaltered. 
+
+
+181 F 
+
+LIST-4 
+
+CALL 
+
+1CDE,FETCH-NUM 
+
+Fetch any line or use zero if 
+none supplied. 
+
+1822 
+
+LIST-5 
+
+CALL 
+
+1BEE, CHECK-END 
+
+If checking the syntax of the 
+edit-line move on to the next 
+
+
+
+
+
+statement. 
+
+
+
+CALL 
+
+1 E99,FIND-INT 
+
+Line number to BC. 
+
+
+
+LD 
+
+A,B 
+
+High byte to A. 
+
+
+
+AND 
+
++3F 
+
+Limit the high byte to the 
+
+
+
+LD 
+
+H,A 
+
+correct range and pass the 
+
+
+
+LD 
+
+L,C 
+
+whole line number to HL. 
+
+
+
+LD 
+
+(E-PPC).HL 
+
+Set E-PPC and find the address 
+
+
+
+CALL 
+
+196E,LINE-ADDR 
+
+of the start of this line or the 
+first line after it if the actual 
+line does not exist. 
+
+1833 
+
+LIST-ALL 
+
+LD 
+
+E.+01 
+
+Flag 'before the current line'. 
+
+Now the controlling loop for printing a series of lines is entered. 
+
+
+1835 
+
+LIST-ALL-1 
+
+CALL 
+
+1855, OUT-LINE 
+
+Print the whole of a BASIC line. 
+
+
+
+RST 
+
+0010,PRINT-A-1 
+
+This will be a 'carriage return'. 
+
+
+
+BIT 
+
+4, (TV-FLAG) 
+
+Jump back unless dealing 
+
+
+
+JR 
+
+Z, 1835, LIST-ALL-1 
+
+with an automatic listing. 
+
+
+
+LD 
+
+A,(DF-SZ) 
+
+Also jump back if there is 
+
+
+
+SUB 
+
+(S-POSN-hi) 
+
+still part of the main screen 
+
+
+
+JR 
+
+NZ, 1835, LIST-ALL-1 
+
+that can be used. 
+
+
+
+XOR 
+
+E 
+
+A return can be made at this 
+
+
+
+RET 
+
+Z 
+
+point if the screen is full and the 
+current line has been printed 
+(E = +00) 
+
+
+
+PUSH 
+
+HL 
+
+However if the current line is 
+
+
+
+PUSH 
+
+DE 
+
+missing from the listing 
+
+
+
+LD 
+
+HL.+5C6C 
+
+then S-TOP has to be updated 
+
+
+
+CALL 
+
+190F.LN-FETCH 
+
+and a further line printed 
+
+
+
+POP 
+
+DE 
+
+(using scrolling). 
+
+
+
+POP 
+
+HL 
+
+
+
+
+JR 
+
+1835, LIST-ALL-1 
+
+
+
+THE 'PRINT A WHOLE BASIC LINE' SUBROUTINE 
+
+The HL register pair points to the start of the line - the location holding the high byte of the line number. 
+
+Before the line number is printed it is tested to determine whether it comes before the 'current' line, is the 'current' line or comes after. 
+
+
+OUT-LINE 
+
+LD 
+
+CALL 
+
+LD 
+
+BC, (E-PPC) 
+
+1980, CP-LINES 
+D,+3E 
+
+
+JR 
+
+Z,1865,OUT-LINE1 
+
+
+LD 
+
+DE.+0000 
+
+
+RL 
+
+E 
+
+
+1865 OUT-LINE1 LD 
+LD 
+CP 
+POP 
+RET 
+PUSH 
+CALL 
+
+
+(BREG),E 
+
+A,(HL) 
+
++40 
+
+BC 
+
+NC 
+
+BC 
+
+1 A28,OUT-NUM-2 
+
+
+Fetch the 'current' line 
+number and compare it. 
+Pre-load the D register with the 
+current line cursor. 
+
+Jump forward if printing the 
+'current' line. 
+
+Load the D register with zero 
+(it is not the cursor) and 
+set E to hold +01 if the line is 
+before the 'current' line and +00 
+if after. (The carry flag comes 
+from CP-LINES.) 
+
+Save the line marker. 
+
+Fetch the high byte of the 
+line number and make a full 
+return if the listing has been 
+finished. 
+
+The line number can now be 
+printed - with leading spaces. 
+
+
+75 
+
+
+
+
+
+INC 
+
+HL 
+
+Move the pointer on to address 
+
+
+
+INC 
+
+HL 
+
+the first command code in 
+
+
+
+INC 
+
+HL 
+
+the line. 
+
+
+
+RES 
+
+0, (FLAGS) 
+
+Signal 'leading space allowed' 
+
+
+
+LD 
+
+A,D 
+
+Fetch the cursor code and 
+
+
+
+AND 
+
+A 
+
+jump forward unless the 
+
+
+
+JR 
+
+Z, 1 881 ,OUT-LINE3 
+
+cursor is to be printed. 
+
+
+
+RST 
+
+0010,PRINT-A-1 
+
+So print the cursor now. 
+
+187D 
+
+OUT-LINE2 
+
+SET 
+
+0, (FLAGS) 
+
+Signal 'no leading space now'. 
+
+1881 
+
+OUT-LINE3 
+
+PUSH 
+
+DE 
+
+Save the registers. 
+
+
+
+EX 
+
+DE,HL 
+
+Move the pointer to DE. 
+
+
+
+RES 
+
+2,(FLAGS2) 
+
+Signal 'not in quotes'. 
+
+
+
+LD 
+
+HL.+5C3B 
+
+This is FLAGS. 
+
+
+
+RES 
+
+2,(HL) 
+
+Signal 'print in K-mode'. 
+
+
+
+BIT 
+
+5,(FLAGX) 
+
+Jump forward unless in 
+
+
+
+JR 
+
+1894,OUT-LINE4 
+
+INPUT mode. 
+
+
+
+SET 
+
+2,(HL) 
+
+Signal 'print in L-mode'. 
+
+Now enter a loop to print 
+
+all the codes in the rest of the BASIC line 
+
+- jumping over floating-point forms as necessary. 
+
+1894 
+
+OUT-LINE4 
+
+LD 
+
+HL.(X-PTR) 
+
+Fetch the syntax error 
+
+
+
+AND 
+
+A 
+
+pointer and jump forward 
+
+
+
+SBC 
+
+HL,DE 
+
+unless it is time to print 
+
+
+
+JR 
+
+NZ.18A1 .OUT-LINE5 
+
+the error marker. 
+
+
+
+LD 
+
+A,+3F 
+
+Print the error marker now. 
+
+
+
+CALL 
+
+18C1, OUT-FLASH 
+
+It is a flashing '?'. 
+
+1 8A1 
+
+OUT-LINE5 
+
+CALL 
+
+18E1, OUT-CURS 
+
+Consider whether to print the 
+
+
+
+
+
+cursor. 
+
+
+
+EX 
+
+DE,HL 
+
+Move the pointer to HL now. 
+
+
+
+LD 
+
+A,(HL) 
+
+Fetch each character in turn. 
+
+
+
+CALL 
+
+18B6, NUMBER 
+
+If the character is a 'number 
+marker' then the hidden floating- 
+point form is not to be printed. 
+
+
+
+INC 
+
+HL 
+
+Update the pointer for the next 
+pass. 
+
+
+
+CP 
+
++0D 
+
+Is the character a 'carriage 
+return'. 
+
+
+
+JR 
+
+Z,18B4,OUT-LINE6 
+
+Jump if it is. 
+
+
+
+EX 
+
+DE,HL 
+
+Switch the pointer to DE. 
+
+
+
+CALL 
+
+1937, OUT-CHAR 
+
+Print the character. 
+
+
+
+JR 
+
+1894,OUT-LINE4 
+
+Go around the loop for at least 
+one further pass. 
+
+The line has now been printed. 
+
+
+
+18B4 
+
+OUT-LINE6 
+
+POP 
+
+DE 
+
+Restore the DE register pair 
+
+
+
+RET 
+
+
+and return. 
+
+THE 'NUMBER' SUBROUTINE 
+
+
+
+If the A register holds the 'number 
+
+marker’ then the HL register pair is advanced past the floating-point form. 
+
+18B6 
+
+NUMBER 
+
+CP 
+
++0E 
+
+Is the character a 'number 
+
+
+
+RET 
+
+NZ 
+
+marker'. Return if not. 
+
+
+
+INC 
+
+HL 
+
+Advance the pointer six 
+
+
+
+INC 
+
+HL 
+
+times so as to step past the 
+
+
+
+INC 
+
+HL 
+
+'number marker' and the five 
+
+
+
+INC 
+
+HL 
+
+locations holding the 
+
+
+
+INC 
+
+HL 
+
+floating-point form. 
+
+
+
+INC 
+
+HL 
+
+
+
+
+LD 
+
+A,(HL) 
+
+Fetch the current code before 
+
+
+
+RET 
+
+
+returning. 
+
+
+76 
+
+
+
+THE 'PRINT A FLASHING CHARACTER' SUBROUTINE 
+
+The 'error cursor' and the 'mode cursors' are printed using this subroutine. 
+
+
+18C1 
+
+
+OUT-FLASH EXX 
+
+
+Save the current register. 
+
+LD 
+
+HL,(ATTR-T) 
+
+Save the ATTR-T & MASK-T < 
+
+PUSH 
+
+HL 
+
+the machine stack. 
+
+RES 
+
+7,H 
+
+Ensure that FLASH is 
+
+SET 
+
+7,L 
+
+active. 
+
+LD 
+
+(ATTR-T),HL 
+
+Use these modified values 
+for ATTR-T & MASK-T. 
+
+LD 
+
+HL.+5C91 
+
+This is P-FLAG. 
+
+LD 
+
+D,(HL) 
+
+Save P-FLAG also on the 
+
+PUSH 
+
+DE 
+
+machine stack. 
+
+LD 
+
+(HL),+00 
+
+Ensure INVERSE 0, OVER 0, 
+and not PAPER 9 nor INK 9. 
+
+CALL 
+
+09F4, PRINT-OUT 
+
+The character is printed. 
+
+POP 
+
+HL 
+
+The former value of P-FLAG 
+
+LD 
+
+(P-FLAG),H 
+
+is restored. 
+
+POP 
+
+HL 
+
+The former values of ATTR-T 
+
+LD 
+
+(ATTR-T),HL 
+
+& MASK-T are also restored 
+
+EXX 
+
+RET 
+
+
+before returning. 
+
+
+THE 'PRINT THE CURSOR' SUBROUTINE 
+
+A return is made if it is not the correct place to print the cursor but if it is then either 'C', 'E', 'G', K' or will be printed. 
+
+
+OUT-CURS 
+
+LD 
+
+HL,(K-CUR) 
+
+Fetch the address of the 
+
+
+AND 
+
+A 
+
+cursor but return if the 
+
+
+SBC 
+
+HL,DE 
+
+correct place is not being 
+
+
+RET 
+
+NZ 
+
+considered. 
+
+
+LD 
+
+A, (MODE) 
+
+The current value of MODE is 
+
+
+RLC 
+
+A 
+
+fetched and doubled. 
+
+
+JR 
+
+Z.18F3, OUT-C-1 
+
+Jump forward unless dealing with 
+Extended mode or Graphics. 
+
+
+ADD 
+
+A, +43 
+
+Add the appropriate offset to 
+give 'E' or 'G'. 
+
+
+JR 
+
+1909, OUT-C-2 
+
+Jump forward to print it. 
+
+OUT-C-1 
+
+LD 
+
+HL.+5C3B 
+
+This is FLAGS. 
+
+
+RES 
+
+3,(HL) 
+
+Signal 'K-mode'. 
+
+
+LD 
+
+A,+4B 
+
+The character 'K'. 
+
+
+BIT 
+
+2,(HL) 
+
+Jump forward to print 'K'. 
+
+
+JR 
+
+Z, 1909, OUT-C-2 
+
+If 'the printing is to be in 
+
+K-mode'. 
+
+
+SET 
+
+3,(HL) 
+
+The 'printing is to be in L-mode' 
+so signal 'L-MODE'. 
+
+
+INC 
+
+A 
+
+Form the character 'LL 
+
+
+BIT 
+
+3,(FLAGS2) 
+
+Jump forward if not in 
+
+
+JR 
+
+Z, 1909, OUT-C-2 
+
+'C-mode'. 
+
+
+LD 
+
+A, +43 
+
+The character 'C'. 
+
+OUT-C-2 
+
+PUSH 
+
+DE 
+
+Save the DE register pair 
+
+
+CALL 
+
+18C1, OUT-FLASH 
+
+whilst the cursor is printed 
+
+
+POP 
+
+RET 
+
+DE 
+
+- FLASHing. 
+
+Return once it has been done. 
+
+
+Note: It is the action of considering which cursor-letter is to be printed that determines the mode - 'K' vs. 'L/C. 
+
+
+THE 'LN-FETCH' SUBROUTINE 
+
+This subroutine is entered with the HL register pair addressing a system variable - S-TOP or E-PPC. 
+The subroutine returns with the system variable holding the line number of the following line. 
+
+
+190F LN-FETCH LD 
+INC 
+
+
+E.(HL) 
+
+HL 
+
+
+The line number held by the 
+system variable is collected. 
+
+
+77 
+
+
+
+LD D,(HL) 
+
+PUSH HL 
+
+EX DE,HL 
+
+INC HL 
+
+CALL 196E,LINE-ADDR 
+
+
+CALL 1695, LINE-NO 
+
+POP HL 
+
+
+The pointer is saved. 
+
+The line number is moved to the 
+HL register pair and incremented. 
+The address of the start of this 
+line is found, or the next line 
+if the actual line number is not 
+being used. 
+
+The number of that line is 
+fetched. 
+
+The pointer to the system 
+variable is restored. 
+
+
+The entry point LN-STORE is used by the EDITOR. 
+
+
+BIT 
+
+5,(FLAGX) 
+
+Return if in 'INPUT mode'; 
+
+RET 
+
+NZ 
+
+otherwise proceed to 
+
+LD 
+
+(HL),D 
+
+enter the line number into 
+
+DEC 
+
+HL 
+
+the two locations of the 
+
+LD 
+
+RET 
+
+(HL),E 
+
+system variable. 
+
+Return when it has been done. 
+
+
+THE 'PRINTING CHARACTERS IN A BASIC LINE' SUBROUTINE 
+
+All of the character/token codes in a BASIC line are printed by repeatedly calling this subroutine. 
+The entry point OUT-SP-NO is used when printing line numbers which may require leading spaces. 
+
+
+1925 
+
+OUT-SP-2 
+
+LD 
+
+A,E 
+
+The A register will hold +20 for 
+a space or +FF for no-space. 
+
+
+
+AND 
+
+A 
+
+Test the value and return if 
+
+
+
+RET 
+
+M 
+
+there is not to be a space. 
+
+
+
+JR 
+
+1937, OUT-CHAR 
+
+Jump forward to print a space 
+
+192A 
+
+OUT-SP-NO 
+
+XOR 
+
+A 
+
+Clear the A register. 
+
+The HL 
+
+register pair holds the line number and the BC register the value for 'repeated subtraction'. (BC holds '-1000, -100 or -10'. 
+
+192B 
+
+OUT-SP-1 
+
+ADD 
+
+HL,BC 
+
+The 'trial subtraction'. 
+
+
+
+INC 
+
+A 
+
+Count each 'trial'. 
+
+
+
+JR 
+
+C.192B, OUT-SP-1 
+
+Jump back until exhausted. 
+
+
+
+SBC 
+
+HL,BC 
+
+Restore last 'subtraction' 
+
+
+
+DEC 
+
+A 
+
+and discount it. 
+
+
+
+JR 
+
+Z, 1925, OUT-SP-2 
+
+If no 'subtractions' were possible 
+jump back to see if a space is to 
+be printed. 
+
+
+
+JP 
+
+15EF, OUT-CODE 
+
+Otherwise print the digit. 
+
+
+The entry point OUT-CHAR is used for all characters, tokens and control characters. 
+
+
+OUT-CHAR CALL 
+
+2D1B, NUMERIC 
+
+Return carry reset if handling a 
+digit code. 
+
+JR 
+
+NC,196C,OUT-CH-3 
+
+Jump forward to print the digit. 
+
+CP 
+
++21 
+
+Also print the control 
+
+JR 
+
+C,196C,OUT-CH-3 
+
+characters and 'space'. 
+
+RES 
+
+2, (FLAGS) 
+
+Signal 'print in K-mode'. 
+
+CP 
+
++CB 
+
+Jump forward if dealing 
+
+JR 
+
+Z,196C,OUT-CH-3 
+
+with the token 'THEN'. 
+
+CP 
+
++3A 
+
+Jump forward unless dealing 
+
+JR 
+
+NZ,195A,OUT-CH-1 
+
+with 
+
+BIT 
+
+5,(FLAGX) 
+
+Jump forward to print the 
+
+JR 
+
+NZ,1968,OUT-CH-2 
+
+':' if in 'INPUT mode'. 
+
+BIT 

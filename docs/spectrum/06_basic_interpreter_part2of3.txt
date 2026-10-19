@@ -1,0 +1,6005 @@
+# Spectrum ROM Disassembly - Basic Line And Command Interpretation
+Part 2/3
+
+---
+
+
+HL 
+
+the ’error address'. 
+
+RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++06 
+
+routine. 
+
+THE 'PAUSE' COMMAND ROUTINE 
+
+
+The period of the PAUSE is determined by counting the number of maskable interrupts as they occur every 1/50 th. of a second. 
+
+A PAUSE is finished either after the appropriate number of interrupts or by the system Variable FLAGS indicating that a key has been 
+
+pressed. 
+
+1 F3A PAUSE CALL 
+
+1 E99.FIND-INT2 
+
+Fetch the operand. 
+
+1 F3D PAUSE-1 HALT 
+
+
+Wait for a maskable interrupt. 
+
+DEC 
+
+BC 
+
+Decrease the counter. 
+
+LD 
+
+A,B 
+
+If the counter is thereby 
+
+OR 
+
+C 
+
+reduced to zero the PAUSE 
+
+JR 
+
+Z.1F4F, PAUSE-END 
+
+has come to an end. 
+
+LD 
+
+A,B 
+
+If the operand was zero BC 
+
+AND 
+
+C 
+
+will now hold +FFFF and this 
+
+INC 
+
+A 
+
+value will be returned to 
+
+JR 
+
+NZ.1F49, PAUSE-2 
+
+zero. Jump will all other 
+
+INC 
+
+BC 
+
+operand values. 
+
+1 F49 PAUSE-2 BIT 
+
+5, (FLAGS) 
+
+Jump back unless a key has 
+
+JR 
+
+Z.1F3D, PAUSE-1 
+
+been pressed. 
+
+The period of the PAUSE has now finished. 
+
+
+1 F4F PAUSE-END RES 
+
+5, (FLAGS) 
+
+Signal 'no key pressed'. 
+
+RET 
+
+
+Now return; - to STMT-RET. 
+
+THE 'BREAK-KEY' SUBROUTINE 
+
+
+This subroutine is called in several instances to read the BREAK key. The carry flag is returned reset only if the SHIFT and the BREAK 
+
+keys are both being pressed. 
+
+1 F54 BREAK-KEY LD 
+
+A,+7F 
+
+Form the port address 
+
+IN 
+
+A,(+FE) 
+
++7FFE and read in a byte. 
+
+RRA 
+
+
+Examine only bit 0 by shifting 
+
+
+it into the carry position. 
+
+
+104 
+
+
+
+RET 
+
+
+C 
+
+LD A,+FE 
+
+IN A,(+FE) 
+
+RRA 
+RET 
+
+
+Return if the BREAK key is 
+not being pressed. 
+
+Form the port address 
++FEFE and read in a byte. 
+Again examine bit 0. 
+
+Return with carry reset if 
+both keys are being pressed. 
+
+
+THE 'DEF FN' COMMAND ROUTINE 
+
+During syntax checking a DEF FN statement is checked to ensure that it has the correct form. Space is also made available for the 
+result of evaluating the function. 
+
+But in 'run-time' a DEF FN statement is passed-by. 
+
+
+1 F60 
+
+DEF-FN 
+
+CALL 
+
+2530,SYNTAX-Z 
+
+Jump forward if checking 
+
+
+
+JR 
+
+Z.1F6A, DEF-FN-1 
+
+syntax. 
+
+
+
+LD 
+
+A,+CE 
+
+Otherwise bass-by the 
+
+
+
+JP 
+
+1 E39,PASS-BY 
+
+'DEF FN' statement. 
+
+First consider the variable of the function. 
+
+
+1 F6A 
+
+DEF-FN-1 
+
+SET 
+
+6, (FLAGS) 
+
+Signal 'a numeric variable’. 
+
+
+
+CALL 
+
+2C8D, ALPHA 
+
+Check that the present 
+code is a letter. 
+
+
+
+JR 
+
+NC,1F89, DEF-FN-4 
+
+Jump forward if not. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Fetch the next character. 
+
+
+
+CP 
+
++24 
+
+Jump forward unless it is 
+
+
+
+JR 
+
+NZ,1F7D, DEF-FN-2 
+
+a $ . 
+
+
+
+RES 
+
+6, (FLAGS) 
+
+Change bit 6 as it is a 
+string variable. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Fetch the next character. 
+
+1 F7D 
+
+DEF-FN-2 
+
+CP 
+
++28 
+
+A '(' must follow the 
+
+
+
+JR 
+
+NZ,1FBD,DEF-FN-7 
+
+variable's name. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Fetch the next character. 
+
+
+
+CP 
+
++29 
+
+Jump forward if it is a 
+
+
+
+JR 
+
+Z.1FA6, DEF-FN-6 
+
+')' as there are no 
+parameters of the function. 
+
+A loop is now entered to deal with each parameter in turn. 
+
+
+1F86 
+
+DEF-FN-3 
+
+CALL 
+
+2C8D, ALPHA 
+
+The present code must be 
+
+1 F89 
+
+DEF-FN-4 
+
+JP 
+
+NC,1 C8A,REPORT-C 
+
+a letter. 
+
+
+
+EX 
+
+DE,HL 
+
+Save the pointer in DE. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Fetch the next character. 
+
+
+
+CP 
+
++24 
+
+Jump forward unless it is 
+
+
+
+JR 
+
+NZ.1F94, DEF-FN-5 
+
+a $ . 
+
+
+
+EX 
+
+DE,HL 
+
+Otherwise save the new pointer 
+in DE instead. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Fetch the next character. 
+
+1 F94 
+
+DEF-FN-5 
+
+EX 
+
+DE,HL 
+
+Move the pointer to the last 
+character of the name to the HL 
+
+
+
+
+
+register pair. 
+
+
+
+LD 
+
+BC,+0006 
+
+Now make six locations after 
+
+
+
+CALL 
+
+1655, MAKE-ROOM 
+
+that last character and 
+
+
+
+INC 
+
+HL 
+
+enter a 'number marker' into 
+
+
+
+INC 
+
+HL 
+
+the first of the new 
+
+
+
+LD 
+
+(HL),+0E 
+
+locations. 
+
+
+
+CP 
+
++2C 
+
+If the present character is 
+
+
+
+JR 
+
+NZ,1FA6, DEF-FN-6 
+
+a then jump back as 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+there should be a further 
+
+
+
+JR 
+
+1F86, DEF-FN-3 
+
+parameter; otherwise jump 
+out of the loop. 
+
+Next the definition of the function is considered. 
+
+
+1 FA6 
+
+DEF-FN-6 
+
+CP 
+
++29 
+
+Check that the ')' does 
+
+
+
+JR 
+
+NZ,1 FBD,DEF-FN-7 
+
+exist. 
+
+
+105 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+The next character is fetched. 
+
+CP 
+
++3D 
+
+It must be an '='. 
+
+JR 
+
+NZ,1 FBD.DEF-FN-7 
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Fetch the next character. 
+
+LD 
+
+A, (FLAGS) 
+
+Save the nature - numeric or 
+
+PUSH 
+
+AF 
+
+string - of the variable. 
+
+CALL 
+
+2F4B, SCANNING 
+
+Now consider the definition 
+as an expression. 
+
+POP 
+
+AF 
+
+Fetch the nature of the 
+
+XOR 
+
+(FLAGS) 
+
+variable and check that it 
+
+AND 
+
++40 
+
+is of the same type as found 
+for the definition. 
+
+JP 
+
+NZ,1C8A,REPORT-C 
+
+Give an error report if it 
+is required. 
+
+CALL 
+
+1BEE, CHECK-END 
+
+Exit via the CHECK-END 
+subroutine. (Thereby moving 
+on to consider the next state- 
+ment in the line.) 
+
+
+THE 'UNSTACK-Z' SUBROUTINE 
+
+This subroutine is called in several instances in order to 'return early' from a subroutine when checking syntax. The reason for this is to 
+avoid actually printing characters or passing values to/from the calculator stack. 
+
+1 FC3 UNSTACK-Z CALL 2530.SYNTAX-Z Is syntax being checked? 
+
+POP HL Fetch the return address but 
+
+RET Z ignore it in 'syntax-time'. 
+
+JP (HL) In 'run-time' make a simple 
+
+return to the calling routine. 
+
+
+THE 'LPRINT & PRINT' COMMAND ROUTINES 
+
+The appropriate channel is opened as necessary and the items to be printed are considered in turn. 
+
+
+1 FC9 
+
+LPRINT 
+
+LD 
+
+A, +03 
+
+Prepare to open channel 'P'. 
+
+
+
+JR 
+
+1FCF, PRINT-1 
+
+Jump forward. 
+
+1FCD 
+
+PRINT 
+
+LD 
+
+A, +02 
+
+Prepare to open channel 'S'. 
+
+1FCF 
+
+PRINT-1 
+
+CALL 
+
+2530.SYNTAX-Z 
+
+Unless syntax is being 
+
+
+
+CALL 
+
+NZ, 1601 .CHAN-OPEN 
+
+checked open a channel. 
+
+
+
+CALL 
+
+0D4D, TEMPS 
+
+Set the temporary colour 
+system variables. 
+
+
+
+CALL 
+
+1FDF, PRINT-2 
+
+Call the print controlling 
+subroutine. 
+
+
+
+CALL 
+
+1BEE, CHECK-END 
+
+Move on to consider the next 
+
+
+
+RET 
+
+
+statement; via CHECK-END IF 
+checking syntax. 
+
+The print controlling subroutine is called by the PRINT, LPRINT and INPUT command routines. 
+
+1FDF 
+
+PRINT-2 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the first character. 
+
+
+
+CALL 
+
+2045.PR-END-Z 
+
+Jump forward if already at the 
+
+
+
+JR 
+
+Z.1FF2, PRINT-4 
+
+end of the item list. 
+
+Now enter a loop to deal with the 'position controllers' and the print items. 
+
+1 FE5 
+
+PRINT-3 
+
+CALL 
+
+204E.PR-POSN-1 
+
+Deal with any consecutive 
+
+
+
+JR 
+
+Z.1FE5, PRINT-3 
+
+position controllers. 
+
+
+
+CALL 
+
+1 FFC.PR-ITEM-1 
+
+Deal with a single print item. 
+
+
+
+CALL 
+
+204E.PR-POSN-1 
+
+Check for further position 
+
+
+
+JR 
+
+Z.1FE5, PRINT-3 
+
+controllers and print items 
+until there are none left. 
+
+1 FF2 
+
+PRINT-4 
+
+CP 
+
++29 
+
+Return now if the present 
+
+
+
+RET 
+
+Z 
+
+character is a ')’; otherwise 
+consider performing a 'carriage 
+return’. 
+
+
+106 
+
+
+
+THE 'PRINT A CARRIAGE RETURN' SUBROUTINE 
+
+
+1 FF5 
+
+PRINT-CR CALL 
+
+1FC3.UNSTACK-Z 
+
+Return if changing syntax. 
+
+
+LD 
+
+A,+0D 
+
+Print a carriage return 
+
+
+RST 
+
+0010,PRINT-A-1 
+
+character and then return. 
+
+
+RET 
+
+
+
+
+THE 'PRINT ITEMS' SUBROUTINE 
+
+This subroutine is called from the PRINT, LPRINT and INPUT command routines. 
+The various types of print item are identified and printed. 
+
+
+1FFC 
+
+PR-ITEM-1 
+
+RST 
+
+001 8, GET-CHAR 
+
+The first character is fetched. 
+
+
+
+CP 
+
++AC 
+
+Jump forward unless it is 
+
+
+
+JR 
+
+NZ,200E, PR-ITEM-2 
+
+an 'AT'. 
+
+Now deal with an 'AT'. 
+
+
+
+
+
+
+CALL 
+
+1C79.NEXT-2NUM 
+
+The two parameters are trans- 
+ferred to the calculator stack. 
+
+
+
+CALL 
+
+1 FC3.UNSTACK-Z 
+
+Return now if checking syntax. 
+
+
+
+CALL 
+
+2307,STK-TO-BC 
+
+The parameters are compressed 
+into the BC register pair. 
+
+
+
+LD 
+
+A, +16 
+
+The A register is loaded with 
+
+
+
+JR 
+
+201 E, PR-AT-TAB 
+
+the AT control character before 
+the jump is taken. 
+
+Next look for a 'TAB'. 
+
+
+
+
+200E 
+
+PR-ITEM-2 
+
+CP 
+
++AD 
+
+Jump forward unless it is 
+
+
+
+JR 
+
+NZ, 2024, PR-ITEM-3 
+
+a 'TAB'. 
+
+Now deal with a 'TAB'. 
+
+
+
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get the next character. 
+
+
+
+CALL 
+
+1C82.EXPT-1NUM 
+
+Transfer one parameter to the 
+calculator stack. 
+
+
+
+CALL 
+
+1 FC3,UNSTACK-Z 
+
+Return now if checking syntax. 
+
+
+
+CALL 
+
+1 E99,FIND-INT2 
+
+The value is compressed into the 
+BC register pair. 
+
+
+
+LD 
+
+A, +17 
+
+The A register is loaded with the 
+TAB control character. 
+
+The 'AT' 
+
+and the 'TAB' print items are printed by making three calls to PRINT-OUT. 
+
+201 E 
+
+PR-AT-TAB 
+
+RST 
+
+0010,PRINT-A-1 
+
+Print the control character. 
+
+
+
+LD 
+
+A,C 
+
+Follow it with the first 
+
+
+
+RST 
+
+0010,PRINT-A-1 
+
+value. 
+
+
+
+LD 
+
+A,B 
+
+Finally print the second 
+
+
+
+RST 
+
+0010,PRINT-A-1 
+
+value; then return. 
+
+
+
+RET 
+
+
+
+Next consider embedded colour items. 
+
+
+
+2024 
+
+PR-ITEM-3 
+
+CALL 
+
+21 F2, CO-TEMP-3 
+
+Return with carry reset if a 
+colour items was found. 
+
+
+
+RET 
+
+NC 
+
+Continue if none were found. 
+
+
+
+CALL 
+
+2070.STR-ALTER 
+
+Next consider if the stream is 
+to be changed. 
+
+
+
+RET 
+
+NC 
+
+Continue unless it was altered. 
+
+The print item must now 
+
+be an expression, either numeric or string. 
+
+
+
+
+CALL 
+
+24FB, SCANNING 
+
+Evaluate the expression but 
+
+
+
+CALL 
+
+1 FC3.UNSTACK-Z 
+
+return now if checking syntax. 
+
+
+
+BIT 
+
+6, (FLAGS) 
+
+Test for the nature of the 
+expression. 
+
+
+
+CALL 
+
+Z,2BF1,STK-FETCH 
+
+If it is string then fetch the nec- 
+essary parameters; but if it is 
+
+
+
+JP 
+
+NZ,2DE3,PRINT-FP 
+
+numeric then exit via PRINT-FP. 
+
+
+107 
+
+
+
+A loop is now set up to deal with each character in turn of the string. 
+
+
+203C PR-STRING LD 
+
+A,B 
+
+Return now if there are 
+
+OR 
+
+C 
+
+no characters remaining 
+
+DEC 
+
+BC 
+
+in the string; otherwise 
+
+RET 
+
+Z 
+
+decease the counter. 
+
+LD 
+
+A,(DE) 
+
+Fetch the code and increment 
+
+INC 
+
+DE 
+
+the pointer. 
+
+RST 
+
+0010,PRINT-A-1 
+
+The code is printed and a jump 
+
+JR 
+
+203C, PR-STRING 
+
+taken to consider any further 
+
+
+
+characters. 
+
+THE 'END OF PRINTING' SUBROUTINE 
+
+
+The zero flag will be set if no further printing is to be done. 
+
+
+2045 PR-END-Z CP 
+
++29 
+
+Return now if the character 
+
+RET 
+
+Z 
+
+is a 
+
+2048 PR-ST-END CP 
+
++0D 
+
+Return now if the character is 
+
+RET 
+
+Z 
+
+a 'carriage return'. 
+
+CP 
+
++3A 
+
+Make a final test against 
+
+RET 
+
+
+before returning. 
+
+
+THE 'PRINT POSITION' SUBROUTINE 
+
+The various position controlling characters are considered by this subroutine. 
+
+
+204E 
+
+PR-POSN-1 
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the present character. 
+
+
+
+CP 
+
++3B 
+
+Jump forward if it is 
+
+
+
+JR 
+
+Z, 2067, PR-POSN-3 
+
+a 
+
+
+
+CP 
+
++2C 
+
+Also jump forward with a 
+
+
+
+JR 
+
+NZ, 2061, PR-POSN-2 
+
+character other than a 
+
+
+
+CALL 
+
+2530,SYNTAX-Z 
+
+but do not actually print the 
+
+
+
+JR 
+
+Z, 2067, PR-POSN-3 
+
+character if checking syntax. 
+
+
+
+LD 
+
+A, +06 
+
+Load the A register with 
+
+
+
+RST 
+
+0010,PRINT-A-1 
+
+the 'comma' control code and 
+
+
+
+JR 
+
+2067, PR-POSN-3 
+
+print it; then jump forward. 
+
+2061 
+
+PR-POSN-2 
+
+CP 
+
++27 
+
+Is it a '"? 
+
+
+
+RET 
+
+NZ 
+
+Return now if not any of the 
+position controllers. 
+
+
+
+CALL 
+
+1 FF5,PR-CR 
+
+Print 'carriage return' unless 
+checking syntax. 
+
+2067 
+
+PR-POSN-3 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Fetch the next character. 
+
+
+
+CALL 
+
+2045, PR-END-Z 
+
+If not at the end of a print 
+
+
+
+JR 
+
+NZ.206E, PR-POSN-4 
+
+statement then jump forward; 
+
+
+
+POP 
+
+BC 
+
+otherwise return to the 
+
+206E 
+
+PR-POSN-4 
+
+CP 
+
+A 
+
+calling routine. 
+
+
+
+RET 
+
+
+The zero flag will be reset if the 
+end of the print statement has 
+not been reached. 
+
+
+THE 'ALTER STREAM' SUBROUTINE 
+
+This subroutine is called whenever there is the need to consider whether the user wishes to use a different stream. 
+
+
+STR-ALTER CP 
+
+SCF 
+
++23 
+
+Unless the present character 
+is a '#' return with the 
+
+RET 
+
+NZ 
+
+carry flag set. 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD. 
+
+CALL 
+
+1C82,EXPT-1NUM 
+
+Pass the parameter to the 
+calculator stack. 
+
+AND 
+
+A 
+
+Clear the carry flag. 
+
+CALL 
+
+1 FC3,UNSTACK-Z 
+
+Return now if checking syntax. 
+
+CALL 
+
+1E94, FIND-INTI 
+
+The value is passed to the A 
+register. 
+
+CP 
+
++10 
+
+Give report O if the value is 
+
+
+108 
+
+
+
+NC.160E, REPORT-O 
+1601, CHAN-OPEN 
+
+
+JP 
+
+CALL 
+
+AND A 
+
+RET 
+
+
+over +FF. 
+
+Use the channel for the 
+stream in question. 
+Clear the carry flag and 
+return. 
+
+
+THE 'INPUT' COMMAND ROUTINE 
+
+This routine allows for values entered from the keyboard to be assigned to variables. It is also possible to have print items embedded in 
+the INPUT statement and these items are printed in the lower part of the display. 
+
+
+2089 
+
+INPUT 
+
+CALL 
+
+2530,SYNTAX-Z 
+
+Jump forward if syntax is 
+
+
+
+JR 
+
+Z, 2096, INPUT-1 
+
+being checked. 
+
+
+
+LD 
+
+A, +01 
+
+Open channel K'. 
+
+
+
+CALL 
+
+1601, CHAN-OPEN 
+
+
+
+
+CALL 
+
+OD6E.CLS-LOWER 
+
+The lower part of the display 
+is cleared. 
+
+2096 
+
+INPUT-1 
+
+LD 
+
+(TV-FLAG), +01 
+
+Signal that the lower screen is being 
+handled. Reset all other bits. 
+
+
+
+CALL 
+
+20C1, IN-ITEM-1 
+
+Call the subroutine to deal with 
+the INPUT items. 
+
+
+
+CALL 
+
+1BEE, CHECK-END 
+
+Move on to the next statement 
+if checking syntax. 
+
+
+
+LD 
+
+BC.(S-POSN) 
+
+Fetch the current print position. 
+
+
+
+LD 
+
+A,(DF-SZ) 
+
+Jump forward if the current 
+
+
+
+CP 
+
+B 
+
+position is above the lower 
+
+
+
+JR 
+
+C,20AD, INPUT-2 
+
+screen. 
+
+
+
+LD 
+
+C.+21 
+
+Otherwise set the print position 
+
+
+
+LD 
+
+B,A 
+
+to the top of the lower screen. 
+
+20AD 
+
+INPUT-2 
+
+LD 
+
+(S-POSN),BC 
+
+Reset S-POSN. 
+
+
+
+LD 
+
+A, +19 
+
+Now set the scroll counter. 
+
+
+
+SUB 
+
+B 
+
+
+
+
+LD 
+
+(SCR-CT),A 
+
+
+
+
+RES 
+
+0, (TV-FLAG) 
+
+Signal 'main screen'. 
+
+
+
+CALL 
+
+0DD9,CL-SET 
+
+Set the system variables 
+
+
+
+JP 
+
+OD6E.CLS-LOWER 
+
+and exit via CLS-LOWER. 
+
+The INPUT items and 
+
+embedded PRINT items are dealt with in turn by the following loop. 
+
+20C1 
+
+IN-ITEM-1 
+
+CALL 
+
+204E,PR-POSN-1 
+
+Consider first any position 
+
+
+
+JR 
+
+Z.20C1, IN-ITEM-1 
+
+control characters. 
+
+
+
+CP 
+
++28 
+
+Jump forward if the present 
+
+
+
+JR 
+
+NZ,20D8, IN-ITEM-2 
+
+character is not a '(’. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Fetch the next character. 
+
+
+
+CALL 
+
+1FDF, PRINT-2 
+
+Now call the PRINT command 
+routine to handle the items 
+inside the brackets. 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Fetch the present character. 
+
+
+
+CP 
+
++29 
+
+Give report C unless the 
+
+
+
+JP 
+
+NZ, 1 C8A.REPORT-C 
+
+character is a ')'. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Fetch the next character and 
+
+
+
+JP 
+
+21 B2, IN-NEXT-2 
+
+jump forward to see if there are 
+any further INPUT items. 
+
+Now consider whether INPUT LINE is being used. 
+
+
+20D8 
+
+IN-ITEM-2 
+
+CP 
+
++CA 
+
+Jump forward if it is not 
+
+
+
+JR 
+
+NZ,20ED, IN-ITEM-3 
+
+'LINE'. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD. 
+
+
+
+CALL 
+
+1 Cl F, CLASS-01 
+
+Determine the destination 
+address for the variable. 
+
+
+
+SET 
+
+7,(FLAGX) 
+
+Signal 'using INPUT LINE 1 . 
+
+
+
+BIT 
+
+6, (FLAGS) 
+
+Give report C unless using 
+
+
+
+JP 
+
+NZ,1C8A,REPORT-C 
+
+a string variable. 
+
+
+109 
+
+
+
+JR 20FA, IN-PROMPT 
+
+Proceed to handle simple INPUT variables. 
+
+
+20ED 
+
+IN-ITEM-3 
+
+CALL 
+
+2C8D, ALPHA 
+
+
+
+JP 
+
+NC.21AF-IN-NEXT-1 
+
+
+
+CALL 
+
+1 Cl F, CLASS-01 
+
+
+
+RES 
+
+7, (FLAGX) 
+
+The prompt message is now built 
+
+up in the work space. 
+
+20 FA 
+
+IN-PROMPT 
+
+CALL 
+
+230.SYNTAX-Z 
+
+
+
+JP 
+
+Z, 21 B2, IN-NEXT-2 
+
+
+
+CALL 
+
+16BF, SET-WORK 
+
+
+
+LD 
+
+HL,+5C71 
+
+
+
+RES 
+
+6,(HL) 
+
+
+
+SET 
+
+5,(HL) 
+
+
+
+LD 
+
+BC,+0001 
+
+
+
+BIT 
+
+7,(HL) 
+
+
+
+JR 
+
+NZ, 21 1C, IN-PR-2 
+
+
+
+LD 
+
+A, (FLAGS) 
+
+
+
+AND 
+
++40 
+
+
+
+JR 
+
+NZ, 21 1A, IN-PR-1 
+
+
+
+LD 
+
+C,+03 
+
+21 1 A 
+
+IN-PR-1 
+
+OR 
+
+(HL) 
+
+
+
+LD 
+
+(HL),A 
+
+21 1C 
+
+IN-PR-2 
+
+RST 
+
+0030,BC-SPACES 
+
+
+
+LD 
+
+(HL),+0D 
+
+
+
+LD 
+
+RRCA 
+
+A,C 
+
+
+
+RRCA 
+
+JR 
+
+NC, 2129, IN-PR-3 
+
+
+
+LD 
+
+A, +22 
+
+
+
+LD 
+
+(DE),A 
+
+
+
+DEC 
+
+HL 
+
+
+
+LD 
+
+(HL),A 
+
+2129 
+
+IN-PR-3 
+
+LD 
+
+(K-CUR),HL 
+
+
+In the case of INPUT LINE the EDITOR can be called without further 
+changed so as to trap errors. 
+
+
+
+
+BIT 
+
+7, (FLAGX) 
+
+
+
+JR 
+
+NZ, 21 5E, IN-VAR-3 
+
+
+
+LD 
+
+HL, (CH-ADD) 
+
+
+
+PUSH 
+
+HL 
+
+
+
+LD 
+
+HL, (ERR-SP) 
+
+
+
+PUSH 
+
+HL 
+
+21 3A 
+
+IN-VAR-1 
+
+LD 
+
+HL.+213A 
+
+
+
+PUSH 
+
+HL 
+
+
+
+BIT 
+
+4,(FLAGS2) 
+
+
+
+JR 
+
+Z, 2148, IN-VAR-2 
+
+
+
+LD 
+
+(ERR-SP), SP 
+
+2148 
+
+IN-VAR-2 
+
+LD 
+
+HL,(WORKSP) 
+
+
+
+CALL 
+
+1 1 A7,REMOVE-FP 
+
+
+
+LD 
+
+(ERR-NR),+FF 
+
+
+Jump forward to issue the 
+prompt message. 
+
+Jump to consider going round 
+the loop again if the present 
+character is not a letter. 
+
+Determine the destination 
+address for the variable. 
+
+Signal 'not INPUT LINE'. 
+
+Jump forward if only checking 
+syntax. 
+
+The work space is set to null. 
+
+This is FLAGX. 
+
+Signal 'string result'. 
+
+Signal 'INPUT mode'. 
+
+Allow the prompt message only 
+a single location. 
+
+Jump forward if using 'LINE'. 
+
+Jump forward if awaiting 
+a numeric entry. 
+
+A string entry will need three 
+locations. 
+
+Bit 6 of FLAGX will become 
+set for a numeric entry. 
+
+The required number of 
+locations is made available. 
+
+A 'carriage return' goes into 
+the last location. 
+
+Test bit 6 of the C register 
+and jump forward if only 
+one location was required. 
+
+A 'double quotes' character 
+goes into the first and 
+second locations. 
+
+The position of the cursor 
+can now be saved. 
+
+preparation but for other types of INPUT the error stack has to be 
+
+Jump forward with INPUT 
+LINE' 
+
+Save the current values of 
+CH-ADD & ERR-SP on the 
+machine stack. 
+
+This will be the 'return 
+point' in case of errors. 
+
+Only change the error 
+stack pointer if using channel 
+'K'. 
+
+Set FHL to the start of the 
+INPUT line and remove any 
+floating-point forms. (There will 
+not be any except perhaps after 
+an error.) 
+
+Signal 'no error yet'. 
+
+
+110 
+
+
+
+
+
+CALL 
+
+0F2C, EDITOR 
+
+Now get the INPUT and with 
+
+
+
+RES 
+
+7, (FLAGS) 
+
+the syntax/run flag indicating 
+
+
+
+CALL 
+
+21 B9, IN-ASSIGN 
+
+syntax, check the INPUT for 
+
+
+
+JR 
+
+21 61, IN-VAR-4 
+
+errors; jump if in order; return 
+to IN-VAR-1 if not. 
+
+215E 
+
+IN-VAR-3 
+
+CALL 
+
+0F2C, EDITOR 
+
+Get a 'LINE'. 
+
+All the system variables have to be reset before the actual assignment of a value can be made. 
+
+2161 
+
+IN-VAR-4 
+
+LD 
+
+(K-CUR-hi),+00 
+
+The cursor address is reset. 
+
+
+
+CALL 
+
+21 D6JN-CHAN-K 
+
+The jump is taken if using 
+
+
+
+JR 
+
+NZ,21 74, IN-VAR-5 
+
+other than channel 'K'. 
+
+
+
+CALL 
+
+1 1 1 D.ED-COPY 
+
+The input-line is copied to 
+
+
+
+LD 
+
+BC,(ECHO-E) 
+
+the display and the position 
+
+
+
+CALL 
+
+0DD9,CL-SET 
+
+in ECHO-E made the current 
+position in the lower screen. 
+
+2174 
+
+IN-VAR-5 
+
+LD 
+
+HL.+5C71 
+
+This is FLAGX. 
+
+
+
+RES 
+
+5,(HL) 
+
+Signal 'edit mode'. 
+
+
+
+BIT 
+
+7,(HL) 
+
+Jump forward if handling an 
+
+
+
+RES 
+
+7,(HL) 
+
+INPUT LINE. 
+
+
+
+JR 
+
+NZ.219B, IN-VAR-6 
+
+
+
+
+POP 
+
+HL 
+
+Drop the address IN-VAR-1 . 
+
+
+
+POP 
+
+HL 
+
+Reset the ERR-SP to its 
+
+
+
+LD 
+
+(ERR-SP),HL 
+
+original address. 
+
+
+
+POP 
+
+HL 
+
+Save the original CH-ADD 
+
+
+
+LD 
+
+(X-PTR),HL 
+
+address in X-PTR. 
+
+
+
+SET 
+
+7, (FLAGS) 
+
+Now with the syntax/run flag 
+
+
+
+CALL 
+
+21 B9, IN-ASSIGN 
+
+indicating 'run' make the 
+assignment. 
+
+
+
+LD 
+
+HL,(X-PTR) 
+
+Restore the original address 
+
+
+
+LD 
+
+(X-PTR-hi),+00 
+
+to CH-ADD and clear X-PTR. 
+
+
+
+LD 
+
+(CH-ADD),HL 
+
+
+
+
+JR 
+
+21 B2, IN-NEXT-2 
+
+Jump forward to see if there 
+are further INPUT items. 
+
+219B 
+
+IN-VAR-6 
+
+LD 
+
+HL,(STKBOT) 
+
+The length of the 'LINE' in 
+
+
+
+LD 
+
+DE.(WORKSP) 
+
+the work space is found. 
+
+
+
+SCF 
+
+
+
+
+
+SBC, 
+
+HL,DE 
+
+
+
+
+LD 
+
+B,H 
+
+DE points to the start and 
+
+
+
+LD 
+
+C,L 
+
+BC holds the length. 
+
+
+
+CALL 
+
+2AB2,STK-ST-$ 
+
+These parameters are stacked 
+
+
+
+CALL 
+
+2AFF,LET 
+
+and the actual assignment made. 
+
+
+
+JR 
+
+21 B2, IN-NEXT-2 
+
+Also jump forward to consider 
+further items. 
+
+Further items in the INPUT statement are considered. 
+
+
+21 AF 
+
+IN-NEXT-1 
+
+CALL 
+
+1 FFC,PR-ITEM-1 
+
+Handle any print items. 
+
+21 B2 
+
+IN-NEXT-2 
+
+CALL 
+
+204E,PR-POSN-1 
+
+Handle any position controllers. 
+
+
+
+JP 
+
+Z.20C1, IN-ITEM-1 
+
+Go around the loop again if 
+there are further items; 
+
+
+
+RET 
+
+
+otherwise return. 
+
+THE 'IN-ASSIGN' SUBROUTINE 
+
+
+This subroutine is called twice for each INPUT value. Once with the syntax/run flag reset (syntax) and once 
+
+21 B9 
+
+IN-ASSIGN 
+
+LD 
+
+HL,(WORKSP) 
+
+Set CH-ADD to point to the 
+
+
+
+LD 
+
+(CH-ADD),HL 
+
+first location of the work 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+space and fetch the character. 
+
+
+
+CP 
+
++E2 
+
+Is it a 'STOP'? 
+
+
+
+JR 
+
+Z, 21 DO, IN-STOP 
+
+Jump if it is. 
+
+
+
+LD 
+
+A,(FLAGX) 
+
+Otherwise make the assignment 
+
+
+
+CALL 
+
+1C59.VAL-FET-2 
+
+of the ’value' to the variable. 
+
+
+Ill 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Get the present character 
+
+CP 
+
++0D 
+
+and check it is a 'carriage 
+
+RET 
+
+Z 
+
+return'. Return if it is. 
+
+Report C - Nonsense in BASIC 
+
+21 CE REPORT-C RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++0B 
+
+routine. 
+
+Come here if the INPUT line starts with 'STOP'. 
+
+
+21 DO IN-STOP CALL 
+
+2530,SYNTAX-Z 
+
+But do not give the error 
+
+RET 
+
+Z 
+
+report on the syntax-pass. 
+
+Report H - STOP in INPUT 
+
+21 D4 REPORT-H RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++10 
+
+routine. 
+
+THE 'IN-CHAN-K' SUBROUTINE 
+
+
+This subroutine returns with the zero flag reset only if channel 'K' is being used. 
+
+21 D6 IN-CHAN-K LD 
+
+HL,(CURCHL) 
+
+The base address of the 
+
+INC 
+
+HL 
+
+channel information for the 
+
+INC 
+
+HL 
+
+current channel is fetched 
+
+INC 
+
+HL 
+
+and the channel code compared 
+
+INC 
+
+HL 
+
+to the character 'K'. 
+
+LD 
+
+A,(HL) 
+
+
+CP 
+
++4B 
+
+
+RET 
+
+
+Return afterwards. 
+
+
+THE 'COLOUR ITEM' ROUTINES 
+
+This set of routines can be readily divided into two parts: 
+
+i. The embedded colour item' handler. 
+
+ii. The 'colour system variable' handler. 
+
+i. Embedded colour items are handled by calling the PRINT-OUT subroutine as required. 
+A loop is entered to handle each item in turn. The entry point is at CO-TEMP-2. 
+
+
+21 El 
+
+CO-TEMP-1 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Consider the next character 
+in the BASIC statement. 
+
+21 E2 
+
+CO-TEMP-2 
+
+CALL 
+
+21 F2, CO-TEMP-3 
+
+Jump forward to see if the 
+present code represents an 
+embedded 'temporary' colour 
+
+
+
+RET 
+
+C 
+
+item. Return carry set if not a 
+colour item. 
+
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Fetch the present character. 
+
+
+
+CP 
+
++2C 
+
+Jump back if it is either a 
+
+
+
+JR 
+
+Z, 21 El, CO-TEMP-1 
+
+',' or a otherwise 
+
+
+
+CP 
+
++3B 
+
+there has been an error. 
+
+
+
+JR 
+
+Z, 21 El, CO-TEMP-1 
+
+
+
+
+JP 
+
+1C8A, REPORT-C 
+
+Exit via 'report C'. 
+
+21 F2 
+
+CO-TEMP-3 
+
+CP 
+
++D9 
+
+Return with the carry flag 
+
+
+
+RET 
+
+C 
+
+Set if the code is not in the 
+
+
+
+CP 
+
++DF 
+
+range +D9 to +DE (INK to 
+OVER). 
+
+
+
+CCF 
+
+
+
+
+
+RET 
+
+C 
+
+
+
+
+PUSH 
+
+AF 
+
+The colour item code is 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+preserved whilst CH-ADD is 
+
+
+
+POP 
+
+AF 
+
+advanced to address the 
+
+
+parameter that follows it. 
+
+The colour item code and the parameter are now 'printed' by calling PRINT-OUT on two occasions. 
+
+21 FC CO-TEMP-4 SUB +C9 The token range (+D9 to +DE) 
+
+
+112 
+
+
+
+is reduced to the control 
+character range (+10 to +15). 
+
+
+PUSH 
+
+AF 
+
+The control character code is 
+
+CALL 
+
+1C82.EXPT-1NUM 
+
+preserved whilst the parameter 
+
+POP 
+
+AF 
+
+is moved to the calculator stack. 
+
+AND 
+
+A 
+
+A return is made at this point 
+
+CALL 
+
+1FC3.UNSTACK-Z 
+
+if syntax is being checked. 
+
+PUSH 
+
+AF 
+
+The control character code is 
+
+CALL 
+
+1E94, FIND-INTI 
+
+preserved whilst the parameter 
+
+LD 
+
+D,A 
+
+is moved to the D register. 
+
+POP 
+
+AF 
+
+
+RST 
+
+0010,PRINT-A-1 
+
+The control character is sent 
+out. 
+
+LD 
+
+A,D 
+
+Then the parameter is fetched 
+
+RST 
+
+0010,PRINT-A-1 
+
+and sent out before 
+
+RET 
+
+
+returning. 
+
+ii. The colour system variables - 
+
+ATTR-T, MASK-T & P-FLAG - 
+
+are altered as required. This subroutine is called by PRINT-OUT. 
+
+entry the control character code is in the A register and the parameter is in the D register. 
+
+Note that all changes are to the 'temporary' system variables. 
+
+
+2211 CO-TEMP-5 SUB 
+
++11 
+
+Reduce the range and jump 
+
+ADC 
+
+A, +00 
+
+forward with INK & PAPER. 
+
+JR 
+
+Z, 2234, CO-TEMP-7 
+
+
+SUB 
+
++02 
+
+Reduce the range once again 
+
+ADC 
+
+A, +00 
+
+and jump forward with FLASH 
+
+JR 
+
+Z,2273,CO-TEMP-C 
+
+& BRIGHT. 
+
+The colour control code will now be +01 for INVERSE and +02 for OVER and the system variable P-FLAG is altered accordingly. 
+
+CP 
+
++01 
+
+Prepare to jump with OVER. 
+
+LD 
+
+A,D 
+
+Fetch the parameter. 
+
+LD 
+
+B.+01 
+
+Prepare the mask for OVER. 
+
+JR 
+
+NZ, 2228, CO-TEMP-6 
+
+Now jump. 
+
+RLCA 
+
+
+Bit 2 of the A register is to be 
+
+RLCA 
+
+
+reset for INVERSE 0 and set for 
+
+LD 
+
+B,+04 
+
+INVERSE 1 ; the mask is to have 
+bit 2 set. 
+
+2228 CO-TEMP-6 LD 
+
+C,A 
+
+Save the A register whilst the 
+range is tested. 
+
+LD 
+
+A,D 
+
+The correct range for 
+
+CP 
+
++02 
+
+INVERSE and OVER is only 
+
+JR 
+
+NC,2244,REPORT-K 
+
+'0-1'. 
+
+LD 
+
+A,C 
+
+Fetch the A register. 
+
+LD 
+
+HL.+5C91 
+
+It is P-FLAG that is to be 
+changed. 
+
+JR 
+
+226C, CO-CHANGE 
+
+Exit via CO-CHANGE and alter 
+
+P-FLAG using 'B' as a mask, 
+i.e. Bit 0 for OVER & bit 2 
+for INVERSE' 
+
+PAPER & INK are dealt with by the following routine. On entry the carry flag is set for INK. 
+
+2234 CO-TEMP-7 LD 
+
+A,D 
+
+Fetch the parameter. 
+
+LD 
+
+B,+07 
+
+Prepare the mask for INK. 
+
+JR 
+
+C,223E, CO-TEMP-8 
+
+Jump forward with INK. 
+
+RLCA 
+
+
+Multiply the parameter for 
+
+RLCA 
+
+RLCA 
+
+
+PAPER by eight. 
+
+LD 
+
+B,+38 
+
+Prepare the mask for PAPER. 
+
+223 E CO-TEMP-8 LD 
+
+C,A 
+
+Save the parameter in the C 
+register whilst the range of the 
+parameter is tested. 
+
+
+113 
+
+
+
+LD 
+
+A,D 
+
+Fetch the original value. 
+
+CP 
+
++0A 
+
+Only allow PAPER/INK a 
+
+JR 
+
+C, 2246, CO-TEMP-9 
+
+range of 'O' to '9'. 
+
+Report K - Invalid colour 
+
+2244 REPORT-K RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++13 
+
+routine. 
+
+Continue to handle PAPER & INK; 
+
+2246 CO-TEMP-9 LD 
+
+HL.+5C8F 
+
+Prepare to alter ATTR-T, 
+
+MASK-T & P-FLAG. 
+
+CP 
+
++08 
+
+Jump forward with PAPER/INK 
+
+JR 
+
+C, 2258, CO-TEMP-B 
+
+'O' to 5'7'. 
+
+LD 
+
+A,(HL) 
+
+Fetch the current value of 
+
+JR 
+
+Z, 2257, CO-TEMP-A 
+
+ATTR-T and use it unchanged, 
+by jumping forward, with 
+PAPER/INK '8'. 
+
+OR 
+
+B 
+
+But for PAPER/INK ’9' the 
+
+CPL 
+
+
+PAPER and INK colours 
+
+AND 
+
++24 
+
+have to be black and white. 
+
+JR 
+
+Z, 2257, CO-TEMP-A 
+
+Jump for black INK/PAPER; 
+
+LD 
+
+A,B 
+
+but continue for white INK/ 
+PAPER. 
+
+2257 CO-TEMP-A LD 
+
+C,A 
+
+Move the value to the C register. 
+
+The mask (B) and the value (C) are now used to change ATTR-T. 
+
+
+2258 CO-TEMP-B LD 
+
+A,C 
+
+Move the value. 
+
+CALL 
+
+226C, CO-CHANGE 
+
+Now change ATTR-T as needed. 
+
+Next MASK-T is considered. 
+
+LD 
+
+A, +07 
+
+The bits of MASK-T are set 
+
+CP 
+
+D 
+
+only when using PAPER/INK 
+
+SBC 
+
+A, A 
+
+’8’ or ’9'. 
+
+CALL 
+
+226C, CO-CHANGE 
+
+Now change MASK-T as needed. 
+
+Next P-FLAG is considered. 
+
+RLCA 
+
+
+The appropriate mask is 
+
+RLCA 
+
+
+built up in the B register 
+
+AND 
+
++50 
+
+is order to change bits 4 & 
+
+LD 
+
+B,A 
+
+6 as necessary. 
+
+LD 
+
+A, +08 
+
+The bits of P-FLAG are set 
+
+CP 
+
+D 
+
+only when using PAPER/INK 
+
+SBC 
+
+A, A 
+
+'9'. 
+
+
+Continue into CO-CHANGE to 
+manipulate P-FLAG. 
+
+
+THE 'CO-CHANGE' SUBROUTINE 
+
+This subroutine is used to 'impress' upon a system variable the 'nature' of the bits in the A register, The B register holds a mask that 
+shows which bits are to be 'copied over' from A to (HL). 
+
+
+226C CO-CHANGE XOR 
+
+(HL) 
+
+The bits, specified by the 
+
+AND 
+
+B 
+
+mask in the B register, are 
+
+XOR 
+
+(HL) 
+
+changed in the value and the 
+
+LD 
+
+(HL),A 
+
+result goes to form the 
+
+INC 
+
+HL 
+
+system variable. 
+
+Move on to address the next 
+
+LD 
+
+A,B 
+
+system variable. 
+
+Return with the mask in the 
+
+RET 
+
+FLASH & BRIGHT are handled by the following routine. 
+
+A register. 
+
+
+114 
+
+
+
+2273 
+
+
+227D 
+
+
+CO-TEMP-C 
+
+
+CO-TEMP-D 
+
+
+SBC 
+
+A, A 
+
+LD 
+
+A,D 
+
+RRCA 
+
+
+LD 
+
+B.+80 
+
+JR 
+
+NZ,227D, CO-TEMP-D 
+
+RRCA 
+
+
+LD 
+
+B,+40 
+
+LD 
+
+C,A 
+
+LD 
+
+A,D 
+
+CP 
+
++08 
+
+JR 
+
+Z, 2287, CO-TEMP-E 
+
+CP 
+
++02 
+
+JR 
+
+NC,2244,REPORT-K 
+
+
+The zero flag will be set for 
+BRIGHT. 
+
+The parameter is fetched and 
+rotated. 
+
+Prepare the mask for FLASH. 
+Jump forward with FLASH. 
+Rotate an extra time and 
+prepare the mask for BRIGHT. 
+Save the value in the C register. 
+Fetch the parameter and test 
+its range; only 'O', T 
+& '8' are allowable. 
+
+
+The system variable ATTR-T can now be altered. 
+
+2287 CO-TEMP-E LD A,C 
+
+LD HL.+5C8F 
+
+CALL 226C, CO-CHANGE 
+
+The value in MASK-T is now considered. 
+
+
+Fetch the value. 
+
+This is ATTR-T. 
+
+Now change the system variable. 
+
+
+LD A,C 
+
+RRCA 
+
+RRCA 
+
+RRCA 
+
+
+JR 226C, CO-CHANGE 
+
+
+The value is fetched anew. 
+The set bit of FLASH/BRIGHT 
+'8' (bit 3) is moved to 
+bit 7 (for FLASH) or bit 6 
+(for BRIGHT). 
+
+Exit via CO-CHANGE. 
+
+
+THE 'BORDER' COMMAND ROUTINE 
+
+
+The parameter of the BORDER command is used with an OUT command to actually alter the colour of the border. The parameter is 
+then saved in the system variable BORDCR. 
+
+
+2294 
+
+
+22A6 
+
+
+BORDER 
+
+CALL 
+
+1E94, FIND-INTI 
+
+The parameter is fetched 
+
+
+CP 
+
++08 
+
+and its range is tested. 
+
+
+JR 
+
+NC,2244,REPORT-K 
+
+
+
+OUT 
+
+(+FE),A 
+
+The OUT instruction is then 
+used to set the border colour. 
+
+
+RLCA 
+
+
+The parameter is then 
+
+
+RLCA 
+
+
+multiplied by eight. 
+
+
+RLCA 
+
+BIT 
+
+5, A 
+
+If the border colour is a 'light' 
+
+
+JR 
+
+NZ.22A6, BORDER-1 
+
+colour then the INK colour in 
+the editing area is to be black 
+make the jump. 
+
+
+XOR 
+
++07 
+
+Change the INK colour. 
+
+BORDER-1 
+
+LD 
+
+(BORDCR), A 
+
+Set the system variable as 
+
+
+RET 
+
+
+required and return. 
+
+
+THE 'PIXEL ADDRESS' SUBROUTINE 
+
+
+This subroutine is called by the POINT subroutine and by the PLOT command routine. Is is entered with the 
+the BC register pair and returns with HL holding the address of the display file byte which contains that pixel 
+position of the pixel within the byte. 
+
+
+22AA 
+
+
+PIXEL-ADD 
+
+
+LD 
+
+A,+AF 
+
+SUB 
+
+B 
+
+JP 
+
+C,24F9,REPORT-B 
+
+LD 
+
+B,A 
+
+AND 
+
+A 
+
+RRA 
+
+
+SCF 
+
+
+RRA 
+
+
+
+Test that the y co-ordinate (in 
+B) is not greater than 175. 
+
+B now contains 1 75 minus y. 
+A holds b7b6b5b4b3b2b1 bO, 
+the bite of B. And now 
+0b7b6b5b4b3b2b1 . 
+
+Now 10b7b6b5b4b3b2. 
+
+
+co-ordinates of a pixel in 
+and A pointing to the 
+
+
+115 
+
+
+
+
+AND 
+
+A 
+
+
+
+RRA 
+
+
+Now010b7b6b5b4b3. 
+
+
+XOR 
+
+B 
+
+
+
+AND 
+
++F8 
+
+Finally 010b7b6b2b1b0, so that 
+
+
+XOR 
+
+B 
+
+H becomes 64 + 8*INT (B/64) + 
+
+
+LD 
+
+FI, A 
+
+B (mod 8), the high byte of the 
+
+
+LD 
+
+A,C 
+
+pixel address. C contains X. 
+
+
+RLCA 
+
+RLCA 
+
+
+A starts as c7c6c5c4c3c2c1c0. 
+
+
+RLCA 
+
+XOR 
+
+B 
+
+And is now c2c1c0c7c6c5c4c3. 
+
+
+AND 
+
++C7 
+
+
+
+XOR 
+
+B 
+
+Now c2c1b5b4b3c5c4c3. 
+
+
+RLCA 
+
+RLCA 
+
+
+Finally b5b4b3c7c6c5c4c3, so 
+
+
+LD 
+
+L,A 
+
+that L becomes 32*INT (B(mod 
+
+
+LD 
+
+A,C 
+
+64)/8) + INT(x/8), the low byte. 
+
+
+AND 
+
++07 
+
+A holds x(mod 8): so the pixel 
+
+
+RET 
+
+
+is bit (A - 7) within the byte. 
+
+THE 'POINT' SUBROUTINE 
+
+
+
+This subroutine is called by the POINT function in SCANNING. It is entered with the co-ordinates of a pixel on the calculator stack, and 
+returns a last value of 1 if that pixel is ink colour, and 0 if it is paper colour. 
+
+22CB POINT-SUB 
+
+CALL 
+
+2307,STK-TO-BC 
+
+Y co-ordinate to B, x to C. 
+
+
+CALL 
+
+22AA, PIXEL-ADD 
+
+Pixel address to FHL. 
+
+
+LD 
+
+B,A 
+
+B will count A+1 loops to get 
+
+
+INC 
+
+B 
+
+the wanted bit of (FHL) to 
+
+
+LD 
+
+A,(HL) 
+
+location 0. 
+
+22D4 POINT-LP 
+
+RLCA 
+
+DJNZ 
+
+22D4, POINT-LP 
+
+The shifts. 
+
+
+AND 
+
++01 
+
+The bit is 1 for ink, 0 for paper. 
+
+
+JP 
+
+2D28.STACK-A 
+
+It is put on the calculator stack. 
+
+THE 'PLOT' COMMAND ROUTINE 
+
+
+This routine consists of a main subroutine plus one line to call it and one line to exit from it. The main routine is used twice by CIRCLE 
+
+and the subroutine is called by DRAW. 
+
+The routine is entered with the co-ordinates of a pixel on the calculator stack. It finds the 
+
+address of that pixel and plots it, taking account of the status of INVERSE and OVER held in the P-FLAG. 
+
+22DC PLOT 
+
+CALL 
+
+2307,STK-TO-BC 
+
+Y co-ordinate to B, x to C. 
+
+
+CALL 
+
+22E5, PLOT-SUB 
+
+The subroutine is called. 
+
+
+JP 
+
+0D4D, TEMPS 
+
+Exit, setting temporary colours. 
+
+22E5 PLOT-SUB 
+
+LD 
+
+(COORDS), BC 
+
+The system variable is set. 
+
+
+CALL 
+
+22AA, PIXEL-ADD 
+
+Pixel address to FHL. 
+
+
+LD 
+
+B,A 
+
+B will count A+1 loops to get a 
+
+
+INC 
+
+B 
+
+zero to the correct place in A. 
+
+
+LD 
+
+A,+FE 
+
+The zero is entered. 
+
+22F0 PLOT-LOOP 
+
+RRCA 
+
+
+Then lined up with the pixel 
+
+
+DJNZ 
+
+22F0, PLOT-LOOP 
+
+bit position in the byte. 
+
+
+LD 
+
+B,A 
+
+Then copied to B. 
+
+
+LD 
+
+A,(HL) 
+
+The pixel-byte is obtained in A. 
+
+
+LD 
+
+C, (P-FLAG) 
+
+P-FLAG is obtained and first 
+
+
+BIT 
+
+o,c 
+
+tested for OVER. 
+
+
+JR 
+
+NZ,22FD, PL-TST-IN 
+
+Jump if OVER 1. 
+
+
+AND 
+
+B 
+
+OVER 0 first makes the pixel 
+
+
+
+
+zero. 
+
+22FD PL-TST-IN 
+
+BIT 
+
+2,C 
+
+Test for INVERSE. 
+
+
+JR 
+
+NZ, 2303, PLOT-END 
+
+INVERSE 1 just leaves the pixel 
+as it was (OVER 1) or zero 
+(OVER 0). 
+
+
+XOR 
+
+B 
+
+INVERSE 0 leaves the pixel 
+
+
+116 
+
+
+
+CPL 
+
+
+complemented (OVER 1) or 
+
+1 (OVER 0). 
+
+PLOT-END LD 
+
+(HL),A 
+
+The byte is entered. Its other 
+bits are unchanged in every case. 
+
+JP 
+
+OBDB.PO-ATTR 
+
+Exit, setting attribute byte. 
+
+
+THE 'STK-TO-BC' SUBROUTINE 
+
+This subroutine loads two floating point numbers into the BC register pair. It is thus used to pick up parameters in the range +00-+FF. It 
+also obtains in DE the 'diagonal move 1 values (+/-1.+/-1) which are used in the line drawing subroutine of DRAW. 
+
+
+2307 STK-TO-BC CALL 
+
+2314, STK-TO-A 
+
+First number to A. 
+
+LD 
+
+B,A 
+
+Hence to B. 
+
+PUSH 
+
+BC 
+
+Save it briefly. 
+
+CALL 
+
+2314, STK-TO-A 
+
+Second number to A. 
+
+LD 
+
+E,C 
+
+its sign indicator to E. 
+
+POP 
+
+BC 
+
+Restore first number. 
+
+LD 
+
+D,C 
+
+Its signs indicator to D. 
+
+LD 
+
+C,A 
+
+Second number to C. 
+
+RET 
+
+
+BC, DE are now as required. 
+
+THE 'STK-TO-A' SUBROUTINE 
+
+This subroutine loads the A register with the floating point number 
+
+held at the top of the calculator stack. The number must be in the 
+
+range 00-FF. 
+
+
+
+2314 STK-TO-A CALL 
+
+2DD5,FP-TO-A 
+
+Modulus of rounded last value to 
+
+JP 
+
+C,24F9,REPORT-B 
+
+A if possible; else, report error. 
+
+LD 
+
+C,+01 
+
+One to C for positive last value. 
+
+RET 
+
+Z 
+
+Return if value was positive. 
+
+LD 
+
+C,+FF 
+
+Else change C to +FF (i.e. minus 
+
+RET 
+
+
+one). Finished. 
+
+THE 'CIRCLE' COMMAND ROUTINE 
+
+
+This routine draws an approximation to the circle with centre co-ordinates X and Y and radius Z. These numbers are rounded to the 
+nearest integer before use. Thus Z must be less than 87.5, even when (X,Y) is in the centre of the screen. The method used is to draw 
+a series of arcs approximated by straight lines. It is illustrated in the BASIC program in the appendix. The notation of that program is 
+
+
+followed here. 
+
+CIRCLE has four parts: 
+
+I. Tests the radius. If its modulus is less than 1, just plot X,Y; 
+
+II. Calls CD-PRMS-1 at 2470-24B6, which is used to set the initial parameters for both CIRCLE and DRAW; 
+
+III. Sets up the remaining parameters for CIRCLE, including the initial displacement for the first 'arc' (a straight line in fact); 
+
+IV. Jumps into DRAW to use the arc-drawing loop at 2420-24FA. 
+
+Parts i. to iii. will now be explained in turn. 
+
+i. 2320-23AA. The radius, say Z\ is obtained from the calculator stack. Its modulus Z is formed and used from now on. If Z is less than 
+1 , it is deleted from the stack and the point X,Y is plotted by a jump to PLOT. 
+
+
+CIRCLE RST 
+
+001 7, GET-CHAR 
+
+Get the present character. 
+
+CP 
+
++2C 
+
+Test for comma. 
+
+JP 
+
+NZ,1C8A,REPORT-C 
+
+If not so, report the error. 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Get next character (the radius). 
+
+CALL 
+
+1C82,EXPT-1NUM 
+
+Radius to calculator stack. 
+
+CALL 
+
+1BEE, CHECK-END 
+
+Move to consider next statement 
+if checking syntax. 
+
+RST 
+
+0028,FP-CALC 
+
+Use calculator: the stack holds: 
+
+DEFB 
+
++2A,abs 
+
+X, Y, Z 
+
+DEFB 
+
++3D, re-stack 
+
+Z is re-stacked; its exponent 
+
+DEFB 
+
++38, end-calc 
+
+is therefore available. 
+
+LD 
+
+A,(HL) 
+
+Get exponent of radius. 
+
+
+117 
+
+
+
+CP 
+
++81 
+
+JR 
+
+NC,233B,C-R-GRE-1 
+
+RST 
+
+0028,FP-CALC 
+
+DEFB 
+
++02, delete 
+
+DEFB 
+
++38, end-calc 
+
+JR 
+
+22DC.PLOT 
+
+
+Test whether radius less than 1 
+If not, jump. 
+
+If less, delete it from the stack. 
+The stack holds X, Y. 
+
+Just plot the point X, Y. 
+
+
+ii. 233B-2346 and the call to CD-PRMS1 . 2*PI is stored in mem-5 and CD-PRMS1 is called. This subroutine stores in the B register the 
+number of arcs required for the circle, viz. A=4*INT (PTSQR Z/4)+4, hence 4, 8, 12 ..., up to a maximum of 32. It also stores in mem-0 
+to mem-4 the quantities 2*PI/A, SIN(PI/A), 0, COS (2*PI/A) and SIN (2*PI/A). 
+
+
+RST 
+
+0028,FP-CALC 
+
+
+DEFB 
+
++A3,stk-pi/2 
+
+X, Y, Z, PI/2. 
+
+DEFB 
+
++38, end-calc 
+
+Now increase exponent to 83 
+
+LD 
+
+(HL),+83 
+
+hex, changing PI/2 into 2*PI. 
+
+RST 
+
+0028,FP-CALC 
+
+X, Y, Z, 2*PI. 
+
+DEFB 
+
++C5,st-mem-5 
+
+(2*PI is copied to mem-5). 
+
+DEFB 
+
++02, delete 
+
+X, Y, Z 
+
+DEFB 
+
++38, end-calc 
+
+
+CALL 
+
+247D,CD-PRMS1 
+
+Set the initial parameters. 
+
+
+iii. 2347-2381 : the remaining parameters and the jump to DRAW. A test is made to see whether the initial 'arc' length is less than 1 . If it 
+is, a jump is made simply to plot X, Y. Otherwise, the parameters are set: X+Z and X-Z*SIN (PI/A) are stacked twice as start and end 
+point, and copied to COORDS as well; zero and 2*Z*SIN (PI/A) are stored in mem-1 and mem-2 as initial increments, giving as first 'arc' 
+the vertical straight line joining X+Z, y-Z*SIN (PI/A) and X+Z, Y+Z*SIN (PI/A). The arc-drawing loop of DRAW will ensure that all 
+subsequent points remain on the same circle as these two points, with incremental angle 2*PI/A. But it is clear that these 2 points in fact 
+subtend this angle at the point X+Z*(1 -COS (PI/A)), Y not at X, Y. Hence the end points of each arc of the circle are displaced right by 
+an amount 2*(1-COS (PI/A)), which is less than half a pixel, and rounds to one pixel at most. 
+
+
+2347 C-ARC-GE1 PUSH 
+RST 
+DEFB 
+DEFB 
+DEFB 
+DEFB 
+LD 
+CP 
+JR 
+RST 
+DEFB 
+DEFB 
+DEFB 
+POP 
+JP 
+
+235A RST 
+
+DEFB 
+
+DEFB 
+
+DEFB 
+
+DEFB 
+
+DEFB 
+
+DEFB 
+
+DEFB 
+
+DEFB 
+
+DEFB 
+
+DEFB 
+
+DEFB 
+
+DEFB 
+
+
+BC 
+
+0028,FP-CALC 
++31, duplicate 
++E1, get-mem-1 
++04, multiply 
++38, end-calc 
+A,(HL) 
+
++80 
+
+NC,235A,C-ARC-GE1 
+
+0028,FP-CALC 
+
++02, delete 
+
++02, delete 
+
++38, end-calc 
+
+BC 
+
+22DC.PLOT 
+
+0028,FP-CALC 
+
++C2,st-mem-2 
+
++01, exchange 
+
++C0,st-mem-0 
+
++02, delete X,Y,Z*SIN (PI/A) 
+
++03, subtract 
+
++01, exchange 
+
++E0, get-mem-0 
+
++0F, addition 
+
++CO,st-mem-0 
+
++01, exchange 
+
++31, duplicate 
+
++E0, get-mem-0 
+
+
+Save the arc-count in B. 
+
+X,Y,Z 
+
+X,Y,Z,Z 
+
+X,Y,Z,Z,SIN (PI/A) 
+
+X,Y,Z,Z*SIN (PI/A) 
+
+Z*SIN (PI/A) is half the initial 
+'arc' length; it is tested to see 
+whether it is less than 0.5. 
+
+If not, the jump is made. 
+Otherwise, Z is deleted from the 
+stack, with the half-arc too; the 
+machine stack is cleared; and a 
+jump is made to plot X, Y. 
+
+
+X,Y,Z,Z*SIN (PI/A) 
+
+(Z*SIN (PI/A) to mem-2 for 
+now). 
+
+X,Y,Z*SIN (PI/A),Z 
+X,Y,Z*SIN (PI/A),Z 
+
+X, Y - Z*SIN (PI/A) 
+
+Y - Z*SIN (PI/A), X 
+
+Y - Z*SIN (PI/A), X, Z 
+
+Y - Z*SIN (PI/A), X+Z 
+(X+Z is copied to mem-0) 
+X+Z, Y - Z*SIN (PI/A) 
+
+X+Z, Y-Z*SIN (PI/A), Y-Z*SIN 
+(PI/A) 
+
+sa,sb,sb,sa 
+
+
+118 
+
+
+
+DEFB 
+
++01, exchange 
+
+sa,sb,sa,sb 
+
+DEFB 
+
++31, duplicate 
+
+sa,sb,sa,sb,sb 
+
+DEFB 
+
++E0, get-mem-0 
+
+sa,sb,sa,sb,sb,sa 
+
+DEFB 
+
++A0,stk-zero 
+
+sa,sb,sa,sb,sb,sa,0 
+
+DEFB 
+
++C1 ,st-mem-1 
+
+(mem-1 is set to zero) 
+
+DEFB 
+
++02, delete 
+
+sa,sb,sa,sb,sb,sa 
+
+DEFB 
+
++38, end-calc 
+
+
+
+(Here sa denotes X+Z and sb denotes Y - Z'SIN (PI/A)). 
+
+INC (mem-2-1 st) 
+
+
+CALL 1E94, FIND-INTI 
+
+LD L,A 
+
+PUSH HL 
+
+CALL 1E94, FIND-INTI 
+
+POP HL 
+
+LD H,A 
+
+LD (COORDS), HL 
+
+POP BC 
+
+JP 2420,DRW-STEPS 
+
+(The stack now holds X+Z, Y - Z*SIN (PI/A), Y - Z*SIN (PI/A), X+Z). 
+
+THE DRAW COMMAND ROUTINE 
+
+This routine is entered with the co-ordinates of a point XO, YO, say, in COORDS. If only two parameters X, Y are given with the DRAW 
+command, it draws an approximation to a straight line from the point XO, YO to XO+X, YO+Y. If a third parameter G is given, it draws an 
+approximation to a circular arc from XO, YO to XO+X, YO+Y turning anti -clockwise through an angle G radians. 
+
+The routine has four parts: 
+
+I. Just draws a line if only 2 parameters are given or if the diameter of the implied circle is less than 1 ; 
+
+II. Calls CD-PRMS1 at 247D-24B6 to set the first parameters: 
+
+III. Sets up the remaining parameters, including the initial displacements for the first arc; 
+
+IV. Enters the arc-drawing loop and draws the arc as a series of smaller arcs approximated by straight lines, calling the line- 
+drawing subroutine at 24B7-24FA as necessary. 
+
+Two subroutines, CD-PRMS1 and DRAW-LINE, follow the main routine. The above 4 parts of the main routine will now be treated in 
+turn. 
+
+i. If there are only 2 parameters, a jump is made to LINE-DRAW at 2477. A line is also drawn if the quantity Z=(ABS X + ABS YJ/ABS 
+SIN(G/2) is less than 1 . Z lies between 1 and 1 .5 times the diameter of the implied circle. In this section mem-0 is set to SIN (G/2), 
+mem-1 to Y, and mem-5 to G. 
+
+2382 DRAW RST 0018,GET-CHAR Get the current character. 
+
+CP +2C If it is a comma, 
+
+JR Z,238D,DR-3-PRMS then jump. 
+
+CALL 1 BEE, CHECK-END Move on to next statement if 
+
+checking syntax. 
+
+JP 2477, LINE-DRAW Jump to just draw the line. 
+
+238D DR-3-PRMS RST 0020, NEXT-CHAR Get next character (the angle). 
+
+CALL 1C82.EXPT-1NUM Angle to calculator stack. 
+
+CALL 1 BEE, CHECK-END Move on to next statement if 
+
+checking syntax. 
+
+RST 0028,FP-CALC X, Y, G are on the stack. 
+
+DEFB +C5,st-mem-5 (G is copied to mem-5) 
+
+DEFB +A2,stk-half X, Y, G, 0.5 
+
+DEFB +04, multiply X, Y, G/2 
+
+DEFB +1 F,sin X, Y, SIN (G/2) 
+
+DEFB +31 .duplicate X, Y, SIN (G/2), SIN (G/2) 
+
+
+Incrementing the exponent byte 
+of mem-2 sets mem-2 to 
+2*Z*SIN(PI/A). 
+
+The last value X+Z is moved 
+from the stack to A and copied 
+to L. 
+
+It is saved in HL. 
+
+Y - Z*SIN (PI/A) goes from the 
+stack to A and is copied to H. 
+HL now holds the initial point. 
+
+It is copied to COORDS. 
+
+The arc-count is restored. 
+
+The jump is made to DRAW. 
+
+
+119 
+
+
+
+DEFB 
+
++30, not 
+
+X, Y, SIN (G/2), (0/1) 
+
+DEFB 
+
++30, not 
+
+X, Y, SIN (G/2), (1/0) 
+
+DEFB 
+
++00, jump-true 
+
+X, Y, SIN (G/2) 
+
+DEFB 
+
++06, to DR-SIN-NZ 
+
+(If SIN (G/2)=0 i.e. G = 2*N*PI 
+
+DEFB 
+
++02, delete 
+
+just draw a straight line). 
+
+DEFB 
+
++38, end-calc 
+
+X, Y 
+
+JP 
+
+2477, LINE-DRAW 
+
+Line X0, Y0 to X0+X, Y0+Y. 
+
+23A3 DR-SIN-NZ DEFB 
+
++C0,st-mem-0 
+
+(SIN (G/2) is copied to mem-0) 
+
+DEFB 
+
++02, delete 
+
+X, Y are now on the stack. 
+
+DEFB 
+
++C1 ,st-mem-1 
+
+(Y is copied to mem-1). 
+
+DEFB 
+
++02, delete 
+
+X 
+
+DEFB 
+
++31, duplicate 
+
+X, X 
+
+DEFB 
+
++2A,abs 
+
+X, X' (X' = ABS X) 
+
+DEFB 
+
++E1 , get-mem-1 
+
+X, X', Y 
+
+DEFB 
+
++01 .exchange 
+
+X, Y, X' 
+
+DEFB 
+
++E1 , get-mem-1 
+
+X, Y, X', Y 
+
+DEFB 
+
++2A,abs 
+
+X, Y, X', Y' (Y = ABS Y) 
+
+DEFB 
+
++0F, addition 
+
+X, Y, X'+Y' 
+
+DEFB 
+
++E0, get-mem-0 
+
+X, Y, X'+Y', SIN (G/2) 
+
+DEFB 
+
++05, division 
+
+X, Y, (X'+Y')/SIN (G/2)=Z\ say 
+
+DEFB 
+
++2A,abs 
+
+X, Y, Z (Z = ABS Z) 
+
+DEFB 
+
++E0, get-mem-0 
+
+X, Y, Z, SIN (G/2) 
+
+DEFB 
+
++01 .exchange 
+
+X, Y, SIN (G/2), Z 
+
+DEFB 
+
++3D, re-stack 
+
+(Z is re-stacked to make sure 
+
+DEFB 
+
++38, end-calc 
+
+that its exponent is available). 
+
+LD 
+
+A,(HL) 
+
+Get exponent of Z. 
+
+CP 
+
++81 
+
+If Z is greater than or equal 
+
+JR 
+
+NC.23C1, DR-PRMS 
+
+to 1 , jump. 
+
+RST 
+
+0028.FP-CALC 
+
+X, Y, SIN (G/2), Z 
+
+DEFB 
+
++02, delete 
+
+X, Y, SIN (G/2) 
+
+DEFB 
+
++02, delete 
+
+X, Y 
+
+DEFB 
+
++38, end-calc 
+
+Just draw the line from X0, Y0 
+
+JP 
+
+2477, LINE-DRAW 
+
+to X0+X, Y0+Y. 
+
+ii. Just calls CD-PRMS1 . This subroutine saves in the B register the number of shorter arcs required for the complete arc, viz. A=4*INT 
+(G'*SQR Z/8)+4, where G' = mod G, or 252 if this expression exceeds 252 (as can happen with a large chord and a small angle). So A 
+is 4, 8, 12, ... , up to 252. The subroutine also stores in mem-0 to mem-4 the quantities G/A, SIN (G/2*A), 0, COS (G/A), SIN (G/A). 
+
+23C1 DR-PRMS CALL 
+
+247D.CD-PRMS1 
+
+The subroutine is called. 
+
+iii. Sets up the rest of the parameters as follow. The stack will hold these 4 items, reading up to the top: XO+X and YO+Y as end of last 
+arc; then X0 and Y0 as beginning of first arc. Mem-0 will hold X0 and mem-5 Y0. Mem-1 and mem-2 will hold the initial displacements 
+for the first arc, U and V; and mem-3 and mem-4 will hold COS (G/A) and SIN (G/A) for use in the arc-drawing loop. 
+
+The formulae for U and V can be explained as follows. Instead of stepping along the final chord, of length L, say, with displacements X 
+and Y, we want to step along an initial chord (which may be longer) of length L*W, where W=SIN (G/2*A)/SIN (G/2), with displacements 
+X*W and Y*W, but turned through an angle - (G/2 - G/2*A), hence with true displacements: 
+
+U = Y*W*SIN (G/2 - G/2*A) + 
+
+X*W*COS (G/2 - G/2* A) 
+
+
+Y = Y*W*COS (G/2 - G/2*A) - 
+
+X*W*SIN (G/2 - G/2*A) 
+
+
+These formulae cam be checked from a diagram, using the normal expansion of COS (P - Q) and SIN (P - Q), where Q = G/2 - G/2*A 
+
+23C4 PUSH 
+
+BC 
+
+Save the arc-counter in B. 
+
+RST 
+
+0028,FP-CALC 
+
+X,Y,SIN(G/2),Z 
+
+DEFB 
+
++02, delete 
+
+X,Y,SIN(G/2) 
+
+DEFB 
+
++E1 , get-mem-1 
+
+X,Y,SIN(G/2),SIN(G/2*A) 
+
+DEFB 
+
++01 .exchange 
+
+X,Y,SIN(G/2*A),SIN(G/2) 
+
+DEFB 
+
++05, division 
+
+X,Y,SIN(G/2*A)/SIN(G/2)=W 
+
+DEFB 
+
++C1 ,st-mem-1 
+
+(W is copied to mem-1). 
+
+
+120 
+
+
+
+DEFB 
+
++02, delete 
+
+DEFB 
+
++01 .exchange 
+
+DEFB 
+
++31 .duplicate 
+
+DEFB 
+
++E1, get-mem-1 
+
+DEFB 
+
++04, multiply 
+
+DEFB 
+
++C2,st-mem-2 
+
+DEFB 
+
++02, delete 
+
+DEFB 
+
++01 .exchange 
+
+DEFB 
+
++31 .duplicate 
+
+DEFB 
+
++E1 , get-mem-1 
+
+DEFB 
+
++04, multiply 
+
+DEFB 
+
++E2, get-mem-2 
+
+DEFB 
+
++E5, get-mem-5 
+
+DEFB 
+
++E0, get-mem-0 
+
+DEFB 
+
++03, subtract 
+
+DEFB 
+
++A2,stk-half 
+
+DEFB 
+
++04, multiply 
+
+DEFB 
+
++31, duplicate 
+
+DEFB 
+
++1 F.sin 
+
+DEFB 
+
++C5,st-mem-5 
+
+DEFB 
+
++02, delete 
+
+DEFB 
+
++20, cos 
+
+DEFB 
+
++C0,st-mem-0 
+
+DEFB 
+
++02, delete 
+
+DEFB 
+
++C2,st-mem-2 
+
+DEFB 
+
++02, delete 
+
+DEFB 
+
++C1 ,st-mem-1 
+
+DEFB 
+
++E5, get-mem-5 
+
+DEFB 
+
++04, multiply 
+
+DEFB 
+
++E0, get-mem-0 
+
+DEFB 
+
++E2, get-mem-2 
+
+DEFB 
+
++04, multiply 
+
+DEFB 
+
++0F, addition 
+
+DEFB 
+
++E1, get-mem-1 
+
+DEFB 
+
++01 .exchange 
+
+DEFB 
+
++C1 ,st-mem-1 
+
+DEFB 
+
++02, delete 
+
+DEFB 
+
++E0, get-mem-0 
+
+DEFB 
+
++04, multiply 
+
+DEFB 
+
++E2, get-mem-2 
+
+DEFB 
+
++E5, get-mem-5 
+
+DEFB 
+
++04, multiply 
+
+DEFB 
+
++03, subtract 
+
+DEFB 
+
++C2,st-mem-2 
+
+DEFB 
+
++2A,abs 
+
+DEFB 
+
++E1 , get-mem-1 
+
+DEFB 
+
++2A,abs 
+
+DEFB 
+
++0F, addition 
+
+DEFB 
+
++02, delete 
+
+DEFB 
+
++38, end-calc 
+
+LD 
+
+A,(DE) 
+
+CP 
+
++81 
+
+POP 
+
+BC 
+
+JP 
+
+C, 2477, LINE-DRAW 
+
+PUSH 
+
+BC 
+
+RST 
+
+0028.FP-CALC 
+
+DEFB 
+
++01 .exchange 
+
+DEFB 
+
++38, end-calc 
+
+LD 
+
+A.(COORDS-lo) 
+
+CALL 
+
+2D28.STACK-A 
+
+RST 
+
+0028.FP-CALC 
+
+
+X, Y 
+
+Y, X 
+Y,X,X 
+Y,X,X,W 
+Y,X,X*W 
+
+(X*W is copied to mem-2). 
+
+Y,X 
+
+X,Y 
+
+X,Y,Y 
+
+X,Y,Y,W 
+
+X,Y,Y*W 
+
+X,Y,Y*W,X*W 
+
+X,Y,Y*W,X*W,G 
+
+X,Y,Y*W,X*W,G,G/A 
+
+X,Y,Y*W,X*W,G - G/A 
+
+X,Y,Y*W,X*W,G - G/A, V4 
+
+X,Y,Y*W,X*W, G/2 - G/2*A=F 
+
+X,Y,Y*W,X*W, F, F 
+
+X,Y,Y*W,X*W, F, SIN F 
+
+(SIN F is copied to mem-5). 
+
+X,Y,Y*W,X*W,F 
+
+X,Y,Y*W,X*W, COS F 
+
+(COS F is copied to mem-0). 
+
+X,Y,Y*W,X*W 
+
+(X*W is copied to mem-2). 
+
+X,Y,Y*W 
+
+(Y*W is copied to mem-1 ). 
+X,Y,Y*W,SIN F 
+X,Y,Y*W*SIN F 
+X,Y,Y*W*SiN F,X*W 
+X,Y,Y*W*SIN F,X*W, COS F 
+X,Y,Y*W*SIN F,X*W*COS F 
+X,Y,Y*W*SIN F+X*W*COS F=U 
+X,Y,U,Y*W 
+X,Y,Y*W,U 
+
+(U is copied to mem-1) 
+
+X,Y,Y*W 
+X,Y,Y*W, COS F 
+X,Y,Y*W*COS F 
+X,Y,Y*W*COS F,X*W 
+X,Y,Y*W*COS F,X*W, SIN F 
+X,Y,Y*W*COS F,X*W*SIN F 
+X,Y,Y*W*COS F - X*W*SIN 
+F = V 
+
+(V is copied to mem-2). 
+
+X, Y, V' (V’ = ABS V) 
+
+X, Y, V', U 
+
+X, Y, V', U' (IT = ABS U) 
+
+X, Y, U' + V' 
+
+X, Y 
+
+(DE now points to U' + V'). 
+
+Get exponent of U' + V' 
+
+If LI' + V' is less than 1 , just 
+tidy the stack and draw the line 
+from XO, YO to XO+X, YO+Y. 
+Otherwise, continue with the 
+parameters: X, Y, on the stack. 
+
+Y, X 
+
+Get XO into A and so 
+on to the stack. 
+
+Y, X, XO 
+
+
+121 
+
+
+
+DEFB 
+
++C0,st-mem-0 
+
+(X0 is copied to mem-0). 
+
+DEFB 
+
++0F, addition 
+
+Y, X0 + X 
+
+DEFB 
+
++01 .exchange 
+
+X0+X, Y 
+
+DEFB 
+
++38, end-calc 
+
+
+LD 
+
+A.(COORDS-hi) 
+
+Get Y0 into A and so 
+
+CALL 
+
+2D28.STACK-A 
+
+on to the stack. 
+
+RST 
+
+0028.FP-CALC 
+
+X0+X, Y, Y0 
+
+DEFB 
+
++C5,st-mem-5 
+
+(Y0 is copied to mem-5). 
+
+DEFB 
+
++0F, addition 
+
+X0+X, Y0+Y 
+
+DEFB 
+
++E0, get-mem-0 
+
+X0+X, Y0+Y, X0 
+
+DEFB 
+
++E5, get-mem-5 
+
+X0+X, YO+Y, XO, YO 
+
+DEFB 
+
++38, end calc 
+
+
+POP 
+
+BC 
+
+Restore the arc-counter in B. 
+
+iv. The arc-drawing loop. This is entered at 2439 with the co-ordinates of the starting point on top of the stack, and the initial 
+displacements for the first arc in mem-1 and mem-2. It uses simple trigonometry to ensure that all subsequent arcs will be drawn to 
+points that lie on the same circle as the first two, subtending the same angle at the centre. It can be shown that if 2 points XI , Y1 and 
+X2, Y2 lie on a circle and subtend an angle N at the centre, which is also the origin of co-ordinates, then X2 = X1*COS N - YI’SIN N, 
+
+and Y2 = X1*SIN N + YI'COS N. 
+
+But because the origin is here at the increments, say Un = Xn+1 - Xn and Vn = Yn+1 - Yn, thus 
+
+achieving the desired result. The stack is shown below on the (n+ 
+
+1)th pass through the loop, as Xn and Yn are incremented by Un and 
+
+Vn, after these are obtained from Un-1 and Vn-1 . The 4 values on the top of the stack at 2425 are, in DRAW, reading upwards, XO+X, 
+YO+Y, Xn and Yn but to save space these are not shown until 2439. For the initial values in CIRCLE, see the end of CIRCLE, above. In 
+
+CIRCLE too, the angle G must be taken to be 2*PI. 
+
+
+2420 DRW-STEPS DEC 
+
+B 
+
+B counts the passes through the 
+loop. 
+
+JR 
+
+Z,245F, ARC-END 
+
+Jump when B has reached zero. 
+
+JR 
+
+2439, ARC-START 
+
+Jump into the loop to start. 
+
+2425 ARC-LOOP RST 
+
+0028.FP-CALC 
+
+(See text above for the stack). 
+
+DEFB 
+
++E1 , get-mem-1 
+
+Un-1 
+
+DEFB 
+
++31, duplicate 
+
+Un-1, Un-1 
+
+DEBF 
+
++E3, get-mem-3 
+
+Un-1, Un-1 ,COS(G/A) 
+
+DEFB 
+
++04, multiply 
+
+Un-1 ,Un-1*COS(G/A) 
+
+DEFB 
+
++E2, get-mem-2 
+
+Un-1, Un-1*COS(G/A), Vn-1 
+
+DEFB 
+
++E4, get-mem-4 
+
+Un-1, Un-1*COS(G/A), Vn-1, 
+
+SIN(G/A) 
+
+DEFB 
+
++04, multiply 
+
+Un-1, Un-1*COS(G/A), Vn-1* 
+
+SIN(G/A) 
+
+DEFB 
+
++03, subtract 
+
+Un-1 ,Un-1*COS(G/A)-Vn-1* 
+
+SIN(G/A)=Un 
+
+DEFB 
+
++C1 ,st-mem-1 
+
+(Un is copied to mem-1). 
+
+DEFB 
+
++02, delete 
+
+Un-1 
+
+DEFB 
+
++E4, get-mem-4 
+
+Un-1 ,SIN(G/A) 
+
+DEFB 
+
++04, multiply 
+
+Un-1*SIN(G/A) 
+
+DEFB 
+
++E2, get-mem-2 
+
+Un-1 *SIN(G/A), Vn-1 
+
+DEFB 
+
++E3, get-mem-3 
+
+Un-1 *SIN(G/A),Vn-1 ,COS(G/A) 
+
+DEFB 
+
++04, multiply 
+
+Un-1 *SIN(G/A), Vn-1 *COS(G/A) 
+
+DEFB 
+
++0F, addition 
+
+Un-1*SIN(G/A)+Vn-1*COS 
+
+(G/A)=Vn 
+
+DEFB 
+
++C2,st-mem-2 
+
+(Vn is copied to mem-2). 
+
+DEFB 
+
++02, delete 
+
+(As noted in the text, the stack 
+
+DEFB 
+
++38, end-calc 
+
+in fact holds X0+X, YO+Y, Xn 
+and Yn). 
+
+2439 ARC-START PUSH 
+
+BC 
+
+Save the arc-counter. 
+
+RST 
+
+0028.FP-CALC 
+
+XO+X, YO+y, Xn, Yn 
+
+DEFB 
+
++C0,st-mem-0 
+
+(Yn is copied to mem-0). 
+
+DEFB 
+
++02, delete 
+
+XO+X, YO+Y, Xn 
+
+DEFB 
+
++E1 , get-mem-1 
+
+XO+X, YO+Y, Xn, Un 
+
+DEFB 
+
++0F, addition 
+
+XO+X, YO+Y, Xn+Un = Xn+1 
+
+
+122 
+
+
+
+245 F 
+
+
+2477 
+
+
+DEFB 
+
++31, duplicate 
+
+X0+X, Y0+Y, Xn+1 , Xn+1 
+
+DEFB 
+
++38, end-calc 
+
+Next Xn\ the approximate 
+
+
+
+value of Xn reached by 
+
+
+
+the line-drawing subroutine 
+
+LD 
+
+A,(COORDS-lo) 
+
+is copied to A 
+
+CALL 
+
+2D28.STACK-A 
+
+and hence to the stack. 
+
+RST 
+
+0028,FP-CALC 
+
+X0+X,Y0+Y,Xn+1 ,Xn' 
+
+DEFB 
+
++03, subtract 
+
+X0+X, Y0+Y, Xn+1, Xn+1 ,Xn' 
+
+
+
+X 
+
+3 
+
+II 
+
+c 
+
+zs_ 
+
+DEFB 
+
++E0, get-mem-0 
+
+X0+X,Y0+Y,Xn+1 ,Un',Yn 
+
+DEFB 
+
++E2, get-mem-2 
+
+X0+X,Y0+Y,Xn+1 ,Un',Yn,Vn 
+
+DEFB 
+
++0F, addition 
+
+X0+X,Y0+Y,Xn+1 ,Un',Yn + 
+
+
+
+Vn = Yn+1 
+
+DEFB 
+
++C0,st-mem-0 
+
+(Yn+1 is copied to mem-0). 
+
+DEFB 
+
++01, exchange 
+
+X0+X, Y0+Y, Xn+1, Yn+1, Un' 
+
+DEFB 
+
++E0, get-mem-0 
+
+X0+X.Y0+Y, Xn+1, Yn+1, 
+
+
+
+Un',Yn+1 
+
+DEFB 
+
++38, end-calc 
+
+
+LD 
+
+A.(COORDS-hi) 
+
+Yn', approximate like Xn', is 
+
+CALL 
+
+2D28,STACK-A 
+
+copied to A and hence to the 
+
+
+
+stack. 
+
+RST 
+
+0028,FP-CALC 
+
+X0+X,Y0+Y, Xn+1, Yn+1, 
+
+
+
+Un',Yn+1,Yn' 
+
+DEFB 
+
++03, subtract 
+
+X0+X.Y0+Y, Xn+1, Yn+1, 
+
+
+
+Un',Vn' 
+
+DEFB 
+
++38, end-calc 
+
+
+CALL 
+
+24B7, DRAW-LINE 
+
+The next ’arc' is drawn. 
+
+POP 
+
+BC 
+
+The arc-counter is restored. 
+
+DJNZ 
+
+2425, ARC-LOOP 
+
+Jump if more arcs to draw. 
+
+ARC-END RST 
+
+0028,FP-CALC 
+
+The co-ordinates of the end 
+
+DEFB 
+
++02, delete 
+
+of the last arc that was drawn 
+
+DEFB 
+
++02, delete 
+
+are now deleted from the stack. 
+
+DEFB 
+
++01, exchange 
+
+Y0+Y, X0+X 
+
+DEFB 
+
++38, end-calc 
+
+
+LD 
+
+A.(COORDS-lo) 
+
+The X-co-ordinate of the end of 
+
+CALL 
+
+2D28.STACK-A 
+
+the last arc that was drawn, say 
+
+RST 
+
+0028,FP-CALC 
+
+Xz', is copied to the stack. 
+
+DEFB 
+
++03, subtract 
+
+Y0+Y, X0+X - Xz' 
+
+DEFB 
+
++01, exchange 
+
+X0+X - Xz', Y0+Y 
+
+DEFB 
+
++38, end-calc 
+
+
+LD 
+
+A.(COORDS-hi) 
+
+The Y-co-ordinate is obtained. 
+
+CALL 
+
+2D28.STACK-A 
+
+
+RST 
+
+0028,FP-CALC 
+
+X0+X - Xz', Y0+Y, Yz' 
+
+DEFB 
+
++03, subtract 
+
+X0+X - Xz', Y0+Y - Yz' 
+
+DEFB 
+
++38, end-calc 
+
+
+LINE-DRAW CALL 
+
+24B7, DRAW-LINE 
+
+The final arc is drawn to reach 
+
+
+
+X0+X, Y0+Y (or close the 
+
+
+
+circle). 
+
+JP 
+
+0D4D, TEMPS 
+
+Exit, setting temporary colours. 
+
+
+THE 'INITIAL PARAMETERS' SUBROUTINE 
+
+This subroutine is called by both CIRCLE and DRAW to set their initial parameters. It is called by CIRCLE with X, Y and the radius Z on 
+the top of the stack, reading upwards. It is called by DRAW with its own X, Y, SIN (G/2) and Z, as defined in DRAW i. above, on the top 
+of the stack. In what follows the stack is only shown from Z upwards. 
+
+The subroutine returns in B the arc-count A as explained in both CIRCLE and DRAW above, and in mem-0 to mem-5 the quantities 
+G/A, SIN (G/2* A), 0, COS (G/A), SIN (G/A) and G. For a circle, G must be taken to be equal to 2*PI. 
+
+
+247 D 
+
+CD-PRMS1 RST 
+
+0028,FP-CALC 
+
+Z 
+
+
+DEFB 
+
++31, duplicate 
+
+z, z 
+
+
+DEFB 
+
++28,sqr 
+
+Z, SQR 
+
+
+DEFB 
+
++34,stk-data 
+
+Z, SQR 
+
+
+123 
+
+
+
+DEFB 
+
++32, exponent +82 
+
+
+DEFB 
+
++00, (+00, +00, +00) 
+
+
+DEFB 
+
++01 .exchange 
+
+Z, 2, SQR Z 
+
+DEFB 
+
++05, division 
+
+Z, 2/SQR Z 
+
+DEFB 
+
++E5, get-mem-5 
+
+Z, 2/SQR Z, G 
+
+DEFB 
+
++01 .exchange 
+
+Z, G, 2/SQR Z 
+
+DEFB 
+
++05, division 
+
+Z, G'SQR Z/2 
+
+DEFB 
+
++2A,abs 
+
+Z, G'*SQR Z/2 (G' = mod G) 
+
+DEFB 
+
++38, end-calc 
+
+Z, G’*SQR Z/2 = A1 , say 
+
+CALL 
+
+2DD5.FP-TO-A 
+
+A1 to A from the stack, if 
+possible. 
+
+JR 
+
+C, 2495, USE-252 
+
+If A1 rounds to 256 or more, 
+use 252. 
+
+AND 
+
++FC 
+
+4*INT (A1/4) to A. 
+
+ADD 
+
+A, +04 
+
+Add 4, giving the arc-count A. 
+
+JR 
+
+NC, 2497, DRAW-SAVE 
+
+Jump if still under 256. 
+
+2495 USE-252 LD 
+
+A,+FC 
+
+Here, just use 252 decimal. 
+
+2497 DRAW-SAVE PUSH 
+
+AF 
+
+Now save the arc-count. 
+
+CALL 
+
+2D28.STACK-A 
+
+Copy it to calculator stack too. 
+
+RST 
+
+0028.FP-CALC 
+
+Z, A 
+
+DEFB 
+
++E5, get-mem-5 
+
+Z, A, G 
+
+DEFB 
+
++01 .exchange 
+
+Z, G, A 
+
+DEFB 
+
++05, division 
+
+Z, G/A 
+
+DEFB 
+
++31, duplicate 
+
+Z,G/A, G/A 
+
+DEFB 
+
++1 F,sin 
+
+Z, G/A, SIN (G/A) 
+
+DEFB 
+
++C4,st-mem-4 
+
+(SIN (G/A) is copied to mem-4). 
+
+DEFB 
+
++02, delete 
+
+Z, G/A 
+
+DEFB 

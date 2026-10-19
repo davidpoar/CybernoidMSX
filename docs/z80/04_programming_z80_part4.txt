@@ -1,0 +1,9151 @@
+# Programming the Z80 - Part 4/4
+
+---
+
+as this would result in the loss of the previous value of A (try it on an 
+example). 
+
+
+533 
+
+
+PROGRAMMING THE Z80 
+
+
+2<10: 
+EXCHANGE 
+
+
+o 
+A 
+w 
+
+
+m z 
+
+x 
+
+2° o. 
+©) Bt CG) Z¥ 
+
+% a 
+
+- mm 
+
+
+ul 
+a w& 
+
+
+m 
+6 a 
+©: 
+> 
+2 B " 
+Go 
+om 
+i=] 
+
+
+i 
+
+
+EEE © 
+
+
+B 
+x 
+> 
+Zz 
+Q 
+m 
+o 
+
+
+© 
+
+
+1=2 
+hem = J 
+
+
+m 
+x 
+oO 
+= 
+> 
+gj 
+
+
+om 
+* 
+2°46 
+ry: 
+25 
+28 
+*o f 
+
+
+€ND OF PASS | 
+
+
+10 
+ND oe 
+
+
+Fig. 8.5: Bubble-Sort Example: Phases 1 to 12 
+
+
+534 
+
+
+APPLICATION EXAMPLES 
+
+
+(=3 
+14 1 = 4 
+“4— 1 5 
+NO CHANGE EXCHANGE! EXCHANGED 
+‘© (5) 
+foo | a pee oo | 
+| io | to etn 
+| 00 | | 10 ee 
+§ 2-2: 2>0: 100 > 10; 
+NO CHANGE NO CHANGE NO CHANGE 
+
+
+® 
+
+
+END OF PASS 3 
+
+
+Ik 
+a Ww 
+
+
+10 >5: 5> 2: 2>0: 
+NO CHANGE NO CHANGE NO CHANGE 
+
+
+END 
+Fig. 8.6: Bubbie-Sort Example: Phases 13 to 21 
+
+
+The correct solution is to use a temporary variable or location to pre- 
+serve the value of A: 
+
+
+TEMP =A 
+A =B 
+B = TEMP 
+
+
+It works (try it on an example). This is called a circular permutation. 
+This is the way all programs implement the exchange. This technique 
+is illustrated on the flowchart of Figure 8.7. 
+
+
+335 
+
+
+PROGRAMMING THE Z80 
+
+
+EXCHANGED = 0 
+
+
+y 
+
+
+GET NUMBER OF 
+ELEMENTS N 
+
+
+READ ELEMENT 
+E(?) 
+
+
+DECREMENT | 
+
+
+DONE 
+
+
+EXCHANGE E AND E’ 
+TEMP = E{I) 
+El) = E'(I) 
+E‘(1} = TEMP 
+
+
+EXCHANGED = 1 
+
+
+Fig. 8.7: Bubble-Sort Flowchart 
+
+
+536 
+
+
+APPLICATION EXAMPLES 
+
+
+EXCHANGE/NOT 
+
+
+Cc une 
+
+
+Fig. 8.8: Bubble- Sort 
+
+
+The register and memory assignments are shown on Figure 8.8, and 
+the program is: 
+
+
+BUBBLE LD (TEMP), HL TEMP =(H, L) 
+
+
+AGAIN LD IX, (TEMP) (IX) =(HL) 
+RES FLAG, H EXCHANGED FLAG =0 
+ID B,C 
+DEC B 
+
+NEXT LD A, (IX) 
+LD D,A D=CURRENT ENTRY 
+LD E, IX+1) E=NEXT ENTRY 
+SUB E COMPARE 
+
+
+JR NC, NOSWITCH GO TO NOSWITCH IF 
+CURRENT > NEXT 
+
+
+XCHANGE LD (IX), E STORE NEXT INTO 
+CURRENT 
+LD (IX+1),D STORE CURRENT INTO 
+NEXT 
+
+
+SET FLAG, H EXCHANGED FLAG =1 
+
+
+537 
+
+
+PROGRAMMING THE Z80 
+
+
+NOSWITCH INC IX NEXT ENTRY 
+DINZ NEXT DEC B, CONTINUE UNTIL 
+ZERO 
+BIT FLAG, H EXCHANGED = 1? 
+JR NZ, AGAIN RESTART IF FLAG=1 
+RET 
+SUMMARY 
+
+
+Common utility routines have been presented in this chapter which 
+use combinations of the techniques we have described in the previous 
+chapters. They should allow you to start designing your own programs 
+now. Many of these routines have used a special data structure, the 
+table. Other possibilities exist for structuring data, and will now be re- 
+viewed. 
+
+
+538 
+
+
+9 
+DATA STRUCTURES 
+
+
+PART I — THEORY 
+
+
+INTRODUCTION 
+
+
+The design of a good program involves two tasks: a/gorithm design 
+and data structures design. In most simple programs, no significant 
+data structures are involved, so the main objective in learning program- 
+ming is designing algorithms and coding them efficiently in a given 
+machine language. This is what we have accomplished here. However, 
+designing more complex programs also requires an understanding of 
+data structures. Two data structures have already been used through- 
+out the book: the tabie and the stack. The purpose of this chapter is to 
+present other, more general, data structures that you may want 
+to use. This chapter is completely independent of the microprocessor, 
+or even the computer, selected. It is theoretical and involves the logical 
+organization of data in the system. Specialized books exist on the topic 
+of data structures, just as specialized books exist on the subject of 
+efficient multiplication, division or other usual algorithms. This 
+chapter, therefore, will be limited to essentials only. It does not claim 
+to be complete. The most common data structures will now be reviewed. 
+
+
+POINTERS 
+
+
+A pointer is a number which is used to designate the location of the 
+actual data. Every pointer is an address. However, every address is not 
+necessarily called a pointer. An address is a pointer only if it points at 
+
+
+539 
+
+
+PROGRAMMING THE Z80 
+
+
+some type of data or at structured information. We have.already en- 
+countered a typical pointer: the stack pointer, which points to the top 
+of the stack (or usually just over the top of the stack). We will see that 
+the stack is a common data structure, called an LIFO structure. 
+
+As another example, when using indirect addressing, the indirect ad- 
+dress is always a pointer to the data that one wishes to retrieve. 
+
+
+Exercise 9.1: Examine Fig. 9.1. At address 15 in the memory, there is a 
+pointer to Table T. Table T starts at address 500. What are the actual 
+contents of the pointer to T? 
+
+
+POINTER TOT 
+
+
+TABLE F 
+
+
+Fig. 9.1; An Indirection Pointer 
+
+
+506 
+
+
+LISTS 
+
+
+Almost all data structures are organized as lists of various kinds. 
+
+
+Sequential Lists 
+
+
+A sequential list, or table, or block, is probably the simplest data 
+structure, and is one that we have already used. Tables are normally 
+ordered in function of a specific criterion, such as alphabetical ordering 
+or numerical ordering. It is then easy to retrieve an element in a table, 
+using, for example, indexed addressing, as we have done. A block nor- 
+mally refers to a group of data which has definite limits but whose con- 
+tents are not ordered. It may contain a string of characters; it may 
+
+
+540 
+
+
+DATA STRUCTURES 
+
+
+be a sector on a disk; or it may be some logical area (called segment) of 
+the memory. In such cases, it may not be easy to access a random ele- 
+ment of the block. 
+
+In order to facilitate the retrieval of blocks of information, directo- 
+ries are used. 
+
+
+Directories 
+
+
+A directory is a list of tables or blocks. For example, the file system 
+will normally use a directory structure. As a simple example, the master 
+directory of the system may include a list of the users’ names. This is il- 
+lustrated in Figure 9.2. The entry for user ‘‘John’’ points to John’s file 
+directory. The file directory is a table which contains the names of all of 
+John’s files and their location. This is, again, a table of pointers. In this 
+case, we have just designed a two-level directory. A flexible directory 
+system will allow the inclusion of additional intermediate directories, as 
+may be found convenient by the user. 
+
+
+USER DIRECTORY 
+
+
+JOHN'S, 
+FILE DIRECTORY 
+
+
+JOHN'S FILE 
+ALPHA, 
+
+
+SIGMA 
+
+
+Fig. 9.2: A Directory Structure 
+
+
+Linked List 
+
+
+In a system there are often blocks of information which represent 
+data, events, or other structures which cannot be moved around eas- 
+
+
+541 
+
+
+PROGRAMMING THE Z80 
+
+
+ily. If they could, we would probably assemble them in a table in order 
+to sort or structure them. The problem now is that we wish to leave 
+them where they are and still establish an ordering among them such as 
+first, second, third, fourth. A linked list will be used to solve this prob- 
+lem. The concept of a linked list is illustrated by Figure 9.3. On the il- 
+lustration, we see that a list pointer, called FIRSTBLOCK, points to the 
+beginning of the first block. A dedicated location within Block 1 such 
+as, perhaps, the first or the last word in it, contains a pointer to Block 
+2, called PTR1. The process is then repeated for Block 2 and Block 3. 
+Since Block 3 is the last entry in the list, PTR3, by convention, either 
+contains a special ‘‘nil’’ value, or points to itself, so that the end of the 
+list can be detected. This structure is economical, as it requires only a 
+few pointers (one per block) and frees the user from having to physi- 
+cally move the blocks in the memory. 
+
+
+FIRST = 5 al 
+— BLOCK1 K2 LOCK 3 
+BLOCK a BLoe 5 8 a 
+
+
+Fig. 9.3: A Linked List 
+
+
+Let us examine, for example, how a new block will be inserted. This 
+is illustrated by Figure 9.4. Let us assume that the new block is at ad- 
+dress NEWBLOCK, and is to be inserted between Block 1 and Block 2. 
+Pointer PTR1 is simply changed to the value NEWBLOCK, so that it 
+now points to Block X. PTRX will contain the former value of PTRI, 
+i.e., it will point to Block 2. The other pointers in the structure are left 
+unchanged. We can see that the insertion of a new block has simply re- 
+quired updating two pointers in the structure. This is clearly efficient. 
+
+
+Exercise 9.2: Draw a diagram showing how Block 2 would be removed 
+from this structure. 
+
+
+: BLOCK X A 
+
+
+™ 
+=e 
+
+
+Fig. 9.4; Inserting a New Block 
+
+
+542 
+
+
+DATA STRUCTURES 
+
+
+Several types of lists have been developed to facilitate specific types 
+of access, insertions, and deletions to and from the list. Let us examine 
+some of the most frequently used types of linked lists. 
+
+
+Queue 
+
+
+A queue is formally called a FIFO, or first-in-first-out list. A queue 
+is illustrated in Figure 9.5. To clarify the diagram, we can assume, for 
+example, that the block on the left is a service routine for an output 
+device, such as a printer. The blocks appearing on the right are the re- 
+quest blocks from various programs or routines, to print characters. 
+The order in which they will be serviced is the order established by the 
+waiting queue. It can be seen that the first event which will obtain serv- 
+ice is Block 1, the next one is Block 2, and the following one is Block 3. 
+In a queue, the convention is that any new event arriving in the queue 
+will be inserted at the end. Here it will be inserted after PTR3. This 
+guarantees that the first block to be inserted in the queue will be the 
+first one to be serviced. It is quite common in a computer system to 
+have queues for a number of events whenever they must wait for a 
+scarce resource, such as the processor or some input/output device. 
+
+
+SERVICE ROUTINE BLOCK! 
+
+
+BLOCK 2 
+
+
+Fig. 9.5: A Queue 
+
+
+543 
+
+
+PROGRAMMING THE Z80 
+
+
+Stack 
+
+
+The stack structure has already been studied in detail throughout the 
+book. It is a last-in-first-out structure (LIFO). The last element depos- 
+ited on top is the first one to be removed. A stack may either be im- 
+plemented as a sorted block, or it may be implemented as a list. Because 
+most stacks in microprocessors are used for high-speed events, such as 
+subroutines and interrupts, a continuous biock is usually allocated to 
+the stack instead.of using a linked list. 
+
+
+Linked List vs. Block 
+
+
+Similarly, the queue could be implemented as a block of reserved 
+locations. The advantage of using a continuous block is fast retrieval 
+and the elimination of the pointers. The disadvantage is that it is usu- 
+ally necessary to dedicate a fairly large block to accommodate the 
+worst-case size of the structure. Also, it makes it difficult or impractical 
+to insert or remove elements from within the block. Since memory is 
+traditionally a scarce resource, blocks have usually been reserved for 
+fixed-size structures or structures requiring the maximum speed of re- 
+trieval, such as the stack. 
+
+
+Circular List 
+
+
+**Round robin’’ is a common name for a circular list. A circular list is 
+a linked list in which the last entry points back to the first one. This is il- 
+lustrated in Figure 9.6. In the case of a circular list, a current-block 
+pointer is often kept. In the case of events, or programs, waiting for 
+service, the current-event pointer will be moved by one position to the 
+left or to the right every time. A round robin usually corresponds to a 
+structure in which all blocks are assumed to have the same priority. 
+However, a circular list may also be used as a subcase of other struc- 
+tures simply to facilitate the retrieval of the first block after the last 
+one, when performing a search. 
+
+As an example of a circular list, a polling program usually goes in a 
+round robin fashion, interrogating all peripherals and then coming 
+back to the first one. 
+
+
+Trees 
+
+
+Whenever a logical relationship exists among all elements of a struc- 
+ture (this is usually called a syntax), a tree structure may be used. A sim- 
+ple example of a tree structure is a descendant, or genealogical, tree. 
+
+
+544 
+
+
+DATA STRUCTURES 
+
+
+CURRENT EVENT 
+
+
+Fig. 9.6: Round Robin is Circular List 
+
+
+This is illustrated in Figure 9.7. It can be seen that Smith has two chil- 
+dren: a son, Robert, and a daughter, Jane. Jane, in turn, has three 
+children: Liz, Tom and Phil. Tom, in turn, has two more children: Max 
+and Chris. However, Robert, on the left of the illustration, has no de- 
+scendants. 
+
+This is a structured tree. We have, in fact, already encountered an ex- 
+ample of a simple tree in Figure 9.2. The directory structure is a two- 
+level tree. Trees are used to advantage whenever elements may be classi- 
+fied according to a fixed structure. This facilitates insertion and re- 
+trieval. In addition, they may establish groups of information in a 
+structured way. which may be required for later processing, such as in a 
+compiler or interpreter design. 
+
+
+ROBERT 
+
+
+Fig. 9.7: Genealogical Tree 
+
+
+Doubly-Linked Lists 
+
+
+Additional links may be established between elements of a list. The 
+
+
+545 
+
+
+PROGRAMMING THE Z80 
+
+
+simplest example is the doubly-linked list. This is illustrated in Figure 
+9.8. We can see that we have the usual sequence of links from left to 
+right, plus another sequence of links from right to left. The goal is to 
+allow easy retrieval of the element just before the one which is being 
+processed, as well as just after it. This costs an extra pointer per block. 
+
+
+BLOCK 1 BLOCK 2 E BLOCK 3 
+
+
+Fig. 9.8: Doubly-Linked List 
+
+
+SEARCHING AND SORTING 
+
+
+Searching and sorting elements of a list depends directly on the type 
+of structure which has been used for the list. Many searching algo- 
+rithms have been developed for the most frequently used data struc- 
+tures. We have already used indexed addressing. This is possible when- 
+ever the elements of a table are ordered in function of a known 
+criterion. Such elements may then be retrieved by their numbers. 
+
+Sequential searching refers to the linear scanning of an entire block. 
+This is clearly inefficient but may have to be used when no better tech- 
+nique is available, for lack of ordering of the elements. 
+
+Binary, or logarithmic, searching attempts to find an element in a 
+sorted list by dividing the search interval in half at every step. Assum- 
+ing that we are searching an alphabetical list, one might start, for exam- 
+ple, in the middle of a table and determine if the name we are looking 
+for is before or after this point. If it is after this point, we will eliminate 
+the first half of the table and look at the middle element of the second 
+half. We compare this entry again to the one we are looking for, and we 
+restrict our search to one of the two halves, and so on. The maximum 
+length of a search is then guaranteed to be log.n, where n is the number 
+of elements in the table. 
+
+Many other search techniques exist. 
+
+
+SECTION SUMMARY 
+
+
+This section was intended as only a brief presentation of usual data 
+structures which may be used by a programmer. Although most com- 
+
+
+546 
+
+
+DATA STRUCTURES 
+
+
+mon data structures have been organized in types and given a name, the 
+overall organization of data in a complex system may use any combina- 
+tion of them, or require the programmer to invent more appropriate 
+structures. The array of possibilities is only limited by the imagination 
+of the programmer. Similarly, a number of well-known sorting and 
+searching techniques have been developed for coping with the usual 
+data structures. A comprehensive description is beyond the scope of 
+this book. The contents of this section were intended to stress the im- 
+portance of designing appropriate section structures for the data to be 
+manipulated and to provide the basic tools to that effect. 
+Actual programming examples will now be presented in detail. 
+
+
+547 
+
+
+PROGRAMMING THE Z80 
+
+
+PART Ii — DESIGN EXAMPLES 
+
+
+INTRODUCTION 
+
+
+Actual design examples will be presented here for typical data struc- 
+tures: table, sorted list, inked list. Practical searching and insertion and 
+deletion algorithms will be programmed for these structures. 
+
+The reader interested in these advanced programming techniques is 
+encouraged to analyze in detail the programs presented in this section. 
+
+However, the beginning programmer may skip this section initially, 
+and come back to it when he feels ready for it. 
+
+A good understanding of the concepts presented in the first part of 
+this chapter is necessary to follow the design examples. Also, the pro- 
+grams will use ail of the addressing modes of the Z80, and integrate 
+many of the concepts and techniques presented in the previous chapters. 
+
+Three structures will now be introduced: a simple list, an alphabetical 
+list and a linked-list plus directory. For each structure, three programs 
+will be developed: search, enter and delete. 
+
+
+DATA REPRESENTATION FOR THE LIST 
+
+
+Both the simple list and the alphabetic list will use a common repre- 
+sentation for each list element: 
+
+
+fefe]e[>]>[s 
+
+
+548 
+
+
+DATA STRUCTURES 
+
+
+ENTEEN LENGTH OF ENTRY 
+
+
+TABLEN NUMBER OF ENTRIES 
+
+
+TAB BASE 
+
+
+ENTRY MBYTES 
+
+
+geen a enmEN 
+— DATA 
+= a 
+
+ELEMENT ENTLEN 
+DATA 
+
+
+Fig 9.10: Typical List Entries in the Memory 
+
+
+549 
+
+
+PROGRAMMING THE Z80 
+
+
+Each element, or ‘‘entry’’, includes a 3-byte label, and an n-byte block 
+of data, with n between | and 253. Thus, at most, each entry uses one 
+page (256 bytes). Within each list, all elements have the same length (see 
+Figure 9.10). The programs operating on these two simple lists use some 
+
+
+common variable conventions: 
+
+
+ENTLEN is the iength of an element. For example, if each element 
+
+
+has 10 bytes of data, ENTLEN = 3 + 10 = 13 
+
+
+TABASE 
+POINTR 
+OBJECT 
+TABLEN 
+
+
+All labels are assumed to be distinct. Changing this convention would 
+
+
+is the base of the list or table in the memory 
+is a running pointer to the current element 
+is the current entry to be located, inserted or deleted 
+
+
+is the number of entries. 
+
+
+require a minor change in the programs. 
+
+
+550 
+
+
+POINTR 
+
+
+CURRENT 
+ELEMENT 
+FREE SPACE 
+
+
+{TABLEN =n) 
+
+
+FREE SPACE INSERT 
+
+
+OBJECT 
+1 BE INSERTED 
+
+
+Fig. 9.11: The Simple List 
+
+
+DATA STRUCTURES 
+
+
+A SIMPLE LIST 
+
+
+The simple list is organized as a table of n elements. The elements are 
+not sorted (see Figure 9.11). When searching, one must scan through 
+the list until an entry is found or the end of the table is reached. When 
+inserting, new entries are appended to the existing ones. When an entry 
+is deleted, the entries in higher memory locations, if any, will be shifted 
+down to keep the table continuous. 
+
+
+Searching 
+
+
+A serial search technique is used. Each entry’s label field is compared 
+in turn to the OBJECT’s label, letter by letter. 
+The running pointer POINTER is initialized to the value of TABASE. 
+
+
+SEARCH 
+
+
+COUNTER = 
+NUMBER OF ENTRIES 
+
+
+READ ENTRY 
+I LETTERS) 
+
+
+<> 
+
+
+& NO 
+
+
+FOUND 
+(SET ATO FF’) 
+
+
+COUNTER = COUNTER — ! 
+
+
+FAILURE EXIT 
+
+
+L xo 
+POINT TO NEXT ENTRY 
+
+
+Fig. 9.12: Table Search Flowchart 
+
+
+551 
+
+
+PROGRAMMING THE Z80 
+
+
+The search proceeds in the obvious way, and the corresponding flow- 
+chart is shown on Figure 9.12. The program appears on Figure 9.16 
+at the end of this section (program ‘‘SSEARCH?’’). A sample run of the 
+program is shown in Figure 9.17. 
+
+
+Inserting 
+
+
+When inserting a new element, the first available memory block of 
+(ENTLEN) bytes at the end of the list is used (see Figure 9.11). 
+
+The program first checks that the new entry is not already in the list 
+(all labels are assumed to be distinct in this example). If not, it incre- 
+ments the list length TABLEN, and moves the OBJECT to the end of 
+the list. The corresponding flowchart is shown in Figure 9.13. 
+
+The program is shown in Figure 9.16. It is called ‘‘NEW’’ and resides 
+at memory locations 0135 to O15E. 
+
+The index register IY points to the source. HL and DE are destina- 
+tion pointers. 
+
+
+POINT AFTER 
+
+
+END OF TABLE 
+
+
+INSERT OBJECT 
+
+
+END 
+
+
+Fig. 9.13: Table Insertion Flowchart 
+
+
+552 
+
+
+DATA STRUCTURES 
+
+
+Deleting 
+
+
+In order to delete an element from the list, the elements following it 
+in the list at higher addresses are merely moved up by one element posi- 
+tion. The length of the list is decremented. This is illustrated on Figure 
+9.14. 
+
+The corresponding program is straightforward and appears on Fig- 
+ure 9.16. It is called ‘‘DELETE”’, and resides at memory addresses 
+O15F to 0187. The flowchart is shown in Figure 9.15. 
+
+Memory location TEMPTR is used as a temporary pointer pointing 
+to the element to be moved up. 
+
+During the transfer, POINTR always points to the ‘‘hole’’ in the list, 
+i.e., the destination of the next block transfer. 
+
+The Z flag is used to indicate a successful deletion upon exit. 
+
+Note how the LDIR instruction is used for efficient automated block 
+transfer (refer to address 0178 in Figure 9.16). 
+
+
+LD A, B BLOCK COUNTER 
+NEWBLOC LD BC, (ENTLEN) BLOCK LENGTH 
+
+LDIR 
+
+DEC A 
+
+
+JP NZ, NEWBLOC 
+
+
+BEFORE 
+
+
+DELETE 
+MOVE 
+
+
+TEMPTR 
+
+
+Fig. 9.14: Deleting an Entry (Simple List) 
+
+
+553 
+
+
+PROGRAMMING THE Z80 
+
+
+FIND ENTRY 
+
+
+out 
+
+
+, YES 
+DECREMENT TABLE LENGTH 
+FIND NBR OF ENTRIES 
+AFTER OBJECT IN TABLE 
+
+
+EXIT 
+
+
+| NO 
+SHIFT ONE ENTRY UP 
+
+
+DECREASE COUNT OF 
+ENTRIES REMAINING 
+AFTER THE ONE SHIFTED 
+
+
+NO 
+OUT 
+
+
+Fig. 9.15: Table Deletion Flowchart 
+
+
+554 
+
+
+0000 
+
+
+0100 
+0102 
+0105 
+01604 
+0107 
+0108 
+o106C 
+010F 
+60113 
+0115 
+0116 
+0116 
+O11E 
+oh bea § 
+O124 
+0137 
+0128 
+0129 
+o12n 
+012F 
+6132 
+0134 
+
+
+0135 
+6138 
+0139 
+@13C 
+O13F 
+0140 
+0141 
+0144 
+0146 
+O149 
+0140 
+O14E 
+O14F 
+O151 
+0155 
+0157 
+0158 
+o1s9 
+O1SB 
+O1SE 
+
+
+015F 
+6142 
+0153 
+0166 
+0169 
+16a 
+C1460 
+O146E 
+0171 
+0173 
+0174 
+O177 
+ol7e 
+0179 
+0173 
+O17F 
+01080 
+O1B3 
+0184 
+
+
+0187 
+
+
+(O17) 
+(0189) 
+(o1ga) 
+¢0198C) 
+
+
+1600 
+3AG901 
+A? 
+
+ca 
+
+47 
+
+
+ENTLEN 
+TABLEN 
+TABASE 
+TENP 
+
+
+SEARCH 
+
+
+DD2AgA01 
+
+
+DB7E06 
+FOBEOO 
+C322701 
+DD7EOL 
+FOUBEOL 
+C32701 
+DLFEOS 
+FOREO? 
+Cé3201 
+Ch] 
+
+Ce 
+
+
+LOOF 
+
+
+NEXTONE 
+
+
+EDSE8701 
+
+
+ip? 
+C3oco1 
+L6FF 
+cy 
+
+
+cnooo1 
+14 
+CASEO1 
+348901 
+oF 
+
+3c 
+329901 
+14600 
+2ABA01 
+
+
+Eraka7o1 
+
+
+41 
+19 
+10FI 
+
+
+LOOPE 
+
+
+ED489701 
+
+
+FOES 
+B1 
+
+Ep 
+ELRO 
+OLFFFF 
+ce 
+
+
+Cp0001 
+14 
+C26601 
+
+
+78 
+
+
+9000) 
+
+
+NEWBLOC 
+
+
+EXIT 
+OuT 
+
+
+' 
+ENDER 
+
+
+0100H 
+ENDER 
+ENDER+2 
+ENDER+3 
+ENDERtS 
+
+
+eo 
+
+Ar (TABLEN) 
+A 
+
+z 
+
+Erft 
+
+TXs ( TABASE} 
+Ar (IxX+0) 
+CIY+0) 
+NZeNEXTONE 
+Ar(Ixéel) 
+CIY¥4L3 
+
+NZ rNEXTONE 
+Ar (TX+2) 
+(I¥+2) 
+
+Ze FOUND 
+
+2] 
+
+Zz 
+
+HE r (ENTLEN) 
+IX? DE 
+
+LOOF 
+[ty OF FH 
+
+
+SEARCH 
+
+t 
+
+ZrOUTE 
+Ar(TABLEN) 
+Eré 
+
+A 
+¢TABLEN) +A 
+Dr 
+
+AL + (CTABASE) 
+BCr CENTLEN) 
+BC 
+
+HL DE 
+
+LOOFE 
+
+BCr CENTLEN) 
+
+
+BCrOFFFFH 
+
+
+SEARCH 
+
+1G 
+
+NZr OUT 
+
+Ar (TABLEN) 
+é 
+
+
+(TABLEN) FA 
+B 
+
+ZrEXit 
+
+Ix 
+
+DE 
+
+HL CENTLEN) 
+HL re DE 
+
+Arb 
+
+ECr CENTLEN) 
+
+
+A 
+NZ+NEWBLOC 
+BC +OFFFFH 
+
+
+DATA STRUCTURES 
+
+
+#CLEAR 0 
+
+‘CHECK FOR A ZERO TABLE LENGTH 
+sSET FLAGS 
+
+sSTORE TABLE LENGTH 
+
+
+3PUT BASE ADDR. EN IX 
+#CHECK FIRST LETTER GF ENTRY 
+
+
+#CHECK 2ND LETTER 
+
+
+sCHECK 3KD LETTER 
+
+#EXIT IF ALL LETTERS MATCH 
+sDECREWENT TABLE LENGTH COUNTER 
+sEXIT IF AT END GF TABLE 
+
+iSET IX TO NEXT ENTRY ADR. 
+#TRY AGAIN 
+
+
+*SET D TO SHOW IX CONTAINS ADDR. 
+#..0F ENTRY IN TABLE 
+
+
+#SEE IF OBJECT 16 THERE 
+pIF [ WAS FFr EXIT 
+*LOAD € WITH TABLE LENGTH 
+
+
+*INCREMENT TABLE LENGTH 
+#SET & TO LENGTH OF AN ENTRY 
+
+
+PADD HL TO (ENTLEN:TABLEN) 
+#MOVE ITY TO DE 
+
+
+SHOVE MENGRY FROM OBJECT TO ENE 
+#.,0F TABLE 
+
+
+sFIND ENTRY TO BE DELETED 
+*SEE IF IT WAS FOUND 
+
+
+#DECREMENT TABLE LENGTH 
+
+*B NOW=% OF ENTRIES LEFT IN TABLE 
+*#. AFTER ONE TO BE DELETER 
+
+sMOVE TX TO DE 
+
+#SET HL ONE ENTRY AHEAD OF DE 
+#SET BLOCK COUNTER 
+
+#SET BLOCK LENGTH COUNTER 
+
+sSHIFT 1 ENTRY OF TABLE 
+
+
+sSHIFT ANOTHER BLOCK 
+sSHOW THAT IT WAS DONE 
+
+
+Fig. 9.16: Simple List— The Programs 
+
+
+555 
+
+
+PROGRAMMING THE Z80 
+
+
+SYMBOL TABLE 
+
+
+DELETE 
+LOOF 
+OUT 
+TEMP 
+
+
+O1SF 
+O10€ 
+0106 
+0218C 
+
+
+ENDER 
+LOOPE 
+
+
+QUTE 
+
+
+0i87 
+O14E 
+QO1SE 
+
+
+NEW 
+
+
+ENTLEN 0187 
+
+
+o135 
+
+
+SEARCH 0100 
+
+
+EXIT 0193 FOUND 0132 
+NEWBLO 0179 NEXTON 0127 
+TARASE 0184 TABLEN 0189 
+
+
+Fig. 9.16: Simple List — The Programs (cont.) 
+
+
+~DNI00 
+
+
+0300 
+O310 
+0320 
+0330 
+0346 
+0350 
+0360 
+9370 
+
+
+-syY 
+¥=0000 300 
+
+
+o 
+
+
+44 
+an 
+$5 
+41 
+00 
+00 
+oc 
+
+
+-G193/196 
+e=0i9é 0194’ Run ‘INSERT’ 
+
+
+-iM400 
+
+
+0400 
+0410 
+0420 
+0430 
+044g 
+0450 
+04460 
+0470 
+
+
+-Ss¥ 
+
+
+y¥y=0300 310 
+
+
+53 
+oo 
+90 
+oo 
+90 
+oo 
+00 
+oo 
+
+
+-G193/194 
+F=0196 0194’ Run ‘INSERT’ 
+
+
+-DH400 
+
+
+0400 
+0410 
+0420 
+0430 
+0440 
+0450 
+0460 
+0470 
+
+
+-DM400 
+
+
+0400 
+0410 
+0420 
+0430 
+0440 
+0450 
+0440 
+0470 
+
+
+556 
+
+
+od 
+32 
+a4 
+33 
+35 
+oo 
+00 
+og 
+
+
+Display Memory 
+
+
+3 4F AE 
+
+
+41 44 
+aF at 
+4E 43 
+4E 54 
+00 00 
+00 00 
+00 60 
+
+
+4F 4E 
+90 00 
+00 06 
+oo 90 
+60 00 
+oo 00 
+oO 00 
+00 090 
+
+
+4F 4E 
+32 32 
+34 34 
+33 33 
+00 00 
+09 00 
+oo 00 
+
+
+00 00 
+
+
+3L 
+32 
+33 
+34 
+35 
+00 
+00 
+00 
+
+
+ai 
+32 
+33 
+34 
+33 
+00 
+00 
+oo 
+
+
+31 
+32 
+33 
+34 
+35 
+06 
+oo 
+00 
+
+
+31-31 
+32-32 
+33-33 
+34-34 
+39-35 
+00-00 
+00-00 
+00-00 
+
+
+31 
+32 
+33 
+aa 
+35 
+00 
+00 
+00 
+
+
+at 
+32 
+33 
+34 
+33 
+60 
+0G 
+00 
+
+
+41 
+60 
+60 
+tele) 
+00 
+00 
+ag 
+oo 
+
+
+JA-GL 
+00-00 
+00-00 
+00-00 
+60-00 
+96-60 
+00-00 
+90-00 
+
+
+31 
+32 
+00 
+00 
+00 
+00 
+GO 
+090 
+
+
+3L 
+32 
+00 
+00 
+00 
+00 
+oo 
+00 
+
+
+3i 
+32 
+00 
+00 
+00 
+oo 
+00 
+O° 
+
+
+31-31 
+32-32 
+606-00 
+60-60 
+06-06 
+00-00 
+90-00 
+90-00 
+
+
+3a 
+32 
+00 
+oo 
+oo 
+90 
+00 
+00 
+
+
+(More insertions) ° 
+
+
+31 
+32 
+34 
+41 
+90 
+
+
+90 
+it] 
+
+
+oo 
+
+
+31 
+a2 
+34 
+4E 
+00 
+00 
+a0 
+oo 
+
+
+a1 
+32 
+34 
+c4 
+60 
+090 
+60 
+
+
+00 
+
+
+31-34 
+32-32 
+AL-aF 
+35-35 
+00-00 
+60-00 
+90-00 
+00-900 
+
+
+31 
+32 
+at 
+3S 
+00 
+
+
+00 
+00 
+
+
+oo 
+
+
+31 
+32 
+33 
+34 
+35 
+oO 
+oo 
+690 
+
+
+31 
+aS 
+33 
+35 
+oo 
+oo 
+00 
+00 
+
+
+34 
+32 
+33 
+34 
+33 
+60 
+oo 
+00 
+
+
+31 
+4E 
+33 
+35 
+oo 
+00 
+60 
+00 
+
+
+a1 
+32 
+33 
+a4 
+ao 
+00 
+60 
+00 
+
+
+Set IY to 6310H (next OBJECT) 
+
+
+31 
+43 
+33 
+35 
+00 
+00 
+00 
+00 
+
+
+00 
+oo 
+00 
+oo 
+oo 
+00 
+oo 
+ocG 
+
+
+oo 
+oo 
+00 
+go 
+oo 
+oo 
+00 
+
+
+oo 
+
+
+a4 
+34 
+a3 
+35 
+00 
+00 
+00 
+00 
+
+
+00 
+06 
+00 
+00 
+00 
+00 
+oo 
+00 
+
+
+Set 1Y to 0300H (pointer io OBJECT) 
+
+
+41 
+34 
+33 
+35 
+00 
+00 
+00 
+00 
+
+
+44 
+a4 
+33 
+35 
+00 
+00 
+oo 
+
+
+00 
+
+
+Listing of Objects 
+with their locations 
+in memory 
+
+
+SONLI11124111... 
+1ODN2222292722.., 
+MOM3S333333333... 
+UNE4444444444,,., 
+ANTSSSSSSSS55.., 
+
+
+ate enere sen tteee 
+
+
+Table configuration 
+after program rus 
+SONZ111224a711... 
+
+
+CO 
+
+
+Ce 
+
+
+eo 
+Oe ee 
+Pe 
+
+
+ee 
+
+
+Cr 
+
+
+Table configuration 
+after second insert 
+
+
+SONLL111111110AD 
+PCCP HCAS BSI 
+
+
+ee ey 
+eooreererreerorer 
+Ce ee Oo es 
+
+
+Ce 
+
+
+eorae eer aon sreses 
+
+
+Table configuration 
+after several inserts 
+
+
+S$ON1111111111Dap 
+2222222222UNC444 
+AAAANAAMOMIIIIIZ 
+SSSSANTSSSSSSISS 
+Dever eeeeterers 
+
+
+sarees eebhorsenne 
+
+
+ere bee town sereesr 
+
+
+Sethe ree rere toes 
+
+
+Fig. 9.17: Simple List—A Sample Run 
+
+
+DATA STRUCTURES 
+
+
+=S 
+Y=0340 320 
+-G190/193 
+
+
+P0193 0193° Run ‘SEARCH’ 
+Reg D shows that Object was found 
+
+
+-DR Register contents 
+
+
+ZN A=40 BC=O2FF DE=FFOR HL =034l S=O100 P=0193 0193’ CALL 0135 
+A’=00 B’=0000 1°=0000 H‘'=0000 xX=0427 Y=O320 I=00 (O1L35¢% 
+
+
+Address of Object 
+
+
+-G196/199 
+
+
+P=0199 0199° Run ‘DELETE’ Table configurution 
+
+
+after deletion 
+
+~BM400 
+
+0400 S33 4F 4E 34 31 31 31 31-31 31 32 31 Si 44 41 44 SONL111111111DAD 
+0416 323 32 32 32 32 32 32 32-32 323 55 AE 43 44 34 JA BBBR222222UNC444 
+0420 34 34 34 34 34 34 34 AI-AE 54 35 395 35 35 35 35 44444444NTS5595955 
+0430 #35 35 35 35 41 4€ 54 35-35 35 35 35 35 35 35 35 SSSSANTSSSSSSSSS 
+0449 «35 00 00 00 50 00 00 00-00 00 00 00 GO 00 OO 00 Seecaceeseoseres 
+6456 06 00 00 00 00 50 GO 60-00 06 00 00 O00 O00 GO 00 ceceerscecrseere 
+0460 00 00 00 00 00 00 00 00-00 66 00 00 00 00 00 OO serssceeersacers 
+0470 «00 00 00 00 00 00 00 00-00 00 60 00 GO 00 00 DO ceceeeessecssees 
+
+
+“SY 
+
+Y¥=0240 340 
+
+“G1PS/199 Delete last entry in table Note: no apparent 
+
+P2019? 0199” change in table 
+configuration 
+
+-GN400 
+
+
+0400 53 4F 4E 31 Bi 31 31 31-31 31 31 JA 3a 44 44 44 SONLL11114111DA0 
+6410 32 32 32 32 32 32 $2 32-32 32 SS 46 43 34 24 34 222R2BBR222RUNEA4A 
+0420 34 34 34 34 34 34 34 41-45 $4 35 35 35 35 35 JS 4444444ANT555555 
+0430 35 35 35 39 41 46 54 35-35 35 35 35 35 35 35 35 SSSSANTSSSSSSSSS 
+0440 35 00 00 00 00 00 00 00-00 00 06 00 00 00 00 OO Sesssessoreeeers 
+0450 06 00 00 00 00 00 00 00-00 00 00 00 00 OO O60 OO wrsprccceeeevens 
+0440 00 66 G0 00 G0 00 OO 00-00 00 60 00 00 00 00 00 ciriecccereerens 
+0470 60 00 00 00 00 00 00 00-00 00 GO O0 00 00 00 00 cecssccceseceses 
+
+
+-BM189S1 
+
+
+0187 | 03 -——— Memory location ‘TABLEN’ — shows true length of table 
+
+
+P=0193 0193" Run ‘SEARCH’ for deleted Object 
+
+
+Dshows that Object was not found 
+-DR 
+Z N  A=SS BC=OOFF DE=000D HL=0441 $=0100 F=0193 0193’ CALL 0135 
+"200 B7#0000 L1’=0000 H*=0000 X=041A Y=0340 I=00 (0135') 
+
+
+Fig. 9.17: Simple List— A Sample Run (cont.) 
+
+
+357 
+
+
+PROGRAMMING THE Z80 
+
+
+ALPHABETIC LIST 
+
+
+The alphabetic list, or ‘‘table,’’ unlike the previous one, keeps all 
+its elements sorted in alphabetic order. This allows the use of fast- 
+er search techniques than the linear one. A binary search is used here. 
+
+
+Searching 
+
+The search algorithm is a classic binary search, Let us recall that 
+the technique is essentially analogous to the one used to find a name in 
+a telephone book. One usually starts somewhere in the middie of the 
+book, and then, depending on the entries found there, goes either back- 
+wards or forward to find the desired entry. This method is fast and 
+reasonably simple to implement. 
+
+The binary search flowchart is shown in and the program Fig. 9.18, 
+is Shown in Fig. 9.23. 
+
+This list keeps the entries in alphabetical order and retrieves them by 
+using a binary or ‘“‘logarithmic’’ search. An example is shown in Figure 
+9.19. The search is somewhat complicated by the need to keep track of 
+several conditions. The major problem to be avoided is searching for an 
+object that is not there. In such a case, the entries with immediately 
+higher and lower alphabetic values could be alternately tested forever. 
+To avoid this, a flag is maintained in the program to preserve the value 
+of the carry flag after an unsuccessful comparison. When the INCMNT 
+value, which shows by how much the pointer will next be incremented 
+reaches a value of ‘‘1’’, another flag called'‘‘CLOSENOW’’, which we 
+will abbreviate to ‘‘CLOSE’’, is set to the value of the COMPRES 
+flag Thus, since all further increments will be ‘‘1’’, if the pointer goes 
+past the point where the object should be, COMPRES will no longer 
+equal CLOSE and the search will terminate. This feature also enables 
+the NEW routine to determine where the logical and physical pointers 
+are located, relative to where the object will go. 
+
+Thus, if the OBJECT searched for is not in the table, and the running 
+pointer is incremented by one, the CLOSE flag will be set. On the next 
+pass of the routine, the result of the comparison will be opposite to the 
+previous one. The two flags will no longer match, and the program will 
+exit indicating ‘‘not found’’. 
+
+
+553 
+
+
+DATA STRUCTURES 
+
+
+! 
+[asso 
+
+
+POINT TO TABLE BASE 
+
+
+LOGICAL POSITION = 
+INCREMENT VALUE = 
+TABLE LENGTH / 2 
+
+(ADD 1 IF ITWAS ODD) 
+
+
+YES 
+NOT FOUND 
+¥ NO 
+
+
+POINT TO MIDDLE OF TABLE 
+
+
+INCREMENT VALUE = INCREMENT VALUE/2 
+
+
+ADD ONE IF IT WAS ODD 
+COMPARE OBJECT TO ENTRY 
+
+
+{ENTRY} 
+
+
+FOUND 
+
+
+NO 
+
+
+PRESERVE CARRY (SIGN OF COMPARISON) 
+IN COMPRES FLAG 
+
+
+1S INCREMENT 
+VALUE ONE? 
+
+
+(NEXT TEST) {LAST ONE} 
+
+
+Fig. 9.18: Binary Search Flowchart 
+
+
+559 
+
+
+PROGRAMMING THE Z80 
+
+
+(NEXT TEST) {LAST ONE) 
+
+
+BRANCH 
+ON COMPRES 
+
+
+WILE INCREMENT 
+GO PAST END 
+OF TABLE? 
+
+
+AT END 
+OF TABLE? 
+
+
+UPDATE POINTERS 
+
+
+MOVE POINTERS 
+uP BY 1 
+
+
+(ENTRY) 
+
+
+WALL INCREMENT 
+GO PAST END 
+OF TABLE? 
+
+
+NOT 
+FOUND 
+
+
+UPDATE POINTERS 
+
+
+(ENTRY) 
+
+
+(TOMO) 
+
+
+MOVE POINTERS 
+DOWN BY 1 
+
+
+Fig. 9.18: Binary Search Flowchart (cont.) 
+
+
+INCREMENT = i 
+CLOSENOW = COMPRES 
+
+
+{ENTRY} 
+
+
+560 
+
+
+(FOOHH 
+
+
+DATA STRUCTURES 
+
+
+The other major problem that must be dealt with is the possibility of 
+running off one end of the table when adding or subtracting the incre- 
+ment value. This is solved by performing a test ‘‘add’’ or “‘subtract’’ 
+using the logical pointer and length value which record the actual num- 
+ber of entries, not the physical positions in memory used by the physical 
+pointers. 
+
+In summary, two flags are used by the program to memorize infor- 
+
+
+(0121) LD A, C 
+SRL A 
+ADC 0 
+LD Cc, A 
+
+
+FIRST TRY SECOND TRY 
+SEARCH INTERVAL = 5 SEARCH INTERVAL = 2 
+
+
+Fig. 9.19: A Binary Search 
+
+
+561 
+
+
+PROGRAMMING THE Z80 
+
+
+mation: COMPRES and CLOSE. The COMPRES flag is used to preserve 
+the fact that the carry was either ‘‘0”’ or ‘‘1”’ after the most recent com- 
+parison. This determines if the element under test was larger or smaller 
+than the one with which it was compared. The C indicates the relation. 
+Whenever the carry C was ‘‘1’’, and the element was smaller than the 
+object COMPRES is set to ‘‘1’’. Whenever the carry C was ‘‘0’’, indi- 
+cating that the element was greater than the object, COMPRES will be 
+set to ‘‘FF’’, 
+
+
+The second flag used by the program is CLOSE. This flag is set equal 
+to COMPRESS when the search increment INCMNT becomes equal to 
+**1’’. It will detect the fact that the element has not been found if 
+COMPRES is not equal to CLOSE the next time around. 
+
+Other variables used by the program are: 
+
+
+LOGPOS _ which indicates the logical position in the table 
+(element number) 
+
+INCMNT which represents the value by which the running 
+pointer will be incremented or decremented if 
+the next comparison fails 
+
+TABLEN _ represents as usual the total length of the list. 
+
+
+LOGPOS and INCMNT will be compared to TABLEN in order to 
+assure that the limits of the list are not exceeded. 
+
+The program called ‘‘“SEARCH”’ is shown on Figure 9.23. It resides 
+at memory locations 0100 to 01CF, and deserves to be studied with care, 
+as it is much more complex than in the case of a linear search. 
+
+An additional complication is due to the fact that the search interval 
+Iay at times be either even or odd. When it is odd, a correction must 
+be introduced. (It cannot, for instance, point to the middle element of a 
+four-element list.) When it is odd, a ‘‘trick’’ is used to point to the 
+middle element: the division by 2 is accomplished by a right shift. The 
+bit ‘‘falling off’’ into the carry after the SRL instruction will be ‘‘1’” if 
+the interval was odd. It is merely added to the pointer. 
+
+
+The OBJECT is then matched against the entry in the middle of the 
+new search interval. If the comparison succeeds, the program exits. 
+Otherwise (“‘SNOGOOD?’’), the carry is set to ‘‘0”" if the OBJECT is less 
+than the entry. Whenever the INCMNT becomes ‘‘1’’, the CLOSE flag 
+(which had been initialized to ‘‘0’’) is then checked to see if it was set. If 
+it was not, it gets set. If it was set, a check is run to determine whether we 
+passed the location where the OBJECT should have been but is not. 
+
+
+562 
+
+
+DATA STRUCTURES 
+
+
+Also note that when the carry was ‘‘1’’, the running pointer will point 
+to the entry below the OBJECT. 
+
+
+Element Insertion 
+
+
+In order to insert a new element, a binary search is conducted. If the 
+element is found in the table, it does not need to be inserted. (We 
+assume here that all element are distinct). If the element was not found 
+in the table, it must be inserted immediately before or immediately after 
+the last element to which it was compared. The value of the COMPRES 
+flag after the search indicates whether it should be inserted immediately 
+before or immediately afterwards. All the elements following the new 
+location where it is going to be placed are moved down by one block 
+position, and the new element is inserted. 
+
+
+BEFORE 
+
+
+TABASE——— 
+
+
+Ww 
+MENT 
+
+
+OBJECT BAC MOVE DOWN 
+
+
+Fig. 9.20: Insert: ““BAC”’ 
+
+
+563 
+
+
+PROGRAMMING THE Z80 
+
+
+The insertion process is illustrated in Figure 9.20, and the corre- 
+sponding program appears in Figure 9.23. 
+
+The program is called NEW, and starts at memory location 01D0. 
+Note that the automated Z80 instructions LDDR and LDIR are used for 
+efficient block transfers. 
+
+
+Element Deletion 
+
+
+Similarly, a binary search is conducted to find the object. If the 
+search fails, it does not need to be deleted. If the search succeeds, the 
+element is deleted, and all the following elements are moved up by one 
+block position. A corresponding example is shown in Figure 9.21, and 
+the program appears in Figure 9.23. The flowchart is shown in Fig. 
+9.22. 
+
+The program is called ‘‘DELETE” and resides at address 0221. 
+
+A sample run of the above programs is shown in Fig. 9.24, 
+
+
+BEFORE 
+
+
+MOVE UP 
+
+
+DELETE 
+
+
+Fig. 9.21: Delete ‘“‘BAC" 
+
+
+564 
+
+
+DATA STRUCTURES 
+
+
+DELETE 
+
+
+YES 
+
+
+COUNT HOW MANY 
+ELEMENTS FOLLOW THE 
+ONE TO BE DELETED 
+
+
+qnuts 
+
+
+RESULT = COUNTER 
+(LOG POS} 
+
+
+POINT TO NEXT ENTRY 
+POINTER = POINTER (DESTINATION: 
+
+
+DECREMENT LOGPOS 
+
+
+(OOWNTAB) 
+
+
+SET 2 FLAGS 
+
+
+RTS 
+
+
+Fig. 9.22: Deletion Flowchart (Alphabetic List) 
+
+
+565 
+
+
+PROGRAMMING THE Z80 
+
+
+9000 ORG 
+(on4aa) CLOSENWOW BL. 
+(024h) COMFRES = Tl. 
+(0240) TAHLEN DL 
+(O24T) TABASF. TIL. 
+(O24F> ENTLEN DL. 
+
+? 
+
+0100 3E00 SEARCH Lo 
+
+Or02 324AG7 LT 
+
+0105 324802 Lu 
+
+9108 «5? Lo 
+
+0109 2A4D02 {h 
+
+Ol0c 3A4CO2 au 
+
+O10F CR3F SRL. 
+
+O11) CEOO Ant 
+
+9113 4F LE 
+
+Ort4 47 Lo 
+
+0115 CARAOL JF 
+
+0119 SF i) 
+
+O119 1h BEC 
+
+Oo1lA CDBDO1 CALL. 
+
+O11D 19 ADT 
+
+O11E ES ENTRY FUSH 
+
+O11F ODEL POP 
+
+O12: 79 Lp 
+
+0122 CBF SRL 
+
+124 CEOO ARC 
+
+0126 AF Lt 
+
+0127 HD7EOO LD 
+
+012A FUBEOO cP 
+
+0120 C24201 JF 
+
+9130) «(DD7EO1 1B 
+
+0133 FOREOI CF 
+
+0836 €24201 JF 
+
+0139 = DD7EO2 Lu 
+
+013C FDIREOS cr 
+
+OL3F CARCOL JF 
+
+0142 «=3E01 NoGoor Lo 
+
+0144 A401 JP 
+
+0147 SEFF Lo 
+
+0349 324802 TESTS LB 
+
+0o14c «679 Ln 
+
+o14nh 3D EC 
+
+O14E Casr7or JF 
+
+9151 3A4A02 1 
+
+0154 a? ANT 
+
+0135 CA6301 JF 
+
+oi5a 57 LD 
+
+0159 3A4SH02 LB 
+
+o15C «92 SUB 
+
+O15D CAé?01 JP 
+
+02460 C3BA0L JF 
+
+0143 SA4BG2 NOTCLOSE LD 
+
+0144 324A02 LD 
+
+01469 TBES NEXTEST FUSH 
+
+O16mR €E1 POF 
+
+014C 39 LO 
+
+0160 COSDOI CALL 
+
+0170 3A4802 BY 
+
+0173 «3C ENC 
+
+0174 C29601 JP 
+
+0177 #76 Lu 
+
+0:78 71 SILIE 
+
+0179 CABSOL JF 
+
+Or7C = DABSOL JF 
+
+O17F 47 Lp 
+
+0180 EDS? Sac 
+
+0192 C31E01 JP 
+
+oi85 78 TOOLOoUW {i 
+
+0164 JE REC 
+
+0187 CABAOL JF 
+
+O1BA EDSB4FO2 LD 
+
+O1BE 37 SCF 
+
+O16F 3F CCF 
+
+0190) «ELS. SEC 
+
+6192 O85 DEC 
+
+0193 C3AFO1 JF 
+
+
+OLO0GH 
+ENDE. fi 
+ENDER 
+ENDED? 
+ENDED 
+ENDE DLS 
+
+
+fet 
+(CLOSENQW) »A 
+(COMPRES) +A 
+DeA 
+
+Hie (TABASE) 
+Ay CTABLEN! 
+4 
+
+0 
+
+CxA 
+
+Hea 
+ZsNOTFOUNT 
+Fra 
+
+E 
+
+MULT 
+
+HL. 2 DE 
+
+HL 
+
+1X 
+
+Arl 
+
+a 
+
+0 
+
+CrA 
+
+Ar CIM4+0} 
+CLY4+0} 
+NZ»NGGOOR 
+Art IXbls 
+CLTY4+b) 
+
+NZ eNOGOOD 
+ArCExX+2) 
+C1¥+43) 
+
+ZeF OUND 
+
+Ast 
+
+CrTESTs 
+ALOFFH 
+{COMPRES I+ A 
+AeC 
+
+a 
+
+NZ sNEXTEST 
+A? (CLOSENOW) 
+a 
+ZeNOTCLOSE 
+Dra 
+
+Ar (COMPRES) 
+q 
+
+ZeNEXTEST 
+NOTFOUND 
+
+As (COMPRES > 
+(CLOSENOW) 2A 
+t 
+
+HL 
+
+Erl 
+
+MULT 
+
+4s (COMPRES) 
+a 
+
+NZrADDIT 
+Ark 
+
+C 
+
+<r TOOLOW 
+
+Cr TOOLOW 
+eA 
+
+HE DE 
+ENTRY 
+
+Ark 
+
+A 
+ZeNOTFOUND 
+DE+(ENTLEN) 
+
+
+HL » Le: 
+& 
+REALCLOS 
+
+
+iZERQ FLAG LOCATIONS 
+
+
+? INITIALIZE Hi. 
+
+sHIVIDE FY 2 
+
+sADL 1°S GIT BACK IN 
+
+iSTORE AS INCREMENT VALUE 
+
+¢STORE AS LOGICAL FOSITION VALUE 
+‘CHECK IF LENGTH IS ZERO 
+*MULTIFLY (E-1dsENTLEN 
+
+
+*SET HL TO MIBELE OF TABLE 
+
+
+7LOAD HL INTD IX 
+
+
+FDIVIRE INCREMENT YALUE By Tut) 
+
+
+#COMPARE FIRST LETTER 
+
+
+*EOMPARE ONT LETTER 
+
+
+sCOMPARE SRE LETTER 
+
+
+‘SET COMPARE RESULT FLAG TO 
+#..RESULT GF COMPARE (19K FR) 
+
+
+‘TS INCREMENT VALUE 17 
+
+
+tYESr IS CLOSE FLAG SET? 
+
+
+SYESrSEE IF HAVE FASSED WHERE 
+3+ENTRY SHOULD BE BUT ISN’T 
+
+
+*SET CLOSE FLAG TO BIRECTION OF 
+#.-SEARCH TO PREVENT REPETITION 
+sPREPARE HL AND DE FOR ADE OR 
+*,.SUB GF TNCREMENT VALUE 
+
+
+‘TEST IF WANT TO ADD OR SUE 
+
+
+#TEST TO SEE iF SUH WILL RUN 
+#.-OFF BOTTOM OF TABLE 
+
+
+#SET NEW LOGICAL POSITION VALUE 
+‘CHANGE ADDRESS ITSELF 
+?SEE IF POSITION IS 1 
+
+
+eiF SQe EXIT 
+sJUST SUH 1 ENTRY POSITION 
+
+
+*CHANGE LOGICAL FOSITION 
+
+
+Fig. 9.23: Binary Search Program 
+
+
+566 
+
+
+0196 
+O1LE9 
+a19Aa 
+O19h 
+GLPE 
+OL9F 
+O1AQ 
+G10) 
+
+Q1A2 
+6105 
+9144 
+O1AP 
+OLAL 
+OLAE 
+OlAF 
+OUR! 
+
+Q1B4 
+O187 
+O1RA 
+O1KC 
+
+
+O1nb 
+OVRE 
+O1BF 
+Orcs 
+oa 
+0108 
+OIC? 
+o1Ca 
+O1cc 
+91Ch 
+OECE 
+OICr 
+
+
+o1no 
+1S 
+o1ba 
+O1n7 
+O01L4 
+O10 
+One 
+OLEA 
+oles 
+OWS 
+O1F9 
+O1EN 
+On 
+OTE 
+OIF 1 
+O1F2 
+OFS 
+OF 6 
+Q1F92 
+O1FA 
+O1F 
+oieck 
+OIFF 
+0700 
+0201 
+9205 
+Q207 
+0208 
+O20 
+Q20C 
+O20F. 
+O20F 
+0210 
+o254 
+0216 
+o2n19 
+O214 
+0216 
+0200 
+
+
+3aaco2 
+90 
+
+o1 
+HAASOI 
+9 
+
+78 
+
+81 
+
+47 
+ESIEOL 
+81 
+CARAGL 
+ELSEAFO2 
+19 
+
+04 
+O£01 
+3n4aKo2? 
+324a02 
+C3101 
+L6FF 
+ce 
+
+tn 
+
+cs 
+1800 
+210000 
+Enanaro? 
+4) 
+
+
+CHOOO! 
+14 
+
+C27002 
+3AaLOD 
+
+
+3c 
+CAENO! 
+ESHA OD 
+
+
+SAACOD 
+370 
+cadtoe 
+oF 
+CORDOL 
+19 
+
+
+fa 
+ENSA4FOD 
+ENE 
+
+au 
+C20102 
+23 
+
+FRES 
+
+fe 
+
+Eu 
+ENARAFO? 
+FRAG 
+3AATOL 
+3c 
+S24C02 
+G1FETE 
+ce 
+
+
+ABLIT 
+
+
+TOGHTGH 
+REAL CEOS 
+NOTFOUND 
+FOUNL 
+
+
+? 
+
+
+MULT 
+
+
+ARTE 
+
+
+e 
+Atm 
+
+
+HIG CDE. 
+SETUP 
+
+
+MOYEN 
+
+
+INSERT 
+
+
+Ke 7 
+
+
+PUSH 
+PUSH 
+Let 
+Lo 
+in 
+it 
+anh 
+iin? 
+
+
+Ln 
+Lon 
+Net 
+JF 
+TNC 
+FUSH 
+FOF 
+EX 
+Li 
+LDR 
+LW 
+ENC 
+0 
+Lt 
+RET 
+
+
+A> CTABLEN) 
+f 
+
+im 
+
+Cr TOOHIGH 
+Hie DE 
+
+As fi 
+
+C 
+
+Etets 
+
+ENTRY 
+
+eb 
+ZeNOTFOUNT 
+TEs CENTLEN) 
+HL. HE 
+
+?t 
+
+Crl 
+
+Ar (COMPRES) 
+CCE OSENOWD eA 
+ENTRY 
+
+sOFFE 
+
+
+Hi. 
+
+BC 
+
+freQ 
+
+HL 29000 
+RE CP NTI END 
+Here 
+
+He DE. 
+ART 
+EC 
+
+(6° 1M 
+
+Ut 
+
+
+SEARCH 
+
+i 
+
+NZ. Out 
+
+Ar CTARL EN) 
+A 
+
+7, INSERT 
+
+Ae CLOMPRES > 
+
+
+i) 
+
+ZeHTSTl 
+LE, (ENTE PNY 
+HL» TE 
+
+SE Tur 
+
+ih 
+
+Ae CTARLEN? 
+ih 
+
+fe INSERT 
+
+
+TE» FIL, 
+Hise fENTLEND 
+Hi. HE 
+BE sii. 
+Be CENTLEND 
+
+
+a] 
+
+NZ MOVEM 
+
+HL 
+
+ly 
+
+bE 
+
+LE.» Hit. 
+
+UC e CENTLEN) 
+
+
+fie ( TABLEN) 
+A 
+
+CTABLEN} DA 
+BO POF FFF H 
+
+
+DATA STRUCTURES 
+
+
+FTES! TO SE: IF CURRENT FOSITTGN 
+#,.PLUS CNCRFMENT WILE BO FAST 
+#.6eEND OF THE TABLE 
+
+
+#JS Oke CHANGE ACTUAL ADDRESS 
+FCHANGE LOGICAL FOS. VALUE 
+
+
+eSEE LF POSTTION LS AT TOF OF 
+tee TABLE CSAME AS TABLEN-Frdy 
+FAT 1 ENTRY FOSTT ION 
+
+
+PENCREHENT LOGTCAL FOSTTION 
+7SFT ENCREMENT TN 1 
+
+3SE7T CLOSE FLAG TO) CORRPARF 
+Fs ekRESULT 
+
+
+MIM TIRIIRS & UY CENTLEN?D > 
+é,UAbUm IN UF OM FXY7 
+
+
+7SFE Ch ORIFET 24S ALREADY THERE 
+
+
+FCHFCK FOR O TABLE 
+
+
++COMPRES -$+ SET HL 
+*. OBJECT SHOULD GO 
+
+
+ABOVE WHERE 
+
+
+*+COMPRES=0- 
+5SEE 
+
+
+SET FR OFOR SUBTRACT 
+HOW HANY ENTRES ARE LEFT 
+
+
+7GET Ht 
+#. ENTRY 
+
+
+TO LAST POSTTION IN LAST 
+
+
+‘SET NE | ENTRY ARODVE HI. 
+
+
+sSHTFT WF ONE ENTRY OF MEMORY 
+
+
+eREPEAT TF NECCESSARY 
+#HL 1S FRONT OF NOW EMF TY SPACE 
+#FLOAD OBJECT INTO EMFTY SPACE 
+
+
+*+INCREHENT TABLE |LENGTH 
+
+
+#SHOW THAT TT WAS DONE 
+
+
+Fig. 9.23: Binary Search Program (cont.) 
+
+
+567 
+
+
+PROGRAMMING THE Z80 
+
+
+O221 croool DELETE CALL SEARCH 7GET ANDRESS OF OBJECT 
+0224 14 INC fh #SEE IF ORJECT IS THERE 
+0225 CAA902 JF ZrQUTE 
+0228 ERSH4AFO2 in Es CENTLEN?} 
+o22c EF EX DE rh 
+o22n 19 ALT HL» DE #LE IS LOC. OF OBYECT:s HL IS 
+O22£ 3A4coee iD Ar < TABLEN? 7. ONE ENTRY OBOVE 
+6231 70 SUE RB 7SEE HOW MANY ENTRIES ARE LEFT 
+0232 CAIFO? JF Zr DOWNTAR 
+0235 EN4R4FO2 SHIFTIN LI AC, (ENTLEN) 
+0239 ELDBO LEIR FSHIFT TOWN 1 ENTRY LENGTH 
+O23B 3 BEC A 
+O23C0 C23502 JF NZ;SHIFTIN 
+O23F 3AACOS LOWNTAB LD Ar ( TABLEN} F7HECRENENT TARLE LENGTH 
+0242 3D LEE rey 
+0243 324002 LO (TAERLEN) ré 
+0246 O1FFFF LD BC rOFFFFH #SHOW THAT ACTIGN WAS TAKEN 
+Oo249 CF GUTE RET 
+ca 
+024A (0000) ENDED END 
+SYHBOL TABLE 
+A4DDEN O1c¢ ADIT 0196 CLOSEN 0244 COMPRE 0245 DELETE 9221 
+BDOWNTA O23F ENDED 0244 ENTLEN 024F ENTRY O11E FOUND - 018C 
+HISIBE O1ED INSERT 020C HOVEM 0201 nULT O1BD NEU o1D0 
+NEXTES 0149 NoGoor 0142 NOTCLO 0163 NOTFOU O1BA OUT 0220 
+OUTE 0249 REALCL O1AF SEARCH 0100 SETUP OLEE SHIFTI 0235 
+TABASE 06241 TABLEN 024C TESTS 0147 TOOHIG O1AS TOOLOW 6195 
+Fig. 9.23: Binary Search Program (cont.) 
+LINKED LIST 
+
+
+The linked list is assumed to contain, as usual, the three alphanu- 
+meric characters for the label, followed by one to 250 bytes of data, fol- 
+lowed by a two-byte pointer which contains the starting address of the 
+next entry, and lastly followed by a one-byte marker. Whenever this 
+one-byte marker is set to ‘*1’’, it will prevent the insert-routine from 
+substituting a new entry in the place of the existing one. 
+
+Further, a directory contains a pointer to the first entry for each let- 
+ter of the alphabet, in order to facilitate retrieval. It is assumed in the 
+program that the labels are ASCII alphabetic characters. All pointers at 
+the end of the list are set to a NIL value which has been chosen here to 
+be equal to the table base, as this value should never occur within the 
+linked list. 
+
+The insertion and the deletion program perform the obvious pointer 
+manipulations. They use the flag INDEXED to indicate if a pointer 
+pointing to an object came from a previous entry in the list or from the 
+directory table. The corresponding programs are shown in Figure 9,29. 
+
+The data structure is shown in Figure 9.25. 
+
+
+568 
+
+
+DATA STRUCTURES 
+
+
+-14400 fnitial table 
+
+0460 900 GD OG GO 00 60 00 00-00 OO 00 00 00 00 00 00 sec iececerarnzas 
+0410 «00 00 00 00 00 00 00 60-00 OO 00 00 00 00 00 00 areeesecesrrange 
+0420 00 00 00 00 00 00 00 00-00 00 00 OO 00 O00 00 00 cesecsesecuraaes 
+6430 00 00 00 00 00 00 00 00-00 00 00 O00 00 00 00 00 ceesoesencrreuce 
+6440 90 00 00 00 00 00 00 00-00 00 00 00 GO 00 OO OO crcconeesucoerese 
+6450 60 00 00 00 00 00 00 06-00 00 00 00 OO 00 00 00 cas escccsereness 
+04460 09 00 00 00 00 00 00 G0-0O 90 G0 00 00 00 00 00 Liesccsseccesaae 
+0470 00 00 00 00 00 00 00 00-00 00 66 00 00 00 00 00 crsececeserecess 
+
+
+Listing of Objects 
+and their Eacations 
+
+
+300 in Memory 
+
+
+0300 S3 4F 4€ 31 31 31 31 31-32 3) 21 3% 31 00 00 OO SON1112111112... 
+O310 44 41 44 32 32 32 32 F232 St 32 32 32 00 00 00 NADQIIQQIIALS... 
+0320 «AL 4F 4ft 33 33 33 34 33-33 33 JF 35 345 00 00 O60 MOMNS339353533... 
+O430 SS 4f 43 34 34 34 34 34-34 34 44 34 34 00 00 00) 1ND4444444444,,., 
+0340 41 46 54 45 35 35 45 35-35 35 35 35 35 00 00 00 ANTSSSSSSSSSS..,. 
+0350 00 00 06 GO 00 00 00 00-C0 OO 00 00 00 00 00 00 ceersaserarseees 
+0340 00 66 00 06 00 00 60 00-00 O00 00 00 00 00 00 00 sacsscenassereee 
+
+
+9370 00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 OO cecccseereseress 
+-SY 
+¥=90000 320 
+
+
+~G2645/246 Run ‘INSERT’ 
+
+
+FrONhsd 0264 ° 
+
+
+-TM400 Table after insertion 
+
+
+9400 40 AF 4B 33 33 33 34 33-33 34 33 33 33 00 00 00 = MOM3353333333... 
+0410 00 00 00 0O 60 90 00 00-00 00 00 00 00 00 90 00 nesereeeesssseas 
+
+
+0420 00 00 OO 00 00 00 00 00-00 00 00 00 GO 00 00 00 seseesacneerenes 
+
+0430 00 00 00 00 006 00 00 00-00 00 00 00 00 GO O00 OO) .sesereseesesces 
+
+6440 60 60 00 00 00 00 06 00-90 00 00 00 00 GO OO OG Cale e teeter eee 
+
+O450 00 00 606 60 00 00 OO 00-00 OO 00 00 00 GO OO OO .erecuseccerveen 
+
+9440 60 00 006 66 00 00 00 00-00 00 00 09 O09 00 00 GO cersearsecsreaee 
+
+0470 00 00 00 90 06 00 O06 00-00 00 00 00 OO 00 00 GO cecassesscrreeas 
+
+-sY 
+
+Y¥=0320 310 
+
+"G2657/268 Run ‘INSERT’ on another Object 
+
+0245 92665 Listing of table after 
+insertion. Note: table 
+
+“11H 400 is kept alphabetic 
+
+
+0400 #44 41 44 32 92 32 32 32-32 32 32 32 32 4D 4F Al DADIE22232222N0MK 
+0410 33 33 33 33 33 34 33 35-39 33 00 60 O60 00 OO OO FAITIITIIIG. ee 
+0420 00 00 00 00 00 60 00 60-00 00 00 00 06 00 O09 00 reece eensssaaes 
+8436 00 00 06 00 00 OO 00 00-00 00 00 00 00 G0 00 GO cersecseseeenees 
+0440) «00 00 06 00 00 00 00 00-00 00 00 00 O00 00 00 OO cacssceerevccnnr 
+0450 00 00 00 00 00 00 GO 00-00 00 00 06 00 00 00 OO sesecsccseeesess 
+0440 00 00 00 60 00 00 00 G0-090 00 00 90 O06 00 OO OO sscasesrcscesoes 
+9470 00 00 00 09 00 00 CO 60-00 00 00 00 GO 00 GO O00 Vecsecescreennne 
+
+
+* * * (additional inserts) * * * 
+Fig. 9.24; Aiphabetic List—A Sample Run 
+
+
+569 
+
+
+PROGRAMMING THE Z80 
+
+
+570 
+
+
+Table configuration 
+
+afier all Objects 
+~LM400 have been inserted 
+0400 #41 «4E S435 35 35 35 35-35 35 35 35 35 44 41 44 ANTSSSSSSSSssSDAD 
+6410 32 32 32 32 32 32 32 32-32 32 40 4F 4D 33 35 33 2222222222NON355 
+0420 «#233: 33:33 33 33 33 33 S3-4F 4E 31 31 31 Gl 31 31 333SS3SSON111111 
+0430 31 31 31 31°55 AE 43 G4-34 34 34 34 34 34 94 34 1LLIUNC 444444444 
+0440 34 00 00 00 90 00 00 00-00 00 00 00 00 00 00 00 A.cesssseceseene 
+9450 GO 00 GO GO GO GO 00 00-06 OO 00 00 00 00 00 00 rsercesereervess 
+0440 00 00 00 00 00 00 00 00-00 00 06 00 00 O00 00 O00 crores scceesarse 
+0476 00 00 00 00 00 O46 90 00-60 00 00 OO OO CO 00 O00 ceeeseeeseesoece 
+
+
+-SY 
+Y=0340 360 
+
+
+"G260/263 Run ‘SEARCH’ for SON”? (at address 0300) 
+F=0263 0263° 
+
+
+—DR Eon 4 Found 
+Z RN A=AE BC=0401 GE=000N HL=0427 S=0160.F=0263 O243° CALL 0186 
+A’=00 B’=0000 1420000 H‘'=0000 X=0427 Y=0300 I=00 CO1lTO") 
+
+
+Address of Object in table 
+(verify in Table above that it is SON’) 
+
+
+-G265/269 
+Run ‘DELETE’ on “SON” 
+
+F=eOZ69 0269" so Table configuration 
+after deletion. Note: 
+that UNC was shifted 
+up. The last UNC 
+entry must be 
+
+-n40o disregarded 
+
+
+0400 41 4E 54 35 95 35 35 35-35 35 35 35 35 44 41 44 ANTSSSSSSSSSSDAD 
+0410 32 32 32 32 32 32 32 32-32 32 40 AF 4B 33 33 33) 2222222222N0N3T5 
+9420 33 33 33 33 33 33 33 SS-4E 43 34 44 34 34 34 34 = 3339333UNC444444 
+0430 34 34 34 34 55 4E 43 34-34 34 34 34 34 34 34 3A A444UNTAAAANAAAA 
+O440 34 00 00 00 06 60 00 00-00 00 900 00 00 00 00 OO Acesesssssreaees 
+0450 60 00 00 00 00 00 60 00-00 00 00 00 06 00 00 GO ceceteeeeenseses 
+0440 00 00 00 00 00 00 00 60-00 00 00 06 00 GO O00 00 cersteceseessees 
+0470 00 00 00 00 00 00 00 00-00 06 00 00 GO 00 00 00 sescserteseseece 
+
+
+-G240/243 Try run of “SEARCH again (on ‘“‘SON’’) 
+
+
+P0267 0253' 
+
+
+~DR r-— Not found 
+
+$ N A=FE BC=0401 DE=FFOD HL=0427 S=0100 P=0243 02463° CALL 0100 
+A‘=00 B'=O000 D’=0000 H’=0000 X=0427 Y=0300 L=00 (0100) 
+
+-G243/2646 
+
+
+Re-insert Object (‘‘SON’’) 
+P=0266 0266° 
+Current table 
+configuration. 
+Compare to the one 
+prior to the 
+-DM400 DELETE 
+
+
+04060 41 4F 54 35 35 35 35 35-35 35 35 35 35 44 44 44 ANTSSSSSSSSSSDAL 
+0410 32 32 32 32 32 32 32 92-32 32 40D 4F 4D 33 43 33 2232222222M0N333 
+0420 33:33 33 33 33 33 39 53-4F 46 31 31 Fl 31 41 Si | FSSIIIISONI11111 
+0430 31 31 3i 31 55 4€ 43 34-34 34 34 34 34 34 34 34 11110ND 449444444 
+9440 34 00 00 00 00 60 00 00-00 O06 00 00 OO 06 00 00 Aeeoerecuccresene 
+0450 00 GO 60 00 06 06 GO 60-00 00 OO 00 00 00 00 00 resecearaesesere 
+04460 60 GO 006 OO O06 GO 0O 00-00 00 00 00 00 00 00 BO ,eecencreneeaces 
+9470 00 00 00 00 00 40 00 00-G0 G0 00 06 00 06 GO OO rereecerereesere 
+
+
+Shows thal action was executed 
+“BR 
+A=O05 HC=FFFF E=0434 HL=O0300 $=0100 FP=02446 02446’ CALL 0221 
+A’=00 B’=0000 0°=0000 H’=0000 X=0427 Y=0300 I-60 (02217) 
+
+
+Fig. 9.24: Alphabetic List—A Sample Run (cont.) 
+
+
+DATA STRUCTURES 
+
+
+DIRECTORY 
+“An POINTER 
+“Rf POINTER 
+
+
+Fig. 9.25: Linked List Structure 
+
+
+An application for this data structure would be a computerized ad- 
+dress book, where each person is represented by a unique three-letter 
+code (perhaps the usual initials) and the data field contains a simplified 
+address, plus the telephone number (up to 250 characters). Let us exam- 
+ine the structure in more detail on Figure 9.23. The entry format is: 
+
+
+elefe{r[[$s$f}o}eteto 
+eee” 
+
+
+ee, ee Ne me 
+
+
+unique label data (1 to 250 bytes) pointer to 
+
+
+(ASCID) occupied 
+
+
+As usual the conventions are: 
+
+
+ENTLEN: total element length (in bytes) 
+TABASE: address of base of list 
+
+
+The address of the OBJECT is always assumed to reside in the IY register 
+prior to entering the program. Here, REFBASE points to the base ad- 
+dress of the directory, or ‘‘reference table.’’ 
+
+Each two-byte address within this directory points to the first occur- 
+rence of the letter to which it corresponds in the list. Thus, each group 
+
+
+571 
+
+
+PROGRAMMING THE Z80 
+
+
+of entries with an identical first letter in their labels actually forms a sep- 
+arate list within the whole structure. This feature facilitates searching 
+and is analogous to an address book. Note that no data are moved dur- 
+ing an insert or delete. Only pointers are changed, as in every well- 
+behaved linked list structure. 
+
+If no entry starting with a specific letter is found, or if there is no en- 
+try alphabetically following an existing one, their pointers will point to 
+the beginning of the table (= ‘‘NIL’’). At the bottom of the table, by 
+convention a value is stored such that the absolute value of the differ- 
+ence between it and ‘‘Z’’ is greater than the difference between ‘‘A’’ 
+and ‘‘Z’’. This represents an End Of Table (EOT) marker. The EOT 
+value is assumed here to occupy the same amount of memory as a nor- 
+mal entry but could be just one byte if desired. The letters are assumed 
+to be alphabetic letters in ASCII code. Changing this would re- 
+quire changing the constant in the PRETAB routine. 
+
+The end-of-table marker is set to the value of the beginning of the 
+table (‘‘NIL’’). 
+
+By convention, the ‘‘NIL pointers’’, found at the end of a string, or 
+within a directory location which does not point to a string, are set to 
+the value of the table base to provide a unique identification. Another 
+convention could be used. In particular, a different marker for EOT 
+results in some Space savings, as no NIL entries need be kept for non- 
+existing entries. 
+
+Insertion and deletion are performed in the usual way (see Part | of 
+this chapter) by merely modifying the required pointers. The 
+INDEXED flag is used to indicate if the pointer to the object is in the 
+reference table or another string element. 
+
+
+Searching 
+
+The SEARCH program resides at memory locations 0100 to 0155 
+an uses subroutine PRETAB at address 01 D2. 
+
+The search principle is straightforward: 
+
+1—Get the directory entry corresponding to the letter of the alphabet 
+in the first position of the OBJECT’s label. 
+
+2—Get the pointer. Access the element. If NIL, the entry does not 
+exist. 
+
+3—-If not NIL, match the element against the OBJECT. If a match is 
+found, the search has succeeded. If not, get the pointer to the next entry 
+down the list. 
+
+4—Go back to 2. 
+An example is shown in Figure 9.26. 
+
+
+572 
+
+
+DATA STRUCTURES 
+
+
+ABC AZC 
+
+
+(FOUND } 
+
+
+A-POINTER 
+
+
+{4 STEPS REQUIRED) 
+
+
+OBJECT AC 
+
+
+Fig. 9.26: Linked List—A Search 
+Inserting 
+
+
+The insertion is essentially a search followed by an insertion once a 
+*“NIL”’ has been found. 
+
+A block of storage for the new entry is allocated past the EOT 
+marker by looking for an occupancy marker set at ‘‘available’’. 
+
+The program is called ‘“‘“NEW’’ in Figure 9.29 and resides at ad- 
+dresses 0156 to 1A3. An example is shown in Figure 9.27. 
+
+
+C.POINTER 
+
+
+a 
+
+
+AFTER: 
+
+
+A-POINTER 
+B-POINTER 
+C-POINTER 
+
+
+Fig. 9.27: Linked List: Example of Insertion 
+
+
+573 
+
+
+PROGRAMMING THE Z80 
+
+
+Deleting 
+
+
+The element is deleted by setting its occupancy marker to ‘‘available’’ 
+and adjusting the pointer to it from the directory or else the previous 
+element. 
+
+The program is called ‘“‘DELETE”’, and resides at addresses 01A4 to 
+01D1. 
+
+An example of a deletion is shown in Figure 9.28. 
+
+
+(BEFORE) 
+
+
+DELETE 
+{AFTER} 
+A 
+] 
+Cc 
+i] 
+COC POINTER 
+
+
+rT 4 
+
+
+NOTE DAF IS NOT ERASED, BUT “INVISIBLE” 
+
+
+Fig. 9.28: Example of Deletion (Linked List) 
+
+
+574 
+
+
+000° 
+
+
+0100 
+O102 
+O1o3g 
+9104 
+oO? 
+010A 
+OTOR 
+Ord 
+O10f 
+O10E 
+0107 
+0110 
+O1492 
+OIG 
+OL? 
+O1ra 
+Orn 
+O16 
+0123 
+0124 
+0129 
+OLat 
+O10F 
+6132 
+013% 
+0138 
+OF 3K 
+OSE 
+a14o0 
+0141 
+0144 
+O14S 
+O144 
+O14? 
+0149 
+o149% 
+014k 
+Or4h 
+9150 
+O1S3 
+0155 
+
+
+OSS 
+OLay 
+OA 
+Osu 
+LSk 
+161 
+Yban 
+91465 
+01464 
+O14? 
+168 
+0169 
+oa 
+O14h 
+OL4E 
+O16F 
+0170 
+Ove? 
+O73 
+O17? 
+OL79 
+O17 
+OL? 
+O70 
+OV7E 
+Q1?7F 
+0180 
+013! 
+
+
+COLE?» 
+COLES) 
+(O1EA) 
+COIEC) 
+
+
+CUNO f 
+tA 
+
+AF 
+
+3 
+
+ia 
+
+é? 
+
+ES 
+
+FEE t 
+HWE?7EOO 
+FE7C 
+HIaGOT 
+QTN7E OO 
+FERRE OO 
+FASE O1 
+COShOl 
+ULR?EO1 
+FOREO1 
+DASE Ot 
+C25504 
+bu7EOo 
+FREFO? 
+CASSOF 
+O50 1. 
+LES 
+Ri 
+ZAETOI 
+19 
+
+4e 
+
+23 
+
+NA 
+
+cs 
+DDE: 
+SE00 
+SIL 79} 
+C3201 
+O4F I 
+
+9 
+
+
+CHOO0s 
+04 
+CAaAszOi 
+Lib) 
+PAR SOS 
+KA 
+SALTON 
+wt 
+Bae) 
+
+
+ERARECOL 
+EEG 
+BES 
+
+El 
+
+£B 
+
+
+WS 
+4401 
+
+
+ONDE SE in ie 
+CATASE (tt 
+EE RASE fit 
+FNTLEN tn 
+
+
+r 
+
+SEARCH th 
+[ft 
+iar 
+a 
+CA 
+li 
+lis 
+Tae, 
+
+
+COMPARE Lt 
+
+
+JF 
+FUSH 
+FCF: 
+lit 
+Ath 
+Lu 
+TNC 
+
+
+NOGOOr 
+
+
+COUNT Lit 
+NOTFOUND KET 
+
+
+NEW CALL 
+TAwC 
+Se 
+MUSH 
+tT 
+NEXTONE LX 
+lft 
+IN 
+UNC: 
+INC 
+Ant 
+Lf 
+LE 
+rh 
+Ne: 
+FUSH 
+PERSE 
+OFe 
+tu 
+ee Ay 
+ruSH 
+FOr 
+Ex 
+La 
+ENC 
+Li 
+TNC 
+Cf 
+
+
+OLOOM 
+De 
+CNTR 
+PARFRES 
+fa Le a 
+
+
+fied 
+
+Heft 
+
+fh 
+
+CINDL XT Nisa 
+VRE TAM 
+
+foe OTD 
+
+[oA 
+
+
+1x 
+fry IXEO5 
+aT 
+A MOT F OLENA 
+ef TKO) 
+cTvig 
+Ce MOGUNT 
+NZ e NOTE CUNT 
+Ae Chia} 
+erviiy 
+CeNOGOOL 
+
+ZO NOTE OUNE 
+Ae CPX boy 
+crvai 
+Ye POUND 
+NC NO UE OAT 
+TX 
+Lis 
+Fl e CENTL END 
+HE » TE 
+fle CER Y 
+tab 
+We CFD 
+KC 
+[x 
+AeG 
+CINNE XT dea 
+CONF ARE 
+ReOF FH 
+
+
+SEARCH 
+
+u 
+
+2 (HIT 
+
+. 
+
+HE: CL ARASE > 
+(HE > FEL 
+
+HE eC ENTILAD 
+ERR 
+
+HE 
+
+tHE 
+
+Hi» fet 
+
+Ae CHIELD 
+
+fA 
+
+7ehNF CT ONE 
+
+LD 
+
+
+HE 
+Btls (RTL END 
+
+
+1x 
+
+HL. 
+
+DE rll 
+CHL pe E 
+HE. 
+
+CHL dei 
+HL 
+
+CHL def 
+
+
+DATA STRUCTURES 
+
+
+oURIPiAD ETE EARS 
+
+
+Ob | 
++ MONE 
+
+
+Abi OF 
+PRRENU EE 
+
+
+INDEX PAINTER 
+CONTENTS Toll 
+
+
+a1rb AT FTRST 
+aSEF If ES FOF 
+
+
+LETTER OF EWTRY 
+HALE Te 
+7 COMPARE 
+
+
+FIRST LETTERS 
+
+
+FOOMPARE ONT PET EERS 
+
+
+FCOAPARE SRL LETTERS 
+
+
+sJUMP FO FOTNTFR OF ENTRY 
+
+
+FRHT POENTER YALUE Fie Ee 
+
+
+tLOATE TH WETH TOTNTER 
+
+
+SREGFT FLAG 
+
+
+Sh, WHERE ObJECT SHOULO GO 
+
+
+SSGTORE ADDR. OF 
+SPIN SPACE TN 
+SHOVE FO ENE OV 
+
+
+PREV EOUS ENTRY 
+tale FORK NEw 
+EXT ENTRY 
+
+3S FOR REAL LENGTH OF 
+
+
+TAR ENTRY 
+
+
+FTF SOMETHING 19 THERE ® TRY AGAIN 
+PAVE 
+seHIUE 
+
+
+FOS EL FON Cr 
+fy TO HL 
+
+
+LAE IY SPACE 
+
+
+FRNVE ORIFCT TNTO TARDE 
+
+
+shUT ANTE OF ENTRY AFTER 
+32.Al FOTATER POSITION 
+
+
+ORJECT 
+
+
+3SET ACCUPANCY HARKER 
+
+
+Fig. 9.29: Linked List—The Programs 
+
+
+575 
+
+
+PROGRAMMING THE Z80 
+
+
+0183 
+0194 
+0187 
+0168 
+0198 
+O1dc 
+0190 
+o171 
+0192 
+0193 
+O194 
+O1L9S 
+0196 
+O19¢9 
+o19C 
+o19D 
+OLfE 
+OLSF 
+01A0 
+O1A3 
+
+
+Oo1A4 
+0107 
+o1Aa 
+O1AB 
+O1AL 
+O1AE 
+0152 
+O183 
+OLBA 
+O1ERS 
+0186 
+O187 
+O1n9 
+O18C 
+O10 
+g1ce 
+O103 
+9104 
+01C7 
+01CA 
+O1CB 
+910C 
+o1ch 
+Orce 
+0151 
+
+
+olna 
+O13 
+Orla 
+o1n7 
+O109 
+O18 
+OLDE 
+O1nF 
+OLEO 
+O1E3 
+O1E4 
+O1ES 
+Q1ES 
+
+
+OLE? 
+
+
+SYMEOL 
+
+
+CHANGE 
+FINISH 
+NEW 
+OUTE 
+TABASE 
+
+
+576 
+
+
+Ei 
+3AE701 
+3b 
+CAPBOL 
+E3 
+EDSBECOL 
+19 
+
+Di 
+
+73 
+
+23 
+
+72 
+C3A001 
+ci 
+CON201 
+ER 
+
+73 
+
+23 
+
+72 
+OiFFFF 
+cy 
+
+
+SETINX 
+
+
+FINISH 
+DOT 
+
+
+Cpoo01 
+04 
+C2nid0l 
+DBES 
+=1 
+EBABECOL 
+Qo? 
+
+aE 
+
+a3 
+
+44 
+
+23 
+3460 
+3AE7O1 
+on 
+CACPOL 
+CRB2O1 
+
+
+MOVIN 
+
+
+OUTE 
+
+
+; 
+; 
+ES P 
+
+
+o RETAR 
+FINFEOO 
+
+
+D2E401 
+24 
+ER 
+EL 
+Ce? 
+
+
+FIXUF 
+
+
+é 
+(9000) ENDER 
+
+
+TABLE 
+
+
+oicr 
+O1A0 
+0154 
+GLEL 
+OLES 
+
+
+COMPAR 
+FIXUP 
+
+NEXTON 
+FRETAE 
+
+
+CHANGEN 
+
+
+JF 
+
+
+Ang 
+
+
+HL 
+
+Ar CINGEXED) 
+a 
+
+Z2SETINX 
+(SP 2HL 
+
+Es (ENTLEN? 
+HL? DE 
+
+
+CHL? st 
+FINISH 
+
+BC 
+
+FRETAR 
+
+DE 2H 
+
+{HL IE 
+
+HL 
+
+CHL + 
+
+BC Pe OF FFFH 
+
+
+SEARCH 
+
+& 
+
+NZ Fr OUTE 
+
+TX 
+
+HL. 
+
+AAC+ CENTLEN) 
+HL.» BC 
+CeCHL)d 
+
+HL. 
+
+Hy CHL? 
+
+Ht. 
+
+CHL FeO 
+
+Ay CINDEXED) 
+4 
+
+NZ» CHANGEM 
+FRETAE 
+TE + HL. 
+MOVIN 
+
+HL» CENTLEN) 
+AL > DE 
+
+CHL et 
+
+HL 
+
+Hl 
+
+BC OFFFFIH 
+
+
+HL 
+
+Ae CTV +O> 
+ra) 
+
+49H 
+
+a 
+
+HI. - CREF RASE } 
+L 
+
+Lea 
+
+NC PF TXUF 
+H 
+
+DE rH. 
+
+HI. 
+
+
+DELETE 
+FOUNT 
+
+NOGOOL 
+REFEAS 
+
+
+O1A4 
+0183 
+OLSE 
+O1EA 
+
+
+3GET AGDR GF WHERE THIS SPACE 1S 
+7SEF WHAT PREVIOUS FOINTERS MUST 
+
+
+#..RE SET 
+
+
+7GET ADDR 
+*. GRJECT 
+
+
+sRETRIEVE ADDR OF 
+
+
+OBJECT 
+
+
+OF ENTRY PREVIOUS TO 
+& MOVE TO POINTER AREA 
+
+
+#PUT IT AT POINTER FOSITION 
+
+
+#CLEAR OUT STACK 
+
+
+4GET INDEX AQHRESS 
+
+
+sLOALD HL INTO FT 
+
+
+#SHOW THAT IT Was 
+
+
+BONE 
+
+
+sGET ADMRESS OF ORJECT 
+‘SEE IF IT 15 THERE 
+
+
+sSET HL. TO POINTER AREA OF OBJEET 
+
+
+FRETRIEVE POINTER 
+
+
+#REMOVE OCCUPANCY 
+
+
+MARKER 
+
+
+FSEE TF INREX NEEDS CHANGING 
+
+
+*YESeFUT ADR TNTO Hi. 
+
+
+‘SET HL. 
+
+
+TO POINTER OF PREVIOUS 
+
+
+PUT ADR OF NEXT INTO WHATEVER 
+
+
+*.. CE TTHER 
+
+
+INDEX OR ENTRY) 
+
+
+‘GET FIRST LETTER OF OBJECT 
+
+
+sREMOVE 
+
+
+SMULTIPLY BY 3 
+
+
+ENDER 
+
+TNDEXE 
+NOTFOU 
+SEARCH 
+
+
+OLE? 
+O1E? 
+0185 
+0100 
+
+
+ASCET LEADER 
+
+
+ENTLEN 
+MOVIN 
+OUT 
+SETINN 
+
+
+Fig. 9.29: Linked List—The Programs (cont.) 
+
+
+O1EC 
+O1CR 
+O1AS 
+o19s 
+
+
+DATA STRUCTURES 
+
+
+Listing of Objects 
+
+
+The Objects in memory and their iucations 
+in memory 
+
+
+314d St Sl Sb SF OO OO OO SONTITEILUIL.:, 
+§2-32 SP AD SD $2 00 00 00 HATIORPONIIZIAT.». 
+: S333 35 00 00 00 MOMSS3I3SSSI535..; 
+44°44 44 00 00 00 =1N04444444444,., 
+53.35 45 35 00 00 00 ANISASSSSASSS.: . 
+34 3h 34 60 60 60 AhAb5646464542 
+37 AP RP SY 00 OO OO AZ27777777777,., 
+S038 39 3h 38 48 66 00 OO | =STreHBRBBAABA... 
+
+
+DM 3OG 
+
+OS00 SS AF al. Al 
+O310 44 44 44 SO 5 
+‘ > 4b aF 4 3S 8 
+) 83 4. af 44. 
+0340 41 4E 54 38 35 
+O750 41 44 41 36 F 
+9460 41 SA She 37 3° 
+9370 S23 49 44 38 48 
+
+
+pr EQT character in 
+initia’ table 
+
+THM 4Gg 
+9400 2h 00 00 00 00 00 00 00-00 00 00 00 O60 90 00 D0 “Costs sasceecraet 
+9410 00 00 00 00 00 00 90 00-06 60 06 00 00 00 00 OO vesesaeee 
+9420 00 00 00 00 00 00 00 00-00 GO 00 00 00 00 00 00... 
+0410 00 00 60 00 00 00 00 00-00 00 G0 00 00 00 00 00 CG:, 
+0440 60 00 00 00 00 00 00 00-00 09 GO GO 00 90 060 OO .. 
+0450 00 00 00 00 90 90 00 00-60 60 60 00 06 90 00 00... 
+9440 00 00 00 00 00 00 00 90 00 Of 00 00 OO 00 00 00 secesscareeaseas 
+0470 00 00 00 00 00 90 00 00-00 00 00 00 OO OO 00 OO) .....52222200> 
+
+
+-“fMoo0 Enitial Directors 
+0300 00 04 00 04 00 04 00 04-40 04 00 04 00 04 00 04  aoeesrrarnescaone 
+
+
+OS10 00 04 00 04 00 04 00 04-00 04 00 04 00 04 OO 04  aearareeesrueeee 
+7Br70 00 064 00 04 00 04 00 04-00 04 00 04 00 94 00 D4 var vessreersoens 
+9530 00 04 00 04 00 00 00 00-00 00 00 00 00 00 00 OQ  wearaaeasraearesd 
+9540 00 00 00 00 00 90 00 00-00 O06 900 O80 00 00 00 00 crtescccresesece 
+9550 00 00 00 00 O60 00 66 00-00 00 00 60 00 00 O00 GO neeer cern a recees 
+05460 00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00 cosas aseeresaseas 
+G57? 00 00 00 00 00 00 00 060-00 G0 00 00 00 00 00 OO secures rsreeccees 
+
+
+Occupancy markers — 
+
+
+Pointers -—. Tabie configuration 
+after several 
+Tm40G insertions. 
+
+
+0400 7 00 90 00 00 OO 00 00 OG 00 00° 00 
+9ATQ al 4F TA 35 A AS 3S : % 5% 79 04 OF 
+DAI 94 Ad AA BP OA 42 3D 32°00 04 OF 
+9450 AL AL Al 346 4A 34 GF 34 10 04 OF f 
+0440 3 4F al Jk 3b 4b 3 31.00 04 GF SONTIDITIIIIIT. 2. 
+7450 40 4F a 34 434 33 3 33°00 Of O01 HOMASSASATISS... 
+9460 33 4% 44 38 48 AR FE 38 40 94 Of STNasGAHARAAAe.. 
+S470 41 SN Sh TP ay Me 3700 O04 OL ALP IIIIFI7 IIIS, 
+
+
+SY 
+¥=-0340 316 
+TRE ea, Delete an entry 
+
+
+EON Ole S 
+
+
+Tert Acre) 
+9400 7H 09 00 00 00 O00 00 00-00 
+C41G 40 46 '54 35 35 An J 35°35 4 
+9400 44 41 44 3D ap 3D : 
+
+430 4t 41 41 346 45 - 
+9440 S53 a ave aio 4a: 
+0450 Air 40 am 34 SN hy 
+04460 53 49 aq 35 4s SF 
+O470 41 SA BA SY TF 
+
+
+; 3 BA a. 
+34 34 34 10 04 OF AhASAS46464564.., 
+SF 21 3t 90 04 Of SONITITDIIIIIES.. 
+44°35 345 90 64 OL MOMSRSSSS44S4S4. 
+34°72 48 40 04 O1 SENBBANAAGBARE. . 
+RPM? V7 00 O48 OF AFZPPPPT PII? L Ls 
+
+
+Fig. 9.30: Linked List—A Sample Run 
+
+
+577 
+
+
+PROGRAMMING THE Z80 
+
+
+~G220/223 
+
+
+Run ‘SEARCH’ for deleted entry 
+
+
+FaQ223 0223’ 
+
+
+rife —Not found 
+- 4 
+N A&37 RC=OOFF DE=0400 HL=0000 $=0100 F=0223 0223° TALL 0171 
+47=00 8/=0000 1 =0000 H’=0000 X=0400 Y=0310 100 (O171 5) 
+-SY 
+Y=0310 340 
+-6220/223 Run “SEARCH” for an existent entry 
+FeO223 02257 ~ 
+— Entry found 
+~DR 
+
+
+ZN 46254 RC=FFLO DE=0430 HL=O04SE S*0100 P0223 O224° CALL O171 
+4‘=00 B*=0000 D°=6000 H’=0000 X=PA1G Y=0340 T=0¢ CO171°3 
+
+
+-G224/229 . 
+Delete Address of entry in table 
+F=O229 O229° 
+
+
+Note: Changes in 
+~TM400 pointers. 
+
+
+0400 7h 00 66 00 60 00 60 00-00 00 OO OO OD 00 00 00) Lrerecteceesears 
+0410 #41 4E $4 35 35 35 35 35-35 35 35 35 35 70 04 OO ANTSSSSSSSUSSr. » 
+0420 44 414 44 32 32 32 329 32-32 32 32 30 32 60 04 00 BANZ2A2232222.., 
+0430 41 41 41 56 34 34 36 36°35 36 36 34 34 70 04 OF AAAGSS445464554r.. 
+0440 53 4F 4€ 41 31 31 31 31-31 31 31 31 31 00 04 OL = SONILI114L111L... 
+0450 40 4F ale 33 33 34 33 33-33 33 33 33 33 006 04 O1 MOMN3333339333... 
+0460 53 47 44 38 38 38 38 36-39 36 36 36 3B 40 04 O1 STIBESERBBESEE. . 
+0470 «41 SA SA 37 37? 3? 37 37-37 37 JP 37 37 OO OF GL ALZ7777777777.,. 
+
+
+Fig. 9.30: Linked List— A Sample Run (cont.) 
+
+
+SUMMARY 
+
+
+The beginning programmer need not concern himself yet with the 
+details of data structures implementation and management. However, 
+efficient programming of non-trivial algorithms requires a good under- 
+standing of data structures. The actual examples presented in this 
+chapter should help the reader achieve such an understanding and solve 
+all the common problems encountered with reasonable data structures. 
+
+
+378 
+
+
+10 
+PROGRAM DEVELOPMENT 
+
+
+INTRODUCTION 
+
+
+All the programs we have studied and developed so far have been 
+developed by hand without the aid of any software or hardware re- 
+source. The only improvement over straight binary coding has been the 
+use of mnemonic symbols, those of the assembly language. For effec- 
+tive software development, it is necessary to understand the range of 
+hardware and software development aids. It is the purpose of this chap- 
+ter to present and evaluate these aids. 
+
+
+BASIC PROGRAMMING CHOICES 
+
+
+Three basic alternatives exist: writing a program in binary or hexa- 
+decimal, writing it in assembly-level language, or writing it in a high- 
+level language. Let us review these alternatives. 
+
+
+Hexadecimal Coding 
+
+
+The program will normally be written using assembly language mne- 
+monics. However, most low-cost, one-board computer systems do not 
+provide an assembler. The assembler is the program which will auto- 
+matically translate the mnemonics used for the program into the re- 
+quired binary codes. When no assembler is available, this translation 
+from mnemonics into binary must be performed by hand. Binary is 
+unpleasant to use and error-prone, so that hexadecimal is normally 
+used, It has been shown in Chapter 1 that one hexadecimal digit will 
+represent four binary bits. Two hexadecimal digits will, therefore, be 
+used to represent the contents of every byte. As an example, the table 
+showing the hexadecimal equivalent of the Z80 instructions appears in 
+the Appendix. 
+
+
+c 579 
+
+
+PROGRAMMING THE Z80 
+
+
+In short, whenever the resources of the user are limited and no assem- 
+bler is available, he will have to translate the program by hand into hex- 
+adecimal. This can reasonably be done for a small number of instruc- 
+tions, such as, perhaps, 10 to 100. For larger programs, this process is 
+tedious and error-prone, so that it tends not to be used. However, near- 
+ly all single-board microcomputers require the entry of programs in 
+hexadecimal mode. They are not equipped with an assembler and a full 
+alphanumeric keyboard, in order to limit their cost. 
+
+In summary, hexadecimal coding is not a desirable way to enter a 
+program in a computer. It is simply an economical one. The cost of an 
+assembler and the required alphanumeric keyboard is traded-off 
+against increased labor required to enter the program in the memory. 
+However, this does not change the way the program itself is written. 
+The program is still written in assembly-level language so that it can be 
+examined by the human programmer and be meaningful. 
+
+
+Assembly Language Programming 
+
+
+Assembly-leve! programming covers both programs that may be 
+entered in hexadecimal and those that may be entered in symbolic 
+assembly-level form in the system. Let us now examine the entry of a 
+program directly in its assembly language representation. An assembler 
+program must be available. The assembler will read each of the mne- 
+monic instructions of the program and translate it into the required bit 
+pattern using 1 to 5 bytes, as specified by the encoding of the instruc- 
+tions. In addition, a good assembler will offer a number of additional 
+facilities for writing the program. These will be reviewed in the section 
+on the assembler below. In particular, directives are available which 
+will modify the value of symbols. Symbolic addressing may be used and 
+a branch to a symbolic location may be specified. During the debugging 
+phase, when a user may remove or add instructions, it will not be neces- 
+sary to rewrite the entire program if an extra instruction is inserted be- 
+tween a branch and the point to which it branches, as long as symbolic 
+labels are used. The assembler will take care of automatically adjusting 
+ali the labels during the translation process. In addition, an assembler 
+allows the user to debug his program in symbolic form. A disassembler 
+may be used to examine the contents of a memory location and recon- 
+struct the assembly-level instruction that it represents. The various soft- 
+ware resources normally available on a system will be reviewed below. 
+Let us now examine the third alternative. 
+
+
+580 
+
+
+PROGRAM DEVELOPMENT 
+
+
+POWER OF 
+THE 
+LANGUAGE 
+
+
+APL 
+COBOL 
+
+
+FORTRAN HIGH-LEVEL 
+
+
+PL“ 
+PASCAL 
+
+
+BASIC 
+MINI-BASIC 
+
+
+) 
+
+
+SYMBOLIC CONDITIONAL | ASSEMBLY-LEVEL 
+
+
+ASSEMBLY 
+
+
+HEXADECIMAL/ 
+OCTAL 
+
+
+ sncumeuev 
+BINARY 
+
+
+Fig, 10.1: Programming Levels 
+
+
+High-Level Language 
+
+
+A program may be written in a high-level language such as BASIC, 
+APL, PASCAL, or others. Techniques for programming in these vari- 
+ous languages are covered by specific books and will not be reviewed 
+here. We will, therefore, only briefly review this mode of program- 
+ming. A high-level language offers powerful instructions which make 
+programming much easier and faster. These instructions must then be 
+translated by a complex program into the final binary representation 
+that a microcomputer can execute. Typically, each high-level instruc- 
+tion will be translated into a large number of individual binary instruc- 
+tions. The program which performs this automatic translation is called 
+a compiler or an interpreter. A compiler will translate all the instruc- 
+tions of a program in sequence into object code. In a separate phase, 
+the resulting code will then be executed. By contrast, an interpreter will 
+interpret a single instruction, then execute it, then ‘‘translate’’ the next 
+one, then execute it. An interpreter offers the advantage of interactive 
+response, but results in low efficiency compared to a compiler. These 
+topics will not be studied further here. Let us revert to the programming 
+of an actual microprocessor in the assembly-level language. 
+
+
+581 
+
+
+PROGRAMMING THE 280 
+
+
+SOFTWARE SUPPORT 
+
+
+We will review here the main software facilities which are (or should 
+be) available in the complete system for convenient software develop- 
+ment. Some of the definitions have already been introduced. They will 
+be summarized here and the rest of the important programs will be de- 
+fined before we proceed. 
+
+The assembier is the program which translates the mnemonic repre- 
+sentation of instructions into their binary equivalent. It normally trans- 
+lates one symbolic instruction into one binary instruction (which may 
+occupy 1, 2 or 3 bytes). The resulting binary code is called object code. 
+It is directly executable by the microcomputer. As a side effect, the 
+assembler will also produce a complete symbolic listing of the program, 
+as well as the equivalence tables to be used by the programmer and the 
+symbol occurrence list in the program. Examples will be presented later 
+in this chapter. 
+
+In addition, the assembler will list syntax errors such as instructions 
+misspelled or illegal, branching errors, duplicate labels or missing 
+labels. 
+
+It will not delete /ogical errors (this is your problem). 
+
+A compiler is the program which translates high-level language in- 
+structions into their binary form. 
+
+An interpreter is a program similar to a compiler, which also trans- 
+lates high-level instructions into their binary form but does not keep the 
+intermediate representation and executes them immediately. In fact, it 
+often does not even generate any intermediate code, but rather executes 
+the high-level instructions directly. 
+
+A monitor is the basic program which is indispensable for using the 
+hardware resources of this system. It continuously monitors the input 
+devices for input and manages the rest of the devices. As an example, a 
+minimal monitor for a single-board microcomputer, equipped with a 
+keyboard and with LED’s, must continuously scan the keyboard for a 
+user input and display the specified contents on the light-emitting 
+diodes. In addition, it must be capable of understanding a number of 
+limited commands from the keyboard, such as START, STOP, CON- 
+TINUE, LOAD MEMORY, EXAMINE MEMORY. On a large sys- 
+tem, the monitor is often qualified as the executive program, when 
+complex file management or task scheduling is also provided. The over- 
+all set of facilities is called an operating system. If files are residing ona 
+disk, the operating system is qualified as the disk operating system, or 
+DOS. 
+
+
+582 
+
+
+PROGRAM DEVELOPMENT 
+
+
+An editor is the program designed to facilitate the entry and the mod- 
+ification of text or progams. It allows the user to enter characters con- 
+veniently, append them, insert them, add lines, remove lines, search for 
+characters or strings. It is an important resource for convenient and ef- 
+fective text entry. 
+
+A debugger is a facility necessary for debugging programs. When a 
+program does not work correctly, there may typically be no indication 
+whatsoever of the cause. The programmer, therefore, wishes to insert 
+breakpoints in his program in order to suspend the execution of the 
+program at specified addresses, and to be able to examine the contents 
+of registers or memory at this point. This is the primary function of a 
+debugger. The debugger allows for the possibility of suspending a pro- 
+gram, resuming execution, examining, displaying and modifying the 
+contents of registers or memory. A good debugger will be equipped 
+with a number of additional facilities, such as the ability to examine 
+data in symbolic form, hex, binary, or other usual representations, as 
+well as to enter data in this format. 
+
+A loader, or linking loader, will place various blocks of object code 
+at specified positions in the memory and adjust their respective sym- 
+bolic pointers to that they can reference each other. It is used to relocate 
+programs or blocks in various memory areas. A simulator or an emu- 
+lator program is used to simulate the operation of a device, usually the 
+microprocessor, in its absence, when developing a program on a simu- 
+lated processor prior to placing it on the actua] board. Using this ap- 
+proach, it becomes possible to suspend the program, modify it, and 
+keep it in RAM memory. The disadvantages of a simulator are that: 
+
+
+I1—-It usually simulates only the processor itself, not input/output 
+devices. 
+
+2—The execution speed is slow, and one operates in simulated time. 
+It is therefore not possible to test real-time devices, and synchronization 
+problems may still occur even though the logic of the program may be 
+found correct. 
+
+
+An emulator is essentially a simulator in real time. It uses one proces- 
+sor to simulate another one, and simulates it in complete detail. 
+
+Utility routines are essentially all the routines which are necessary in 
+most applications and that the user wishes the manufacturer had pro- 
+vided! 
+
+They may include multiplication, division and other arithmetic oper- 
+ations, block move routines, character tests, input/output device han- 
+dlers (or ‘‘drivers’’), and more, 
+
+
+583 
+
+
+PROGRAMMING THE Z80 
+
+
+THE PROGRAM DEVELOPMENT SEQUENCE 
+
+
+We will now examine a typical sequence for developing an assembly- 
+level program. We will assume that all the usual software facilities are 
+available in order to demonstrate their value. If they should not be 
+available in a particular system, it will still be possible to develop pro- 
+grams, but the convenience will be decreased and, therefore, the 
+amount of time necessary to debug the program is likely to be in- 
+creased. 
+
+The normal approach is to first design an algorithm and define the 
+data structures for the problem to be solved. Next, a comprehensive set 
+of flowcharts is developed which represents the program flow, Finally, 
+the flowcharts are translated into the assembly-level language for the 
+microprocessor; this is the coding phase. 
+
+Next, the program has to be entered on the computer. We will exam- 
+ine in the next section the hardware options to be used in this phase. 
+
+The program is entered in RAM memory of the system under the 
+control of the editor. Once a section of the program, such as one or 
+more subroutines, has been entered, it will be tested. 
+
+First, the assembler will be used. Lf the assembler did not already 
+reside in the system, it would be loaded from an external memory, such 
+as a disk. Then, the program will be assembled, i.e., translated into a 
+binary code. This results in the object program, ready to be executed. 
+
+One does not normally expect a program to work correctly the first 
+time. To verify its correct operation, a number of breakpoints will nor- 
+mally be set at crucial locations where it is easy to test whether the inter- 
+mediate results are correct. The debugger will be used for this purpose. 
+Breakpoints will be specified at selected locations. A ‘‘Go’’ command 
+will then be issued so that program execution is started. The program 
+will automatically stop at each of the specified breakpoints. The pro- 
+grammer can then verify, by examining the contents of the registers, or 
+memory, that the data so far is correct. If it is correct, we proceed until 
+the next breakpoint. Whenever we find incorrect data, an error in the 
+program has been detected. At this point, the programmer normally 
+refers to his program listing and verifies whether his coding has been 
+correct. If no error can be found in the programming, the error might 
+be a logical one and one might refer to the flowchart. We will assume 
+here that the flowcharts have been checked by hand and are assumed to 
+be reasonably correct. The error is likely to come from the coding. It 
+will, therefore, be necessary to modify a section of the program. If the 
+symbolic representation of the program is still in the memory, we will 
+
+
+584 
+
+
+PROGRAM DEVELOPMENT 
+
+
+simply re-enter the editor and modify the required lines, then go 
+through the preceding sequence again. In some systems, the memory 
+available may not be large enough, so that it is necessary to flush out 
+the symbolic representation of the program onto a disk or cassette prior 
+to executing the object code. Naturally, in such a case, one would have 
+to reload the symbolic representation of the program from its support 
+medium prior to entering the editor again. 
+
+The above procedure will be repeated as long as necessary until the 
+results of the program are correct, Let us stress that prevention is much 
+more effective than cure. A correct design will typically result in a pro- 
+gram which runs correctly very soon after the usual typing mistakes or 
+obvious coding errors have been removed. However, sloppy design may 
+result in programs which will take an extremely long time to be de- 
+bugged. The debugging time is generally considered to be much longer 
+than the actual design time. In short, it is always worth investing more 
+time in the design in order to shorten the debugging phase. 
+
+However, using this approach, it is possible to test the overall organi- 
+zation of the program, but not to test it in real time with input/output 
+devices. If input/output devices are to be tested, the direct solution con- 
+sists of transferring the program onto EPROM’s and installing it on the 
+board and then watching whether it works. 
+
+There is a better solution. It is the use of an in-circuit emulator. An 
+in-circuit emulator uses the Z80 microprocessor (or any other one) to 
+emulate a Z80 in (almost) real time. It emulates the Z80 physically. The 
+emulator is equipped with a cable terminated by a 40-pin connector, ex- 
+actly identical to the pin-out of a Z80. This connector can then be in- 
+serted on the real application board that one is developing. The signals 
+generated by the emulator will be exactly those of the Z80, only perhaps 
+a little slower. The essential advantage is that the program under test 
+will still reside in the RAM memory of the development system. It will 
+generate the real signals which will communicate with the real in- 
+put/output devices that one wishes to use. As a result, it becomes possi- 
+ble to keep developing the program using all the resources of the devel- 
+opment system (editor, debugger, symbolic facilities, file system) while 
+testing input/output in real time. 
+
+In addition, a good emulator will provide special facilities, such as a 
+trace, A trace is a recording of the last instructions or status of various 
+data busses in the system prior to a breakpoint. In short, a trace pro- 
+vides the film of the events that occurred prior to the breakpoint or the 
+malfunction. It may even trigger a scope at a specified address or upon 
+the occurrence of a specified combination of bits. Such a facility is of 
+
+
+585 
+
+
+PROGRAMMING THE Z80 
+
+
+great value, since when an error is found it is usually too late. The in- 
+struction, or the data, which caused the error has occurred prior to the 
+detection. The availability of a trace allows the user to find which seg- 
+ment of the program caused the error to occur. If the trace is not long 
+enough, we will simply set an earlier breakpoint. 
+
+
+ASSEMBLER 
+OR 
+
+
+BOOTSTRAP COMPILER 
+oR 
+INTERPRETER 
+
+
+KEYBOARD 
+ORivER 
+
+
+EOuTOR 
+
+
+Feld 
+eae pIBUGEER 
+on 
+
+
+SIMULA FOR 
+
+
+Ty SySTEM 
+DRIVER WORKSPACE 
+1AND STACK) 
+
+
+CASSETTE 
+ORIVER 
+
+
+COMMAND USER 
+INTERPRETER WORKSPACE 
+
+
+unuty 
+ROUTINES 
+
+
+ELEMENTARY 
+DEBUGGER 
+
+
+ELEMENTARY 
+£otoR 
+
+
+Fig. 10.2: A Typical Memory Map 
+
+
+This completes our description of the usual sequence of events in- 
+
+
+voived in developing a program. Let us now review the hardware alter- 
+natives available for developing programs. 
+
+
+586 
+
+
+PROGRAM DEVELOPMENT 
+
+
+HARDWARE ALTERNATIVES 
+Single-Board Microcomputer 
+
+
+The single-board microcomputer offers the lowest cost approach to 
+program development. It is normally equipped with a hexadecimal key- 
+board, plus some function keys, plus 6 LED’s which can display ad- 
+dress and data. Since it is equipped with a small amount of memory, an 
+assembler is not usually available. At best, it has a small monitor and 
+virtually no editing or debugging facilities, except for a very few com- 
+mands. All programs must, therefore, be entered in hexadecimal form. 
+They will also be displayed in hexadecimal form on the LED’s. A sin- 
+gle-board microcomputer has, in theory, the same hardware power as 
+any other computer. Simply because of its restricted memory size and 
+keyboard, it does not support all the usual facilities of a larger system 
+and makes program development much longer. Because it is tedious to 
+develop programs in hexadecimal format, a single board microcom- 
+puter is best suited for education and training where programs of lim- 
+ited length have to be developed and their short length is not an obstacle 
+to programming. Single-boards are probably the cheapest way to learn 
+programming by doing. However, they cannot be used for complex 
+program development unless additional memory boards are attached 
+and the usual software aids are made available. 
+
+
+The Development System 
+
+
+A development system is a microcomputer system equipped with a 
+significant amount of RAM memory (32K, 48K) as well as the required 
+input/output devices, such as a CRT display, a printer, disks, and, usu- 
+ally, a PROM programmer, as well as, perhaps, an in-circuit emulator. 
+A development system is specifically designed to facilitate program 
+development in an industrial environment. It normally offers ali, or 
+most, of the software facilities that we have mentioned in the preceding 
+section. In principle, it is the ideal software development tool. 
+
+The limitation of a microcomputer development system is that it may 
+not be capable of supporting a compiler or an interpreter. This is be- 
+cause a compiler typically requires a very large amount of memory, 
+often more than is available on the system. However, for developing 
+programs in assembly-leve! language, it offers all the required facilities. 
+But because development systems sell in relatively smail numbers com- 
+pared to hobby computers, their cost is significantly higher. 
+
+
+587 
+
+
+PROGRAMMING THE Z80 
+
+
+Hobby-Type Microcomputers 
+
+
+The hobby-type microcomputer hardware is naturally exactly analo- 
+gous to that of a development system. The main difference lies in the 
+fact that it is normally not equipped with the sophisticated software 
+development aids which are available on an industrial development sys- 
+tem. As an example, many hobby-type microcomputers offer only ele- 
+mentary assembiers, minimal editors, minimal file systems, no facilities 
+to attach a PROM programmer, no in-circuit emulator, no powerful 
+debugger. They represent, therefore, an intermediate step between the 
+single-board microcomputer and the full microprocessor development 
+system. For a user who wishes to develop programs of modest complex- 
+ity, they are probably the best compromise, since they offer the advan- 
+tage of low cost and a reasonable array of software development tools, 
+even though they are quite limited as to their convenience. 
+
+
+Time-Sharing System 
+
+
+It is possible to rent terminals from several companies which will con- 
+nect to time-sharing networks, These terminals share the time of the 
+larger computer and benefit from all the advantages of large installa- 
+tions. Cross assemblers are available for all microcomputers on vir- 
+tually all commercial time-sharing systems. A cross assembler is simply 
+an assembler for, say, a Z80 which resides, for example, in an IBM370. 
+Formally, a cross assembler is an assembler for microprocessor X, 
+which resides on processor Y. The nature of the computer being used is 
+irrelevant. The user still writes a program in Z80 assembly-level lan- 
+guage, and the cross assembler translates it into the appropriate binary 
+pattern. The difference, however, is that the program cannot be ex- 
+ecuted at this point. It can be executed by a simulated processor, if one 
+is available, provided it does not use any input/output resources. This 
+solution is used, therefore, only in industrial environments. 
+
+
+In-House Computer 
+
+
+Whenever a large in-house computer is available, cross assemblers 
+may also be available to facilitate program development. If such a com- 
+puter offers time-shared service, this option is essentially analogous to 
+the one above. If it offers only batch service, this is probably one of the 
+most inconvenient methods of program development, since submitting 
+programs in batch mode at the assembly level for a microprocessor re- 
+sults in a very long development time. 
+
+
+588 
+
+
+PROGRAM DEVELOPMENT 
+
+
+Front Panel or No Front Panel? 
+
+
+The front panel is a hardware accessory often used to facilitate pro- 
+gram debugging. It has traditionally been a tool for conveniently dis- 
+playing the binary contents of a register or of memory. However, all the 
+functions of the control panel may be accomplished from a terminal, 
+and the dominance of CRT displays now offers a service almost equiva- 
+lent to the control panel by displaying the binary value of bits. The ad- 
+ditional advantage of using the CRT display is that one can switch at 
+will from binary representation to hexadecimal, to symbolic, to decimal 
+(if the appropriate conversion routines are available, naturally). The 
+disadvantage of the CRT is that one must hit several keys to obtain the 
+appropriate display rather than turn a knob. However, since the cost of 
+providing a control panel is quite substantial, most recent microcom- 
+puters have abandoned this debugging tool. The value of the control 
+panel is often considered more on the basis of emotional arguments in- 
+fluenced by one’s own past experience than by the use of reason. It is 
+not indispensable. 
+
+
+Summary of Hardware Resources 
+
+
+Three broad cases may be distinguished. If you have only a minimal 
+budget and if you wish to learn how to program, buy a single-board 
+microcomputer. Using it, you will be able to develop all the simple pro- 
+grams in this book and many more. Eventually, however, when you 
+want to develop programs of more than a few hundred instructions, 
+you will feel the limitations of this approach. 
+
+If you are an industrial user, you will need a full development system. 
+Any solution short of the full development system will cause a signifi- 
+cantly longer development time. The trade-off is clear: hardware re- 
+sources vs. programming time. Naturally, if the programs to be devel- 
+oped are quite simple, a less expensive approach may be used. How- 
+ever, if complex programs are to be developed, it is difficult to justify 
+any hardware savings when buying a development system, since the 
+programming costs will be by far the dominant cost of the project. 
+
+For a personal computerist, a hobby-type microcomputer will typi- 
+cally offer sufficient, although minimal, facilities. Good development 
+software is still to come for many of the hobby computers. The user will 
+have to evaluate his system in view of the comments presented in this 
+chapter. 
+
+Let us now analyze in more detail the most indispensable resource: 
+the assembler. 
+
+
+589 
+
+
+PROGRAMMING THE Z80 
+THE ASSEMBLER 
+
+
+We have used assembly-level language throughout this book without 
+presenting the formal syntax or definition of assembly-level language. 
+The time has come to present this definition. An assembler is designed 
+to allow the convenient symbolic representation of the user program, 
+and yet to make it simple for the assembler program to convert these 
+mnemonics into their binary representation. 
+
+
+Assembler Fields 
+
+
+When typing in a program for the assembler, we have seen that fields 
+are used. They are: 
+
+The label field, optional, which may contain a symbolic address for 
+the instruction that follows. 
+
+The instruction field, which includes the opcode and any operands. 
+(A separate operand field may be distinguished.) 
+
+The comment field, far to the right, which is optional and is intended 
+to clarify the program. 
+
+
+These fields are shown on the programming form in Figure 10.3. 
+
+
+Once the program has been fed to the assembler, the assembler will 
+produce a /isting of it. When generating a listing, the assembler will 
+provide three additional fields, usually on the left of the page. An ex- 
+ample appears on Figure 10.4. On the far left is the line number. Each 
+line which has been typed by the programmer is assigned a symbolic line 
+number. 
+
+The next field to the right is the actual address field, which shows in 
+hexadecimal the value of the program counter which will point to that 
+instruction. 
+
+Moving still further to the right, we find the hexadecimal representa- 
+tion of the instruction. 
+
+This shows one of the possible uses of an assembler. Even if we are 
+designing programs for a single-board microcomputer which accepts 
+only hexadecimal, we should still write the program in assembly-ievel 
+language, providing we have access to a system equipped with an as- 
+sembier, We can then run the programs on the system, using the assem- 
+bler. The assembler will automatically generate the correct hexadecimal 
+codes on our system. This shows, in a simple example, the value of ad- 
+ditional software resources, 
+
+
+590 
+
+
+PROGRAM DEVELOPMENT 
+
+
+IGODdO 
+OINOEWAS 
+
+
+NOILSNYLSN! 
+X3H 
+
+
+Fig. 10.3: Microprocessor Programming Form 
+
+
+591 
+
+
+PROGRAMMING THE Z80 
+
+
+Tables 
+
+
+When the assembier translates the symbolic program into its binary 
+representation, it performs two essential tasks: 
+
+
+i—It translates the mnemonic instructions into their binary en- 
+coding. 
+
+2—lIt translates the symbols used for constants and addresses into 
+their binary representation. 
+
+
+In order to facilitate program debugging, the assembler shows at the 
+end of the listing the equivalence between the symbol used and its hexa- 
+decimal value. This is called the symbol table. 
+
+Some symbol tables will not only list the symbol and its value, but 
+also the line numbers where the symbol occurs, thereby providing an 
+additional facility. 
+
+
+Error Messages 
+
+
+During the assembly process, the assembler will detect syntax errors 
+and include them as part of the final listing. Typical diagnostics in- 
+clude: undefined symbols, label already defined, illegal opcode, illegal 
+address, illegal addressing mode. Many more detailed diagnostics are 
+naturally desirable and are usually provided. They vary with each as- 
+sembler. 
+
+
+The Assembly Language 
+
+
+Opcodes have already been defined. We will here define the symbols, 
+constants and operators which may be used as part of the assembler 
+syntax. 
+
+
+Symbols 
+
+
+Symbols are used to represent numerical values, either data or ad- 
+dresses. Symbols may include up to six characters, and must start with 
+an alphabetical character. The characters are restricted to letters of the 
+alphabet and numbers. Also, the user may not choose names identical 
+to the opcodes utilized by the Z80, the names of registers such as A,B, 
+C,D,E,H,L, BC, DE, HL, AF, BC, DE, IX, IY, SP, as well as the 
+various short names used as pseudo-operators by the assembler. The 
+names of these assembler ‘‘directives’’ are listed below in the corre- 
+sponding sections. Also, the abbreviations used to designate the flags 
+should not be used as symbols: C,Z,N,PE,NC,P,PO. 
+
+
+592 
+
+
+PROGRAM DEVELOPMENT 
+
+
+Assigning a Value to a Symbol 
+
+
+Labels are special symbols whose values do not need to be defined by 
+the programmer. The value will automatically be defined by the assem- 
+bier program whenever it finds that label. The label value thus auto- 
+matically corresponds to the number of the line where it appears. 
+Special pseudo-instructions are available to force a new starting 
+value for labels, or to assign them a specific value. 
+
+
+CROMEHCN CUOS 790 ASSEMBLER versienm 02.1% PAGE COC! 
+
+0000° 0001 ORG 91L00H 
+
+(9200) 0002 MPRAD 1) 200K 
+
+(0202) 0002 MPDAL OL O202H 
+
+(0204) 0004 REGAN Va D0 408 
+
+o005 ¢ 
+
+0100) ELABDDGD 0005 HP489 Lo hy CHEATS #LOAR MULTEPL TE INTO © 
+O104 0609 Q007 Lo ued it 7S BIT COUNTER 
+0106 EDSRO2OR 0008 Lit DE s CHP DATS ‘LOAD MUTTFLTCAND INTO FE 
+CL0A 14600 0009 Lit Hyd ‘CLEAR OD 
+O10C 2710000 o010 LI FeO sSET RESUE! To oO 
+O10F CR3? 0081 MULT SRL i SSHTFT MULTIPLIER BIE THTO Cakky 
+Cliil 3061 e012 Je NC sNDAUE PTLST CARKT 
+O11L3 i? OOls ADT HL GE ‘Am HET TO RESULT 
+0114 CB23 0014 NOATD SLA i #SHIFT BRI LEFT 
+Olid CRIS oo1S KL lt *SAUE HLT EH oo 
+O118 Of 0016 HEE u SEE CR PRAEHD SHIR I COUNTER 
+OhI8  C2OFOL Ook? J NZeMULT So FT AAP LF COMRITER i] 
+OLIG 220402 Qvlg Li (RESALE ete FUFORE RESULT 
+OLIF (0000) ODE? Enn 
+Errors it) 
+
+
+Fig. 10.4: Assembler Output—An Example 
+
+
+593 
+
+
+PROGRAMMING THE Z80 
+
+
+However, other symbols used for constants or memory addresses 
+must be defined by the programmer prior to their use. 
+
+A special assembler directive may be used to assign a value to any 
+symbol. A directive is essentially an instruction to the assembler which 
+will not be translated into an executable statement. For example, the 
+constant LOG will be defined as: 
+
+
+LOG DFW 3002H 
+
+
+This assigns the value 3002 hexadecima! to the variable LOG. The 
+assembler directives will be examined in detail in a later section. 
+
+
+Constants or Literals 
+
+
+Constants may traditionally be expressed either in decimal, in hexa- 
+decimal, in octal, or in binary, or as alphanumeric strings. In order to 
+differentiate between the base used to represent the number, a symbol 
+must be used. To load ‘‘0’’ into the accumulator, we will simply write: 
+
+
+LD A,0O 
+
+
+Optionally a ‘‘D’’ may be used at the end of the constant. 
+A hexadecimal number will be terminated by the symbol ‘‘H’’. To 
+load the value ‘‘FF’’ into the accumulator, we will write: 
+
+
+LD A, FFH 
+
+
+An octal symbol is terminated by the symbol ‘‘0”* or ‘‘Q’’. A binary 
+symbol is terminated by ‘‘B’’. 
+
+For example, in order to load the value ‘£11111111’’ into the accumu- 
+lator, we will write: 
+
+
+LD A, JIITIIIIB 
+
+
+Literal ASCII characters may also be used in the literal field. The 
+ASCII symbol must be enclosed in single quotes. 
+
+For example, in order to load the symbol ‘‘S”’ into the accumulator, 
+we will write: 
+
+
+LD A, ‘8’ 
+
+
+Exercise 10.1: Will the following two instructions load the same value 
+in the accumulator: LD A, ‘5’, and LD A, 5H? 
+
+
+594 
+
+
+PROGRAM DEVELOPMENT 
+
+
+Note that in the Zilog convention, parentheses denote an address. 
+For example: 
+
+
+LD A, (10) 
+
+
+specifies that the accumulator is loaded from the contents of memory 
+location 10 (decimal). 
+
+
+Operators 
+
+
+In order to further facilitate the writing of symbolic programs, as- 
+semblers allow the use of operators. At a minimum, they should allow 
+plus and minus so that one can specify, for example: 
+
+
+LD A, (ADDRESS) 
+LD A, (ADDRESS +1) 
+
+
+It is important to understand that the expression ADDRESS +1 will 
+be computed by the assembler in order to determine the actual memory 
+address which must be inserted as the binary equivalent. It will be com- 
+puted at assembly time, not at program-execution time. 
+
+In addition, more operators may be available, such as multiply and 
+divide, a convenience when accessing tables in memory. More special- 
+ized Operators may be also available, such as greater than and less 
+than, which truncate a two-byte value respectively into its high and low 
+byte. 
+
+Naturally, an expression must evaluate to a positive value, Negative 
+numbers may normally not be used and should be expressed in a hexa- 
+decimal format. 
+
+Finally, a special symbol is traditionally used to represent the current 
+value of the address of the line: ‘‘$’’. This symbol should be interpreted 
+as ‘‘current location’’ (value of PC). 
+
+
+Exercise 10.2: What is the difference between the following instruc- 
+tions? 
+
+
+LD A, 10101010B 
+LD A, (10101010B) 
+
+
+Exercise 10.3: What is the effect of the following instruction? 
+JP NC,$ - 2 
+
+
+Expressions 
+
+
+The Z80 assembler specifications allow a wide range of expressions 
+
+
+595 
+
+
+PROGRAMMING THE Z80 
+
+
+with arithmetic and logical operations. The assembler will evaluate the 
+expressions in a left-to-right manner, using the priorities specified by 
+the table in Figure 10.5. Parentheses may be used to enforce a specific 
+order of evaluation. However, the outermost parentheses will denote 
+that the contents are to be treated as an address. 
+
+
+Assembler Directives 
+
+
+Directives are speciai orders given by the programmer to the assem- 
+bler, which result either in storing values into symbols or into the mem- 
+ory, or in controlling the execution or printing modes of the assembler. 
+The set of commands which specifically controls the printing modes of 
+the assembler is also called ‘‘commands”’ and is described in a separate 
+
+
+section. 
+To provide a specific example, let us review here the 1! assembler 
+
+
+directives available on the Zilog development system: 
+
+
+ORG nn 
+
+
+This directive will set the assembler address counter to the value nn. In 
+other words, the first executable instruction encountered after this 
+directive will reside at the value nn. It can be used to locate different 
+segments of a program at different memory locations. 
+
+
+EQU nn 
+This directive is used to assign a value to a label. 
+DEFL nn 
+
+
+This directive also assigns a value n to a label, but may be repeated 
+within the program with different values for the same label, whereas 
+EQU may be used only once. 
+
+
+DEFB n 
+
+
+This directive assigns eight-bit contents to a byte residing at the current 
+reference counter. 
+
+
+DFB ‘5S’ 
+assigns the ASCII value of ‘‘S’’ to the byte. 
+DEFW nn 
+
+
+This assigns the value nn to the two-byte word residing at the current 
+reference counter in the following location. 
+
+
+596 
+
+
+PROGRAM DEVELOPMENT 
+
+
+OPERATOR FUNCTION PRIORITY 
+
+
+UNARY PLUS 
+
+UNARY MINUS 
+LOGICAL NOT 
+
+RESULT 
+EXPONENTIATION 
+MULTIPLICATION 
+DIVISION 
+
+MODULO 
+
+LOGICAL SHIFT RIGHT 
+LOGICAL SHIFT LEFT 
+ADDITION 
+SUBTRACTION 
+LOGICAL AND 
+LOGICAL OR 
+
+LOGICAL XOR 
+EQUALS 
+
+GREATER THAN 
+
+LESS THAN 
+
+UNSIGNED GREATER THAN 
+UNSIGNED LESS THAN 
+
+
+] 
+1 
+i 
+] 
+2 
+3 
+3 
+3 
+3 
+3 
+4 
+4 
+5 
+é 
+6 
+7 
+7 
+7 
+7 
+7 
+
+
+Fig. 10.5: Operator Precedence 
+DEFS nn 
+
+
+reserves a block of memory size nn bytes, starting at the current value 
+of the reference counter. 
+
+
+DEFM ‘S’ 
+
+
+stores into memory the string ‘S’ starting at the current reference coun- 
+ter. It must be less than 63 in length. 
+
+
+MACRO PO P1...Pn 
+
+
+is used to define a label as a macro, and to define its formal parameter 
+list. Macros are defined in another section below. 
+
+
+END 
+
+
+indicates the end of the program. Any other statements following it will 
+be ignored. 
+
+
+ENDM 
+
+
+is used to mark the end of a macro definition. 
+
+
+597 
+
+
+PROGRAMMING THE Z80 
+
+
+Assembler Commands 
+
+
+Commands are used to modify the format of the listing to control the 
+printing modes of the assembler. All commands start with a star in col- 
+umn one. Seven commands are provided by the Z80 assembler. Typical 
+examples are: 
+
+
+EJECT 
+which causes the listing to move to the top of the next page; and 
+LIST OFF 
+
+
+which causes the printing to be suspended, effective with this com- 
+mand. The others are: ‘**HEADING S’’, ‘“*LIST ON’’, ““*MACLIST 
+ON’, ‘**MACLIST OFF’’, ‘**INCLUDE FILENAME?”’. 
+
+
+Macros 
+
+
+A macro is simply a name assigned to a group of instructions. It is a 
+convenience to the programmer. If a group of instructions is used sev- 
+eral times in a program, we could define a macro to represent them, in- 
+stead of always having to write this group of instructions. 
+
+As an example, we could write: 
+
+
+SAVREG MACRO PUSH AF 
+PUSH BC 
+PUSH DE 
+PUSH HL 
+ENDM 
+
+
+then simply write the name ‘“SSAVREG”’ instead of the above instruc- 
+tions. Any time that we write SAVREG, the five corresponding lines 
+will get substituted instead of the name, An assembler equipped with a 
+macro facility is called a macro-assembler. When the macro assembler 
+encounters a SAVREG, it performs a mere physical substitution of 
+equivalent lines. 
+
+
+Macro or Subroutine? 
+
+
+At this point, a macro may seem to operate in a way analogous to a 
+subroutine. This is not the case. When the assembler is used to produce 
+the object code, any time that a macro name is encountered, it will be 
+replaced by the actual instructions that it stands for. At execution time, 
+the group of instructions will appear as many times as the name of the 
+macro did. 
+
+
+598 
+
+
+PROGRAM DEVELOPMENT 
+
+
+By contrast, a subroutine is defined only once, and then it can be 
+used repeatedly; the program will jump to the subroutine address. A 
+macro is called an assembly-time facility. A subroutine is an execution- 
+time facility. Their operation is quite different. 
+
+
+Macro Parameters 
+
+
+Each macro may be equipped with a number of parameters. As an 
+example, let us consider the following macro: 
+
+
+SWAP MACRO #M, #N, #T 
+
+
+LD A, #M MINTOA 
+
+LD #T, A A INTO T (=M) 
+LD A, #N N INTO A 
+
+LD #M, A A INTO M (=N) 
+LD A, #T TINTOA 
+
+LD #N, A A INTO N (=T) 
+END M 
+
+
+This macro will result in swapping (exchanging) the contents of mem- 
+ory locations M and N. A swap between two registers, or two memory 
+locations, is an operation which is not provided by the Z80. A macro 
+may be used to implement it. ‘‘T’’ in this instance is simply the name 
+for a temporary storage location required by the program. As an exam- 
+ple, let us swap the contents of memory locations ALPHA and BETA. 
+The instruction which does this appears below: 
+
+
+SWAP (ALPHA), (BETA), (TEMP) 
+
+
+In this instruction, TEMP is the name of some temporary storage 
+location, which we know to be available and which can be used by the 
+macro. The resulting expansion of the macro appears below: 
+
+
+LD A, (ALPHA) 
+LD (TEMP), A 
+LD A, (BETA) 
+LD (ALPHA), A 
+LD A, (TEMP) 
+LD (BETA), A 
+
+
+The value of a macro should now be apparent: it is convenient for the 
+programmer to use pseudo-instructions, which have been defined with 
+macros. In this way, the apparent instruction set of the Z80 can be ex- 
+panded at will. Unfortunately, one must bear in mind that each macro 
+
+
+599 
+
+
+PROGRAMMING THE Z80 
+
+
+directive will expand into whatever number of instructions were used. A 
+macro will, therefore, run more slowly than any single instruction. Be- 
+cause of its convenience for the development of any long program, a 
+macro facility is highly desirable for such applications. 
+
+
+Additional Macre Facilities 
+
+
+Many other directives and syntactic facilities may be added to a sim- 
+ple macro facility; macros may be nested, i.e., a macro call may appear 
+within a macro definition. Using this facility, a macro may modify it- 
+self with a nested definition! A first call will produce one expansion, 
+whereas subsequent calls will produce a modified expansion of the same 
+macro. This is allowed by the Z80 assembler, but nested definitions are 
+not allowed. 
+
+
+CONDITIONAL ASSEMBLY 
+
+
+Conditional assembly is another facility provided in the Z80 assem- 
+bly. With a conditional assembly facility, the programmer can devise 
+programs for a variety of cases, and then conditionally assemble the 
+segments of codes required by a specific application. As an example, an 
+industrial user might design programs to take care of any number of 
+traffic lights at an intersection, for a variety of contro! algorithms. He 
+will then receive the specifications from the local traffic engineer, who 
+specifies how many traffic lights there should be and which algorithms 
+should be used. The programmer will then simply set parameters in his 
+program and assemble conditionally. The conditional assembly will 
+result in a ‘‘customized’’ program which will retain only those routines 
+which are necessary for the solution to the problem. 
+
+Conditional assembly is, therefore, of specific value to industrial 
+program generation in an environment where many options exist and 
+where the programmer wishes to assemble portions of programs quick- 
+ly and automatically in response to external parameters. 
+
+Only two conditional pseudo-OPs are provided in the standard 
+micro-assembler version supplied by Zilog. They are respectively: 
+
+
+COND NN and ENDC 
+
+
+where NN represents an expression. The pseudo-OP ‘“‘COND NN’”’ will 
+result in the evaluation of the expression NN. As long as the expression 
+evaluates to a true value (non-zero), the statement following the COND 
+will be assembled. However, if the expression should be false, i.e., eval- 
+
+
+600 
+
+
+PROGRAM DEVELOPMENT 
+
+
+uate to a zero value, the assembly of all subsequent statements will be 
+disabled up to the ENDC instruction. 
+
+ENDC is used to terminate a COND, so that the assembly of subse- 
+quent statements is re-enabled. The COND pseudo-OP’s cannot be 
+nested. 
+
+In theory, more powerful conditional assembly facilities could exist, 
+with “‘IF’’ and ‘‘ELSE”’ specification. They may become available in 
+future versions of the assembier. 
+
+
+SUMMARY 
+
+
+This chapter has presented the techniques and the hardware and soft- 
+ware tools required to develop a program, along with the various trade- 
+offs and alternatives. 
+
+These range at the hardware level from the single-board microcom- 
+puter to the full development system; at the software level, from binary 
+coding to high-level programming. 
+
+You will have to select them on the basis of your goals and resources. 
+
+
+601 
+
+
+CHAPTER 11 
+
+
+CONCLUSION 
+
+
+We have now covered all important aspects of programming, from 
+definitions and basic concepts to the internal manipulation of the Z80 
+registers, to the management of input/output devices, as well as the 
+characteristics of software development aids. What is the next step? 
+Two views can be offered, the first one relating to the development of 
+technology, the second one relating to the development of your own 
+knowledge and skill. Let us address these two points. 
+
+
+TECHNOLOGICAL DEVELOPMENT 
+
+
+The progress of integration in MOS technology makes it possible to 
+implement more and more complex chips. The cost of implementing the 
+processor function itself is constantly decreasing. The result is that 
+many of the input/output chips or the peripheral-controller chips used 
+in a system now incorporate a simple processor. This means that most 
+LSI chips in the system are becoming programmable. An interesting 
+conceptual dilemma is now developing. In order to simplify the soft- 
+ware design task, as well as to reduce the component count, the new 
+I/O chips now incorporate sophisticated programmable capabilities: 
+many programmed algorithms are now integrated within the chip. 
+However, as a result, the development of programs is complicated by 
+the fact that all these input/output chips are radically different and 
+need to be studied in detail by the programmer! Programming the 
+system is no longer programming the microprocessor alone, but also 
+programming all the other chips attached to it. The learning time for 
+every chip can be significant. 
+
+Naturally, this is only an apparent dilemma. If these chips were not 
+available, the complexity of the interface to be realized, as well as of the 
+corresponding programs, wouid be still greater. The new complexity 
+that is introduced is the need to program more than just a processor, 
+
+
+602 
+
+
+CONCLUSION 
+
+
+and to learn the various features of the different chips in a system. How- 
+ever, it is hoped that the techniques and concepts presented in this book 
+will make this a reasonably easy task. 
+
+
+THE NEXT STEP 
+
+
+You have now learned the basic techniques required to program sim- 
+ple applications on paper. That was the goal of this book. The next step 
+is actual practice for which is no substitute. It is impossible to learn pro- 
+gramming completely on paper; experience is required. You should 
+now be in a position to start writing your own programs. It is hoped 
+that this journey will be a pleasant one. 
+
+For those who feel they would benefit from the guidance of an addi- 
+tional book, the companion volume to this one in the series is the Z80 
+Applications Book (refD380), which presents a range of actual appli- 
+cations which can be executed on a real microcomputer. 
+
+
+603 
+
+
+APPENDIX A 
+
+
+HEXADECIMAL CONVERSION TABLE 
+
+
+Qo #1 45 6 7 8 § 10 1 1 13 14 15 
+16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 
+32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 
+48 49 50 51 52 53 54 55 56 57 5B 59 GO Gi G2 63 
+64 65 66 67 6&8 69 70 71 72 73 74 75 76 77 78 79 
+60 6 62 83 84 85 86 87 38 68 80 91 92 93 94 95 
+96 97 96 99 100 101 102 103 104 105 106 107 106 109 110 111 
+112 113 114 115 116 117 118 419 120 121 122 123 124 125 126 127 
+128 129 130 131 132 133 134 135 136 137 136 139 140 141 142 149 
+144 145 146 147 148 149 150 151 162 163 154 155 156 157 158 159 
+160 161 162 163 164 165 166 167 168 169 #70 171 172 173 174 175 
+176 177 178 179 180 181 192 183 184 185 186 167 168 169 190 191 
+192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207 
+208 209 210 211 212 219 214 215 216 217 218 219 220 221 222 223 
+224 225 226 227 228 229 230 231 232 233 234 235 236 237 238 239 
+240 241 242 243 244 245 246 247 248 249 250 261 252 253 254 255 
+
+
+AMOOMrwooanan hana © 
+
+
+N Oli Sico pe 
+OO DIN Qim B/G ho 
+
+
+| 1 ass| 116 
+
+, 196,608] 3 12,288] 3-768 
+
+5 5,242,880) 5 327.680] 5 20,480] 5 1,280 
+
+7 7,340,032] 7 458,752| 7 28,6721 7 1,792 
+9 9,437,1841 9 589,824] 9 easel 9204 9 144 
+
+B 11,534,336] B 720 2.816] B 1764 B VW 
+
+
+oO om 
+
+
+Pp 
+oh 
+on 
+wow 
+ao 
+ob 
+ha 
+Ao 
+ae 
+oo 
+wo p> 
+NN 
+g 
+P 
+= 
+o 
+> 
+o 
+
+
+D 13,631,488] D 851,968] D 53,248] D va | Doe | D 13 
+F 15,728,640] F 983,040] F craaol #3800 F 240] F 15 
+
+
+604 
+
+
+APPENDIX B 
+
+
+ASCH CONVERSION TABLE 
+
+
+op 
+pod £22) 
+
+
+_ 
+So 
+—_ 
+Sond Se 
+pare 
+
+
+OON OM WM ~~ OF 
+
+
+HEX 
+LSD 
+0 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+A 
+B 
+Cc 
+D 
+E 
+F 
+
+
+OZSrRKxe—-TO mMINTre!A 
+Pome ON< KS CCAMDONVD 
+ondag e=xee - TO -O OTM ! 
+
+
+Mee NN kX EK oC HH AAD 
+
+
+VY I Awe 
+Q 
+
+
+THE ASCII SYMBOLS 
+NUL —WNuil DLE —Data Link Escape 
+SOH —Start of Heading DC —Device Control 
+STX —Start of Text NAK —Negative Acknowledge 
+ETX —End of Text SYN —Synchronous Idie 
+EOT —End of Transmission ETB -—-End of Transmission Block 
+ENQ —Enquiry CAN —Cancei 
+ACK —Acknowledge EM —End of Medium 
+BEL —Bell SUB —Substitute 
+BS =Backspace ESC —Escape 
+HT —Horizontal Tabulation FS —File Separator 
+LF Line Feed GS -~Group Separator 
+VT —Vertical Tabulation RS --Record Separator 
+FF —Form Feed US  —Unit Separator 
+CR —Carriage Retum SP —Space (Blank) 
+SO Shift Out DEL —Delete 
+
+
+Si = Shift In 
+
+
+605 
+
+
+APPENDIX C 
+
+
+RELATIVE BRANCH TABLES 
+
+
+FORWARD RELATIVE BRANCH TABLE 
+
+
+19 20 
+35 
+St 52 
+66 67 68 
+82 83 64 
+9 98 9 = =100 
+ee ee ee) 
+
+
+124 
+108 
+
+
+126 
+116 
+
+
+125 
+109 
+
+
+ol 60 
+
+46 45 44 
+9 28 
+
+12 
+
+
+606 
+
+
+2 22 23 
+
+
+53 54 55 
+ov 70 74 
+85 86 87 
+wr 102 «6103 
+W7 118 119 
+
+
+1220 (V2 
+105 
+
+
+123 
+107 
+
+
+59 58 37 
+43 42 4\ 
+2? 26 25 
+i 10 9 
+
+
+68 9 A B 
+
+
+8 9 10 W 
+
+24°25 26 
+
+40 
+
+56 57 
+
+72.73. +74 «75 
+
+ga ae 90) 
+104 105. 106 lor 
+120 121 122123 
+
+
+120 
+164 
+
+
+Wg 
+103 
+
+
+8 tI? 
+ig2_—-101 
+
+
+7\ 70 
+36 55 54 53 
+40 39 38 a? 
+24 23 22 2 
+8 ? 6 5 
+
+
+Cc D E F 
+
+
+12 13 14 15 
+28 29 
+a4 
+60 
+76 77 
+92 93 94 
+108 «109110 
+
+
+124 125 126 127 
+
+
+ar) 
+100 
+
+
+68 
+
+32 
+
+36 35 
+
+20 i9 
+4 3 
+
+
+APPENDIX D 
+
+
+DECIMAL TO BCD CONVERSION 
+
+
+DECIMAL BCD 
+
+
+00010000 10010000 
+00010001 10010001 
+00010010 10010010 
+00010011 19010071 
+00010100 10010100 
+00010101 10010101 
+00010110 10010110 
+00010111 10010111 
+00011000 10011000 
+00071001 10011001 
+
+
+0 
+4 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+
+
+607 
+
+
+APPENDIX E 
+
+
+Z80 INSTRUCTION CODES 
+
+
+SOURCE SOURCE 
+STATEMENT STATEMENT 
+
+
+8E AJHL} £620 
+
+DD8E0S A(IX+d) CB46 0,{HL) 
+FD8E05 AY +d) DOCB0546 0.A1X+d) 
+BF FOCB0546 0,(1Y +d) 
+88 . CB47. 0.A 
+
+89 ‘ cB40 0.8 
+
+BA . CB41 0,C 
+
+8B cB42 0,0 
+
+aC : C843 G.E 
+
+8D CB44 OH 
+CE20 . CB45 O.L 
+ED4A . CB4E 1 (HL) 
+EDSA . DDCBOS4E 1.(1X+d) 
+ED6A FOCBOS4E TAY +d) 
+ED7A . CBa4F 1A 
+
+86 CB48 1.8 
+DO8605 AAIX+d) cB49 1.C 
+FD8605 AAIY4+d) CB4A 1,D 
+
+87 A.A cB4B 1,E 
+
+80 AB cB4c 1.H 
+
+Bi AC CB4D VL 
+
+82 A.D CB56 2.(HL) 
+83 AE DOCB0556 2,IX+d) 
+84 A.H FDCB0556 2.11Y +d) 
+as AL CBS7 2,A 
+C620 An CB50 2.B 
+
+09 HL.BC cesi 2.c 
+
+19 HL,DE CB52 2,0 
+
+29 HL.HL CB53 2,€ 
+
+39 HL.SP cas4 2.1 
+DDoS IX.BC CBSS 2.L 
+DD19 iX,DE CBSE 3,{HL) 
+DO29 1x 1X DDCBOS55E 3,01X+d) 
+0D39 iX,SP FOCBOSSE 3.(1¥+a) 
+FDa9 i¥,BC CBSF 3.A 
+FDi9 1y,DE CB58 3,8 
+FD29 1v1Y CBs9 3.¢ 
+FD39 1Y.SP CBSA 3.D 
+
+AG (HU) CB5B 3,E 
+DDA6OS (IX+d) cBsC 3.H 
+FDA6OS (1Y+d) CB5D 3.L 
+
+Az CBE6 4 (HL) 
+AO DDCBO566 4.(1X+d) 
+Al FOCBOS6E atl¥td) 
+A2 CB67 4,A 
+
+A3 CB60 4.8 
+
+A4 cB61 4c 
+
+AS CB62 4,0 
+
+
+608 
+
+
+APPENDIX 
+
+
+SOURCE SOURCE 
+STATEMENT STATEMENT 
+
+
+CB63 4.E EDB1 
+
+C64 4,H EDA 
+
+CB65 4,t 2F 
+
+CBGE 5.(HLI 2? 
+
+DDCBOS6E 5 (IX+d) 36 {HL} 
+FDCBOS6E 5 (1Y +d) DD3505 (iX+d) 
+CREF 5A FD3505 (¥+d) 
+CB68 5.8 OB A 
+CB69 5.C OB 
+
+CBG6A 5,D oD 
+
+CBG6B 5.E 15 
+
+CB6C 5.H iB 
+
+CBED 5, 1D 
+
+CB76 6,{HL) 25 
+
+DDCBOS76 6,(1X+d) 3B 
+
+FDCBOS576 6{1Y+d) DD28 
+
+CB77 6.A ED28 
+
+cB70 6.8 2D 
+
+CB71 6,C 38 
+
+CB72 6.D Fa 
+
+CB73 6.E 102E 
+
+CB74 6.H FB 
+
+ce75 6L £3 (SP},HL 
+CB7E 7.4HLI DDE3 {SP},1X 
+DDCBO57E 7(1X+d) FDE3 (SP).1¥ 
+FDC8057E 7,V +a) 0B AF.AF’ 
+C87F 7A EB DE.HL 
+CB78 7,8 Dg 
+
+cB79 7.C 76 
+
+CB7A 7D E046 
+
+CB7B TE EDS6 
+
+cB7C 7.H EDSE 
+
+cB70 Fu ED78 
+
+Dc8405 C,nn EDao 
+
+FC8405 Munn ED48 
+
+Da4B405 NC.nn E050 
+
+48405 NZ.nn ED58 
+
+F48405 Ponn ED6O 
+
+EC8405 PE.nn ED6S 
+
+E48405 PO.nn 34 
+
+CC8405 Z.nn DD3405 
+
+CD8405 an FD3405 
+
+3F 3c 
+
+BE 04 
+
+DDBEOS 
+
+FDBE05 
+
+BF 
+
+BS 
+
+Bo 
+
+BA 
+
+BB 
+
+BC 
+
+8D 
+
+
+609 
+
+
+PROGRAMMING THE 280 
+
+
+610 
+
+
+EDAA 
+EDBA 
+EDA2 
+EDB2 
+€38405 
+
+EQ 
+
+DDES 
+FDE9 
+DAB40S 
+FA8405 
+D28405 
+C28405 
+F28405 
+EA8405 
+E28405 
+CA8405 
+3B2E 
+302E 
+202E 
+282E 
+
+182E 
+
+02 
+
+12 
+
+TT 
+
+70 
+
+71 
+
+72 
+
+73 
+
+74 
+
+5 
+
+3626 
+DD7705 
+D67005 
+DD7105 
+007205 
+DD7305 
+DD7405 
+007505 
+DD360520 
+FD7705 
+FD7005 
+FD7105 
+FO7205 
+FD7305 
+FD7405 
+FD7505 
+FD360520 
+328405 
+ED438405 
+E0538405 
+228405 
+00228405 
+F0O228405 
+ED738405 
+
+
+0A 
+1A 
+
+
+TE 
+
+
+SOURCE 
+STATEMENT 
+
+
+nn 
+tHL) 
+(IX? 
+
+iy} 
+
+C,nn 
+Munn 
+NC.nan 
+NZ.nn 
+P.nn 
+
+PE nn 
+PO,nn 
+Z,nn 
+
+Ce 
+NC.e 
+NZ.e 
+
+Z.e 
+
+e ttt 
+(dC),A4 
+(DEI,A 
+(HL).A 
+{HLI.B 
+{HLS 
+{AL),D 
+{(HLEE 
+(HLIH 
+(ALELL 
+(HLi,n 
+(IX+d) A 
+(IX+d),8 
+(IX+d).C 
+(IX+d},D 
+(1X+d},E 
+({X+d).H 
+(IX+d).b 
+(X+d)n 
+(¥+d},A 
+(¥+d).B 
+(I¥+d).c 
+(¥+d).0 
+(IN +d).E 
+{I¥+dl,H 
+(I¥+d),0 
+(?¥+d).n 
+(nniA 
+{rn} BEC 
+(nn},DE 
+(nn) HE 
+(ani IX 
+(an) TY 
+{nn} ,SP 
+AIBC) 
+4,(DE} 
+AAHLI 
+
+
+DD7E05 
+FD7E05 
+3A8405 
+7F 
+
+78 
+
+79 
+
+7A 
+
+78 
+
+7C 
+EDS? 
+70 
+320 
+EOSF 
+46 
+DD4608 
+FD4605 
+47 
+
+40 
+
+41 
+
+
+42 
+43 
+
+
+44 
+45 
+
+
+0620 
+ED4B8405 
+018405 
+4E 
+DD4E05 
+FO4E0S 
+4F 
+
+48 
+
+49 
+
+4A 
+
+4B 
+
+4c 
+
+4D 
+
+0E20 
+
+56 
+DO5605 
+FOS5608 
+57 
+
+50 
+
+51 
+
+52 
+
+53 
+
+54 
+
+56 
+
+1620 
+EDSB8405 
+118405 
+SE 
+DOSEQ5 
+FOSEOS 
+5F 
+
+58 
+
+59 
+
+5A 
+
+
+SOURCE 
+STATEMENT 
+
+
+A,UEX+d} 
+AY +d) 
+AAnn} 
+AVA 
+
+AB 
+
+AL 
+
+AD 
+
+A,E 
+
+A,H 
+
+Al 
+
+AL 
+
+Ava 
+
+AR 
+
+B, (HL) 
+B(IX+d) 
+B,UIY +d) 
+B.A 
+
+5.B 
+
+8.C 
+
+B.D 
+
+B.E 
+
+B.H 
+
+Bt 
+
+B.n 
+8C,{nn) 
+BC.nn 
+CAHL) 
+CAIX+d) 
+CIY +d) 
+CA 
+
+C.B 
+
+cc 
+
+c,D 
+
+cE 
+
+C,H 
+
+cL 
+
+Cn 
+D,IHL) 
+D.ilX+d} 
+DA +d} 
+DA 
+
+D.B 
+
+D.C 
+
+D.D 
+
+DE 
+
+D.H 
+
+D.L 
+
+D,n 
+
+DE. (nn 
+DE.nn 
+E,(HLI 
+E,{1X+d) 
+EIY+d) 
+E.A 
+
+E.B 
+
+E.c 
+
+E.D 
+
+
+5B 
+
+5c 
+
+5D 
+
+1E20 
+
+66 
+DD6605 
+FD6605 
+67 
+
+60 
+
+67 
+
+62 
+
+63 
+
+64 
+
+65 
+
+2620 
+2A8405 
+218405 
+—047 
+0DO2A8405 
+DO218405 
+FD248405 
+FO278405 
+6E 
+DOGEOS 
+FDG6EOS 
+
+
+6F 
+68 
+
+
+69 
+
+6A 
+
+6B 
+
+6c 
+
+60 
+2E20 
+ED4F 
+ED7B8405 
+FO 
+DDF9 
+FDF9 
+318405 
+EDAS 
+EDBES 
+EDAD 
+DBO 
+€D44 
+00 
+
+BG 
+OOB605 
+FOB6OS 
+87 
+
+80 
+
+81 
+
+B2 
+
+B3 
+
+B4 
+
+B5 
+F620 
+EDSB 
+
+
+SOURCE 
+STATEMENT 
+
+
+E.E 
+
+E.H 
+
+EL 
+
+E,n 
+HHL) 
+H.(iX+d} 
+HAY+a) 
+HLA 
+
+
+H.B 
+H.C 
+
+
+H,C 
+
+
+H.E 
+FLH 
+
+
+HL 
+Hn 
+
+HL (nn) 
+Hionn 
+LA 
+1X,({nn) 
+IX,nn 
+
+LY fam) 
+'V¥,na 
+L,tHL} 
+LAX +d) 
+L,WV+d) 
+
+
+LA 
+L.B 
+Lc 
+L.D 
+LE 
+L.H 
+Li 
+Eun 
+R.A 
+SP.(nn) 
+SP.HL 
+SP.IX 
+SPLIY 
+SP.an 
+
+
+(HL} 
+(tX+d) 
+(I¥ +d) 
+
+
+EOB3 
+ED79 
+ED41 
+epag 
+ED51 
+ED59 
+ED61 
+E69 
+D320 
+EDAB 
+EDAS 
+
+Fi 
+
+ci 
+
+B1 
+
+El 
+
+ODE1 
+FDE1 
+
+F5 
+
+cs 
+
+05 
+
+€5 
+
+DDES 
+FOES 
+CB86 
+DOCBOS586 
+FOCBOS86 
+CB8? 
+CBao0 
+CB81 
+CB82 
+C883 
+cs84 
+CBBS 
+CB8E 
+DODCBOSBE 
+FOCBOSBE 
+CBSF 
+CB88 
+cBe9 
+CB8A 
+cess 
+cBEac 
+casD 
+C896 
+DOCBOS9S 
+FOCBOS96 
+C897 
+C890 
+CB91 
+CcB92 
+CB93 
+CBag4 
+CB95 
+CBSE 
+ODCBOSSE 
+FOCBOS9E 
+
+
+APPENDIX 
+
+
+SOURCE 
+STATEMENT 
+
+
+OfHL} 
+0,{1X+d) 
+0,(E¥ +d) 
+0A 
+0.6 
+
+oc 
+
+0,0 
+
+0.E 
+
+0.4 
+
+O.L 
+1,(HL) 
+141 X+d) 
+TAIN +a) 
+1,4 
+
+1,B 
+
+7,€ 
+
+1.D 
+
+1,.E 
+
+71,H 
+
+1,4 
+2,4HL) 
+2,(1X+d} 
+2,A1Y +d) 
+2A 
+28 
+
+2c 
+2.0 
+
+2,E 
+2,4 
+2,L 
+3.{HL) 
+3,(1X+d} 
+3,(1¥ +d] 
+
+
+61! 
+
+
+PROGRAMMING THE 280 
+
+
+SOURCE SOURCE 
+STATEMENT STATEMENT 
+
+
+C89F 3A ED4D 
+cBg98 3.8 ED45 
+
+
+cass 3.C CB16 
+CBSA 3,D ODC80516 
+
+
+cs98 3.6 FDCBOS16 
+cBgc 3.H CB17 
+cegD 3.L CB10 
+CBAG 41H) cBi1 
+DDCBOSAG 4,(IX+d) CB12 
+FDCBOSAG 4Ut¥ +d) CB13 
+CBAT 4.4 C814 
+CBAO 4,8 cB15 
+CBAI 4c 7 
+
+
+CBA2 4.0 CBOs 
+DBA3 4.£ DOCBE50S 
+
+
+CBA4 4.H FDCBO506 
+
+
+CBAS 4. CBO7 
+CBAE 5fHL) cs00 
+DDCBOSAE 5,(1X+d) CBO1 
+FOCBOSAE 5.(1V+d) CB02 
+CBAF 5,4 CBO3 
+CBA8 §.B CB04 
+CBAQ 5.c CBO5 
+CBAA 5,.D 07 
+
+CBAB 5.E ED6F 
+CBAC 5.4 CB1E 
+CBAD 5.L DDCBOS1E 
+CBBS 6,(HL} FDCBOSIE 
+
+
+DOCBOSB6 6,{1X+d) CBIF 
+FDCBOSB6 6.11¥+d)} cB18 
+C887 6.A CB19 
+CBBC 6.8 CBIA 
+CBB1 6.c CBI1B 
+CBB2 6,0 CBIC 
+C883 6.E CBiD 
+
+
+1F 
+cBB4 6.H 
+CBe5 6.L CBOE (HL) 
+
+
+CBBE 7.AHU} DOCBOSOE (IX+d) 
+
+
+DOCBOSBE 7,UX+d) coon (iY +d) 
+FOCBOSBE 7.(1V+d) cBOB 
+caer 7A CBO9 
+cee8 78 CBOA 
+CBB9 7,C cBOB 
+CBBA 7.0 CROC 
+cee ve cBOD 
+CBBC 7H OF 
+CBBD ED67 
+c C7 
+D8 CF 
+
+Fg b7 
+pe DF 
+co 5? 
+
+EO FF 
+C8 DE20 
+
+
+612 
+
+
+APPENDIX 
+
+
+SOURCE SOURCE 
+STATEMENT STATEMENT 
+
+
+SE AAHL) DOCBOSEG 4,(1X+d) 
+OD9ECS A(IX+d) FOCBOSE6 4(tV+d) 
+FD9EOS AAIY+d) CBE7 4A 
+
+9F AA CBEO 4.B 
+
+98 A.B CBE1 4c 
+
+99 A.C CBE2 4.D 
+
+SA A.D CBE3 4,é 
+
+98 AE CBE4 4,H 
+
+sc A,H CBES 4,L 
+
+90 AL CBEE 5.{HL) 
+ED42 HL,BC DDCBOSEE §,(1X+d) 
+ED52 HL,DE FOCBG5SEE 5,(I¥+d) 
+ED62 HL.AL CBEF 5.4 
+ED?72 HL.SP CBES8 5,.B 
+
+
+37 CBES 5.C 
+CBC6 O.(HL) CBEA 5D 
+
+
+DOCBOSCS O{1X+d) CBEB 5. 
+FDCBO5C6 0,(tv+d) CBREC 5,H 
+
+
+CBC7 0.A CBED SL 
+cBCcO 0,8 CBF6 6,(HL) 
+cBCi 0.c DDCBOSFE 6.(1X+d) 
+CBC2 0.D FDCBOSF6 6.(I¥+d) 
+CBC3 0,£ CBE? 6.A 
+
+6.B 
+CBFI 6,C 
+CBF2 6.D 
+CBF3 6.E 
+FDCBOSCE 1.Y+d) cara 6H 
+CBCF 1A CBF5 6.L 
+C8cE 1.8 CBFE 7 AHL} 
+CBC 1c DDCBO5FE 7,(IX+d) 
+CBCA 1,0 FDCBOSFE 7,(1¥+d) 
+CBCB ne CBFF 7A 
+CBCC WH CBF8 7.8 
+CBCD re CBF9 7,c 
+CBD6 2AHL) CBFA 7,0 
+DDC805D6 241X+d] CBFB 7,5 
+FDCBO5D6 2.4 +d) CBFC 7H 
+
+
+CcBD7 2,A CBFO 7b 
+CBDO 2.8 CB26 (HL) 
+cBD1 2,C ODCB0526 {I1X+d) 
+
+
+CcBD2 2.0 FDCB0526 {l¥+d) 
+CBD3 2,E CB27 
+
+
+CBD4 2,H CB20 
+CBDS5 2b CB21 
+CBD8 3.B CB22 
+CBDE 3.AHL} CB23 
+DOCBOSDE 3,(tX+d} CB24 
+FDCBO5DE 3.A1Y +d} CB25 
+CBDF 3,4 CB2E 
+
+
+CBD9 3,¢ DDCBOS2E 
+
+
+CBDA 3.0 FDCBOS2E 
+CBDB 3,E CB2F 
+
+
+ceBoc 3.H C828 
+cBOD 3,L cB29 
+CBEG 4,(HL} CB2A 
+
+
+cBC4 OH CRFO 
+CBCS OL 
+CBCE 1.{HU) 
+DDCBOSCE 1IX+d) 
+
+
+613 
+
+
+PROGRAMMING THE Z80 
+
+
+OBJ SOURCE 
+CODE STATEMENT 
+
+
+CB2B SRA E 
+CB2C SRA H 
+CB20 SRA L 
+CBSE SRL (HL) 
+ODCBOS3E SRL {1X+d)} 
+FOCBO53E SAL (iY +d) 
+CB3F SRL 4 
+CB38 SRL B 
+CB39 SRL c 
+CB3A SRL iP) 
+CB38 SAL E 
+CB3C SRL H 
+C83D SRL L 
+
+96 SUB {HL) 
+DOg605 SUB (IX+d} 
+FD9605 SUB (I¥+d) 
+97 SUB A 
+
+90 SUB 8 
+
+91 sue c 
+
+92 SUB D 
+
+93 SUB E 
+
+94 SUB H 
+
+95 SUB L 
+D620 SUB n 
+
+AE XOR (HL) 
+DDAEOS XOR (IX+d} 
+FDAEDS XOR (IY +d} 
+AF XOR A 
+
+AS XOR 6 
+
+Ag xOR Cc 
+
+AA XxOR LF] 
+
+AB XOR E 
+
+AC XOA H 
+
+4G XOR i 
+EE20 n 
+
+
+(Courtesy of Zilog Inc.) 
+
+
+614 
+
+
+z80 
+
+
+ADC A, (HL} 
+ADCA, 1 
+ADC A, ¢ 
+ADD A, (HL) 
+ADD A, n 
+ADD A, r 
+ADD HL, BC 
+AOD HL, DE 
+ADD HL, HL 
+ADD Hi, $P 
+AND n 
+AND r 
+
+AND (HL) 
+CALL C, nn 
+CALL M, nn 
+CALL NC, an 
+CALL an 
+CALL NZ, nn 
+CALE P, an 
+CALL PE, an 
+CALL PO, nn 
+CALL Z, an 
+CCF 
+
+CPr 
+
+CP {HL} 
+
+CPL 
+
+CP rn 
+
+DAA 
+
+DEC BC 
+
+DEC DE 
+
+DEC HL 
+
+DEC r 
+
+DEC SP 
+
+DEC (HL) 
+
+Ol 
+
+EF 
+
+EX DE. HL 
+
+
+APPENDIX F 
+
+
+Z80 to 8080 EQUIVALENCE 
+
+
+ADC M 
+
+ACI [B2] 
+ADC r 
+
+ADD M 
+
+ADI {B2} 
+ADD r 
+
+DAD B 
+
+DAD D 
+
+DAD H 
+
+DAD SP 
+
+ANI (B2] 
+ANAT 
+ANAM 
+
+CC [B2] [83] 
+CM [B2] [B3] 
+CNC [82] [83] 
+CALL 
+
+CNZ (B2j {83} 
+CP (62) [63] 
+CPE {B2] (B3] 
+CPO [B2] [83] 
+C2 (B2} [83] 
+CMC 
+
+CMP & 
+
+CMP iM 
+
+CMA 
+
+CPt [B2} 
+DAA 
+
+OCX 6B 
+
+DCX O 
+
+DCX H 
+
+DCRr 
+
+OCX SP 
+
+DCR M 
+
+D! 
+
+EI 
+
+
+EX (SP), HL 
+HALT 
+INA, (n} 
+INC BC 
+INC DE 
+INC HL 
+INC r 
+
+INC SP 
+INC (HL) 
+JPC. an 
+JPM, an 
+JP NC, an 
+JP nn 
+
+dP NZ, an 
+JPP, nn 
+JP PE. na 
+JP PO. an 
+JPZ, an 
+JP {HL} 
+LDA, (DE} 
+LDA, {nn} 
+LD DE, nn 
+LD SP, nn 
+LD {BC}, A 
+LD (DE}, A 
+LO (HL), r 
+LD (nn, A 
+LD (nn), HL 
+LD A, (BC) 
+LO BC, an 
+UW HL, (nn) 
+ED HL, nn 
+LD r, {HC} 
+LDr.a 
+LOr, 
+
+LD SP, HL 
+NOP 
+
+
+XTHL 
+
+HiT 
+
+IN [B2] 
+
+INX B 
+
+INX D 
+
+JINX H 
+
+INR Fr 
+
+INX SP 
+
+INR MM 
+
+JC (B2) (83) 
+JM [B2](B3] 
+INC [B2] [83) 
+IMP {B2] [83] 
+JNZ [B2] {B3] 
+4P [B2] (83) 
+JPE (B2}[83] 
+JPO [82)(B3] 
+42 {82) [83] 
+PCHL 
+
+LDAX 
+
+LDA [B2} [83] 
+LXID, [82] [B3} 
+LXI SP, [82] (B3] 
+STAX B 
+
+STAX D 
+
+MOV M, r 
+
+STA [82] [83] 
+SHLD (B2] {B3] 
+LOAX B 
+
+iXIB, [(B2} [63] 
+LHLD [B2] [83] 
+LX! H (B2] [83] 
+MOV ILM 
+MMVI, (B2] 
+MOV ri, 12 
+SPHL 
+
+NOP 
+
+
+Z80 
+
+
+ORn 
+ORr 
+
+OR (HL) 
+OUT in), A 
+POP AF 
+POP BC 
+POP DE 
+POP HL 
+PUSH AF 
+PUSH 8C 
+PUSH DE 
+PUSH HL 
+RET 
+RETC 
+RET M 
+RET NC 
+RET NZ 
+RET P 
+RET PE 
+RET PO 
+RET Z 
+RLA 
+RICA 
+RRA 
+RRCA 
+RSTP 
+S&C A, (HL} 
+SBCA, 
+SBC A,r 
+SCF 
+
+SUB a 
+SUBr 
+SUB (HL) 
+XOR a 
+XOR 6 
+XOR (HL) 
+
+
+OR! (B2] 
+ORAr 
+ORAM 
+OUT [B2} 
+POP PSW 
+POPB 
+POP D 
+POP H 
+PUSH PSW 
+PUSH B 
+PUSH D 
+PUSH H 
+RET 
+
+RC 
+
+RM 
+RNC 
+RNZ 
+
+RP 
+
+RPE 
+RPO 
+
+RZ 
+
+RAL 
+
+RLC 
+RAR 
+RRC 
+RST P 
+S8BM 
+SBi (B2j 
+SHB r 
+sTc 
+
+SU? [B2] 
+SUBr 
+SUBM 
+XRI{B2} 
+XRAr 
+XRAM 
+
+
+615 
+
+
+616 
+
+
+ACI [B2] 
+ADC M 
+ADCr 
+
+ADD M 
+
+ADD r 
+
+ADI [82] 
+ANAM 
+
+ANA r 
+
+ANE [82] 
+CALL 
+
+CC [B2{ (B3} 
+CM [B2] [B3} 
+CMA 
+
+CMC 
+
+CMP M 
+
+CMP ¢ 
+
+CNC [B2] (B3} 
+CNZ [B2] [83] 
+CP [82] [83] 
+CPE [82] [B3} 
+CPI [B2} 
+CPO [82] [B3} 
+CZ [B62] (83) 
+DAA 
+
+DAD B 
+
+DAD D 
+
+DAD H 
+
+DAD SP 
+DCRM 
+OCRr 
+
+DCX 6B 
+
+0cx 0 
+
+ocx H 
+
+DCX SP 
+
+DI 
+
+El 
+
+HALT 
+
+
+APPENDIX G 
+
+
+8080 to Z80 EQUIVALENCE 
+
+
+ADC A, n 
+ADC A, (Ht} 
+ADC A, ¢ 
+ADD A, {HL) 
+ADDA,r 
+ADDA, nv 
+AND (HL) 
+AND r 
+
+AND n 
+CALL na 
+CALLC, an 
+CALL M, an 
+CPL 
+
+CCF 
+
+CP (HL) 
+CPr 
+
+CALL NC, an 
+CALL NZ, an 
+CALL P, an 
+CALL PE, an 
+CPa 
+
+CALL PO, nn 
+CALL Z, an 
+DAA 
+
+ADD HL, BC 
+ADD HL, DE 
+ADD HL, HL 
+ADD HL, SP 
+DEC (HL) 
+DEC r 
+
+DEC BC 
+DEC DE 
+
+DEC HL 
+
+DEC SP 
+
+ol 
+
+El 
+
+
+IN (B2} 
+
+INRM 
+
+INR er 
+
+INX B 
+
+INX D 
+
+INX Hi 
+
+INX SP 
+
+JC [B2) [63] 
+JM {B2} [83] 
+JMP {B82} [63] 
+INC (B2] [83] 
+JNZ (B2] (83) 
+JP (B2] [83] 
+JPE {82} [B3] 
+4PO [B2] [B3] 
+JZ [82] [83] 
+LDA [B2] {B3] 
+LDAX B 
+
+LDAX 
+
+LH LG [B2} [83] 
+XI B (B2] (63) 
+LDID (B2] {B31 
+LXI H [B2} (B3] 
+LX! SP [B2] [B3} 
+MOV M, r 
+MOVr, M 
+MOV ri, £2 
+MVIM 
+
+MMVI r {82} 
+NOP 
+
+ORAM 
+
+ORAr 
+
+ORI [B2] 
+
+OUT [82] 
+PCHIL 
+
+POP B 
+
+POP D 
+
+
+Z80 
+
+
+IN A, (n} 
+INC (HL) 
+INC r 
+
+INC BC 
+INC DE 
+INC RL 
+INC SP 
+JPC, an 
+JPM, an 
+JPnan 
+
+JP NC, nn 
+JP NZ, nn 
+JP P, nn 
+JP PE, an 
+JP PO, an 
+JP Z, an 
+LD A, (an) 
+LD A, {BC) 
+LD A, (DE} 
+LD HL, (nin) 
+LD BC, na 
+LD DE, nn 
+LO HL, nn 
+LD SP, nn 
+LO (HL), ¢ 
+LD r, (HL) 
+tr, ré 
+
+LD (HL), n 
+\LDr.n 
+NOP 
+
+OR (HL} 
+ORr 
+
+OR a 
+
+OUT (nj), A 
+JP (HL) 
+POP BC 
+POP DE 
+
+
+POP H 
+POP PSW 
+PUSH 8 
+
+
+PUSH D 
+PUSH H 
+
+
+PUSH PSW 
+
+
+SBR M 
+
+SBS r 
+
+SBI (82] 
+SHLD [B2] [83] 
+SPHL 
+
+STA [B2} [83] 
+STAX B 
+STAX D 
+
+$Tc 
+
+SUB M 
+
+SUBr 
+
+SU! (B2} 
+XCHG 
+XRAM 
+
+XRA Tr 
+XRI[B2] 
+XTHL 
+
+
+POP Hi 
+POP AF 
+PUSH BC 
+
+
+PUSH DE 
+PUSH HL 
+
+
+PUSH AF 
+RLA 
+
+RRA 
+RETC 
+
+RET 
+
+RLCA 
+RETM 
+
+RET NC 
+RET NZ 
+RETP 
+
+RET PE 
+
+RET PO 
+RRCA 
+RSTP 
+
+RET Z 
+
+SBC A, (HL) 
+SBC A, r 
+SBC A, n 
+LD (nn), HL 
+LD SP, HL 
+LD (nn), A 
+LD (8C), A 
+LD (DE), A 
+SCF 
+
+SUB (HL) 
+SUBr 
+SUB n 
+
+EX DE, HL 
+XOR (HL) 
+XOR ¢ 
+XOR n 
+
+EX (SP), HL 
+
+
+INDEX 
+
+
+A 
+absolute addressing 108, 439, 446 
+ACT 61 
+accumulator 439 
+ADC 101 
+ADC, A,s 190 
+ADC HL, ss 192 
+ADD 101 
+ADD A, (HL) 84, 194 
+ADD A, (IX + d) 196 
+ADDA, (IY + d) 198 
+ADD An 67, 200 
+ADDA,r 67,75, 76, 201 
+ADD HL, ss 203 
+ADD IX, rr 205 
+ADDIY, rr 207 
+addition 58, 95, 100, 105 
+address bus 47 
+address registers 51 
+addressing 438, 442 
+addressing modes 438, 440, 444, 445 
+addressing techniques 438 
+algorithm 15, 16, 114, $39 
+aiphabetic list $58, 565, 569, 570 
+alphanumeric data 39 
+ALU 46, 77, 85 
+AND 166, 167 
+AND s 209 
+application examples §20 
+arithmetic-logical unit 46, 61 
+arithmetic programs 94 
+arithmetic shift 119 
+ASCH 39, 524, §25 
+ASCH conversion table 40 
+assembler 96, 582, 590 
+assembler directives 596, 598 
+assembler fields 590 
+assem bly-language 67, 580, 592 
+assigning a value 593 
+asynchronous 471,496, 518 
+automated Z80 
+
+instructions 142, 453, 455 
+
+
+B 
+B 62 
+banks of registers 62 
+BASIC 24 
+basic architecture 46 
+basic concepts 15 
+basic programming choices 379 
+basic programming techniques 94 
+BCD 35, 37, 525 
+BCD addition 107, £10 
+BCD arithmetic 107 
+BCD block transfers 530 
+BCD flags 112 
+BCD representation 35 
+BCD subtraction i110 
+BCD table 35 
+benchmark 470 
+binary 20, 21, 22, 41, 45 
+binary code 19 
+binary digit 18 
+binary division 133 
+binary iogic 18 
+binary representation 4] 
+binary search 546, 558, 559, 560, 
+561, 566, 567, 568 
+BIT b, (HL) 2H 
+BIT b, (IX + d) 213 
+BIT b, (IY + dq) 235 
+BIT b,r 217 
+bit 18, 20, 41 
+bit addressing 448 
+bit manipulation 172, 173 
+bit seriai transfer 471, 472 
+block 540, 542, $44 
+
+
+block transfer 450,451, 453, 458, 530 
+block transfer 
+
+
+instructions 163, 450, 452 
+bootstrap 48 
+bracket testing $23 
+branch instruction 44) 
+branching point V5 
+break character 467 
+
+
+617 
+
+
+PROGRAMMING THE Z80 
+
+
+breakpoint 584, 586 
+bubble-sort 533, 534, 535, 536, 537 
+buffer register 59, 61 
+buffered 49 
+buffers 61 
+bus request 497 
+BUSRQ 92, 497 
+byte 18, 19, 41, 444 
+Cc 
+
+Cc 28, 30, 31, 62, 73 
+CALL 145, 156, 446, 500 
+CALL ce, pq 219 
+CALL pq 222 
+CCF 224 
+CALL SUB 143, 144, 145 
+carry 22, 23, 26, 28, 30, 174 
+central-processing unit 46 
+checksum computation §28 
+circular list 544, 545 
+classes of instructions 154 
+clearing memory §20 
+clock 47 
+clock cycles 69 
+clock-synchronous logic 86 
+code conversion §25 
+coding 16 
+combination chips 48 
+commands 16 
+comment field 590 
+compare $31 
+compiler 545, 581, 582 
+COND 600 
+conclusion 602 
+conditional assembly 600 
+conditional instruction 50 
+constants 439, 445, 594 
+control 50x 49 
+control dus 47 
+control instructions 157, 185 
+control registers $12, 513, 515 
+control signals 91 
+control unit 46 
+count the zeroes 529 
+counter 463, 465 
+CP 166 
+CP s 225 
+CPD 227 
+CPDR 229 
+
+
+618 
+
+
+CPI 231 
+CPIR 233 
+CPL 165, 235 
+CPU 46, 187 
+critical race 60 
+CRT display 44, 587 
+crystal 47 
+CU 46 
+D 
+
+D 62, 74 
+DAA 109, 236 
+data buffer S11 
+
+data bus 47 
+data counters §1 
+
+data direction register 512 
+data processing 155 
+
+data processing instructions 164 
+data ready 469 
+data representation 548 
+data structures 539 
+data transfers 154, 158, 160 
+debugger 583 
+debugging 18 
+decima! 20, 21, 22 
+DEC m 238 
+DEC rr 240 
+DEC 1X 242 
+DEC IY 243 
+decode 71, 86 
+decoding 56 
+decoding logic 49 
+decrement 164, 442 
+DEFB 596 
+DEFL 596 
+DEFM 597 
+DEFS 597 
+DEFW 596 
+delay generation 463 
+
+delay icop 464, 483 
+deleting 553, 565, 574 
+design examples 548 
+destination register 67 
+development systems 587 
+
+DFB 596 
+DI 244 
+direct addressing 439, 441 
+
+direct binary 19 
+direction register 515 
+
+
+directives 
+directories 
+disk operating system 
+displacement 
+displacement field 
+DINZ e 
+
+DMA 
+
+documenting 
+
+DOS 
+
+doubly-linked iists 
+double-precision format 
+drivers 
+
+
+E 
+
+E 
+
+EBCDIC 
+
+echo 
+
+editor 
+
+EI 
+
+8-bit addition 
+
+8-bit division 
+
+element deletion 
+
+element insertion 
+
+emulator 
+
+END 
+
+ENDC 
+
+ENDM 
+
+EPROM’s 
+
+EQU 
+
+error 
+
+error messages 
+
+EX AF, AF 
+
+exchange instructions 
+
+Exclusive ORing 
+
+EX DE, HL 
+
+executable statements 
+
+execute 
+
+execution 
+
+execution cycle 
+
+exponent 
+
+EX (SP), HL 
+
+EX (SP), IX 
+
+EX (SP), IY 
+
+extended addressing 
+
+external representation 
+of information 
+
+EXX 
+
+
+146, 571, 580, 594 
+
+
+541, 545 
+541, 582 
+63 
+
+442 
+
+245 
+491, 498 
+97 
+
+582 
+
+545, 546 
+34 
+
+49 
+
+
+62 
+
+39 
+
+486 
+
+383 
+
+247 
+
+95 
+
+134, 137 
+364 
+550, 563 
+383 
+
+597 
+
+600 
+
+597 
+
+385 
+
+596 
+
+586 
+
+392 
+
+162 
+
+162 
+
+31 
+
+249 
+
+16 
+
+71 
+
+56, 69, 599 
+
+
+254 
+160, 441, 446 
+
+
+41,44 
+256 
+
+
+F 
+
+F 61 
+fetch 55, 70, 84 
+fetch-execute overlap 78 
+FIFO 543 
+file directory 54! 
+flags 31, 50, 51, 179, 180 
+flags register 6] 
+flip-flops 51 
+
+
+floating point representation 37, 38 
+
+
+flowcharting 16, 17, 114, 
+450, 464, 469, 494, 559 
+front panel 45, 589 
+G 
+general purpose registers 51 
+getting characters in $22 
+H 
+H 62, 176 
+half-carry flag (H) 176 
+HALT 92, 185, 257 
+handshaking 477, 478, §11 
+hardware 93 
+hardware delays 465 
+hardware organization 46 
+hardware resources 587, 589 
+HEX 525 
+hexadecimal 41, 42, 481 
+hexadecimal coding 43, 579 
+high byte i03 
+high level language 581 
+I 
+i 63 
+IFF1 499 
+IFF2 499 
+illegal code 107 
+IMO 258 
+IMi 259 
+IM 2 260 
+immediate addressing 108,159,439,445 
+immediate operation 69 
+implicit addressing 438, 445 
+impiied addressing 438 
+improved multiplication 126, 128, 129 
+INr, (C) 261 
+IN A, (N) 263 
+in-circuit emulator 585 
+INC (HL) 267 
+
+
+619 
+
+
+PROGRAMMING THE Z80 
+
+
+INC r 264 
+increment 164, 442 
+incrementer 57 
+INC rr 265 
+INC (1X + d) 268 
+INC (FY + d) 270 
+INC IX 272 
+INC IY 273 
+IND 274 
+index register 53, 63, 448, 442 
+indexed addressing 160, 441, 447, 540 
+indexing 63 
+indirect addressing 443, 444, 448, 540 
+indirect indexed addressing 443 
+indirect memory access 499 
+INDR 276 
+information representation 18 
+in-house computer 588 
+INI 278 
+INIR 280 
+input/output 157, 460, 518 
+input/output devices $11, 521 
+input/output instructions 183, 460 
+input register 466 
+inserting 552, 573 
+instruction 96 
+instruction field 590 
+instruction formats 66 
+instruction register 55, 64 
+instruction set 154 
+instruction types 412 
+INT sD 
+internal control registers 51,513 
+internal representation 
+of information 18 
+interpreted 69 
+interpreter 545, 581, 582 
+interrupt 466, 496, 497, 500, 505, 
+$08, 509, 511 
+interrupt acknowledge 500 
+interrupt flag 187 
+interrupt handler 502 
+interrupt logic 510 
+interrupt-mask-bit 499 
+interrupt mode 0 500 
+interrupt mode ! 503 
+interrupt mode 2 504 
+interrupt overhead $04 
+
+
+interrupt-page addressing register 63 
+
+
+620 
+
+
+interrupt table 
+interrupt vector 
+interrupts 
+
+1/O control 
+IORQ 
+
+IR 
+
+IX 
+
+IY 
+
+
+J 
+
+JP cc, pq 
+JP nn 
+JP pq 
+JP (HL) 
+JP (IX) 
+JP (FY) 
+IRece 
+JRe 
+JUMP 
+
+
+jump instruction 
+jump relative (JR) 
+
+
+K 
+1K 
+
+
+L 
+
+L 
+
+label field 
+largest element 
+LD A, (n, n) 
+LDD,C 
+
+LDD 
+
+LDDR 
+
+LDI 
+
+LDIR 
+
+LD dd, (nn) 
+LD dd, on 
+LDr.a 
+LDr,r 
+LDr,t 
+
+LD (BC),A 
+LD (DE), A 
+LD (HL), n 
+LD (HL), ¢ 
+LDr, (HL) 
+LDr, (1X + d) 
+LDr, (FY + d) 
+LD (IX + d),n 
+LD(IY + d),n 
+
+
+504 
+498 
+495 
+
+92 
+
+92, 500 
+55 
+
+53, 63 
+63 
+
+
+282 
+
+89 
+284 
+285 
+286 
+287 
+288 
+290 
+
+
+90, 172, 179, 441 
+
+
+156, 182 
+446, 447 
+
+
+24 
+
+
+62 
+
+590 
+$26, 527 
+69, 86 
+72 
+
+
+INDEX 
+
+
+mantissa 38 
+MASK 168, 522 
+memory cycles 55 
+memory map 453, 586 
+memory-mapped i/O 157 
+memory-refresh register 64 
+micro instructions 86 
+mnemonic 67, 579 
+MI 92 
+modes 444 
+monitor 48, 582 
+monitoring 467 
+MOS Technology 6502 452 
+MPU 52, 59 
+MPU pinout 91 
+MREQ 92 
+multiple devices 506 
+multiple LED’s 482 
+multiple precision 98 
+multiplexer §2, 62 
+
+
+multiplication H13, 114, £15, 116, 
+
+
+124, 151, 152, 153 
+
+
+LD(UX + d), 1 313 
+LD({IY + d),r 315 
+LD(nn),A 317 
+LD (nn), A 319 
+LD (nn), dd 321 
+LD (nn), HL 323 
+LD (nn), [X 325 
+LD (nn), IY 327 
+LD A, (BC) 329 
+LD A, (DE) 330 
+LDA,I 331 
+LDI,A 332 
+LDA,R 333 
+LD HL, (nn) 334 
+LD 1X, nn 336 
+LD IX, (nn) 338 
+LD FY, (nn) 340 
+LD IY, nn 342 
+LDRLA 344 
+LD SP, HL 345 
+LD SP, IX 346 
+LD SP, IY 347 
+LDD 348 
+LDDR 350 
+LDI 352 
+LDIR 354 
+LED 41, 480 
+LIFO structure 540, 544 
+light emitting diodes 4i 
+linked list 542, 544, 568, 571, 573, 
+574, 577, 578 
+linked loader 583 
+list 540, 548, 549, 550, 555, 556, 557 
+listing 590 
+list pointer 542 
+literal 69, 439, 455, 594 
+load 96, 106 
+ioader 583 
+logarithmic searching 346, 562 
+logical 166, 558 
+logicai errors 582 
+logical operations 141 
+logical shift 1i9 
+long addressing 449 
+longer delay 464 
+M 
+machine cycle 69 
+MACRO 597, 598. 600 
+
+
+MUX $2, 62 
+N 
+
+N 34 
+NEG 358 
+negative 24, 26, 32 
+nested calis 145 
+nibbie 18, 36 
+NMI 91, 92, 498 
+nonmaskable interrupt 498 
+nonrestoring method 133 
+NOP 359 
+NOPs 92 
+normalize 37 
+normalized mantissa 37 
+oO 
+
+octal 41,42 
+odometer 465 
+one’s complement 25 
+one-shot 466 
+opcode 66, 86, 439, 444, 446 
+operand 100, 102, 438, 439 
+operating system 582 
+operator precedence 587 
+OR 166, 168 
+ORs 360 
+
+
+621 
+
+
+PROGRAMMING THE Z80 
+
+
+ORG 596 
+OTDR 362 
+OTIR 364 
+OUT (C), r 366 
+OUT(N), A 368 
+OUTD 369 
+OUTI 371 
+output register 461 
+overdraw 133 
+overflow 28, 30, 31, 32 
+overlap technique 719 
+P 
+
+packed BCD 36, 107 
+packed BCD subtract 110, 111 
+paper-tape readers 494 
+parallel input/output 48 
+parallel work transfer 467, 468, 469 
+parity bit 39, 40 
+parity generation $24 
+parity/overflow (P/V) 175 
+PC 52 
+PIC 446, 506 
+
+
+PIO 48,511, 512, 513, 514, $15,518 
+pointers 51, 62, 444, 539, 544, 550, 551 
+
+
+polling 466, 469, 492, 521, 544 
+polling loop 493, 494 
+POP qq 373 
+POP IX 375 
+POP IY 377 
+pop 53, 76, 154 
+port $11, $15, 516 
+positional notation 20 
+positive 24, 26, 32 
+post-indexing 442, 443 
+power failures 48 
+pre-indexing 442 
+printer 44, 479, 495 
+program 16, 48 
+program counter 52 
+program development 579, 584 
+program loops 63, 121 
+programmable input/output chip 51] 
+programmable interval 
+
+timer (PIT) 463, 465 
+programmer’s model 94 
+programming 15, 16, 515, 518, 602 
+programming language 16 
+pseudo-instructions 98 
+
+
+622 
+
+
+pulse 462, 467 
+pulse counting 466 
+punch 495 
+PUSH qq 379 
+PUSH IX 381 
+PUSH IY 383 
+plush 53, 76, 154 
+Q 
+
+queue 543, 544 
+R 
+
+R 64 
+RAM 48, 75, 584, 587 
+random element 541 
+RLCA 385 
+RD 92 
+read operation 96, 515 
+read-only memory 48 
+read-write memory 48,75 
+recursion 148 
+reference table 571 
+register addressing 438 
+register indirect addressing 444, 448 
+register-interrupt 184 
+register pairs 51 
+registers 31,51, 149, 439, 474 
+relative addressing 441, 446 
+relative jump 156 
+relays 461, 462 
+request blocks $43 
+RES b, s 386 
+RESET 92 
+restoring method 133 
+RET 389 
+RET ce 391 
+RETI 181, 393, 501 
+RETN 181, 395, 499 
+RETURN 144, 145 
+RFSH 93 
+RLs 397 
+RLA 399 
+RLCr 103 
+RLC (HL) 402 
+RLC (IX + d) 404 
+RLC (IY + d) 406 
+RLD 408 
+ROM 48 
+rotation 120, 155, 170, 171 
+
+
+rotate 50, 156 
+round robin 544, 545 
+RRs 410 
+RRA 412 
+RRC 5s 413 
+RRCA 415 
+RRD 416 
+RST 183, 500 
+RST p 418 
+rubout 467 
+s 
+S 178 
+saving the registers $02 
+SBC A,s 420 
+SBC HE, ss 422 
+SCF 424 
+scheduling 491 
+searching 551, 558, 572 
+segment drivers 484 
+segments 480,541 
+sensing pulses 466 
+sequential lists 540 
+sequential searching 546 
+service routing 492 
+SET b, s 425 
+seven-segment light-emitting 
+
+diode (LED) 480, 481 
+shift $0, 118, 120, 155, 156 
+short addressing 441, 446, 449 
+short instruction 19 
+sign 178 
+signal 463 
+signed binary 24, 25 
+signed numbers 532 
+simple list 55] 
+simulator 583 
+simultaneous interrupts 507 
+single-board microcomputers 587 
+16-bit accumulator 103 
+16 by 8 division 134, 135 
+16 by 16 multiplication 130, 131 
+skew operations 169 
+skip 157 
+SLAS 428 
+software aids $82, 587 
+SP 53 
+special digit instructions 172 
+speed 476 
+
+
+INDEX 
+
+
+SRA s 430 
+SRLs 432 
+Stack 53, 146, 149, 496, 508, 539, 544 
+Stack pointer 53, 540 
+standard architecture 49 
+standard PIO SII 
+status 31, 85, 476, 515 
+Status bits 50, 512 
+status register 50 
+storing operands 102 
+string of characters 490 
+SUBA,s 434 
+subroutine call 143, 146 
+subroutine library 150 
+subroutine mechanism 144 
+subroutine parameters 149 
+subroutines 142, 147, 443, 598 
+subtraction 104 
+subtract (N) 175 
+sum of N elements 527, 528 
+symbolic 41,44 
+symbols 592, 593 
+synchronous 471, 496 
+syntactic ambiguity 16 
+syntax $44 
+system architecture 46 
+1 
+
+tables 526, 539, 540, 551, 554, 592 
+technological development 602 
+teletype .466, 485, 487, 488, 489 
+temporary register 61 
+test 16, 156, 172 
+testing a character $23 
+timer 465 
+time-sharing system 588 
+timing 463 
+trace 585 
+transfers $2 
+trees 544, 545 
+truncating 34 
+truth table 167 
+two’s complement 25, 26, 27, 29 
+two-level directory $4] 
+U 
+
+UART 477, 558 
+underfiow 32 
+utility routines 583 
+
+
+623 
+
+
+PROGRAMMING THE 280 
+
+
+Vv 
+Vv 
+3 
+vectoring of interrupts 
+
+
+Ww 
+
+W 
+
+WAIT 
+
+working registers 
+WR 
+
+
+624 
+
+
+28, 30, 31 
+137 
+304 
+
+
+87 
+92 
+496 
+92 
+
+
+Z80 registers 
+
+zero 
+
+zero page addressing 
+Zilog Z80 PIO 
+
+Zilog Z80 SIO 
+
+
+166, 169 
+436 
+
+
+87,177 
+95 
+177 
+441, 446 
+316, 517 
+318 
+
+
+SYBEX BIBLIOGRAPHY 
+
+
+VIDEO COURSES 
+
+
+Microprocessors — 12 hours (Ref. Vi) 
+
+Military Microprocessor Systems — 6 hours (Ref. V3) 
+Bit-Slice — 6 hours (Ref. V5) 
+
+Microprocessor Interfacing Techniques — 6 hours (Ref. V7) 
+
+
+AUDIO COURSES 
+
+
+Introduction to Microprocessors — 2'4 hours (Ref. 31) 
+Programming Microprocessors — 2% hours (Ref. $2) 
+Designing a Microprocessor — 2 hours (Ref. $3) 
+Microprocessors — 12 hours (Ref. SB1) 
+
+Programming Microprocessors — LO hours (Ref. SB2) 
+Military Microprocessor Systems — 6 hours (Ref. 583) 
+Bit-Slice — 6 hours (Ref. SB5) 
+
+industrial Microprocessor Systems — 44 hours (Ref. SB6) 
+Microprocessor Interfacing Techniques — 6 hours (Ref. SB7) 
+Introduction to Personal Computing — 2% hours (Ref. SB10) 
+
+
+REFERENCE TEXTS 
+
+
+Practicing Pascal (Ref, C102) 
+Introduction to Personal and Business Computing (Ref. C200) 
+Microprocessors (Ref. C201) 
+The 6502 Series 
+Volume-1: Programming the 6502 (Ref. C202) 
+Volume-2: Programming Exercises for the 6502 (Ref. C203) 
+Volume-3: 6502 Applications Book (Ref. D302) 
+Volume-4: 6502 Games (Ref. G402) 
+Microprocessor Interfacing Techniques (Ref. C207) 
+Programming the Z80 (Ref. C280) 
+Programming the Z8000 (Ref. C281) 
+CP/M Handbook — with MP/M (Ref. D300) 
+International Microprocessor Dictionary — 10 languages (Ref. IMD) 
+Microprocessor Lexicon (Ref. X1) 
+Microprogrammed APL Implementation (Ref. Z10) 
+
+
+SOFTWARE 
+
+
+BAS 65™ 6502 Assembler in Microsoft BASIC (Ref. BAS 65) 
+8080 Simulator for KIM — Cassette Tape or 5”’ Diskette (Ref. 56580-KIM) 
+8080 Simulator for APPLE — Cassette Tape or 5°’ Diskette (Ref. S6580-APL) 
+
+
+SELF-STUDY SYSTEM 
+
+
+Computeacher™ (Ref. CPT) 
+Games Board™ (Ref. CPTG) 
+
+
+FOR A COMPLETE CATALOGUE 
+OF OUR PUBLICATIONS 
+
+
+U.S.A. 
+
+2344 Sixth Street 
+
+Berkeley, California 94710 
+Tel: (415) 848-8233 
+
+Telex: 336311 
+
+
+EUROPE 
+
+18 rue Planchat 
+75020 Paris, France 
+Tei: (1) 3703275 
+Telex: 211801 
+
+
+PROGRAMMING THE Z80 
+
+
+has been designed as an educational text and a self-contained reference 
+manual. This book presents a thorough introduction to machine language 
+programming, from basic concepts to advanced data structures and techniques. 
+Detailed illustrative examples and numerous programs show the reader how 
+to write clear, well-organized programs in the language of the Z80. 
+
+
+This book is the result of the author’s extensive experience in the fields of 
+education and programming, and it has been designed for clarity and reada- 
+bility. All concepts are explained in simple yet precise terms, building pro- 
+gressively toward more complex techniques. The reader will gain not only an 
+understanding of programming in the language of the Z80, but also a detailed 
+understanding of the way a microprocessor actually executes instructions. 
+
+
+Among the subject areas covered in PROGRAMMING THE Z80 are: 
+
+
+Z80 Hardware Organization 
+Input/Output Techniques 
+
+Complete Instruction Set 
+
+Z80 Addressing Modes 
+
+Data Structures—Theory and Design 
+Applications Examples 
+
+
+With over 200 illustrations, a thorough index and 7 appendices, PROGRAMMING 
+THE Z80 is an indispensable work for engineers, students, home computerists 
+and anyone interested in learning machine language programming skills. 
+
+
+THE AUTHOR 
+
+
+Dr. Rodnay Zaks has been involved with the industrial use of microprocessors 
+since their initial development. He is the author of a number of best-selling 
+books on all aspects of microprocessors, and has taught microprocessor courses 
+to several thousand people internationally, ranging from the introductory level 
+to bit-slice microprogramming techniques. He holds a Ph.D. in Computer Science 
+from the University of California, Berkeley, and is a member of ACM and IEEE. 
+
+
+ISBN 0-89588-047-4 
+
+

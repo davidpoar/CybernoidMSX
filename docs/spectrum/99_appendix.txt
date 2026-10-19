@@ -1,0 +1,3002 @@
+# Spectrum ROM Disassembly - Appendix
+
+---
+
+APPENDIX 
+
+
+BASIC PROGRAMS FOR THE MAIN SERIES 
+
+The following BASIC programs have been included as they give a good illustration of 
+how Chebyshev polynomials are used to produce the approximations to the functions 
+SIN, EXP, LN and ATN. 
+
+The series generator: 
+
+This subroutine is called by all the 'function' programs. 
+
+
+500 REM SERIES GENERATOR, ENTER 
+510 REM USING THE COUNTER BREG 
+520 REM AND ARRAY-A HOLDING THE 
+530 REM CONSTANTS. 
+
+540 REM FIRST VALUE IN Z. 
+
+550 LET M0=2*Z 
+560 LET M2=0 
+570 LET T=0 
+
+580 FOR l=BREG TO 1 STEP -1 
+590 LET M1=M2 
+
+600 LET U=T*M0-M2+A(BREG+1-I) 
+
+610 LET M2=T 
+620 LET T=U 
+630 NEXT I 
+640 LET T=T-M1 
+650 RETURN 
+
+660 REM LAST VALUE IN T. 
+
+
+In the above subroutine the variable are: 
+
+
+z - 
+
+the entry value. 
+
+T - 
+
+the exit value. 
+
+M0 - 
+
+mem-0 
+
+Ml - 
+
+mem-1 
+
+M2 - 
+
+mem-2 
+
+1 - 
+
+the counter for BREG. 
+
+U - 
+
+a temporary variable for T. 
+
+A(1) to 
+A(BREG) - 
+
+the constants. 
+
+BREG - 
+
+the number of constants to be used. 
+
+
+To see how the Chebyshev polynomials are generated, record on paper the values of U, 
+Ml , M2 and T through the lines 550 to 630, passing, say, 6 times through the loop, and 
+keeping the algebraic expressions for A(1 ) to A(6) without substituting numerical values. 
+Then record T-M1 . The multipliers of the constants A(1 ) to A(6) will then be the re- 
+quired Chebyshev polynomials. More precisely, the multiplier of A(1 ) will be 2*T5(Z), 
+for A(2) it will be 2*T4(Z) and so on to 2*T 1 (Z) for A(5) and finally T0(Z) for A(6). 
+
+Note that T0(Z)=1 , T1 (Z)=Z and, for n>=2, Tn(Z)=2*Z*Tn-1 (Z)-Tn-2(Z). 
+
+
+222 
+
+
+
+SINX 
+
+
+1 0 REM DEMONSTRATION FOR SIN X 
+20 REM USING THE 'SERIES GENERATOR'. 
+
+30 DIM A(6) 
+
+40 LET A(1)=-. 000000003 
+50 LET A(2)=0. 000000592 
+60 LET A(3)=-. 000068294 
+70 LET A(4)=0. 004559008 
+80 LET A(5)=-. 142630785 
+90 LET A(6)=1. 276278962 
+100 PRINT 
+
+1 1 0 PRINT "ENTER START VALUE IN DEGREES" 
+
+120 INPUT C 
+130 CLS 
+140 LET C=C-10 
+
+150 PRINT "BASIC PROGRAM", "ROM PROGRAM" 
+
+160 PRINT"- " 
+
+170 PRINT 
+
+180 FOR J=1 TO 4 
+
+190 LET C=C+10 
+
+200 LET Y=C/360-INT (C/360+.5) 
+
+210 LET W=4*Y 
+
+220 IF W > 1 THEN LET W=2-W 
+
+230 IF W < -1 THEN LETW=-W-2 
+
+240 LET Z=2*W*W-1 
+
+250 LET BREG=6 
+
+260 REM USE 'SERIES GENERATOR’ 
+
+270 GO SUB 550 
+
+280 PRINT TAB 6; "SIN ";C;" DEGREES" 
+
+290 PRINT 
+
+300 PRINT T*W, SIN (PI*C/1 80) 
+
+310 PRINT 
+320 NEXT J 
+330 GOTO 100 
+
+NOTES: 
+
+I. When C is entered this program calculates and prints SIN C degrees, SIN (C+10) degrees, SIN (C+20) degrees and SIN (C+30) 
+degrees. It also prints the values obtained by using the ROM program. For a specimen of results, try entering these values in 
+degrees: 0; 5; 100; -80; -260; 3600; -7200. 
+
+II. The constants A(1 ) to A(6) in lines 40 to 90 are given (apart from a factor of 1/2) in Abramowitz and Stegun Handbook of 
+Mathematical Functions (Dover 1965) page 76. They can be checked by integrating (SIN (PI*X/2))/X over the interval U=0 to PI, 
+
+after first multiplying by COS (N*U) for each constant (i.e. N=1 ,2 6) and substituting COS U=2*X*X-1 . Each result should then 
+
+be divided by PI. (This integration can be performed by approximate methods e.g. using Simpson's Rule if there is a reasonable 
+computer or programmable calculator to hand.) 
+
+
+223 
+
+
+
+EXP X 
+
+
+1 0 REM DEMONSTRATION FOR EXP X 
+20 REM USING THE 'SERIES GENERATOR' 
+
+30 LETT=0 (This makes T the first variable.) 
+
+40 DIM A(8) 
+
+50 LET A(1 >=0.000000001 
+60 LET A(2)=0. 000000053 
+70 LET A(3)=0. 000001 851 
+80 LET A(4)=0. 000053453 
+90 LET A(5)=0.001235714 
+100 LET A(6)=0.021 446556 
+110 LET A(7)=0. 248762434 
+120 LET A(8)=1. 456999875 
+130 PRINT 
+
+140 PRINT "ENTER START VALUE" 
+
+150 INPUT C 
+160 CLS 
+170 LET C=C-10 
+
+180 PRINT "BASIC PROGRAM", "ROM PROGRAM" 
+
+190 PRINT" ", " " 
+
+200 PRINT 
+210 FOR J=1 TO 4 
+220 LET C=C+10 
+
+230 LET D=C*1 .442695041 (D=C*(1/LN 2);EXP C=2**D). 
+
+240 LET N=INT D 
+
+250 LET Z=D-N (2**(N+Z) is now required). 
+
+260 LET Z=2*Z-1 
+270 LET BREG=8 
+
+280 REM USE "SERIES GENERATOR" 
+
+290 GO SUB 550 
+
+300 LET V=PEEK23627+256*PEEK 23628+1 (V=(VARS)+1) 
+
+310 LET N=N+PEEK V 
+
+320 IF N > 255 THEN STOP (STOP with arithmetic overflow). 
+
+330 IF N < 0 THEN GO TO 360 
+340 POKE V,N 
+350 GO TO 370 
+360 LET T=0 
+
+370 PRINT TAB 11 ;"EXP ";C 
+
+380 PRINT 
+
+390 PRINT T, EXP C 
+
+400 PRINT 
+
+410 NEXT J 
+
+420 GOTO 130 
+
+NOTES: 
+
+
+I. When C is entered this program calculates and prints EXP C, EXP (C+10), EXP (C+20) and EXP (C+30). It also prints the 
+values obtained by using the ROM program. For a specimen of results, try entering these values: 0; 15; 65 (with overflow at the 
+end); -100; -40. 
+
+II. The exponent is tested for overflow and for a zero result in lines 320 and 330. These tests are simpler in BASIC than in machine 
+code, since the variable N, unlike the A register, is not confined to one byte. 
+
+III. The constants A(1) to A(8) in lines 50 to 120 can be obtained by integrating 2**X over the interval U=0 to PI, after first 
+multiplying the COS (N*U) for each constant (i.e. for N=1 ,2,. ..,8) and substituting COS U = 2*X-1 . Each result should then be 
+divided by PI. 
+
+
+224 
+
+
+
+LNX: 
+
+
+1 0 REM DEMONSTRATION FOR LN X 
+20 REM USING THE 'SERIES GENERATOR' 
+
+30 LET D=0 (This makes D the first variable). 
+
+40 DIM A(12) 
+
+50 LET A(1)= -.0000000003 
+60 LET A(2)=0. 0000000020 
+70 LET A(3)= -.0000000127 
+80 LET A(4)=-0. 0000000823 
+90 LET A(5)= -.0000005389 
+100 LET A(6)=0. 0000035828 
+110 LET A(7)= -.0000243013 
+120 LET A(8)=0.0001 693953 
+130 LET A(9)= -.0012282837 
+140 LET A(10)=0. 00947661 16 
+150 LET A(11)= -.0818414567 
+160 LET A(12)=0. 930229221 3 
+170 PRINT 
+
+180 PRINT "ENTER START VALUE" 
+
+190 INPUT C 
+200 CLS 
+
+210 PRINT "BASIC PROGRAM", "ROM PROGRAM" 
+
+220 PRINT"- ", " " 
+
+230 PRINT 
+240 LET C=SQR C 
+250 FOR J=1 TO 4 
+260 LET C=C*C 
+
+270 IF C=0 THEN STOP (STOP with 'invalid argument'.) 
+
+280 LET D=C 
+
+290 LET V=PEEK 23627+256*PEEK 23628+1 
+300 LET N=PEEK V-128 (N holds e'). 
+
+310 POKE V, 128 
+
+320 IF D<=0.8 THEN GO TO 360 (D holds X'). 
+
+330 LET S=D-1 
+
+340 LET Z=2.5*D-3 
+
+350 GO TO 390 
+
+360 LET N=N-1 
+
+370 LET S=2*D-1 
+
+380 LET Z=5*D-3 
+
+390 LET R=N*0.6931 471806 (R holds N*LN 2). 
+
+400 LET BREG=12 
+
+410 REM USE 'SERIES GENERATOR' 
+
+420 GO SUB 550 
+430 PRINT TAB 8;"LN ";C 
+440 PRINT 
+
+450 PRINT S*T+R,LN C 
+460 PRINT 
+470 NEXT J 
+480 GOTO 170 
+
+NOTES: 
+
+
+I. When C is entered this program calculates and prints LN C, LN (C**2), LN (C**4) and LN (C**8). It also prints the values 
+obtained by using the ROM program. For a specimen of results, try entering these values: 1.1; 0.9; 300; 0.004; 1 E5 (for 
+overflow) and IE-5 (STOP as 'invalid argument'). 
+
+II. The constants A(1) to A(12) in lines 50 to 160 can be obtained by integrating 5*LN (4* (X+1)/5)/(4*X-1) over the interval U=0 to 
+
+PI, after first multiplying by COS (N*U) for each constant (i.e. for N=1 ,2 12) and substituting COS U=2*X-1 . Each result 
+
+should then be divided by PI. 
+
+
+225 
+
+
+
+ATN X: 
+
+
+1 0 REM DEMONSTRATION FOR ATN X 
+20 REM USING THE 'SERIES GENERATOR' 
+
+30 DIM A(12) 
+
+40 LET A(1)= -.0000000002 
+50 LET A(2)=0. 000000001 0 
+60 LET A(3)= -.0000000066 
+70 LET A(4)=0. 0000000432 
+80 LET A(5)= -.0000002850 
+90 LET A(6)=0.0000019105 
+100 LET A(7)= -.0000131076 
+110 LET A(8)=0. 000092871 5 
+120 LET A(9)= -.0006905975 
+130 LET A(1 0)=0.0055679210 
+140 LET A(11)= -.0529464623 
+150 LET A(12)=0. 881 3735870 
+160 PRINT 
+
+170 PRINT "ENTER START VALUE" 
+
+180 INPUT C 
+190 CLS 
+
+200 PRINT "BASIC PROGRAM", "ROM PROGRAM" 
+
+210 PRINT" ", " " 
+
+220 PRINT 
+230 FOR J=1 TO 4 
+240 LET B=J*C 
+250 LET D=B 
+
+260 IF ABS B>=1 THEN LET D= -1/B 
+270 LET Z=2*D*D-1 
+280 LET BREG=12 
+
+290 REM USE "SERIES GENERATOR" 
+
+300 GO SUB 550 
+310 LET T=D*T 
+
+320 IF B > =1 THEN LET T=T+PI/2 
+330 IF B < =-1 THEN LET T=T-PI/2 
+340 PRINT TAB 8;"ATN ":B 
+350 PRINT 
+
+360 PRINT T.ATN B (or PRINT T*1 80/PI, ATN B*1 80/PI 
+
+370 PRINT to obtain the answers in degrees) 
+
+380 NEXT J 
+390 GOTO 160 
+
+NOTES: 
+
+
+I. When C is entered this program calculates and prints ATN C, ATN (C*2), ATN (C*3) and ATN (C*4). For a specimen of results, 
+try entering these values: 0.2; -1:10 and -100. The results may be found more interesting if converted to yield degrees by 
+multiplying the answers in line 360 by 180/PI. 
+
+II. The constants A(1) to A(12) in lines 40 to 150 are given (apart from a factor of 1/2) in Abramowitz and Stegun Handbook of 
+Mathematical Functions (Dover 1965) page 82. They can be checked by integrating ATN X/X over the interval U=0 to PI, after 
+first multiplying by COS (N*U) for each parameter (i.e. for n=1 ,2,. ..,12) and substituting COS U=2*X*X-1 . Each result should 
+then be divided by PI. 
+
+
+226 
+
+
+
+An alternative subroutine for SIN X: 
+
+It is straightforward to produce the full expansion of the Chebyshev polynomials and this can be written in BASIC as follows: 
+
+550 LETT =(32*Z*Z*Z*Z*Z-40*Z*Z*Z+1 0*Z)*A(1 ) 
+
++(1 6*Z*Z*Z*Z-1 6*Z*Z+2)*A(2) 
+
++(8*Z*Z*Z-6*Z)*A(3) 
+
++(4*Z*Z-2)*A(4) 
+
++2*Z *A(5) 
+
++A(6) 
+
+560 RETURN 
+
+This subroutine is called instead of the SERIES GENERATOR and can be seen to be of a similar accuracy. 
+
+
+An alternative subroutine for EXP X: 
+
+The full expansion for EXP X is: 
+
+550 LETT =(128*Z*Z*Z*Z*Z*Z*Z-224*Z*Z*Z*Z*Z+1 12*Z*Z*Z-14*Z)*A(1 ) 
++(64*Z*Z*Z*Z*Z*Z-96*Z*Z*Z*Z+36*Z*Z-2)*A(2) 
++(32*Z*Z*Z*Z*Z-40*Z*Z*Z+ 1 0*Z)*A(3) 
+
++(1 6*Z*Z*Z*Z-1 6*Z*Z+2)*A(4) 
+
++(8*Z*Z*Z-6*Z)*A(5) 
+
++(4*Z*Z-2)*A(6) 
+
++2*Z*A(7) 
+
++A(8) 
+
+560 RETURN 
+
+
+The expansion for LN X and A TN X, given algebraically, will be: 
+
+(2048Z 1 1 -5632z 9 +5632z 7 -2464z 5 +440z 3 -22 z ) * A (1) 
++ (1 024Z 1 °-2560z 8 +2240z 6 -800z 4 +1 00 z 2 -2) * A(2) 
+
++ (51 2z9-1 1 52z7+864z5-240z3+1 8z) * A(3) 
+
++ (256z8-51 2z6+320z4-64z2+2) * A(4) 
+
++ (1 28z7-224z5+1 1 2z3-1 4z) * A(5) 
+
++ (64z6-96z4+36z2-2) * A(6) 
+
++ (32z5-40z3+10z) * A(7) 
+
++ (16z4-16z2+2) * A(8) 
+
++ (8z3-6z) * A(9) 
+
++ (4z2-2) * A(1 0) 
+
++ (2z) * A(1 1) 
+
++ A(1 2) 
+
+
+227 
+
+
+
+THE 'DRAW' ALGORITHM 
+
+The following BASIC program illustrates the essential parts of the DRAW operation when being used to produce a straight line. The 
+program in its present form only allows for lines where X > Y. 
+
+1 0 REM DRAW 255,1 75 PROGRAM 
+
+20 REM SET ORIGIN 
+
+30 LET PLOTx=0: LET PLOTy=0 
+
+40 REM SET LIMITS 
+
+50 LET X=255: LET Y=1 75 
+
+60 REM SET INCREMENT, i 
+
+70 LET i=X/2 
+
+80 REM ENTER LOOP 
+
+90 FOR B=XTO 1 STEP -1 
+
+100 LET A=Y+i 
+
+110 IF X> A THEN GO TO 160 
+
+120 REM UP A PIXEL ON THIS PASS 
+
+130 LET A=A-X 
+
+140 LET PLOTy=PLOTy+1 
+
+150 REM RESET INCREMENT, i 
+
+160 LET i=A 
+
+170 REM ALWAYS ALONG ONE PIXEL 
+180 LET PLOTx=PLOTx+1 
+190 REM NOW MAKE A PLOT 
+200 PLOT PLOTx,PLOTy 
+210 NEXT B 
+
+A complete algorithm is to found in the following program, as a subroutine that will 'DRAW A LINE' from the last position to X,Y. 
+
+THE 'CIRCLE' ALGORITHM 
+
+The following BASIC program illustrates how the CIRCLE command produces its circles. 
+
+Initially the number of arcs required is calculated. Then a set of parameters is prepared in the 'memory area' and the 'calculator 
+stack’. 
+
+The arcs are then drawn by repeated calls to the line drawing subroutine that on each call draws a single line from the 'last position' 
+to the position 'X,Y'. 
+
+Note: In the ROM program there is a final 'closing' line but this feature has not been included here. 
+
+1 0 REM A CIRCLE PROGRAM 
+20 LET X=1 27: LET Y=87: LET Z=87 
+30 REM How many arcs? 
+
+40 LET Arcs=4*INT (INT (ABS (PI’SQR Z)+0.5)/4)+4 
+50 REM Set up memory area; M0-M5 
+60 LET M0=X+Z 
+70 LET Ml =0 
+
+80 LET M2=2*Z*SIN (Pl/Arcs) 
+
+90 LET M3=1 -2*(SIN (Pl/Arcs)) A 2 
+100 LET M4=SIN (2*PI/Arcs) 
+
+110 LET M5=2*PI 
+
+120 REM Set up stack; Sa-Sd 
+
+130 LET Sa=X+Z 
+
+140 LET Sb=Y-Z*SIN (Pl/Arcs) 
+
+150 LET Sc=Sa 
+
+160 LETSd-Sb 
+
+170 REM Initialise COORDS 
+
+180 POKE 23677, Sa: POKE 23678, Sb 
+
+190 LET M0=Sd 
+
+200 REM 'DRAW THE ARCS' 
+
+210 LET M0=M0+M2 
+220 LET Sc=Sc+M1 
+230 LET X=Sc-PEEK 23677 
+240 LET Y=M0-PEEK 23678 
+
+
+228 
+
+
+
+250 GO SUB 510 
+
+260 LET Arcs=Arcs-1 : IF Arcs=0 THEN STOP 
+
+270 LET MM1=M1 
+
+280 LET Ml =M1 *M3-M2*M4 
+
+290 LET M2=MM1*M4+M2*M3 
+
+300 GO TO 210 
+
+500 REM 'DRAW A LINE' from last position to X,Y 
+
+51 0 LET PLOTx=PEEK 23677: LET PLOTy=PEEK 23678 
+
+520 LET dx=SGN X: LET dy=SGN Y 
+
+530 LET X=ABS X: LET Y=ABS Y 
+
+540 IF X> =Y THEN GO TO 580 
+
+550 LET L=X: LET B=Y 
+
+560 LET ddx=0: LET ddy=dy 
+
+570 GO TO 610 
+
+580 IF X+Y=0 THEN STOP 
+
+590 LET L=Y: LET B=X 
+
+600 LET ddx=dx: LET ddy=0 
+
+610 LET H=B 
+
+620 LET i=INT (B/2) 
+
+630 FOR N=B TO 1 STEP -1 
+640 LET i=i+L 
+
+650 IF i < H THEN GO TO 690 
+
+660 LET i=i-H 
+
+670 LET ix=dx: LET iy=dy 
+
+680 GO TO 700 
+
+690 LET ix=ddx: LET iy=ddy 
+
+700 LET PLOTy=PLOTy+iy 
+
+710 IF PLOTy <0 OR PLOTy > 175 THEN STOP 
+
+720 LET PLOTx=PLOTx+ix 
+
+730 IF PLOTx <0 OR PLOTx > 255 THEN STOP 
+
+740 PLOT PLOTx, PLOTy 
+
+750 NEXT N 
+
+760 RETURN 
+
+
+NOTE ON SMALL INTEGERS AND -65536. 
+
+1 . Small integers n are those for which -65535 is less than or equal to n which is less than or equal to 65535. The form in which they 
+are held is described in 'STACK-BC'. Note that the manual is inaccurate when it says that the third and fourth bytes hold n plus 131072 
+if n is negative. Since the range of n is then -1 to -65535, the two bytes can only hold n plus 131072 if it is taken mod 65536; i.e. they 
+hold n plus 65536. The manual is fudging the issue. The fact is that this is not a true twos complement form (as the form n plus 1 31 072, 
+in other circumstances, could be). Here the same number can stand for two different numbers according to the sign byte: e.g. 00 01 
+stands for 1 if the sign byte is 00 and for -65535 if the sign byte is FF; similarly FF FF stands for 65535 if the sign byte is 00 and for -1 if 
+the sign byte is FF. 
+
+2. Accepting that negative numbers are given a special 'twos complement' form, the main feature about this method of holding numbers 
+is that they are ready for 'short addition' without any further twos complementing. They are simply fetched and stored direct by the 
+addition subroutine. But for multiplication they need to be fetched by INT-FETCH and stored afterwards by INT-STORE. These 
+subroutines twos complement the number when fetching or storing it. The calls to INT-STORE are from 'multiply' (after 'short 
+multiplication'), from 'truncate' (after forming a 'small integer' between -65535 and 65535 inclusive), from 'negate'/'abs' for the ’integer 
+case' and from 'sgn' to store 1 or -1. The calls to INT-FETCH are from PRINT-FP to fetch the integer part of the number when it is 
+'small', from 'multiply' twice to fetch two 'small integers', from ’RE-STACK’ to fetch a 'small integer’ for re-stacking, from 'negate'/’abs' to 
+fetch a ’small integer' for manipulation and from FP-TO-BC to fetch the integer for transfer to BC. 
+
+
+229 
+
+
+
+The Number -65536. 
+
+
+3. The number -65536 can fit into the 'small integer' format as 00 FF 00 00 00. It is then the 'limiting number', the one which when twos 
+complemented overflows (cf. 80 hex in a simple one byte or 7 bit system, i.e. -128 decimal, which when twos complemented still gives 
+80 hex i.e. -1 28 decimal since the positive number 1 28 decimal does not fit into the system). 
+
+4. Some awareness of this may have inspired the abortive attempt to create 00 FF 00 00 00 in 'truncate'. It is abortive since it does not 
+even survive the INT routine of which 'truncate' is a part. It just leads to the mistake INT (-65536) equals -1 . 
+
+5. But the main error is that this number has been allowed to arise from 'short addition' of two smaller negative integers and then simply 
+put on the stack as 00 FF 00 00 00. The system cannot cope with this number. The solution proposed in 'addition' is to form the full five 
+byte floating-point form at once; i.e. test for the number first, at about byte 3032, as follows: 
+
+
+3032 
+
+PUSH 
+
+AF 
+
+Save the sign byte in A. 
+
+3033 
+
+INC 
+
+A 
+
+Make any FF in A into 00. 
+
+3034 
+
+OR 
+
+E 
+
+Test all 3 bytes now for zero. 
+
+3035 
+
+OR 
+
+D 
+
+
+3036 
+
+JR 
+
+NZ, 3040, ADD-STORE 
+
+Jump if not -65536. 
+
+3038 
+
+POP 
+
+AF 
+
+Clear the stack. 
+
+3039 
+
+LD 
+
+(HL),+80 
+
+Enter 80 hex into second byte. 
+
+303B 
+
+DEC 
+
+HL 
+
+Point to the first byte. 
+
+303C 
+
+LD 
+
+(HL),+91 
+
+Enter 91 hex into the first byte. 
+
+303E 
+
+JR 
+
+3049, ADD-RSTOR 
+
+Jump to set the pointer and exit. 
+
+3040 
+
+ADD-STORE POP 
+
+AF 
+
+Restore the sign byte in A. 
+
+3041 
+
+LD 
+
+(HL),A 
+
+Store it on the stack. 
+
+3042 
+
+INC 
+
+HL 
+
+Point to the next location. 
+
+3043 
+
+LD 
+
+(HL),E 
+
+Store the low byte of the result. 
+
+3044 
+
+INC 
+
+HL 
+
+Point to the next location. 
+
+3045 
+
+LD 
+
+(HL),D 
+
+Store the high byte of the result. 
+
+3046 
+
+DEC 
+
+HL 
+
+Move the pointer back to 
+
+3047 
+
+DEC 
+
+HL 
+
+address the first byte of the 
+
+3048 
+
+DEC 
+
+HL 
+
+result. 
+
+3049 
+
+ADD-RSTOR POP 
+
+DE 
+
+Restore STKEND to DE. 
+
+304A 
+
+RET 
+
+
+Finished. 
+
+
+6. The above amendment (i.e. 15 extra bytes) with the omission of bytes 3223 to 323E inclusive from 'truncate' should solve the 
+problems. It would be nice to be able to test this. The calls of INT-STORE should not lead to 00 FF 00 00 00 being stacked. In 'multiply' 
+the number will lead to overflow if it occurs, since 65536 will set the carry flag; so ’long’ multiplication will be used. As noted at 30E5, the 
+5 bytes starting there could probably be omitted if the above amendments were made. ’Negate' avoids stacking 00 FF 00 00 00 by 
+treating zero separately and returning it unaltered. Truncate deals separately with -65536, as noted above. SGN stores only 1 and -1 . 
+
+
+230 
+
+
+
+INDEX TO ROUTINES 
+
+address routine page 
+
+
+THE RESTART ROUTINES and TABLES 
+
+
+0000 
+
+START 
+
+1 
+
+0008 
+
+Error 
+
+1 
+
+0010 
+
+Print a character 
+
+1 
+
+0018 
+
+Collect character 
+
+1 
+
+0020 
+
+Collect next character 
+
+1 
+
+0028 
+
+Calculator 
+
+1 
+
+0030 
+
+Make BC spaces 
+
+1 
+
+0038 
+
+Maskable interrupt 
+
+1 
+
+0053 
+
+ERROR-2 
+
+2 
+
+0066 
+
+Non-maskable Interrupt 
+
+2 
+
+0074 
+
+CH-ADD+1 
+
+2 
+
+007D 
+
+SKIP-OVER 
+
+2 
+
+0095 
+
+Token tables 
+
+3 
+
+0205 
+
+Key tables 
+
+4 
+
+THE KEYBOARD ROUTINES 
+
+
+028E 
+
+Keyboard scanning 
+
+5 
+
+02BF 
+
+KEYBOARD 
+
+6 
+
+0310 
+
+Repeating key 
+
+7 
+
+031 E 
+
+K-TEST 
+
+7 
+
+0333 
+
+Keyboard decoding 
+
+8 
+
+THE LOUDSPEAKER ROUTINES 
+
+
+03B5 
+
+BEEPER 
+
+11 
+
+03F8 
+
+BEEP 
+
+12 
+
+046E 
+
+Semi-tone table 
+
+14 
+
+THE CASSETTE HANDLING ROUTINES 
+
+04C2 
+
+SA-BYTES 
+
+15 
+
+053 F 
+
+SA/LD-RET 
+
+17 
+
+0556 
+
+LD-BYTES 
+
+17 
+
+05E3 
+
+LD-EDGE-2 
+
+20 
+
+0605 
+
+SAVE-ETC 
+
+21 
+
+07CB 
+
+VERIFY control 
+
+26 
+
+0802 
+
+Load a data block 
+
+26 
+
+0808 
+
+LOAD control 
+
+27 
+
+08B6 
+
+MERGE control 
+
+29 
+
+0970 
+
+SAVE control 
+
+32 
+
+09A1 
+
+Cassette messages 
+
+32 
+
+THE SCREEN & PRINTER HANDLING ROUTINES 
+
+09 F4 
+
+PRINT-OUT 
+
+33 
+
+0A11 
+
+Control character table 
+
+33 
+
+0A23 
+
+Cursor left 
+
+33 
+
+0A3D 
+
+Cursor right 
+
+33 
+
+0A4F 
+
+Carriage return 
+
+34 
+
+0A5F 
+
+Print comma 
+
+34 
+
+0A69 
+
+Print a question mark 
+
+34 
+
+0A6D 
+
+Control characters with operands 
+
+34 
+
+0AD9 
+
+PO-ABLE 
+
+35 
+
+0ADC 
+
+Position store 
+
+36 
+
+0B03 
+
+Position fetch 
+
+36 
+
+0B24 
+
+Print any character 
+
+36 
+
+0B7F 
+
+Print all characters 
+
+37 
+
+0BDB 
+
+Set attribute byte 
+
+39 
+
+0C0A 
+
+Message printing 
+
+39 
+
+0C3B 
+
+PO-SAVE 
+
+40 
+
+0C41 
+
+Table search 
+
+40 
+
+
+231 
+
+
+
+address 
+
+routine 
+
+page 
+
+0C55 
+
+Test for scroll 
+
+40 
+
+0CF8 
+
+'scroll?' message 
+
+42 
+
+0D4D 
+
+Temporary colour items 
+
+43 
+
+0D6B 
+
+CLS command 
+
+43 
+
+ODAF 
+
+Clearing the whole display area 
+
+44 
+
+0DD9 
+
+CL-SET 
+
+45 
+
+ODFE 
+
+Scrolling 
+
+45 
+
+0E44 
+
+Clear lines 
+
+46 
+
+0E88 
+
+CL-ATTR 
+
+48 
+
+0E9B 
+
+CL-ADDR 
+
+48 
+
+OEAC 
+
+COPY command 
+
+48 
+
+OECD 
+
+COPY-BUFF 
+
+49 
+
+OEF4 
+
+COPY-LINE 
+
+49 
+
+OF2C 
+
+EDITOR 
+
+50 
+
+0F81 
+
+ADD-CHAR 
+
+51 
+
+OFAO 
+
+Editing keys table 
+
+52 
+
+0FA9 
+
+EDIT key 
+
+52 
+
+0FF3 
+
+Cursor down editing 
+
+53 
+
+1007 
+
+Cursor left editing 
+
+53 
+
+100C 
+
+Cursor right editing 
+
+53 
+
+1015 
+
+DELETE editing 
+
+53 
+
+101 E 
+
+ED-IGNORE 
+
+53 
+
+1024 
+
+ENTER editing 
+
+53 
+
+1031 
+
+ED-EDGE 
+
+53 
+
+1059 
+
+Cursor up editing 
+
+54 
+
+1076 
+
+ED-SYMBOL 
+
+54 
+
+107F 
+
+ED-ERROR 
+
+54 
+
+1097 
+
+CLEAR-SP 
+
+55 
+
+10A8 
+
+Keyboard input 
+
+55 
+
+1 1 1D 
+
+Lower screen copying 
+
+56 
+
+1190 
+
+SET-HL 
+
+57 
+
+11A7 
+
+REMOVE-FP 
+
+58 
+
+THE EXECUTIVE ROUTINES 
+
+
+11B7 
+
+NEW command 
+
+59 
+
+1 1 CB 
+
+Main entry (Initialisation) 
+
+59 
+
+11 DA 
+
+RAM-CHECK 
+
+59 
+
+12A2 
+
+Main execution loop 
+
+61 
+
+1391 
+
+Report messages 
+
+63 
+
+155D 
+
+MAIN-ADD 
+
+64 
+
+15AF 
+
+Initial channel information 
+
+65 
+
+15C6 
+
+Initial stream data 
+
+65 
+
+15D4 
+
+WAIT-KEY 
+
+65 
+
+15E6 
+
+INPUT-AD 
+
+66 
+
+15EF 
+
+Main printing 
+
+66 
+
+1601 
+
+CHAN-OPEN 
+
+66 
+
+1615 
+
+CHAN-FLAG 
+
+67 
+
+162D 
+
+Channel code look -up table 
+
+67 
+
+1634 
+
+Channel K flag 
+
+67 
+
+1642 
+
+Channel S flag 
+
+67 
+
+164D 
+
+Channel P flag 
+
+67 
+
+1652 
+
+ONE-SPACE 
+
+67 
+
+1655 
+
+MAKE-ROOM 
+
+67 
+
+1664 
+
+POINTERS 
+
+68 
+
+168F 
+
+Collect a line number 
+
+69 
+
+169E 
+
+RESERVE 
+
+69 
+
+16B0 
+
+SET-MIN 
+
+69 
+
+16D4 
+
+Reclaim the edit-line 
+
+70 
+
+16DB 
+
+INDEXER 
+
+70 
+
+16E5 
+
+CLOSE # commend 
+
+70 
+
+
+232 
+
+
+
+address routine 
+
+
+page 
+
+
+1716 
+
+CLOSE stream look-up table 
+
+71 
+
+171 E 
+
+Stream data 
+
+71 
+
+1736 
+
+OPEN # command 
+
+71 
+
+177A 
+
+OPEN stream look-up table 
+
+72 
+
+1793 
+
+CAT, ERASE, FORMAT & MOVE commands 
+
+73 
+
+1795 
+
+LIST & LLIST commands 
+
+73 
+
+1795 
+
+AUTO-LIST 
+
+73 
+
+17F5 
+
+LLIST 
+
+74 
+
+17F9 
+
+LIST 
+
+74 
+
+1855 
+
+Print a whole BASIC line 
+
+75 
+
+18B6 
+
+NUMBER 
+
+76 
+
+18C1 
+
+Print a flashing character 
+
+77 
+
+18E1 
+
+Print the cursor 
+
+77 
+
+190F 
+
+LN-FETCH 
+
+77 
+
+1925 
+
+Printing characters in a BASIC line 
+
+78 
+
+196E 
+
+LINE-ADDR 
+
+79 
+
+1980 
+
+Compare line numbers 
+
+79 
+
+1988 
+
+Find each statement 
+
+79 
+
+19B8 
+
+NEXT-ONE 
+
+80 
+
+19DD 
+
+Difference 
+
+81 
+
+19E5 
+
+Reclaiming 
+
+81 
+
+19FB 
+
+E-LINE-NO 
+
+82 
+
+1A1B 
+
+Report and line number printing 
+
+82 
+
+
+BASIC LINE AND COMMAND INTERPRETATION 
+
+
+1 A48 
+
+Syntax tables 
+
+84 
+
+1B17 
+
+Main parser (BASIC interpreter) 
+
+86 
+
+1 B28 
+
+Statement loop 
+
+87 
+
+1 B52 
+
+SCAN-LOOP 
+
+87 
+
+1B6F 
+
+SEPARATOR 
+
+88 
+
+1 B76 
+
+STMT-RET 
+
+88 
+
+1 B8A 
+
+LINE-RUN 
+
+88 
+
+1 B9E 
+
+LINE-NEW 
+
+88 
+
+1 BB2 
+
+REM command 
+
+89 
+
+1 BB3 
+
+LINE-END 
+
+89 
+
+1 BBF 
+
+LINE-USE 
+
+89 
+
+1 BD1 
+
+NEXT-LINE 
+
+89 
+
+1BEE 
+
+CHECK-END 
+
+90 
+
+1 BF4 
+
+STMT-NEXT 
+
+90 
+
+1C01 
+
+Command class table 
+
+90 
+
+1C0D 
+
+Command classes - 00, 03 & 05 
+
+90 
+
+1 Cl 6 
+
+JUMP-C-R 
+
+91 
+
+1C1F 
+
+Command classes - 01, 02 & 04 
+
+91 
+
+1C22 
+
+Variable In assignment 
+
+91 
+
+1C56 
+
+Fetch a value 
+
+92 
+
+1C79 
+
+Expect numeric/string expressions 
+
+93 
+
+1C96 
+
+Set permanent colours (class 07) 
+
+93 
+
+1CBE 
+
+Command class - 09 
+
+94 
+
+1CDB 
+
+Command class - 0B 
+
+94 
+
+1CDE 
+
+Fetch a number 
+
+94 
+
+1CEE 
+
+STOP command 
+
+95 
+
+1CF0 
+
+IF command 
+
+95 
+
+1 D03 
+
+FOR command 
+
+95 
+
+1 D86 
+
+LOOK-PROG 
+
+96 
+
+1DAB 
+
+NEXT command 
+
+97 
+
+1DDA 
+
+NEXT-LOOP 
+
+97 
+
+1DEC 
+
+READ command 
+
+99 
+
+1 E27 
+
+DATA command 
+
+100 
+
+1 E39 
+
+PASS-BY 
+
+100 
+
+1 E42 
+
+RESTORE command 
+
+100 
+
+
+233 
+
+
+
+address 
+
+routine 
+
+page 
+
+1 E4F 
+
+RANDOMIZE command 
+
+100 
+
+1 E5F 
+
+CONTINUE command 
+
+101 
+
+1 E67 
+
+GO TO command 
+
+101 
+
+1 E7A 
+
+OUT command 
+
+101 
+
+1 E80 
+
+POKE command 
+
+101 
+
+1 E85 
+
+TWO-PARAM 
+
+101 
+
+1 E94 
+
+Find integers 
+
+101 
+
+1EA1 
+
+RUN command 
+
+102 
+
+1EAC 
+
+CLEAR command 
+
+102 
+
+1EED 
+
+GO SUB command 
+
+103 
+
+1 F05 
+
+TEST-ROOM 
+
+103 
+
+1 FI A 
+
+Free memory 
+
+103 
+
+1 F23 
+
+RETURN command 
+
+104 
+
+1 F3A 
+
+PAUSE command 
+
+104 
+
+1 F54 
+
+BREAK-KEY 
+
+104 
+
+1 F60 
+
+DEF FN command 
+
+105 
+
+1 FC3 
+
+UNSTACK-Z 
+
+106 
+
+1 FC9 
+
+LPRINT command 
+
+106 
+
+1FCF 
+
+PRINT command 
+
+106 
+
+1 FF5 
+
+Print a carriage return 
+
+107 
+
+1FFC 
+
+Print items 
+
+107 
+
+2045 
+
+End of printing 
+
+108 
+
+204E 
+
+Print position 
+
+108 
+
+2070 
+
+Alter stream 
+
+108 
+
+2089 
+
+INPUT command 
+
+109 
+
+21 B9 
+
+IN-ASSIGN 
+
+111 
+
+21 D6 
+
+IN-CHAN-K 
+
+112 
+
+21 El 
+
+Colour item routines 
+
+112 
+
+226C 
+
+CO-CHANGE 
+
+114 
+
+2294 
+
+BORDER command 
+
+115 
+
+22AA 
+
+Pixel address 
+
+115 
+
+22CB 
+
+Point 
+
+116 
+
+22DC 
+
+PLOT command 
+
+116 
+
+2307 
+
+STK-TO-BC 
+
+117 
+
+2314 
+
+STK-TO-A 
+
+117 
+
+2320 
+
+CIRCLE command 
+
+117 
+
+2382 
+
+DRAW command 
+
+119 
+
+247D 
+
+Initial parameters 
+
+123 
+
+24B7 
+
+Line drawing 
+
+124 
+
+EXPRESSION EVALUATION 
+
+
+24FB 
+
+SCANNING 
+
+127 
+
+2530 
+
+SYNTAX-Z 
+
+128 
+
+2535 
+
+Scanning SCREENS 
+
+128 
+
+2580 
+
+Scanning ATTR 
+
+129 
+
+2596 
+
+Scanning function table 
+
+129 
+
+25AF 
+
+Scanning function routines 
+
+130 
+
+26C9 
+
+Scanning variable routine 
+
+133 
+
+2734 
+
+Scanning main loop 
+
+135 
+
+2795 
+
+Table of operators 
+
+137 
+
+27B0 
+
+Table of priorities 
+
+137 
+
+27BD 
+
+Scanning function (FN) 
+
+137 
+
+28AB 
+
+FN-SKPOVR 
+
+141 
+
+28B2 
+
+LOOK-VARS 
+
+141 
+
+2951 
+
+Stack function argument 
+
+144 
+
+2996 
+
+STK-VAR 
+
+145 
+
+2A52 
+
+SLICING 
+
+148 
+
+2AB6 
+
+STK-STORE 
+
+150 
+
+2ACC 
+
+INT-EXP 
+
+150 
+
+2AEE 
+
+DE,(DE+1) 
+
+151 
+
+
+234 
+
+
+
+address 
+
+routine 
+
+page 
+
+2AF4 
+
+GET-HL*DE 
+
+151 
+
+2AFF 
+
+LET command 
+
+151 
+
+2BF1 
+
+STK-FETCH 
+
+157 
+
+2C02 
+
+DIM command 
+
+157 
+
+2C88 
+
+ALPHANUM 
+
+159 
+
+2C8D 
+
+ALPHA 
+
+159 
+
+2C9B 
+
+Decimal to floating-point 
+
+160 
+
+2D1B 
+
+NUMERIC 
+
+161 
+
+2D22 
+
+STK-DIGIT 
+
+162 
+
+2D28 
+
+STACK-A 
+
+162 
+
+2D2B 
+
+STACK-BC 
+
+162 
+
+2D3B 
+
+Integer to floating-point 
+
+162 
+
+THE ARITHMETIC ROUTINES 
+
+
+2D4F 
+
+E-format to floating-point 
+
+164 
+
+2D7F 
+
+INT-FETCH 
+
+165 
+
+2D8E 
+
+INT-STORE 
+
+165 
+
+2DA2 
+
+Floating-point to BC 
+
+166 
+
+2DC1 
+
+LOG (2 A A) 
+
+166 
+
+2DD5 
+
+Floating-point to A 
+
+167 
+
+2DE3 
+
+Print a floating-point number 
+
+167 
+
+2F8B 
+
+CA=10*A+C 
+
+173 
+
+2F9B 
+
+Prepare to add 
+
+174 
+
+2FBA 
+
+Fetch two numbers 
+
+174 
+
+2FDD 
+
+Shift addend 
+
+175 
+
+3004 
+
+ADD-BACK 
+
+176 
+
+300F 
+
+Subtraction (03) 
+
+176 
+
+3014 
+
+Addition (OF) 
+
+176 
+
+30A9 
+
+HL=HL*DE 
+
+179 
+
+30C0 
+
+Prepare to multiply or divide 
+
+180 
+
+30CA 
+
+Multiplication (04) 
+
+180 
+
+31 AF 
+
+Division (05) 
+
+184 
+
+3214 
+
+Integer truncation towards zero (3A) 
+
+186 
+
+3293 
+
+Re-stack two 
+
+188 
+
+3297 
+
+RE-STACK (3D) 
+
+188 
+
+
+THE FLOATING-POINT CALCULATOR 
+
+
+32C5 
+
+Table of constants 
+
+190 
+
+32D7 
+
+Table of addresses 
+
+190 
+
+335B 
+
+CALCULATE 
+
+192 
+
+33A1 
+
+Delete (02) 
+
+194 
+
+33A2 
+
+Single operation (3B) 
+
+194 
+
+33A9 
+
+Test 5-spaces 
+
+194 
+
+33B4 
+
+Stack number 
+
+194 
+
+33C0 
+
+Move a floating-point number (31) 
+
+195 
+
+33C6 
+
+Stack literals (34) 
+
+195 
+
+33F7 
+
+Skip constants 
+
+196 
+
+3406 
+
+Memory location 
+
+196 
+
+340 F 
+
+Get from memory area (E0 etc.) 
+
+197 
+
+341 B 
+
+Stack a constant (A0 etc.) 
+
+197 
+
+342 D 
+
+Store in memory area (CO etc.) 
+
+197 
+
+343C 
+
+EXCHANGE (01) 
+
+198 
+
+3449 
+
+Series generator (86 etc.) 
+
+198 
+
+346A 
+
+Absolute magnitude (2A) 
+
+199 
+
+346 E 
+
+Unary minus (IB) 
+
+199 
+
+3492 
+
+Signum (29) 
+
+200 
+
+34A5 
+
+IN (2C) 
+
+200 
+
+34AC 
+
+PEEK (2B) 
+
+201 
+
+34B3 
+
+USR number (2D) 
+
+201 
+
+34BC 
+
+USR string (19) 
+
+201 
+
+
+235 
+
+
+
+address 
+
+routine 
+
+page 
+
+34E9 
+
+TEST-ZERO 
+
+202 
+
+34F9 
+
+Greater than zero (37) 
+
+202 
+
+3501 
+
+NOT (30) 
+
+202 
+
+3506 
+
+Less than zero (36) 
+
+203 
+
+350B 
+
+Zero or one 
+
+203 
+
+351 B 
+
+OR (07) 
+
+203 
+
+3524 
+
+Number AND number (08) 
+
+203 
+
+352D 
+
+String AND number (10) 
+
+204 
+
+353B 
+
+Comparison (09-0E, 11-16) 
+
+204 
+
+359C 
+
+String concatenation (17) 
+
+205 
+
+35BF 
+
+STK-PNTRS 
+
+206 
+
+35C9 
+
+CHR$ (2F) 
+
+206 
+
+35DE 
+
+VAL and VAL$ (ID, 18) 
+
+207 
+
+361 F 
+
+STR$ (2E) 
+
+208 
+
+3645 
+
+Read-in (1A) 
+
+208 
+
+3669 
+
+CODE (1C) 
+
+209 
+
+3674 
+
+LEN (IE) 
+
+209 
+
+367A 
+
+Decrease the counter (35) 
+
+209 
+
+3686 
+
+Jump (33) 
+
+209 
+
+368F 
+
+Jump on true (00) 
+
+210 
+
+369B 
+
+END-CALC (38) 
+
+210 
+
+36A0 
+
+Modulus (32) 
+
+210 
+
+36AF 
+
+INT (27) 
+
+211 
+
+36C4 
+
+Exponential (26) 
+
+211 
+
+3713 
+
+Natural logarithm (25) 
+
+213 
+
+3783 
+
+Reduce argument (39) 
+
+215 
+
+37AA 
+
+Cosine (20) 
+
+216 
+
+37B5 
+
+SINE (1 F) 
+
+216 
+
+37DA 
+
+Tan (21) 
+
+217 
+
+37E2 
+
+ARCTAN (24) 
+
+218 
+
+3833 
+
+Arcsin (22) 
+
+219 
+
+3843 
+
+Arccos (23) 
+
+220 
+
+384A 
+
+Square root (28) 
+
+220 
+
+3851 
+
+Exponentiation (06) 
+
+220 
+
+APPENDIX 
+
+
+BASIC programs for the main series. 
+
+
+
+- Series generator 
+
+222 
+
+- SINX 
+
+223 
+
+- EXP X 
+
+224 
+
+- LNX 
+
+226 
+
+- ATN X 
+
+228 
+
+The 'DRAW' algorithm 
+
+228 
+
+The 'CIRCLE' algorithm 
+
+229 
+
+Note on Small Integers and -65536 
+
+229 
+
+
+236 
+
+
+
+237 
+
+
+
+238 
+
+
+
+Spectrum ROM Disassembly 
+
+
+Customer Registration Card 
+
+Please fill out this page (or a photocopy of it) and return it so that we may keep you informed of new books, 
+software and special offers. Post to the appropriate address on the back. 
+
+Date 19.... 
+
+
+Name 
+
+Street & No 
+
+City Postcode/Zipcode 
+
+Model of computer owned 
+
+Where did you learn of this book: 
+
+O FRIEND O RETAIL SHOP 
+
+O MAGAZINE (give name) 
+
+O OTHER (specify) 
+
+
+Age? 0 10-15 0 16-19 
+
+0 20-24 
+
+0 25 and over 
+
+How would you rate this book? 
+
+QUALITY: 0 Excellent 0 Good 
+
+0 Poor 
+
+
+VALUE: 0 Overpriced 
+
+0 Good 
+
+0 Underpriced 
+
+
+What other books and software would you like to see produced for your 
+computer? 
+
+
+EDITION 765432 1 
+
+
+239 
+
+
+
+Melbourne House addresses 
+
+
+Put this Registration Card (or photocopy) in an envelope and post it to the appropriate 
+address: 
+
+United Kingdom 
+
+Melbourne House (Publishers) Ltd 
+Castle Yard House 
+Castle Yard 
+Richmond, TW10 6TF 
+
+
+Australia and New Zealand 
+
+Melbourne House (Australia) Pty Ltd 
+2nd Floor, 70 Park Street 
+South Melbourne, Victoria 3205 
+
+
+240 
+
+
+
+241 
+
+
+

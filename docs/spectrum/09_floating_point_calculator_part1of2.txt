@@ -1,0 +1,6005 @@
+# Spectrum ROM Disassembly - The Floating-Point Calculator
+Part 1/2
+
+---
+
+THE FLOATING-POINT CALCULATOR 
+
+
+THE TABLE OF CONSTANTS 
+
+This first table holds the five useful and frequently needed numbers zero, one, a half, a half of pi and ten. The numbers are held in a 
+condensed form which is expanded by the STACK LITERALS subroutine, see below, to give the required floating-point form. 
+
+data: constant when expanded gives: 
+
+exp. mantissa: (Hex.) 
+
+
+32C5 
+
+stk-zero 
+
+DEFB +00 
+DEFB +B0 
+DEFB +00 
+
+zero 
+
+00 00 00 00 00 
+
+32C8 
+
+stk-one 
+
+DEFB +40 
+DEFB +B0 
+DEFB +00 
+DEFB +01 
+
+one 
+
+00 00 01 00 00 
+
+32CC 
+
+stk-half 
+
+DEFB +30 
+DEFB +00 
+
+a half 
+
+80 00 00 00 00 
+
+32CE 
+
+stk-pi/2 
+
+DEFB +F1 
+DEFB +49 
+DEFB +0F 
+DEFB +DA 
+DEFB +A2 
+
+a half of pi 
+
+81 49 OF DA A2 
+
+32D3 
+
+stk-ten 
+
+DEFB +40 
+
+ten 
+
+00 00 0A 00 00 
+
+
+DEFB +B0 
+DEFB +00 
+DEFB +0A 
+
+
+THE TABLE OF ADDRESSES: 
+
+This second table is a look-up table of the addresses of the sixty-six operational subroutines of the calculator. The offsets used to index 
+into the table are derived either from the operation codes used in SCANNING, see 2734, etc., or from the literals that follow a RST 0028 
+instruction. 
+
+
+
+offset 
+
+label 
+
+address 
+
+
+offset 
+
+label 
+
+address 
+
+32D7 
+
+00 
+
+jump-true 
+
+8F 
+
+3319 
+
+21 
+
+tan 
+
+DA 
+
+
+
+
+36 
+
+
+
+
+37 
+
+32D9 
+
+01 
+
+exchange 
+
+3C 
+
+331 B 
+
+22 
+
+asn 
+
+33 
+
+
+
+
+34 
+
+
+
+
+38 
+
+32DB 
+
+02 
+
+delete 
+
+A1 
+
+331 D 
+
+23 
+
+acs 
+
+43 
+
+
+
+
+33 
+
+
+
+
+38 
+
+32DD 
+
+03 
+
+subtract 
+
+OF 
+
+331 F 
+
+24 
+
+atn 
+
+E2 
+
+
+
+
+30 
+
+
+
+
+37 
+
+32DF 
+
+04 
+
+multiply 
+
+CA 
+
+3321 
+
+25 
+
+In 
+
+13 
+
+
+
+
+30 
+
+
+
+
+37 
+
+32E1 
+
+05 
+
+division 
+
+AF 
+
+3323 
+
+26 
+
+exp 
+
+C4 
+
+
+
+
+31 
+
+
+
+
+36 
+
+32E3 
+
+06 
+
+to-power 
+
+51 
+
+3325 
+
+27 
+
+inf 
+
+AF 
+
+
+
+
+38 
+
+
+
+
+36 
+
+32E5 
+
+07 
+
+or 
+
+IB 
+
+3327 
+
+28 
+
+sqr 
+
+4A 
+
+
+
+
+35 
+
+
+
+
+38 
+
+32E7 
+
+08 
+
+no-&-no 
+
+24 
+
+3329 
+
+29 
+
+sgn 
+
+92 
+
+
+
+
+35 
+
+
+
+
+34 
+
+32E9 
+
+09 
+
+no-l-eql 
+
+3B 
+
+332B 
+
+2A 
+
+abs 
+
+6A 
+
+
+35 34 
+
+
+190 
+
+
+
+32EB 
+
+0A 
+
+no-gr-eq 
+
+3B 
+
+332D 
+
+2B 
+
+peek 
+
+AC 
+
+
+
+
+35 
+
+
+
+
+34 
+
+32ED 
+
+0B 
+
+nos-neql 
+
+3B 
+
+332F 
+
+2C 
+
+in 
+
+A5 
+
+
+
+
+35 
+
+
+
+
+34 
+
+32EF 
+
+OC 
+
+no-grtr 
+
+3B 
+
+3331 
+
+2D 
+
+usr-no 
+
+B3 
+
+
+
+
+35 
+
+
+
+
+34 
+
+32F1 
+
+0D 
+
+no-less 
+
+3B 
+
+3333 
+
+2E 
+
+str$ 
+
+IF 
+
+
+
+
+35 
+
+
+
+
+36 
+
+32 F3 
+
+0E 
+
+nos-eql 
+
+3B 
+
+3335 
+
+2F 
+
+chr$ 
+
+C9 
+
+
+
+
+35 
+
+
+
+
+35 
+
+32F5 
+
+OF 
+
+addition 
+
+14 
+
+3337 
+
+30 
+
+not 
+
+01 
+
+
+
+
+30 
+
+
+
+
+35 
+
+32F7 
+
+10 
+
+str-&-no 
+
+2D 
+
+3339 
+
+31 
+
+duplicate 
+
+CO 
+
+
+
+
+35 
+
+
+
+
+33 
+
+32F9 
+
+11 
+
+str-l-eql 
+
+3B 
+
+333B 
+
+32 
+
+n-mod-m 
+
+A0 
+
+
+
+
+35 
+
+
+
+
+36 
+
+32FB 
+
+12 
+
+str-gr-eq 
+
+3B 
+
+333D 
+
+33 
+
+jump 
+
+86 
+
+
+
+
+35 
+
+
+
+
+36 
+
+32FD 
+
+13 
+
+strs-neql 
+
+3B 
+
+333F 
+
+34 
+
+stk-data 
+
+C6 
+
+
+
+
+35 
+
+
+
+
+33 
+
+32FF 
+
+14 
+
+str-grtr 
+
+3B 
+
+3341 
+
+35 
+
+dec-jr-nz 
+
+7A 
+
+
+
+
+35 
+
+
+
+
+36 
+
+3301 
+
+15 
+
+str-less 
+
+3B 
+
+3343 
+
+36 
+
+less-0 
+
+06 
+
+
+
+
+35 
+
+
+
+
+35 
+
+3303 
+
+16 
+
+strs-eql 
+
+3B 
+
+3345 
+
+37 
+
+greater-0 
+
+F9 
+
+
+
+
+35 
+
+
+
+
+34 
+
+3305 
+
+17 
+
+strs-add 
+
+9C 
+
+3347 
+
+38 
+
+end-calc 
+
+9B 
+
+
+
+
+35 
+
+
+
+
+36 
+
+3307 
+
+18 
+
+val$ 
+
+DE 
+
+3349 
+
+39 
+
+get-argt 
+
+83 
+
+
+
+
+35 
+
+
+
+
+37 
+
+3309 
+
+19 
+
+usr-$ 
+
+BC 
+
+334B 
+
+3A 
+
+truncate 
+
+14 
+
+
+
+
+34 
+
+
+
+
+32 
+
+330B 
+
+1 A 
+
+read-in 
+
+45 
+
+334D 
+
+3B 
+
+fp-calc-2 
+
+A2 
+
+
+
+
+36 
+
+
+
+
+33 
+
+330D 
+
+IB 
+
+negate 
+
+6E 
+
+334F 
+
+3C 
+
+e-to-fp 
+
+4F 
+
+
+
+
+34 
+
+
+
+
+2D 
+
+330F 
+
+1C 
+
+code 
+
+69 
+
+3351 
+
+3D 
+
+re-stack 
+
+97 
+
+
+
+
+36 
+
+
+
+
+32 
+
+3311 
+
+ID 
+
+val 
+
+DE 
+
+3353 
+
+3E 
+
+series-06 
+
+49 
+
+
+
+
+45 
+
+
+
+etc. 
+
+34 
+
+3313 
+
+IE 
+
+len 
+
+74 
+
+3355 
+
+3F 
+
+stk-zero 
+
+IB 
+
+
+
+
+36 
+
+
+
+etc. 
+
+34 
+
+3315 
+
+IF 
+
+sin 
+
+B5 
+
+3357 
+
+40 
+
+st-mem-0 
+
+2D 
+
+
+
+
+37 
+
+
+
+etc. 
+
+34 
+
+3317 
+
+20 
+
+cos 
+
+AA 
+
+3359 
+
+41 
+
+get-mem-0 
+
+OF 
+
+
+
+
+37 
+
+
+
+etc. 
+
+34 
+
+
+Note: The last four subroutines are multi-purpose subroutines and are entered with a parameter that is a copy of the right hand five bits 
+of the original literal. The full set follows: 
+
+Offset 3E: series-06, series-08, & series-OC; literals 86,88 & 8C. 
+
+Offset 3F: stk-zero, stk-one, stk-half, stk-pi/2 & stk-ten; literals AO to A4. 
+
+Offset 40: st-mem-0, st-mem-1 , st-mem-2, st-mem-3, st-mem-4 & st-mem-5; 
+
+literals CO to C5. 
+
+Offset 41 : get-mem-0, get-mem-1 , get-mem-2, get-mem-3, get-mem-4 & get-mem-5; 
+
+literals E0 to E5. 
+
+
+191 
+
+
+
+THE 'CALCULATE' SUBROUTINE 
+
+
+This subroutine is used to perform floating-point calculations. These can be considered to be of three types: 
+
+I. Binary operations, e.g. addition, where two numbers in floating-point form are added together to give one 'last value'. 
+
+II. Unary operations, e.g. sin, where the 'last value' is changed to give the appropriate function result as a new 'last value'. 
+
+III. Manipulatory operations, e.g. st-mem-0, where the 'last value' is copied to the first five bytes of the calculator's memory area. 
+
+The operations to be performed are specified as a series of data-bytes, the literals, that follow an RST 0028 instruction that calls this 
+subroutine. The last literal in the list is always '38' which leads to an end to the whole operation. 
+
+In the case of a single operation needing to be performed, the operation offset can be passed to the CALCULATOR in the B register, 
+and operation '3B', the SINGLE CALCULATION operation, performed. 
+
+It is also possible to call this subroutine recursively, i.e. from within itself, and in such a case it is possible to use the system variable 
+BREG as a counter that controls how many operations are performed before returning. 
+
+The first part of this subroutine is complicated but essentially it performs the two tasks of setting the registers to hold their required 
+values, and to produce an offset, and possibly a parameter, from the literal that is currently being considered. 
+
+The offset is used to index into the calculator's table of addresses, see above, to find the required subroutine address. 
+
+The parameter is used when the multi-purpose subroutines are called. 
+
+Note: A floating-point number may in reality be a set of string parameters. 
+
+
+335B 
+
+CALCULATE 
+
+CALL 
+
+35BF,STK-PNTRS 
+
+Presume a unary operation and 
+therefore set HL to point to the 
+start of the 'last value' on the 
+calculator stack and DE one- 
+
+
+
+
+
+past this floating-point number 
+(STKEND). 
+
+335E 
+
+GEN-ENT-1 
+
+LD 
+
+A,B 
+
+Either, transfer a single 
+
+
+
+LD 
+
+(BREG), A 
+
+operation offset to BREG 
+temporarily, or, when using the 
+subroutine recursively pass the 
+parameter to BREG to be used 
+as a counter. 
+
+3362 
+
+GEN-ENT-2 
+
+EXX 
+
+
+The return address of the sub- 
+
+
+
+EX 
+
+(SP),HL 
+
+routine is store in H'L'. This 
+
+
+
+EXX 
+
+
+saves the pointer to the first 
+literal. Entering the CALCUL- 
+ATOR at GEN-ENT-2 is used 
+whenever BREG is in use as a 
+counter and is not to be 
+disturbed. 
+
+3365 
+
+RE-ENTRY 
+
+LD 
+
+(STKEND).DE 
+
+A loop is now entered to handle 
+each literal in the list that 
+
+
+
+
+
+follows the calling instruction; 
+so first, always set to STKEND. 
+
+
+
+EXX 
+
+
+Go to the alternate register set, 
+
+
+
+LD 
+
+A,(HL) 
+
+and fetch the literal for this 
+loop. 
+
+
+192 
+
+
+
+
+
+INC 
+
+HL 
+
+Make H'L' point to the next 
+literal. 
+
+336C 
+
+SCAN-ENT 
+
+PUSH 
+
+HL 
+
+This pointer is saved briefly on 
+the machine stack. SCAN-ENT 
+
+
+
+
+
+is used by the SINGLE CAL- 
+CULATION subroutine to find 
+
+
+
+
+
+the subroutine that is required. 
+
+
+
+AND 
+
+A 
+
+Test the A register. 
+
+
+
+JP 
+
+P,3380,FIRST-3D 
+
+Separate the simple literals from 
+the multi-purpose literals. Jump 
+with literals 00 - 3D. 
+
+
+
+LD 
+
+D,A 
+
+Save the literal in D. 
+
+
+
+AND 
+
++60 
+
+Continue only with bits 5 & 6. 
+
+
+
+RRCA 
+
+
+Four right shifts make them 
+
+
+
+RRCA 
+
+
+now bits 1 & 2. 
+
+
+
+RRCA 
+
+RRCA 
+
+ADD 
+
+A,+7C 
+
+The offsets required are 3E-41 . 
+
+
+
+LD 
+
+L,A 
+
+and L will now hold double the 
+required offset. 
+
+
+
+LD 
+
+A,D 
+
+Now produce the parameter by 
+
+
+
+AND 
+
++1 F 
+
+taking bits 0,1 ,2,3 & 4 of the 
+literal; keep the parameter in A. 
+
+
+
+JR 
+
+338E, ENT-TABLE 
+
+Jump forward to find the 
+address of the required sub- 
+routine. 
+
+3380 
+
+FIRST-3D 
+
+CP 
+
++18 
+
+Jump forward if performing a 
+
+
+
+JR 
+
+NC,338C, DOUBLE-A 
+
+unary operation. 
+
+
+
+EXX 
+
+
+All of the subroutines that per- 
+
+
+
+LD 
+
+BC.+FFFB 
+
+form binary operations require 
+
+
+
+LD 
+
+D,H 
+
+that HL points to the first operand 
+
+
+
+LD 
+
+E,L 
+
+and DE points to the second 
+
+
+
+ADD 
+
+HL,BC 
+
+operand (the 'last value’) as they 
+
+
+
+EXX 
+
+
+appear on the calculator stack. 
+
+338C 
+
+DOUBLE-A 
+
+RLCA 
+
+
+As each entry in the table of 
+
+
+
+LD 
+
+L,A 
+
+addresses takes up two bytes the 
+offset produced is doubled. 
+
+338E 
+
+ENT-TABLE 
+
+LD 
+
+DE.+32D7 
+
+The base address of the table. 
+
+
+
+LD 
+
+H,+00 
+
+The address of the required 
+
+
+
+ADD 
+
+HL,DE 
+
+table entry is formed in HL; and 
+
+
+
+LD 
+
+E,(HL) 
+
+the required subroutine address 
+
+
+
+INC 
+
+HL 
+
+is loaded into the DE register 
+
+
+
+LD 
+
+D.(HL) 
+
+pair. 
+
+
+
+LD 
+
+HL.+3365 
+
+The RE-ENTRY address of 3365 
+
+
+
+EX 
+
+(SP),HL 
+
+is put on the machine stack 
+
+
+
+PUSH 
+
+DE 
+
+underneath the subroutine 
+address. 
+
+
+
+EXX 
+
+
+Return to the main set of 
+registers. 
+
+
+
+LD 
+
+BC,(STKEND-hi) 
+
+The current value of BREG is 
+transferred to the B register 
+thereby returning the single 
+operation offset. 
+
+(See COMPARISON at 353B) 
+
+33A1 
+
+delete 
+
+RET 
+
+
+An indirect jump to the 
+
+
+required subroutine. 
+
+
+193 
+
+
+
+THE 'DELETE' SUBROUTINE 
+
+(Offset 02: 'delete) 
+
+This subroutine contains only the single RET instruction at 33A1 , above. The literal '02' results in this subroutine being considered as a 
+binary operation that is to be entered with a first number addressed by the HL register pair and a second number addressed by the DE 
+register pair, and the result produced again addressed by the HL register pair. 
+
+The single RET instruction thereby leads to the first number being considered as the resulting 'last value' and the second number 
+considered as being deleted. Of course the number has not been deleted from the memory but remains inactive and will probably soon 
+be overwritten. 
+
+
+THE 'SINGLE OPERATION' SUBROUTINE 
+
+(Offset 3B: 'fp-calc-2') 
+
+This subroutine is only called from SCANNING at 2757 hex and is used to perform a single arithmetic operation. The offset that 
+specifies which operation is to be performed is supplied to the calculator in the B register and subsequently transferred to the system 
+variable BREG. 
+
+The effect of calling this subroutine is essentially to make a jump to the appropriate subroutine for the single operation. 
+
+
+33A2 
+
+fp-calc-2 
+
+POP 
+
+AF 
+
+Discard the RE-ENTRY address. 
+
+
+
+LD 
+
+A, (BREG) 
+
+Transfer the offset to A. 
+
+
+
+EXX 
+
+
+Enter the alternate register set. 
+
+
+
+JR 
+
+336C.SCAN-ENT 
+
+Jump back to find the required 
+
+
+address: stack the RE-ENTRY 
+address and jump to the 
+subroutine for the operation. 
+
+
+THE 'TEST 5-SPACES' SUBROUTINE 
+
+This subroutine tests whether there is sufficient room in memory for another 5-byte floating-point number to be added to the calculator 
+stack. 
+
+
+33A9 
+
+
+PUSH 
+
+DE 
+
+Save DE briefly. 
+
+PUSH 
+
+HL 
+
+Save HL briefly. 
+
+LD 
+
+BC.+0005 
+
+Specify the test is for 5 bytes. 
+
+CALL 
+
+1 F05, TEST-ROOM 
+
+Make the test. 
+
+POP 
+
+HL 
+
+Restore HL. 
+
+POP 
+
+DE 
+
+Restore DE. 
+
+RET 
+
+
+Finished. 
+
+
+THE 'STACK NUMBER' SUBROUTINE 
+
+This subroutine is called by BEEP and SCANNING twice to copy STKEND to DE, move a floating-point number to the calculator stack, 
+and reset STKEND from DE. It calls 'MOVE-FP' to do the actual move. 
+
+
+33B4 
+
+STACK-NUM LD 
+
+DE, (STKEND) 
+
+Copy STKEND to DE as 
+destination address. 
+
+
+CALL 
+
+33C0, MOVE-FP 
+
+Move the number. 
+
+
+LD 
+
+(STKEND), DE 
+
+Reset STKEND from DE. 
+
+
+RET 
+
+
+Finished. 
+
+
+194 
+
+
+
+THE 'MOVE A FLOATING-POINT NUMBER' SUBROUTINE 
+
+(Offset 31 : 'duplicate') 
+
+This subroutine moves a floating-point number to the top of the calculator stack (3 cases) or from the top of the stack to the calculator's 
+memory area (1 case). It is also called through the calculator when it simply duplicates the number at the top of the calculator stack, the 
+'last value', thereby extending the stack by five bytes. 
+
+33C0 MOVE-FP CALL 33A9,TEST-5-SP A test is made for room. 
+
+LDIR Move the five bytes involved. 
+
+RET Finished. 
+
+
+THE 'STACK LITERALS' SUBROUTINE 
+
+(Offset 34: 'stk-data') 
+
+This subroutine places on the calculator stack, as a last value', the floating-point number supplied to it as 2, 3, 4 or 5 literals. 
+
+When called by using offset '34' the literals follow the '34' in the list of literals; when called by the SERIES GENERATOR, see below, 
+the literals are supplied by the sub-routine that called for a series to be generated; and when called by SKIP CONSTANTS & STACK A 
+CONSTANT the literals are obtained from the calculator's table of constants (32C5-32D6). 
+
+
+In each case, the first literal supplied is divided by Flex.40, and the integer quotient plus 1 determines whether 1 , 2, 3 or 4 further literals 
+will be taken from the source to form the mantissa of the number. Any unfilled bytes of the five bytes that go to form a 5-byte floating- 
+point number are set to zero. The first literal is also used to determine the exponent, after reducing mod Flex.40, unless the remainder 
+is zero, in which case the second literal is used, as it stands, without reducing mod Flex.40. In either case, Flex. 50 is added to the literal, 
+giving the augmented exponent byte, e (the true exponent e' plus Flex.80). The rest of the 5 bytes are stacked, including any zeros 
+
+needed, and the subroutine returns. 
+
+
+
+33C6 STK-DATA LD 
+
+H,D 
+
+This subroutine performs the 
+
+LD 
+
+L,E 
+
+manipulatory operation of 
+adding a 'last value' to the cal- 
+culator stack; hence HL is set to 
+point one-past the present 
+'last value' and hence point to 
+the result. 
+
+33C8 STK-CONST CALL 
+
+33A9.TEST-5-SP 
+
+Now test that there is indeed 
+
+
+
+room. 
+
+EXX 
+
+
+Go to the alternate register set 
+
+PUSH 
+
+HL 
+
+and stack the pointer to the 
+
+EXX 
+
+
+next literal. 
+
+EX 
+
+(SP),HL 
+
+Switch over the result pointer 
+and the next literal pointer. 
+
+PUSH 
+
+BC 
+
+Save BC briefly. 
+
+LD 
+
+A,(HL) 
+
+The first literal is put into A 
+
+AND 
+
++C0 
+
+and divided by Hex. 40 to give 
+
+RLCA 
+
+
+the integer values 0, 1 , 2 or 3. 
+
+RLCA 
+
+LD 
+
+C,A 
+
+The integer value is transferred 
+
+INC 
+
+C 
+
+to C and incremented, thereby 
+giving the range 1 , 2, 3 or 4 for 
+the number of literals that will 
+
+
+
+be needed. 
+
+LD 
+
+A,(HL) 
+
+The literal is fetch anew, 
+
+AND 
+
++3F 
+
+reduced mod Hex. 40 and dis- 
+
+JR 
+
+NZ.33DE, FORM-EXP 
+
+carded as inappropriate if the 
+
+INC 
+
+HL 
+
+remainder if zero; in which case 
+
+
+195 
+
+
+
+LD 
+
+A,(HL) 
+
+the next literal is fetched and 
+used unreduced. 
+
+33DE FORM-EXP ADD 
+
+A, +50 
+
+The exponent, e, is formed by 
+
+LD 
+
+(DE),A 
+
+the addition of Hex.50 and 
+passed to the calculator stack as 
+the first of the five bytes of the 
+result. 
+
+LD 
+
+A, +05 
+
+The number of literals specified 
+
+SUB 
+
+C 
+
+in C are taken from the source 
+
+INC 
+
+HL 
+
+and entered into the bytes of 
+
+INC 
+
+DE 
+
+the result. 
+
+LD 
+
+B,+00 
+
+
+LDIR 
+
+
+
+POP 
+
+BC 
+
+Restore BC. 
+
+EX 
+
+(SP),HL 
+
+Return the result pointer to HL 
+
+EXX 
+
+
+and the next literal pointer to 
+
+POP 
+
+HL 
+
+its usual position in H’ & L 1 . 
+
+EXX 
+
+
+
+LD 
+
+B,A 
+
+The number of zero bytes 
+
+XOR 
+
+A 
+
+required at this stage is given by 
+
+33F1 STK-ZEROS DEC 
+
+B 
+
+5-C-1 ; and this number of zeros 
+
+RET 
+
+Z 
+
+is added to the result to make 
+
+LD 
+
+(DE),A 
+
+up the required five bytes. 
+
+INC 
+
+DE 
+
+
+JR 
+
+33F1, STK-ZEROS 
+
+
+THE 'SKIP CONSTANTS' SUBROUTINE 
+
+
+This subroutine is entered with the FHL register pair holding the base address of the calculator's table of constants and the A register 
+holding a parameter that shows which of the five constants is being requested. 
+
+The subroutine performs the null operations of loading the five bytes of each unwanted constant into the locations 0000, 0001 , 0002, 
+0003 and 0004 at the beginning of the ROM until the requested constant is reached. 
+
+The subroutine returns with the FHL register pair holding the base address of the requested constant within the table of constants. 
+
+33F7 SKIP-CONS AND 
+
+A 
+
+The subroutine returns if the 
+
+33F8 SKIP-NEXT RET 
+
+Z 
+
+parameter is zero, or when the 
+requested constant has been 
+reached. 
+
+PUSH 
+
+AF 
+
+Save the parameter. 
+
+PUSH 
+
+DE 
+
+Save the result pointer. 
+
+LD 
+
+DE,+0000 
+
+The dummy address. 
+
+CALL 
+
+33C8,STK-CONST 
+
+Perform imaginary stacking of 
+an expanded constant. 
+
+POP 
+
+DE 
+
+Restore the result pointer. 
+
+POP 
+
+AF 
+
+Restore the parameter. 
+
+DEC 
+
+A 
+
+Count the loops. 
+
+JR 
+
+33F8, SKIP-NEXT 
+
+Jump back to consider the value 
+of the counter. 
+
+THE 'MEMORY LOCATION' SUBROUTINE 
+
+
+This subroutine finds the base address for each five byte portion of the calculator's memory area to or from which a floating-point 
+number is to be moved from or to the calculator stack. It does this operation by adding five times the parameter supplied to the base 
+
+address for the area which is held in the HL register pair. 
+
+
+Note that when a FOR-NEXT variable is being handled then the pointers are changed so that the variable is treated as if it were the 
+
+calculator's memory area (see address 1 D20). 
+
+
+3406 LOC-MEM LD 
+
+C,A 
+
+Copy the parameter to C. 
+
+RLCA 
+
+
+Double the parameter. 
+
+RLCA 
+
+
+Double the result. 
+
+ADD 
+
+A,C 
+
+Add the value of the parameter 
+to give five times the original 
+
+
+196 
+
+
+
+
+
+value. 
+
+LD 
+
+C,A 
+
+This result is wanted in the 
+
+LD 
+
+B,+00 
+
+BC register pair. 
+
+ADD 
+
+HL,BC 
+
+Produce the new base address. 
+
+RET 
+
+
+Finished. 
+
+
+THE 'GET FROM MEMORY AREA' SUBROUTINE 
+
+(Offsets EO to E5: 'get-mem-0' to 'get-mem-5') 
+
+This subroutine is called using the literals EO to E5 and the parameter derived from these literals is held in the A register. The 
+subroutine calls MEMORY LOCATION to put the required source address into the HL register pair and MOVE A FLOATING-POINT 
+NUMBER to copy the five bytes involved from the calculator's memory area to the top of the calculator stack to form a new 'last value'. 
+
+
+340F get-mem-0 
+
+PUSH 
+
+DE 
+
+Save the result pointer. 
+
+etc. 
+
+LD 
+
+HL,(MEM) 
+
+Fetch the pointer to the current 
+memory area (see above). 
+
+
+CALL 
+
+3406.LOC-MEM 
+
+The base address is found. 
+
+
+CALL 
+
+33CO,MOVE-FP 
+
+The five bytes are moved. 
+
+
+POP 
+
+HL 
+
+Set the result pointer. 
+
+
+RET 
+
+
+Finished. 
+
+
+THE 'STACK A CONSTANT' SUBROUTINE 
+
+(offsets AO to A4: 'stk-zero'/stk-one'/stk-half'.'stk-pi^' & 'stk-ten') 
+
+
+This subroutine uses SKIP CONSTANTS to find the base address of the requested constants from the calculator's table of constants 
+and then calls STACK LITERALS, entering at STK-CONST, to make the expanded form of the constant the 'last value' on the calculator 
+
+stack. 
+
+
+
+
+341 B stk-zero 
+
+LD 
+
+H,D 
+
+Set HL to hold the result 
+
+etc. 
+
+LD 
+
+L,E 
+
+pointer. 
+
+
+EXX 
+
+
+Go to the alternate register set 
+
+
+PUSH 
+
+HL 
+
+and save the next literal pointer. 
+
+
+LD 
+
+HL,+32C5 
+
+The base address of the calcul- 
+ator's table of constants. 
+
+
+EXX 
+
+
+Back to the main set of registers. 
+
+
+CALL 
+
+33F7, SKIP-CONS 
+
+Find the requested base address. 
+
+
+CALL 
+
+EXX 
+
+33C8, STK-CONST 
+
+Expand the constant. 
+
+
+POP 
+
+HL 
+
+Restore the next literal pointer. 
+
+
+EXX 
+
+
+
+
+RET 
+
+
+Finished. 
+
+THE 'STORE IN MEMORY AREA' SUBROUTINE 
+
+(Offsets CO to C5: 'st-mem-0' to 'st-mem-5') 
+
+
+This subroutine is called using the literals CO to C5 and the parameter derived from these literals is held in the A register. This 
+subroutine is very similar to the GET FROM MEMORY subroutine but the source and destination pointers are exchanged. 
+
+342D st-mem-0 
+
+PUSH 
+
+HL 
+
+Save the result pointer. 
+
+etc. 
+
+EX 
+
+DE,HL 
+
+Source to DE briefly. 
+
+
+LD 
+
+HL,(MEM) 
+
+Fetch the pointer to the current 
+memory area. 
+
+
+CALL 
+
+3406.LOC-MEM 
+
+The base address is found. 
+
+
+EX 
+
+DE,HL 
+
+Exchange source and 
+destination pointers. 
+
+
+CALL 
+
+33CO,MOVE-FP 
+
+The five bytes are moved. 
+
+
+EX 
+
+DE,HL 
+
+'Last value' +5, i.e. STKEND, to 
+
+DE. 
+
+
+POP 
+
+HL 
+
+Result pointer to HL. 
+
+
+RET 
+
+
+Finished. 
+
+
+197 
+
+
+
+Note that the pointers HL and DE remain as they were, pointing to STKEND-5 and STKEND respectively, so that the 'last value' 
+remains on the calculator stack. If required it can be removed by using 'delete'. 
+
+THE 'EXCHANGE' SUBROUTINE 
+
+(Offset 01 : 'exchange') 
+
+This binary operation 'exchanges’ the first number with the second number, i.e. the topmost two numbers on the calculator stack are 
+exchanged. 
+
+
+EXCHANGE LD 
+
+B,+05 
+
+There are five bytes involved. 
+
+SWAP-BYTE LD 
+
+A,(DE) 
+
+Each byte of the second numbi 
+
+LD 
+
+C,(HL) 
+
+Each byte of the first number. 
+
+EX 
+
+DE,HL 
+
+Switch source and destination. 
+
+LD 
+
+(DE),A 
+
+Now to the first number. 
+
+LD 
+
+(HL),C 
+
+Now to the second number 
+
+INC 
+
+HL 
+
+Move to consider the next pair 
+
+INC 
+
+DE 
+
+of bytes. 
+
+DJNZ 
+
+343E, SWAP-BYTE 
+
+Exchange the five bytes. 
+
+EX 
+
+DE,HL 
+
+Get the pointers correct as the 
+
+
+
+number 5 is an odd number. 
+
+RET 
+
+
+Finished. 
+
+
+THE 'SERIES GENERATOR' SUBROUTINE 
+
+(Offsets 86,88 & 8C: 'series-06', 'series-08' & 'series-OC') 
+
+This important subroutine generates the series of Chebyshev polynomials which are used to approximate to SIN, ATN, LN and EXP 
+and hence to derive the other arithmetic functions which depend on these (COS, TAN, ASN, ACS, ** and SQR). 
+
+The polynomials are generated, for n=1 ,2,..., by the recurrence relation: 
+
+T n+1 (z) = 2zT n (z) - T n _-|(z), where T n (z) is the nth Chebyshev polynomial in z. 
+
+The series in fact generates: 
+
+T 0 , 2T^, 2T2,.... , 2T n _^ , where n is 6 for SIN, 8 for EXP and 12 decimal, for LN and ATN. 
+
+The coefficients of the powers of z in these polynomials may be found in the Handbook of Mathematical Functions by M. Abramowitz 
+and I.A. Stegun (Dover 1965), page 795. 
+
+BASIC programs showing the generation of each of the four functions are given here in the Appendix. 
+
+In simple terms this subroutine is called with the 'last value' on the calculator stack, say Z, being a number that bears a simple 
+relationship to the argument, say X, when the task is to evaluate, for instance, SIN X. The calling subroutine also supplies the list of 
+constants that are to be required (six constants for SIN). The SERIES GENERATOR then manipulates its data and returns to the calling 
+routine a 'last value' that bears a simple relationship to the requested function, for instance, SIN X. 
+
+This subroutine can be considered to have four major parts: 
+
+i. The setting of the loop counter: 
+
+The calling subroutine passes its parameters in the A register for use as a counter. The calculator is entered at GEN-ENT-1 so that the 
+counter can be set. 
+
+3449 series-06 LD B,A Move the parameter to B. 
+
+etc. CALL 335E, GEN-ENT-1 In effect a RST 0028 
+
+instruction but sets the counter. 
+
+
+ii. The handling of the last value', Z: 
+
+The loop of the generator requires 2*Z to be placed in mem-0, zero to be placed in mem-2 and the 'last value' to be zero. 
+
+
+
+
+calculator stack 
+
+DEFB 
+
++31 .duplicate 
+
+Z,Z 
+
+DEFB 
+
++0F, addition 
+
+2*Z 
+
+DEFB 
+
++C0,st-mem-0 
+
+2*Z mem-i 
+
+DEFB 
+
++02, delete 
+
+- 
+
+
+198 
+
+
+
+DEFB 
+
+DEFB 
+
+
++AO,stk-zero 
+
++C2,st-mem-2 
+
+
+0 
+
+0 
+
+
+mem-2 holds 0 
+
+
+iii. The main loop: 
+
+The series is generated by looping, using BREG as a counter: the constants in the calling subroutine are stacked in turn by calling 
+STK-DATA; the calculator is re-entered at GEN-ENT-2 so as not to disturb the value of BREG; and the series is built up in the form: 
+
+B(R) = 2*Z*B(R-1 ) - B(R-2) + A(R), for R = 1 ,2 N, where A(1 ), A(2),..., A(N) are the constants supplied by the calling subroutine 
+
+(SIN, ATN, LN and EXP) and B(0) = 0 = B(-1). 
+
+The (R+1)th loop starts with B(R) on the stack and with 2*Z, B(R-2) and B(R-1) in mem-0, mem-1 and mem-2 respectively. 
+
+
+3453 G-LOOP DEFB 
+
++31 .duplicate 
+
+B(R),B(R) 
+
+DEFB 
+
++E0, get-mem-0 
+
+B(R),B(R),2*Z 
+
+DEFB 
+
++04, multiply 
+
+B(R),2*B(R)*Z 
+
+DEFB 
+
++E2, get-mem-2 
+
+B(R),2*B(R)*Z,B(R-1) 
+
+DEFB 
+
++C1 ,st-mem-1 
+
+mem-1 holds B(R-1) 
+
+DEFB +38, end-calc DEFB 
+
++03, subtract 
+
+B(R),2*B(R)*Z-B(R-1 ) 
+
+The next constant is placed on the calculator stack. 
+
+
+CALL 
+
+33C6, STK-DATA 
+
+B(R),2*B(R)*Z-B(R-1 ),A(R+1 ) 
+
+The Calculator is re-entered without disturbing BREG. 
+
+
+CALL 
+
+3362, GEN-ENT-2 
+
+
+DEFB 
+
++0F, addition 
+
+B(R),2*B(R)*Z-B(R-1 )+A(R+1 ) 
+
+DEFB 
+
++01 .exchange 
+
+2*B(R)*Z-B(R-1 )+A(R+1),B(R) 
+
+DEFB 
+
++C2,st-mem-2 
+
+mem-2 holds B(R) 
+
+DEFB 
+
++02, delete 
+
+2*B(R)*Z-B(R-1)+A(R!1) = 
+B(R!1) 
+
+DEFB 
+
++35,dec-jr-nz 
+
+B(R+1) 
+
+DEFB 
+
++EE,to 3453, G-LOOP 
+
+
+
+iv. The subtraction of B(N-2): 
+
+The loop above leaves B(N) on the stack and the required result is given by B(N) - B(N-2). 
+
+
+DEFB 
+
++E1 , get-mem-1 
+
+B(N),B(N-2) 
+
+DEFB 
+
++03, subtract 
+
+B(N)-B(N-2) 
+
+DEFB 
+
++38, end-calc 
+
+
+RET 
+
+
+Finished 
+
+
+THE 'ABSOLUTE MAGNITUDE' FUNCTION 
+
+(Offset 2A: 'abs') 
+
+This subroutine performs its unary operation by ensuring that the sign bit of a floating-point number is reset. 
+'Small integers' have to be treated separately. Most of the work is shared with the 'unary minus' operation. 
+
+
+346A 
+
+abs 
+
+LD 
+
+B,+FF 
+
+B is set to FF hex. 
+
+
+
+JR 
+
+3474.NEG-TEST 
+
+The jump is made into 'unary 
+
+
+
+
+
+minus'. 
+
+
+THE 'UNARY MINUS' OPERATION 
+
+(Offset IB: 'negate') 
+
+This subroutine performs its unary operation by changing the sign of the 'last value' on the calculator stack. 
+
+Zero is simply returned unchanged. Full five byte floating-point numbers have their sign bit manipulated so that it ends up reset (for 
+'abs') or changed (for 'negate'). 'Small integers' have their sign byte set to zero (for 'abs') or changed (for 'negate'). 
+
+
+346 E 
+
+NEGATE 
+
+CALL 
+
+34E9, TEST-ZERO 
+
+If the number is zero, the 
+
+
+
+RET 
+
+C 
+
+subroutine returns leaving 
+00 00 00 00 00 unchanged. 
+
+
+199 
+
+
+
+B is set to +00 hex for 'negate'. 
+
+
+LD B,+00 
+
+
+'ABS' enters here. 
+
+
+
+
+3474 NEG-TEST 
+
+LD 
+
+A,(HL) 
+
+If the first byte is zero, the 
+
+
+AND 
+
+A 
+
+jump is made to deal with a 
+
+
+JR 
+
+Z,3483,INT-CASE 
+
+'small integer'. 
+
+
+INC 
+
+HL 
+
+Point to the second byte. 
+
+
+LD 
+
+A,B 
+
+Get +FF for ’abs’, +00 for 
+'negate'. 
+
+
+AND 
+
++80 
+
+Now +80 for 'abs', +00 for 
+'negate'. 
+
+
+OR 
+
+(HL) 
+
+This sets bit 7 for 'abs', but 
+changes nothing for 'negate'. 
+
+
+RLA 
+
+
+Now bit 7 is changed, leading to 
+
+
+CCF 
+
+
+bit 7 of byte 2 reset for ’abs', 
+
+
+RRA 
+
+
+and simply changed for 'negate'. 
+
+
+LD 
+
+(HL),A 
+
+The new second byte is stored. 
+
+
+DEC 
+
+HL 
+
+HL points to the first byte 
+again. 
+
+
+RET 
+
+
+Finished. 
+
+
+The 'integer case' does a similar operation with the sign byte. 
+
+
+PUSH 
+
+DE 
+
+Save STKEND in DE. 
+
+PUSH 
+
+HL 
+
+Save pointer to the number in 
+
+HL. 
+
+CALL 
+
+2D7FJNT-FETCH 
+
+Fetch the siqn in C, the number 
+in DE. 
+
+POP 
+
+HL 
+
+Restore the pointer to the 
+number in HL. 
+
+LD 
+
+A,B 
+
+Get +FF for 'abs', +00 for 
+'negate'. 
+
+OR 
+
+C 
+
+Now +FF for 'abs', no change for 
+'negate' 
+
+CPL 
+
+
+Now +00 for 'abs', and a changed byte 
+
+LD 
+
+C,A 
+
+for 'negate': store it in C. 
+
+CALL 
+
+2D8E.INT-STORE 
+
+Store result on the stack. 
+
+POP 
+
+RET 
+
+DE 
+
+Return STKEND to DE. 
+
+
+THE 'SIGNUM' FUNCTION 
+
+(Offset 29: 'sgn') 
+
+This subroutine handles the function SGN X and therefore returns a 'last value' of 1 if X is positive, zero if X is zero and -1 if X is 
+negative. 
+
+
+3492 sgn 
+
+
+CALL 34E9, TEST-ZERO 
+RET C 
+
+PUSH DE 
+
+LD DE.+0001 
+
+INC HL 
+
+RL (HL) 
+
+DEC HL 
+
+SBC A, A 
+
+LD C,A 
+
+CALL 2D8EJNT-STORE 
+
+POP DE 
+
+
+RET 
+
+
+If X is zero, just return with 
+zero as the 'last value'. 
+
+Save the pointer to STKEND. 
+Store 1 in DE. 
+
+Point to the second byte of X. 
+Rotate bit 7 into the carry flag. 
+Point to the destination again. 
+Set C to zero for positive X and 
+to FF hex for negative X. 
+
+Stack 1 or -1 as required. 
+Restore the pointer to 
+STKEND' 
+
+Finished. 
+
+
+THE ’IN’ FUNCTION 
+
+(Offset 2C: ’in') 
+
+This subroutine handles the function IN X. It inputs at processor level from port X, loading BC with X and performing the instruction IN 
+A,(C). 
+
+
+200 
+
+
+
+34A5 
+
+in 
+
+CALL 
+
+1 E99,FIND-INT2 
+
+The ’last value’, X, is 
+compressed into BC. 
+
+
+
+IN 
+
+A,(C) 
+
+The signal is received. 
+
+
+
+JR 
+
+34B0, IN-PK-STK 
+
+Jump to stack the result. 
+
+
+THE 'PEEK' FUNCTION 
+
+(Offset 2B: 'peek') 
+
+This subroutine handles the function PEEK X. The 'last value' is unstacked by calling FIND-INT2 and replaced by the value of the 
+contents of the required location. 
+
+34AC peek CALL 
+
+
+LD 
+
+34B0 IN-PK-STK JP 
+
+THE 'USR' FUNCTION 
+
+(Offset 2D: 'usr-no') 
+
+This subroutine ('USR number' as distinct from 'USR string') handles the function USR X, where X is a number. The value of X is 
+obtained in BC, a return address is stacked and the machine code is executed from location X. 
+
+
+CALL 
+
+1 E99,FIND-INT2 
+
+Evaluate the ’last value 1 , 
+rounded to the nearest integer; 
+test that it is in range and return 
+it in BC. 
+
+LD 
+
+HL.+2D2B 
+
+Make the return address be that 
+
+PUSH 
+
+HL 
+
+of the subroutine STACK-BC. 
+
+PUSH 
+
+BC 
+
+Make an indirect jump to the 
+
+RET 
+
+
+required location. 
+
+
+1 E99,FIND-INT2 
+
+
+A,(BC) 
+
+2D28.STACK-A 
+
+
+Evaluate the ’last value', 
+rounded to the nearest integer; 
+test that it is in range and return 
+it in BC. 
+
+Fetch the required byte. 
+
+Exit by jumping to STACK-A. 
+
+
+Note: It is interesting that the IY register pair is re-initialised when the return to STACK-BC has been made, but the important FH'L' that 
+holds the next literal pointer is not restored should it have been disturbed. For a successful return to BASIC, FH'L’ must on exit from the 
+machine code contain the address in SCANNING of the 'end-calc' instruction, 2758 hex (10072 decimal). 
+
+THE 'USR-STRING' FUNCTION 
+
+(Offset 19: 'usr-$') 
+
+This subroutine handles the function USR X$, where X$ is a string. The subroutine returns in BC the address of the bit pattern for the 
+user-defined graphic corresponding to X$. It reports error A if X$ is not a single letter between a and u or a user-defined graphic. 
+
+
+CALL 
+
+2BF1 ,STK-FETCH 
+
+Fetch the parameters of the 
+string X$. 
+
+DEC 
+
+BC 
+
+Decrease the length by 1 to test 
+
+It 
+
+LD 
+
+A,B 
+
+II. 
+
+If the length was not 1 , then 
+
+OR 
+
+C 
+
+jump to give error report A. 
+
+JR 
+
+NZ,34E7,REPORT-A 
+
+
+LD 
+
+A,(DE) 
+
+Fetch the single code of the 
+string. 
+
+CALL 
+
+2C8D, ALPHA 
+
+Does it denote a letter? 
+
+JR 
+
+C,34D3,USR-RANGE 
+
+If so, jump to gets its address. 
+
+SUB 
+
++90 
+
+Reduce range for actual user- 
+defined graphics to 0 - 20 
+decimal. 
+
+JR 
+
+C,34E7,REPORT-A 
+
+Give report A if out of range. 
+
+CP 
+
++15 
+
+Test the range again. 
+
+JR 
+
+NC,34E7,REPORT-A 
+
+Give report A if out of range. 
+
+INC 
+
+A 
+
+Make range of user-defined 
+graphics 1 to 21 decimal, as for 
+a to u. 
+
+
+201 
+
+
+
+34D3 USR-RANGE DEC 
+
+A 
+
+Now make the range 0 to 20 
+decimal in each case. 
+
+ADD 
+
+A, A 
+
+Multiply by 8 to get an offset 
+
+ADD 
+
+A, A 
+
+for the address. 
+
+ADD 
+
+A, A 
+
+
+CP 
+
++A8 
+
+Test the range of the offset. 
+
+JR 
+
+NC,34E7, REPORT-A 
+
+Give report A if out of range. 
+
+LD 
+
+BC,(UDG) 
+
+Fetch the address of the first 
+user-defined graphic in BC. 
+
+ADD 
+
+A,C 
+
+Add C to the offset. 
+
+LD 
+
+C,A 
+
+Store the result back in C. 
+
+JR 
+
+NC,34E4, USR-STACK 
+
+Jump if there is no carry. 
+
+INC 
+
+B 
+
+Increment B to complete the 
+address. 
+
+34E4 USR-STACK JP 
+
+2D2B.STACK-BC 
+
+Jump to stack the address. 
+
+REPORT A - Invalid argument. 
+
+34E7 REPORT-A RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++09 
+
+routine. 
+
+THE 'TEST-ZERO' SUBROUTINE 
+
+
+This subroutine is called at least nine times to test whether a floating-point number is zero. This test reqr 
+
+the number should each be zero. The subroutine returns with the carry flag set if the number was in fact 
+
+34E9 TEST-ZERO PUSH 
+
+HL 
+
+Save HL on the stack. 
+
+PUSH 
+
+BC 
+
+Save BC on the stack. 
+
+LD 
+
+B,A 
+
+Save the value of A in B. 
+
+LD 
+
+A,(HL) 
+
+Get the first byte. 
+
+INC 
+
+HL 
+
+Point to the second byte. 
+
+OR 
+
+(HL) 
+
+OR first byte with second. 
+
+INC 
+
+HL 
+
+Point to the third byte. 
+
+OR 
+
+(HL) 
+
+OR the result with the third 
+byte. 
+
+INC 
+
+HL 
+
+Point to the fourth byte. 
+
+OR 
+
+(HL) 
+
+OR the result with the fourth 
+byte. 
+
+LD 
+
+A,B 
+
+Restore the original value of A. 
+
+POP 
+
+BC 
+
+And of BC. 
+
+POP 
+
+HL 
+
+Restore the pointer to the 
+number to HL. 
+
+RET 
+
+NZ 
+
+Return with carry reset if any of 
+the four bytes was non-zero. 
+
+SCF 
+
+
+Set the carry flag to indicate 
+
+RET 
+
+
+that the number was zero, and 
+return. 
+
+
+THE 'GREATER THAN ZERO' OPERATION 
+
+(Offset 37: 'greater-0') 
+
+
+This subroutine returns a ’last value' of one if the present 'last value' is greater than zero and zero otherwise. It is also used by other 
+subroutines to 'jump on plus’. 
+
+
+34F9 
+
+GREATER-0 CALL 
+
+34E9, TEST-ZERO 
+
+Is the 'last-value' zero? 
+
+
+RET 
+
+C 
+
+If so, return. 
+
+
+LD 
+
+A.+FF 
+
+Jump forward to LESS THAN 
+
+
+JR 
+
+3507,SIGN-TO-C 
+
+ZERO but signal the opposite 
+
+
+action is needed. 
+
+
+THE 'NOT' FUNCTION 
+
+(Offset 30: 'not') 
+
+
+This subroutine returns a ’last value' of one if the present 'last value' is zero and zero otherwise. It is also used by other subroutines to 
+'jump on zero'. 
+
+
+202 
+
+
+
+3501 
+
+
+NOT 
+
+
+CALL 
+
+
+34E9, TEST-ZERO 
+
+
+JR 350B,FP-0/1 
+
+THE 'LESS THAN ZERO' OPERATION 
+
+(Offset 36: 'less-0') 
+
+
+The carry flag will be set only if 
+the 'last value' is zero: this gives 
+the correct result. 
+
+Jump forward. 
+
+
+This subroutine returns a 'last value' of one if the present 'last value' is less than zero and zero otherwise. It is also used by other 
+
+
+subroutines to 'jump on minus'. 
+
+
+
+3506 less-0 XOR 
+
+A 
+
+Clear the A register. 
+
+3507 SIGN-TO-C INC 
+
+HL 
+
+Point to the sign byte. 
+
+XOR 
+
+(HL) 
+
+The carry is reset for a positive 
+
+DEC 
+
+HL 
+
+number and set for a negative 
+
+RLCA 
+
+
+number; when entered from 
+GREATER-0 the opposite sign 
+goes to the carry. 
+
+
+THE 'ZERO OR ONE' SUBROUTINE 
+
+This subroutine sets the 'last value' to zero if the carry flag is reset and to one if it is set. When called from 'E-TO-FP' however it creates 
+the zero or one not on the stack but in mem-0. 
+
+
+PUSH 
+
+HL 
+
+Save the result pointer. 
+
+LD 
+
+A, +00 
+
+Clear A without disturbing the 
+carry. 
+
+LD 
+
+(HL),A 
+
+Set the first byte to zero. 
+
+INC 
+
+HL 
+
+Point to the second byte. 
+
+LD 
+
+(HL),A 
+
+Set the second byte to zero. 
+
+INC 
+
+HL 
+
+Point to the third byte. 
+
+RLA 
+
+
+Rotate the carry into A, making 
+A one if the carry was set, but 
+zero if the carry was reset. 
+
+LD 
+
+(HL),A 
+
+Set the third byte to one or 
+zero. 
+
+RRA 
+
+
+Ensure that A is zero again. 
+
+INC 
+
+HL 
+
+Point to the fourth byte. 
+
+LD 
+
+(HL),A 
+
+Set the fourth byte to zero. 
+
+INC 
+
+HL 
+
+Point to the fifth byte. 
+
+LD 
+
+(HL),A 
+
+Set the fifth byte to zero. 
+
+POP 
+
+RET 
+
+HL 
+
+Restore the result pointer. 
+
+
+THE 'OR' OPERATION 
+
+(Offset 07: 'or') 
+
+This subroutine performs the binary operation 'X OR Y' and returns X if Y is zero and the value 1 otherwise. 
+
+
+351 B or EX 
+
+DE,HL 
+
+Point HL at Y, the second 
+number. 
+
+CALL 
+
+34E9, TEST-ZERO 
+
+Test whether Y is zero. 
+
+EX 
+
+DE,HL 
+
+Restore the pointers. 
+
+RET 
+
+C 
+
+Return if Y was zero; X is now 
+the 'last value'. 
+
+SCF 
+
+
+Set the carry flag and jump back 
+
+JR 
+
+350B,FP-0/1 
+
+to set the 'last value' to 1 . 
+
+THE 'NUMBER AND NUMBER' 
+
+OPERATION 
+
+
+
+(Offset 08: 'no-&-no') 
+
+This subroutine performs the binary operation 'X AND Y' and returns X if Y is non-zero and the value zero otherwise. 
+
+
+203 
+
+
+
+3524 
+
+
+no-&-no 
+
+
+(Offset 10: 'str-&-no') 
+
+
+352D 
+
+
+str-&-no 
+
+
+EX 
+
+DE,HL 
+
+Point HL at Y, DE at X. 
+
+CALL 
+
+34E9, TEST-ZERO 
+
+Test whether Y is zero. 
+
+EX 
+
+DE,HL 
+
+Swap the pointers back. 
+
+RET 
+
+NC 
+
+Return with X as the 'last value 1 
+if Y was non-zero. 
+
+AND 
+
+A 
+
+Reset the carry flag and jump 
+
+JR 
+
+350B,FP-0/1 
+
+back to set the ’last value' to 
+zero. 
+
+NUMBER' OPERATION 
+
+
+; the binary operation 'X$ AND Y' and returns X$ if Y is non-zero and a null strir 
+
+EX 
+
+DE,HL 
+
+Point HL at Y, DE at X$ 
+
+CALL 
+
+34E9, TEST-ZERO 
+
+Test whether Y is zero. 
+
+EX 
+
+DE,HL 
+
+Swap the pointers back. 
+
+RET 
+
+NC 
+
+Return with X$ as the 'last 
+value' if Y was non-zero. 
+
+PUSH 
+
+DE 
+
+Save the pointer to the number. 
+
+DEC 
+
+DE 
+
+Point to the fifth byte of the 
+string parameters i.e. length- 
+high. 
+
+XOR 
+
+A 
+
+Clear the A register. 
+
+LD 
+
+(DE),A 
+
+Length-high is now set to zero. 
+
+DEC 
+
+DE 
+
+Point to length-low. 
+
+LD 
+
+(DE),A 
+
+Length-low is now set to zero. 
+
+POP 
+
+DE 
+
+Restore the pointer. 
+
+RET 
+
+
+Return with the string 
+parameters being the 'last value' 
+
+
+THE 'COMPARISON' OPERATIONS 
+
+(Offsets 09 to 0E & 1 1 to 1 6: 'no-l-eql', 'no-gr-eq', 'nos-neql', 'no-grtr', 'no-less', 'nos-eql', 'str-l-eql', 'str-gr-eq', 'strs-neql', 'str-grtr', 'str- 
+less' & 'strs-eql') 
+
+
+This subroutine is used to perform the twelve possible comparison operations. The single operation offset is present in the B register at 
+the start of the subroutine. 
+
+
+353B 
+
+
+3543 
+
+
+354 E 
+
+
+no-l-eql 
+
+etc. 
+
+
+EX-OR-NOT 
+
+
+NU-OR-STR 
+
+
+LD 
+
+A,B 
+
+SUB 
+
++08 
+
+BIT 
+
+2, A 
+
+JR 
+
+NZ, 3543, EX-OR-NOT 
+
+DEC 
+
+A 
+
+RRCA 
+
+
+
+JR 
+
+NC,354E, NU-OR-STR 
+
+PUSH 
+
+AF 
+
+PUSH 
+
+HL 
+
+CALL 
+
+343C, EXCHANGE 
+
+POP 
+
+DE 
+
+EX 
+
+DE,HL 
+
+POP 
+
+AF 
+
+BIT 
+
+2, A 
+
+JR 
+
+NZ, 3559, STRINGS 
+
+RRCA 
+
+PUSH 
+
+AF 
+
+CALL 
+
+300F, SUBTRACT 
+
+
+The single offset goes to the 
+A register. 
+
+The range is now 01 -06 & 
+
+09-0E. 
+
+This range is changed to: 
+
+00-02, 04-06, 08-0A & 
+
+0C-0E. 
+
+Then reduced to 00-07 with 
+carry set for 'greater than or 
+equal to' & 'less than’; the 
+operations with carry set are 
+then treated as their 
+complementary operation once 
+their values have been exchanged 
+
+
+The numerical comparisons are 
+now separated from the string 
+comparisons by testing bit 2. 
+The numerical operations now 
+have the range 00-01 with carry 
+set for 'equal' and 'not equal'. 
+Save the offset. 
+
+The numbers are subtracted for 
+
+
+204 
+
+
+
+
+
+JR 
+
+358C, END-TESTS 
+
+the final tests. 
+
+3559 
+
+STRINGS 
+
+RRCA 
+
+
+The string comparisons now 
+have the range 02-03 with carry 
+set for 'equal' and 'not equal’. 
+
+
+
+PUSH 
+
+AF 
+
+Save the offset. 
+
+
+
+CALL 
+
+2BF1 ,STK-FETCH 
+
+The lengths and starting 
+
+
+
+PUSH 
+
+DE 
+
+addresses of the strings are 
+
+
+
+PUSH 
+
+BC 
+
+fetched from the calculator 
+
+
+
+CALL 
+
+2BF1 ,STK-FETCH 
+
+stack. 
+
+
+
+POP 
+
+HL 
+
+The length of the second string. 
+
+3564 
+
+BYTE-COMP 
+
+LD 
+
+A,H 
+
+
+
+
+OR 
+
+L 
+
+
+
+
+EX 
+
+(SP),HL 
+
+
+
+
+LD 
+
+A,B 
+
+
+
+
+JR 
+
+NZ, 3575, SEC-PLUS 
+
+Jump unless the second string 
+
+
+
+OR 
+
+C 
+
+is null. 
+
+356B 
+
+SECND-LOW 
+
+POP 
+
+BC 
+
+Here the second string is either 
+null or less than the first. 
+
+
+
+JR 
+
+Z, 3572, BOTH-NULL 
+
+
+
+
+POP 
+
+AF 
+
+
+
+
+CCF 
+
+
+The carry is complemented to 
+
+
+
+JR 
+
+3588, STR-TEST 
+
+give the correct test results. 
+
+3572 
+
+BOTH-NULL 
+
+POP 
+
+AF 
+
+Here the carry is used as it 
+
+
+
+JR 
+
+3588, STR-TEST 
+
+stands. 
+
+3575 
+
+SEC-PLUS 
+
+OR 
+
+C 
+
+
+
+
+JR 
+
+Z, 3585, FRST-LESS 
+
+The first string is now null, 
+the second not. 
+
+
+
+LD 
+
+A,(DE) 
+
+Neither string is nuii, so their 
+
+
+
+SUB 
+
+(HL) 
+
+next bytes are compared. 
+
+
+
+JR 
+
+C, 3585, FRST-LESS 
+
+The first byte is less. 
+
+
+
+JR 
+
+NZ.356B, SECND-LOW 
+
+The second byte is less. 
+
+
+
+DEC 
+
+BC 
+
+The bytes are equal: so the 
+
+
+
+INC 
+
+DE 
+
+lengths are decremented and a 
+
+
+
+INC 
+
+HL 
+
+jump is made to BYTE-COMP 
+
+
+
+EX 
+
+(SP),HL 
+
+to compare the next bytes of 
+
+
+
+DEC 
+
+HL 
+
+the reduced strings. 
+
+
+
+JR 
+
+3564, BYTE-COMP 
+
+
+3585 
+
+FRST-LESS 
+
+POP 
+
+BC 
+
+
+
+
+POP 
+
+AF 
+
+
+
+
+AND 
+
+A 
+
+The carry is cleared here for the 
+correct test results. 
+
+3588 
+
+STR-TEST 
+
+PUSH 
+
+AF 
+
+For the string tests, a zero is 
+
+
+
+RST 
+
+0028,FP-CALC 
+
+put on to the calculator stack. 
+
+
+
+DEFB 
+
++A0,stk-zero 
+
+
+
+
+DEFB 
+
++38, end-calc 
+
+
+358C 
+
+END-TESTS 
+
+POP 
+
+AF 
+
+These three tests, called as 
+
+
+
+PUSH 
+
+AF 
+
+needed, give the correct results 
+
+
+
+CALL 
+
+C, 3501, NOT 
+
+for all twelve comparisons. The 
+
+
+
+POP 
+
+AF 
+
+initial carry is set for 'not equal’ 
+
+
+
+PUSH 
+
+AF 
+
+and ’equal’, and the final carry 
+
+
+
+CALL 
+
+NC,34F9,GREATER-0 
+
+is set for ’greater than’, ’less 
+
+
+
+POP 
+
+RRCA 
+
+AF 
+
+than’ and ’equal’. 
+
+
+
+CALL 
+
+RET 
+
+NC, 3501, NOT 
+
+Finished. 
+
+
+THE 'STRING CONCATENATION' OPERATION 
+
+(Offset 17: 'strs-add') 
+
+This subroutine performs the binary operation 'A$+B$. The parameters for these strings are fetched and the total length found. 
+Sufficient room to hold both the strings is made available in the work space and the strings are copied over. The result of this 
+subroutine is therefore to produce a temporary variable A$+B$ that resides in the work space. 
+
+
+205 
+
+
+
+359C strs-add 
+
+
+The parameters of the second 
+string are fetched and saved. 
+
+
+359C strs-add CALL 
+
+2BF1.STK-FETCH 
+
+PUSH 
+
+DE 
+
+PUSH 
+
+BC 
+
+CALL 
+
+2BF1.STK-FETCH 
+
+POP 
+
+HL 
+
+PUSH 
+
+HL 
+
+PUSH 
+
+DE 
+
+PUSH 
+
+BC 
+
+ADD 
+
+HL,BC 
+
+LD 
+
+B,H 
+
+LD 
+
+C,L 
+
+RST 
+
+0030,BC-SPACES 
+
+CALL 
+
+2AB2,STK-STORE 
+
+POP 
+
+BC 
+
+POP 
+
+HL 
+
+LD 
+
+A,B 
+
+OR 
+
+C 
+
+JR 
+
+Z.35B7, OTHER-STR 
+
+LDIR 
+
+
+35B7 OTHER-STR POP 
+
+BC 
+
+POP 
+
+HL 
+
+LD 
+
+A,B 
+
+OR 
+
+C 
+
+JR 
+
+Z,35BF, STK-PNTRS 
+
+LDIR 
+
+
+THE 'STK-PNTRS' SUBROUTINE 
+
+This subroutine resets the HL register pair to point to the first byte 
+
+one-past the last value', i.e. STKEND. 
+
+
+35BF STK-PNTRS LD 
+
+HL, (STKEND) 
+
+LD 
+
+DE,+FFFB 
+
+PUSH 
+
+HL 
+
+ADD 
+
+HL,DE 
+
+POP 
+
+DE 
+
+RET 
+
+
+THE 'CHR$' FUNCTION 
+
+(Offset 2F: 'chrs') 
+
+
+This subroutine handles the function CHR$ X and creates a single 
+
+35C9 chrs CALL 2DD5.FP-TO-A 
+
+JR 
+
+C,35DC,REPORT-B 
+
+JR 
+
+NZ,35DC,REPORT-B 
+
+PUSH 
+
+AF 
+
+LD 
+
+BC.+0001 
+
+POP 
+
+AF 
+
+LD 
+
+(DE),A 
+
+CALL 
+
+2AB2,STK-STORE 
+
+
+EX DE,HL 
+
+RET 
+
+
+The parameters of the first 
+string are fetched. 
+
+The lengths are now in HL and 
+BC. 
+
+The parameters of the first 
+string are saved. 
+
+The total length of the two 
+strings is calculated and passed 
+to BC. 
+
+Sufficient room is made 
+available. 
+
+The parameters of the new 
+string are passed to the 
+calculator stack. 
+
+The parameters of the first 
+string are retrieved and the 
+string copied to the work space 
+as long as it is not a null string. 
+
+
+Exactly the same procedure is 
+followed for the second string 
+thereby giving 'A$+B$'. 
+
+
+of the 'last value', i.e. STKEND-5, and the DE register pair to point 
+
+
+Fetch the current value of 
+STKEND. 
+
+Set DE to -5, twos complement. 
+Stack the value for STKEND. 
+Calculate STKEND-5. 
+
+DE now holds STKEND and HL 
+
+
+character string in the work space. 
+
+The 'last value' is compressed 
+into the A register. 
+
+Give the error report if X was 
+greater than 255 decimal, or 
+X was a negative number. 
+
+Save the compressed value of X. 
+Make one space available in the 
+Fetch the value. 
+
+Copy the value to the work 
+space. 
+
+Pass the parameters of the new 
+string to the calculator stack. 
+Reset the pointers. 
+
+Finished. 
+
+
+206 
+
+
+
+REPORT-B - Integer out of range 
+
+35DC REPORT-B RST 0008, ERROR-1 Call the error handling 
+
+DEFB +0A routine. 
+
+THE 'VAL' AND 'VAL$' FUNCTION 
+
+(Offsets 1 D: 'val' and 18: 'val$') 
+
+This subroutine handles the functions VAL X$ and VAL$ X$. When handling VAL X$, it return a 'last value' that is the result of 
+evaluating the string (without its bounding quotes) as a numerical expression, when handling VAL$ X$, it evaluates X$ (without its 
+bounding quotes) as a string expression, and returns the parameters of that string expression as a 'last value' on the calculator stack. 
+
+
+val 
+
+LD 
+
+HL.(CH-ADD) 
+
+The current value of CH-ADD is 
+
+(also val$) 
+
+PUSH 
+
+HL 
+
+preserved on the machine stack. 
+
+
+LD 
+
+A.B 
+
+The 'offset' for 'val' or 'val$' 
+must be in the B register; it is 
+now copied to A. 
+
+
+ADD 
+
+A.+E3 
+
+Produce +00 and carry set for 
+’val', +FB and carry reset for 
+'val$'. 
+
+
+SBC 
+
+A, A 
+
+Produce +FF (bit 6 therefore 
+set) for 'val', but +00 (bit 6 
+reset) for 'val$'. 
+
+
+PUSH 
+
+AF 
+
+Save this 'flag' on the machine 
+stack. 
+
+
+CALL 
+
+2BF1 .STK-FETCH 
+
+The parameters of the string are 
+
+
+PUSH 
+
+DE 
+
+fetched; the starting address is 
+
+
+INC 
+
+BC 
+
+saved; one byte is added to the 
+
+
+RST 
+
+0030.BC-SPACES 
+
+length and room made available 
+for the string (+1 ) in the work 
+
+
+
+
+space. 
+
+
+POP 
+
+HL 
+
+The starting address of the 
+string goes to HL as a source 
+address. 
+
+
+LD 
+
+(CH-ADD).DE 
+
+The pointer to the first new 
+
+
+PUSH 
+
+DE 
+
+space goes to CH-ADD and to 
+the machine stack. 
+
+
+LDIR 
+
+
+The string is copied to the work 
+space, together with an extra 
+byte. 
+
+
+EX 
+
+DE.HL 
+
+Switch the pointers. 
+
+
+DEC 
+
+HL 
+
+The extra byte is replaced by a 
+
+
+LD 
+
+(HL),+0D 
+
+'carriage return' character. 
+
+
+RES 
+
+7, (FLAGS) 
+
+The syntax flag is reset and the 
+
+
+CALL 
+
+24FB, SCANNING 
+
+string is scanned for correct 
+syntax. 
+
+
+RST 
+
+001 8, GET-CHAR 
+
+The character after the string is 
+fetched. 
+
+
+CP 
+
++0D 
+
+A check is made that the end of 
+the expression has been reached. 
+
+
+JR 
+
+NZ.360C, V-RPORT-C 
+
+If not, the error is reported. 
+
+
+POP 
+
+HL 
+
+The starting address of the 
+string is fetched. 
+
+
+POP 
+
+AF 
+
+The 'flag' for 'val/val$' is 
+
+
+XOR 
+
+(FLAGS) 
+
+fetched and bit 6 is compared 
+
+
+AND 
+
++40 
+
+with bit 6 of the result of the 
+syntax scan. 
+
+V-RPORT-C 
+
+JP 
+
+NZ.1C8A.REPORT-C 
+
+Report the error if they do not 
+match. 
+
+
+LD 
+
+(CH-ADD).HL 
+
+Start address to CH-ADD again. 
+
+
+SET 
+
+7, (FLAGS) 
+
+The flag is set for line 
+execution. 
+
+
+207 
+
+
+
+CALL 
+
+
+24FB, SCANNING 
+
+
+HL 
+
+(CH-ADD),HL 
+
+35BF,STK-PNTRS 
+
+
+The string is treated as a 'next 
+expression' and a last value' 
+produced. 
+
+The original value of CFI-ADD is 
+restored. 
+
+The subroutine exits via STK- 
+PNTRS which resets the pointers. 
+
+
+THE 'STR$' FUNCTION 
+
+(Offset 2E: 'str$') 
+
+This subroutine handles the function STR$ X and returns a 'last value' which is a set of parameters that define a string containing what 
+would appear on the screen if X were displayed by a PRINT command. 
+
+
+361 F str$ LD BC,+0001 One space is made in the work 
+
+RST 0030,BC-SPACES space and its address is copied 
+
+LD (K-CUR),HL to K-CUR, the address of the 
+
+cursor. 
+
+PUSFI HL This address is saved on the 
+
+stack too. 
+
+LD HL,(CURCHL) The current channel address is 
+
+PUSH HL saved on the machine stack. 
+
+LD A,+FF Channel ’R’ is opened, allowing 
+
+CALL 1 601 , CHAN-OPEN the string to be 'printed' out 
+
+into the work space. 
+
+CALL 2DE3, PRINT-FP The 'last value', X, is now 
+
+printed out in the work space 
+and the work space is expanded 
+with each character. 
+
+POP HL Restore CURCHL to HL and 
+
+CALL 1 61 5, CHAN-FLAG restore the flags that are 
+
+appropriate to it. 
+
+POP DE Restore the start address of the 
+
+string. 
+
+LD HL, (K-CUR) Now the cursor address is one 
+
+AND A past the end of the string and 
+
+SBC HL,DE hence the difference is the 
+
+length. 
+
+LD B,H Transfer the length to BC. 
+
+LD C,L 
+
+CALL 2AB2,STK-STO-$ Pass the parameters of the new 
+
+string to the calculator stack. 
+
+EX DE,HL Reset the pointers. 
+
+RET Finished. 
+
+Note: See PRINT-FP for an explanation of the 'PRINT "A"+STR$ 0.1' error. 
+
+THE 'READ-IN' SUBROUTINE 
+
+(Offset 1 A: 'read-in') 
+
+This subroutine is called via the calculator offset through the first line of the S-INKEY$ routine in SCANNING. It appears to provide for 
+
+the reading in of data through different streams from those available on the standard Spectrum. Like INKEY$ the subroutine returns a 
+
+string. 
+
+3645 read-in CALL 1E94, FIND-INTI The numerical parameter is 
+
+
+BC.+0001 
+0030,BC-SPACES 
+(K-CUR), HL 
+
+
+HL, (CURCHL) 
+
+HL 
+
+A,+FF 
+
+1601, CHAN-OPEN 
+2DE3, PRINT-FP 
+
+
+HL 
+
+161 5, CHAN-FLAG 
+
+
+HL, (K-CUR) 
+
+A 
+
+HL,DE 
+
+B, H 
+
+C, L 
+
+2AB2,STK-STO-$ 
+
+
+CALL 
+
+1E94, FIND-INTI 
+
+The numerical parameter is 
+compressed into the A register. 
+
+CP 
+
++10 
+
+Is it smaller than 1 6 decimal? 
+
+JP 
+
+NC,1 E9F.REPORT-B 
+
+If not, report the error. 
+
+LD 
+
+HL, (CURCHL) 
+
+The current channel address is 
+
+PUSH 
+
+HL 
+
+saved on the machine stack. 
+
+CALL 
+
+1601, CHAN-OPEN 
+
+The channel specified by the 
+parameter is opened. 
+
+
+208 
+
+
+
+CALL 
+
+15E6, INPUT-AD 
+
+The signal is now accepted, like 
+a ’key-value’. 
+
+LD 
+
+BC,+0000 
+
+The default length of the 
+resulting string is zero. 
+
+JR 
+
+NC,365F,R-l-STORE 
+
+Jump if there was no signal. 
+
+INC 
+
+C 
+
+Set the length to 1 now. 
+
+RST 
+
+0030,BC-SPACES 
+
+Make a space in the work space. 
+
+LD 
+
+(DE),A 
+
+Put the string into it. 
+
+CALL 
+
+2AB2,STK-STO-$ 
+
+Pass the parameters of the string 
+to the calculator stack. 
+
+POP 
+
+HL 
+
+Restore CURCHL and the 
+
+CALL 
+
+161 5, CHAN-FLAG 
+
+appropriate flags. 
+
+JP 
+
+35BF.STK-PNTRS 
+
+Exit, setting the pointers. 
+
+
+THE 'CODE' FUNCTION 
+
+(Offset 1C: 'code') 
+
+This subroutine handles the function CODE A$ and returns the Spectrum code of the first character in A$, or zero if A$ should be null. 
+
+
+3669 
+
+code 
+
+CALL 
+
+2BF1 .STK-FETCH 
+
+The parameters of the string are 
+fetched. 
+
+
+
+LD 
+
+A,B 
+
+The length is tested and the A 
+
+
+
+OR 
+
+C 
+
+register holding zero is carried 
+
+
+
+JR 
+
+Z, 3671 .STK-CODE 
+
+forward is A$ is a null string. 
+
+
+
+LD 
+
+A,(DE) 
+
+The code of the first character is 
+put into A otherwise. 
+
+3671 
+
+STK-CODE 
+
+JP 
+
+2D28, STACK-A 
+
+The subroutine exits via 
+
+
+STACK-A which gives the 
+correct 'last value'. 
+
+
+THE 'LEN' FUNCTION 
+
+(Offset 1 E: 'len') 
+
+This subroutine handles the function LEN A$ and returns a 'last value' that is equal to the length of the string. 
+
+3674 len CALL 2BF1 ,STK-FETCH The parameters of the string are 
+
+fetched. 
+
+JP 2D2B.STACK-BC The subroutine exits via 
+
+STACK-BC which gives the 
+correct 'last value'. 
+
+
+THE 'DECREASE THE COUNTER' SUBROUTINE 
+
+(Offset 35: 'dec-jr-nz') 
+
+This subroutine is only called by the SERIES GENERATOR subroutine and in effect is a 'DJNZ' operation but the counter is the system 
+variable, BREG, rather than the B register. 
+
+
+367A dec-jr-nz 
+
+
+EXX 
+
+PUSH 
+
+HL 
+
+LD 
+
+HL.+5C67 
+
+DEC 
+
+(HL) 
+
+POP 
+
+HL 
+
+JR 
+
+NZ, 3687, JUMP-2 
+
+INC 
+
+HL 
+
+EXX 
+
+
+RET 
+
+
+
+Go to the alternative register set 
+and save the next literal pointer 
+on the machine stack. 
+
+Make FHL point to BREG. 
+Decrease BREG. 
+
+Restore the next literal pointer. 
+The jump is made on non-zero. 
+The next literal is passed over. 
+Return to the main register set. 
+Finished. 
+
+
+THE 'JUMP' SUBROUTINE 
+
+(Offset 33: 'jump') 
+
+
+This subroutine executes an unconditional jump when called by the literal '33'. It is also used by the subroutines DECREASE TFIE 
+COUNTER and JUMP ON TRUE. 
+
+
+209 
+
+
+
+3686 
+
+JUMP 
+
+EXX 
+
+
+Go to the next alternate register set. 
+
+3687 
+
+JUMP-2 
+
+LD 
+
+E,(HL) 
+
+The next literal (jump length) is 
+put in the E' register. 
+
+
+
+LD 
+
+A,E 
+
+The number 00 hex or FF hex 
+
+
+
+RLA 
+
+
+is formed in A according as E' 
+
+
+
+SBC 
+
+A, A 
+
+is positive or negative, and is 
+
+
+
+LD 
+
+D,A 
+
+then copied to D’. 
+
+
+
+ADD 
+
+HL.DE 
+
+The registers FT & L’ now hold 
+
+
+
+EXX 
+
+
+the next literal pointer. 
+
+
+
+RET 
+
+
+Finished. 
+
+
+THE 'JUMP ON TRUE' SUBROUTINE 
+
+(Offset 00: 'jump-true') 
+
+
+This subroutine executes a conditional jump if the last value’ on the calculator stack, or more precisely the number addressed currently 
+
+
+by the DE register pair, is true. 
+
+368F jump-true INC 
+
+DE 
+
+Point to the third byte, which is 
+
+INC 
+
+DE 
+
+zero or one. 
+
+LD 
+
+A,(DE) 
+
+Collect this byte in the A 
+
+DEC 
+
+DE 
+
+register. 
+
+Point to the first byte once 
+
+DEC 
+
+DE 
+
+again. 
+
+AND 
+
+A 
+
+Test the third byte: is it zero? 
+
+JR 
+
+NZ, 3686, JUMP 
+
+Make the jump if the byte is 
+
+EXX 
+
+
+non-zero, i.e. if the number is 
+not-false. 
+
+Go to the alternate register set. 
+
+INC 
+
+HL 
+
+Pass over the jump length. 
+
+EXX 
+
+
+Back to the main set of 
+
+RET 
+
+
+registers. 
+
+Finished. 
+
+THE 'END-CALC' SUBROUTINE 
+
+
+(Offset 38: 'end-calc') 
+
+This subroutine ends a RST 0028 operation. 
+
+
+369B end-calc POP 
+
+AF 
+
+The return address to the 
+
+EXX 
+
+
+calculator ('RE-ENTRY') is 
+discarded. 
+
+Instead, the address in H'L' is 
+
+EX 
+
+(SP).HL 
+
+put on the machine stack and 
+
+EXX 
+
+
+an indirect jump is made to it. 
+
+RET 
+
+
+H'L' will now hold any earlier 
+address in the calculator chain 
+of addresses. 
+
+Finished. 
+
+
+THE 'MODULUS' SUBROUTINE 
+
+(Offset 32: 'n-mod-m') 
+
+
+This subroutine calculates M (mod M), where M is a positive integer held at the top of the calculator stack, the last value', and N is the 
+integer held on the stack beneath M. 
+
+The subroutine returns the integer quotient INT (N/M) at the top of the calculator stack, the last value', and the remainder N-INT (N/M) 
+in the second place on the stack. 
+
+This subroutine is called during the calculation of a random number to reduce N mod 65537 decimal. 
+
+
+36A0 n-mod-m 
+
+
+RST 
+
+0028.FP-CALC 
+
+DEFB 
+
++C0,st-mem-0 
+
+DEFB 
+
++02, delete 
+
+DEFB 
+
++31, duplicate 
+
+DEFB 
+
++E0, get-mem-0 
+
+DEFB 
+
++05, division 
+
+DEFB 
+
++27,int 
+
+
+N,M 
+
+N,M mem-0 holds M 
+N 
+
+N, N 
+N, N, M 
+N, N/M 
+N, INT (N/M) 
+
+
+210 
+
+
+
+DEFB 
+
++E0, get-mem-0 
+
+N, INT (N/M),M 
+
+DEFB 
+
++01 .exchange 
+
+N, M, INT (N/M) 
+
+DEFB 
+
++C0,st-mem-0 
+
+N, M, INT (N/M) mem-0 holds 
+
+INT (N/M) 
+
+DEFB 
+
++04, multiply 
+
+N, M*INT (N/M) 
+
+DEFB 
+
++03, subtract 
+
+n-M*INT (N/M) 
+
+DEFB 
+
++E0, get-mem-0 
+
+n-M*INT (N/M), INT (N/M) 
+
+DEFB 
+
++38, end-calc 
+
+
+RET 
+
+
+Finished. 
+
+
+THE 'INT' FUNCTION 
+
+(Offset 27: 'inf') 
+
+
+This subroutine handles the function INT X and returns a 'last value’ that is the 'integer part' of the value supplied. Thus INT 2.4 gives 2 
+but as the subroutine always rounds the result down INT -2.4 gives -3. 
+
+The subroutine uses the INTEGER TRUNCATION TOWARDS ZERO subroutine at 3214 to produce I (X) such that I (2.4) gives 2 and I 
+(-2.4) gives -2. Thus, INT X is gives by I (X) for values of X that are greater than or equal to zero, and I (X)-1 for negative values of X 
+that are not already integers, when the result is, of course, I (X). 
+
+
+36AF int RST 
+
+0028,FP-CALC 
+
+X 
+
+DEFB 
+
++31, duplicate 
+
+X, X 
+
+DEFB 
+
++36,less-0 
+
+x, (1/0) 
+
+DEFB 
+
++00, jump-true 
+
+X 
+
+DEFB 
+
++04, to 36B7, X-NEG 
+
+X 
+
+For values of X that have been shown to be greater than or equal to zero there is no jump and 1 ( 
+
+DEFB 
+
++3A, truncate 
+
+1 (X) 
+
+DEFB 
+
++38, end-calc 
+
+
+RET 
+
+
+Finished. 
+
+when X is a negative integer 1 (X) is returned, otherwise 1 (X)-1 is returned. 
+
+36B7 X-NEG DEFB 
+
++31, duplicate 
+
+X, X 
+
+DEFB 
+
++3A, truncate 
+
+x, 1 (X) 
+
+DEFB 
+
++C0,st-mem-0 
+
+X, 1 (X) mem-0 holds 1 
+
+DEFB 
+
++03, subtract 
+
+X-l (X) 
+
+DEFB 
+
++E0, get-mem-0 
+
+X-l (X), 1 (X) 
+
+DEFB 
+
++01, exchange 
+
+1 (X), X-l (X) 
+
+DEFB 
+
++30, not 
+
+1 (X), (1/0) 
+
+DEFB 
+
++00, jump-true 
+
+1 (X) 
+
+DEFB 
+
++03, to 36C2.EXIT 
+
+1 (X) 
+
+The jump is made for values of X that are negative integers, otherwise there is no jump and 1 (X) 
+
+DEFB 
+
++A1,stk-one 
+
+1 (X), 1 
+
+DEFB 
+
++03, subtract 
+
+1 (X)-1 
+
+In either case the subroutine finishes with; 
+
+
+36C2 EXIT DEFB 
+
++38, end-calc 
+
+1 (X) or 1 (X)-1 
+
+
+RET 
+
+
+THE 'EXPONENTIAL' FUNCTION 
+
+(Offset 26: 'exp') 
+
+This subroutine handles the function EXP X and is the first of four routines that use SERIES GENERATOR to produce Chebyshev 
+polynomials. 
+
+The approximation to EXP X is found as follows: 
+
+i. X is divided by LN 2 to give Y, so that 2 to the power Y is now the required result. 
+
+ii. The value N is found, such that N=INT Y. 
+
+iii. The value W is found, such that W=Y-N, where 0 <=W <=1 , as required for the series to converge. 
+
+
+211 
+
+
+
+iv. The argument Z if formed, such that Z=2*w-1 . 
+
+v. The SERIES GENERATOR is used to return 2**W. 
+
+
+vi. Finally N is added to the exponent, giving 2**(N+W), which is 2**Y and therefore the required answer for EXP X. 
+The method is illustrated using a BASIC program in the Appendix. 
+
+
+36C4 EXP 
+
+RST 
+
+0028.FP-CALC 
+
+X 
+
+Perform step i. 
+
+DEFB 
+
++3D, re-stack 
+
+X (in full floating-point form) 
+
+
+DEFB 
+
++34,stk-data 
+
+X, 1/LN2 
+
+
+DEFB 
+
++F1 ,exponent+81 
+
+
+
+DEFB 
+
++38,+AA,+3B,+29 
+
+
+
+DEFB 
+
++04, multiply 
+
+X/LN 2 = Y 
+
+Perform step ii. 
+
+DEFB 
+
++31, duplicate 
+
+Y, Y 
+
+
+DEFB 
+
++27,int, 1 C46 
+
+Y, INT Y = N 
+
+
+DEFB 
+
++C3,st-mem-3 
+
+Y, N mem-3 holds N 
+
+Perform step iii. 
+
+DEFB 
+
++03, subtract 
+
+Y-N = W 
+
+Perform step iv. 
+
+DEFB 
+
++31, duplicate 
+
+W, W 
+
+
+DEFB 
+
++0F, addition 
+
+2*W 
+
+
+DEFB 
+
++A1,stk-one 
+
+2*W, 1 
+
+
+DEFB 
+
++03, subtract 
+
+2*W-1 = Z 
+
+Perform step v, 
+
+passing to the SERIES GENERATOR the parameter '8' and the eight constants required. 
+
+
+DEFB 
+
++88, series-08 
+
+Z 
+
+1. 
+
+DEFB 
+
++13,exponent+63 
+
+
+
+DEFB 
+
++36, (+00, +00, +00) 
+
+
+2. 
+
+DEFB 
+
++58,exponent+68 
+
+
+
+DEFB 
+
++65, +66, (+00, +00) 
+
+
+3. 
+
+DEFB 
+
++9D,exponent+6D 
+
+
+
+DEFB 
+
++78, +65, +40, (+00) 
+
+
+4. 
+
+DEFB 
+
++A2,exponent+72 
+
+
+
+DEFB 
+
++60,+32,+C9,(+00) 
+
+
+5. 
+
+DEFB 
+
++E7,exponent+77 
+
+
+
+DEFB 
+
++21 ,+F7,+AF,+24 
+
+
+6. 
+
+DEFB 
+
++EB,exponent+7B 
+
+
+
+DEFB 
+
++2F,+B0,+B0,+14 
+
+
+7. 
+
+DEFB 
+
++EE, exponent +7E 
+
+
+
+DEFB 
+
++7E,+BB,+94,+58 
+
+
+8. 
+
+DEFB 
+
++F1 ,exponent+81 
+
+
+
+DEFB 
+
++3A,+7E,+F8,+CF 
+
+
+At the end of the last loop the 'last value 
+
+' is 2**W. 
+
+
+Perform step vi. 
+
+DEFB 
+
++E3, get-mem-3 
+
+2**W, N 
+
+
+DEFB 
+
++38, end-calc 
+
+
+
+CALL 
+
+2DD5.FP-TO-A 
+
+The absolute value of N mod 
+
+256 decimal, is put into the A 
+register. 
+
+
+JR 
+
+NZ,3705,N-NEGTV 
+
+Jump forward if N was negative. 
+
+
+JR 
+
+C, 3703, REPORT-6 
+
+Error if ABS N greater than 255 
+dec. 
+
+
+ADD 
+
+A,(HL) 
+
+Now add ABS N to the 
+exponent. 
+
+
+JR 
+
+NC,370C,RESULT-OK 
+
+Jump unless e greater than 255 
+dec. 
+
+
+212 
+
+
+
+Report 6 - Number too big 
+
+
+3703 
+
+REPORT-6 
+
+RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+
+
+DEFB 
+
++05 
+
+routine. 
+
+3705 
+
+N-NEGTV 
+
+JR 
+
+C,370E, RSLT-ZERO 
+
+The result is to be zero if N is 
+less than -255 decimal. 
+
+
+
+SUB 
+
+(HL) 
+
+Subtract ABS N from the 
+exponent as N was negative. 
+
+
+
+JR 
+
+NC,370E, RSLT-ZERO 
+
+Zero result if e less than zero. 
+
+
+
+NEG 
+
+
+Minus e is changed to e. 
+
+370C 
+
+RESULT-OK 
+
+LD 
+
+(HL),A 
+
+The exponent, e, is entered. 
+
+
+
+RET 
+
+
+
+370E 
+
+RSLT-ZERO 
+
+RST 
+
+0028,FP-CALC 
+
+Use the calculator to make the 
+
+
+
+DEFB 
+
++02, delete 
+
+’last value' zero. 
+
+
+
+DEFB 
+
++A0,stk-zero 
+
+
+
+
+DEFB 
+
+RET 
+
++38, end-calc 
+
+Finished, with EXPX = 0. 
+
+
+THE 'NATURAL LOGARITHM' FUNCTION 
+
+(Offset 25: 'In') 
+
+This subroutine handles the function LN X and is the second of the four routines that use SERIES GENERATOR to produce Chebyshev 
+polynomials. 
+
+The approximation to LN X is found as follows: 
+
+I. X is tested and report A is given if X is not positive. 
+
+II. X is then split into its true exponent, e', and its mantissa X' = X/(2**e’), where X' is greater than, or equal to, 0.5 but still less than 
+1 . 
+
+III. The required value Y1 or Y2 is formed, if X' is greater than 0.8 then Y1=e'*LN 2 and if otherwise Y2 = (e'-1)*LN 2. 

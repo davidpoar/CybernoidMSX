@@ -1,0 +1,6005 @@
+# Spectrum ROM Disassembly - Basic Line And Command Interpretation
+Part 1/3
+
+---
+
+BASIC LINE AND COMMAND INTERPRETATION 
+
+THE SYNTAX TABLES 
+
+
+i. The offset table 
+
+There is an offset value for each of the fifty BASIC commands. 
+
+
+
+
+
+command 
+
+address 
+
+
+
+
+command 
+
+address 
+
+1 A48 
+
+DEFB 
+
++B1 
+
+DEF FN 
+
+1 AF9 
+
+1 A61 
+
+DEFB 
+
++94 
+
+BORDER 
+
+1 AF5 
+
+1 A49 
+
+DEFB 
+
++CB 
+
+CAT 
+
+1 B14 
+
+1 A62 
+
+DEFB 
+
++56 
+
+CONTINUE 
+
+1 AB8 
+
+1 A4A 
+
+DEFB 
+
++BC 
+
+FORMAT 
+
+1 B06 
+
+1 A63 
+
+DEFB 
+
++3F 
+
+DIM 
+
+1 AA2 
+
+1 A4B 
+
+DEFB 
+
++BF 
+
+MOVE 
+
+1 BOA 
+
+1 A64 
+
+DEFB 
+
++41 
+
+REM 
+
+1 AA5 
+
+1 A4C 
+
+DEFB 
+
++C4 
+
+ERASE 
+
+1 BIO 
+
+1 A65 
+
+DEFB 
+
++2B 
+
+FOR 
+
+1 A90 
+
+1 A4D 
+
+DEFB 
+
++AF 
+
+OPEN# 
+
+1 AFC 
+
+1 A66 
+
+DEFB 
+
++17 
+
+GO TO 
+
+1 A7D 
+
+1 A4E 
+
+DEFB 
+
++B4 
+
+CLOSE # 
+
+1 B02 
+
+1 A67 
+
+DEFB 
+
++1 F 
+
+GO SUB 
+
+1 A86 
+
+1 A4F 
+
+DEFB 
+
++93 
+
+MERGE 
+
+1 AE2 
+
+1 A68 
+
+DEFB 
+
++37 
+
+INPUT 
+
+1 A9F 
+
+1 A50 
+
+DEFB 
+
++91 
+
+VERIFY 
+
+1 AE1 
+
+1 A69 
+
+DEFB 
+
++77 
+
+LOAD 
+
+1 AEO 
+
+1 A51 
+
+DEFB 
+
++92 
+
+BEEP 
+
+1 AE3 
+
+1 A6A 
+
+DEFB 
+
++44 
+
+LIST 
+
+1 AAE 
+
+1 A52 
+
+DEFB 
+
++95 
+
+CIRCLE 
+
+1 AE7 
+
+1 A6B 
+
+DEFB 
+
++0F 
+
+LET 
+
+1 A7A 
+
+1 A53 
+
+DEFB 
+
++98 
+
+INK 
+
+1 AEB 
+
+1 A6C 
+
+DEFB 
+
++59 
+
+PAUSE 
+
+1 AC5 
+
+1 A54 
+
+DEFB 
+
++98 
+
+PAPER 
+
+1 AEC 
+
+1 A6D 
+
+DEFB 
+
++2B 
+
+NEXT 
+
+1 A98 
+
+1 A55 
+
+DEFB 
+
++98 
+
+FLASH 
+
+1 AED 
+
+1 A6E 
+
+DEFB 
+
++43 
+
+POKE 
+
+1 AB1 
+
+1 A56 
+
+DEFB 
+
++98 
+
+BRIGHT 
+
+1 AEE 
+
+1 A6F 
+
+DEFB 
+
++2D 
+
+PRINT 
+
+1 A9C 
+
+1 A57 
+
+DEFB 
+
++98 
+
+INVERSE 
+
+1 AEF 
+
+1 A70 
+
+DEFB 
+
++51 
+
+PLOT 
+
+1 AC1 
+
+1 A58 
+
+DEFB 
+
++98 
+
+OVER 
+
+1 AFO 
+
+1 A71 
+
+DEFB 
+
++3A 
+
+RUN 
+
+1 AAB 
+
+1 A59 
+
+DEFB 
+
++98 
+
+OUT 
+
+1 AF1 
+
+1 A72 
+
+DEFB 
+
++6D 
+
+SAVE 
+
+1 ADF 
+
+1 A5A 
+
+DEFB 
+
++7F 
+
+LPRINT 
+
+1 AD9 
+
+1 A73 
+
+DEFB 
+
++42 
+
+RANDOMIZE 
+
+1 AB5 
+
+1 A5B 
+
+DEFB 
+
++81 
+
+LLIST 
+
+1 ADC 
+
+1 A74 
+
+DEFB 
+
++0D 
+
+IF 
+
+1 A81 
+
+1 A5C 
+
+DEFB 
+
++2E 
+
+STOP 
+
+1 A8A 
+
+1 A75 
+
+DEFB 
+
++49 
+
+CLS 
+
+1 ABE 
+
+1 A5D 
+
+DEFB 
+
++6C 
+
+READ 
+
+1 AC9 
+
+1 A76 
+
+DEFB 
+
++5C 
+
+DRAW 
+
+1 AD2 
+
+1 A5E 
+
+DEFB 
+
++6E 
+
+DATA 
+
+1 ACC 
+
+1 A77 
+
+DEFB 
+
++44 
+
+CLEAR 
+
+1 ABB 
+
+1 A5F 
+
+DEFB 
+
++70 
+
+RESTORE 
+
+1 ACF 
+
+1 A78 
+
+DEFB 
+
++15 
+
+RETURN 
+
+1 A8D 
+
+1 A60 
+
+DEFB 
+
++48 
+
+NEW 
+
+1 AA8 
+
+1 A79 
+
+DEFB 
+
++5D 
+
+COPY 
+
+1 AD6 
+
+
+ii. The parameter table 
+
+For each of the fifty BASIC commands there are up to eight entries in the parameter table. These entries comprise command class 
+details, required separators and, where appropriate, command routine addresses. 
+
+
+1 A7A 
+
+P-LET 
+
+DEFB 
+
++01 
+
+CLASS-01 
+
+
+
+DEFB 
+
++3D 
+
+
+
+
+DEFB 
+
++02 
+
+CLASS-02 
+
+1 A7D 
+
+P-GO-TO 
+
+DEFB 
+
++06 
+
+CLASS-06 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++67, +1 E 
+
+GO-TO.I E67 
+
+1 A81 
+
+P-IF 
+
+DEFB 
+
++06 
+
+CLASS-06 
+
+
+
+DEFB 
+
++CB 
+
+'THEN' 
+
+
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++F0.+1C 
+
+1 F, 1 CFO 
+
+1 A86 
+
+P-GO-SUB 
+
+DEFB 
+
++06 
+
+CLASS-06 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++ED,+1 E 
+
+GO-SUB, 1EED 
+
+1 A8A 
+
+P-STOP 
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++EE.+1C 
+
+STOP.1CEE 
+
+1 A8D 
+
+P-RETURN 
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++23, +1 F 
+
+RETURN, 1F23 
+
+1 A90 
+
+P-FOR 
+
+DEFB 
+
++04 
+
+CLASS-04 
+
+
+
+DEFB 
+
++3D 
+
+
+
+
+DEFB 
+
++06 
+
+CLASS-06 
+
+
+
+DEFB 
+
++CC 
+
+'TO' 
+
+
+
+DEFB 
+
++06 
+
+CLASS-06 
+
+
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++03, +1 D 
+
+FOR,1 D03 
+
+
+84 
+
+
+
+1 A98 
+
+P-NEXT 
+
+DEFB 
+
++04 
+
+CLASS-04 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++AB.+1D 
+
+N EXT, 1 DAB 
+
+1 A9C 
+
+P-PRINT 
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++CD,+1F 
+
+PRINT, 1FCD 
+
+1 A9F 
+
+P-INPUT 
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++89, +20 
+
+INPUT, 2089 
+
+1 AA2 
+
+P-DIM 
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++02,+2C 
+
+DIM.2C02 
+
+1 AA5 
+
+P-REM 
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++B2,+1B 
+
+REM.1BB2 
+
+1 AA8 
+
+P-NEW 
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++B7.+11 
+
+NEW,1 1 B7 
+
+1AAB 
+
+P-RUN 
+
+DEFB 
+
++03 
+
+CLASS-03 
+
+
+
+DEFB 
+
++A1.+1E 
+
+RUN.1EA1 
+
+1AAE 
+
+P-LIST 
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++F9.+17 
+
+LIST,1 7F9 
+
+1 AB1 
+
+P-POKE 
+
+DEFB 
+
++08 
+
+CLASS-08 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++80, +1 E 
+
+POKERE80 
+
+1 AB5 
+
+P-RANDOM 
+
+DEFB 
+
++03 
+
+CLASS-03 
+
+
+
+DEFB 
+
++4F,+1E 
+
+RANDOMIZER E4F 
+
+1 AB8 
+
+P-CONT 
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++5F.+1E 
+
+CONTINUER E5F 
+
+1ABB 
+
+P-CLEAR 
+
+DEFB 
+
++03 
+
+CLASS-03 
+
+
+
+DEFB 
+
++AC.+1E 
+
+CLEARREAC 
+
+1ABE 
+
+P-CLS 
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++6B,+0D 
+
+CLS.0D6B 
+
+1 AC1 
+
+P-PLOT 
+
+DEFB 
+
++09 
+
+CLASS-09 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++DC,+22 
+
+PLOT.22DC 
+
+1 AC5 
+
+P-PAUSE 
+
+DEFB 
+
++06 
+
+CLASS-06 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++3A,+1 F 
+
+PAUSERF3A 
+
+1 AC9 
+
+P-READ 
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++ED.+1D 
+
+READRDED 
+
+1ACC 
+
+P-DATA 
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++27, +1 E 
+
+DATARE27 
+
+1ACF 
+
+P-RESTORE 
+
+DEFB 
+
++03 
+
+CLASS-03 
+
+
+
+DEFB 
+
++42, +1 E 
+
+RESTORER E42 
+
+1 AD2 
+
+P-DRAW 
+
+DEFB 
+
++09 
+
+CLASS-09 
+
+
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++82, +23 
+
+DRAW, 2382 
+
+1 AD6 
+
+P-COPY 
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++AC+0E 
+
+COPY,0EAC 
+
+1 AD9 
+
+P-LPRINT 
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++C9,+1 F 
+
+LPRINTRFC9 
+
+1ADC 
+
+P-LLIST 
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++F5,+17 
+
+LLISTR7F5 
+
+1ADF 
+
+P-SAVE 
+
+DEFB 
+
++0B 
+
+CLASS-0B 
+
+1 AEO 
+
+P-LOAD 
+
+DEFB 
+
++0B 
+
+CLASS-0B 
+
+1 AE1 
+
+P-VERIFY 
+
+DEFB 
+
++0B 
+
+CLASS-0B 
+
+1 AE2 
+
+P-MERGE 
+
+DEFB 
+
++0B 
+
+CLASS-0B 
+
+1 AE3 
+
+P-BEEP 
+
+DEFB 
+
++08 
+
+CLASS-08 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++F8,+03 
+
+BEEP.03F8 
+
+1 AE7 
+
+P-CIRCLE 
+
+DEFB 
+
++09 
+
+CLASS-09 
+
+
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++20, +23 
+
+CIRCLE, 2320 
+
+1AEB 
+
+P-INK 
+
+DEFB 
+
++07 
+
+CLASS-07 
+
+1AEC 
+
+P-PAPER 
+
+DEFB 
+
++07 
+
+CLASS-07 
+
+1AED 
+
+P-FLASH 
+
+DEFB 
+
++07 
+
+CLASS-07 
+
+1AEE 
+
+P-BRIGHT 
+
+DEFB 
+
++07 
+
+CLASS-07 
+
+
+85 
+
+
+
+1AEF 
+
+P-INVERSE 
+
+DEFB 
+
++07 
+
+CLASS-07 
+
+1 AFO 
+
+P-OVER 
+
+DEFB 
+
++07 
+
+CLASS-07 
+
+1 AF1 
+
+P-OUT 
+
+DEFB 
+
++08 
+
+CLASS-08 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++7A,+1 E 
+
+OUT,1 E7A 
+
+1 AF5 
+
+P-BORDER 
+
+DEFB 
+
++06 
+
+CLASS-06 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++94, +22 
+
+BORDER, 2294 
+
+1 AF9 
+
+P-DEF-FN 
+
+DEFB 
+
++05 
+
+CLASS-05 
+
+
+
+DEFB 
+
++60, +1 F 
+
+DEF-FN,1 F60 
+
+1AFC 
+
+P-OPEN 
+
+DEFB 
+
++06 
+
+CLASS-06 
+
+
+
+DEFB 
+
++2C 
+
+' ' 
+
+
+
+DEFB 
+
++0A 
+
+CLASS-OA 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++36, +17 
+
+OPEN, 1736 
+
+1 B02 
+
+P-CLOSE 
+
+DEFB 
+
++06 
+
+CLASS-06 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++E5.+16 
+
+CLOSE, 16E5 
+
+1 B06 
+
+P-FORMAT 
+
+DEFB 
+
++0A 
+
+CLASS-OA 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++93, +17 
+
+CAT-ETC,1 793 
+
+1 BOA 
+
+P-MOVE 
+
+DEFB 
+
++0A 
+
+CLASS-OA 
+
+
+
+DEFB 
+
++2C 
+
+' ' 
+
+
+
+DEFB 
+
++0A 
+
+CLASS-OA 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++93, +17 
+
+CAT-ETC,1 793 
+
+1B10 
+
+P- ERASE 
+
+DEFB 
+
++0A 
+
+CLASS-OA 
+
+
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++93, +17 
+
+CAT-ETC,1 793 
+
+1 B14 
+
+P-CAT 
+
+DEFB 
+
++00 
+
+CLASS-00 
+
+
+
+DEFB 
+
++93, +17 
+
+CAT-ETC,1 793 
+
+
+Note: The requirements for the different command classes are as follows: 
+
+
+CLASS-00 
+
+CLASS-01 
+
+CLASS-02 
+
+CLASS-03 
+
+CLASS-04 
+
+CLASS-05 
+
+CLASS-06 
+
+CLASS-07 
+
+CLASS-08 
+
+CLASS-09 
+
+CLASS-OA 
+
+CLASS-OB 
+
+
+No further operands. 
+
+Used in LET. A variable is required. 
+
+Used in LET. An expression, numeric or string, must follow. 
+
+A numeric expression may follow. Zero to be used in case of default. 
+A single character variable must follow. 
+
+A set of items may be given. 
+
+A numeric expression must follow. 
+
+Handles colour items. 
+
+Two numeric expressions, separated by a comma, must follow. 
+
+As for CLASS-08 but colour items may precede the expressions. 
+
+A string expression must follow. 
+
+Handles cassette routines. 
+
+
+THE 'MAIN PARSER' OF THE BASIC INTERPRETER 
+
+The parsing routine of the BASIC interpreter is entered at LINE-SCAN when syntax is being checked, and at LINE-RUN when a BASIC 
+program of one or more statements is to be executed. 
+
+Each statement is considered in turn and the system variable CH-ADD is used to point to each code of the statement as it occurs in the 
+program area or the editing area. 
+
+
+LINE-SCAN RES 
+
+7, (FLAGS) 
+
+Signal 'syntax checking 1 . 
+
+CALL 
+
+19FB, E-LINE-NO 
+
+CH-ADD is made to point to th 
+first code after any line numbei 
+
+XOR 
+
+A 
+
+The system variable SUBPPC 
+
+LD 
+
+(SUBPPC),A 
+
+is initialised to +00 and 
+
+DEC 
+
+A 
+
+ERR-NR to +FF. 
+
+LD 
+
+(ERR-NR),A 
+
+
+JR 
+
+1 B29.STMT-L-1 
+
+Jump forward to consider the 
+first statement of the line. 
+
+
+86 
+
+
+
+THE STATEMENT LOOP. 
+
+Each statement is considered in turn until the end of the line is reached. 
+
+
+1 B28 
+
+STMT-LOOP RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD along the line. 
+
+1B29 
+
+STMT-L-1 CALL 
+
+16BF, SET-WORK 
+
+The work space is cleared. 
+
+
+INC 
+
+(SUBPPC) 
+
+Increase SUBPPC on each 
+passage around the loop. 
+
+
+JP 
+
+M,1C8A,REPORT-C 
+
+But only '127' statements are 
+allowed in a single line. 
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Fetch a character. 
+
+
+LD 
+
+B,+00 
+
+Clear the register for later. 
+
+
+CP 
+
++0D 
+
+Is the character a 'carriage 
+
+
+JR 
+
+Z.1BB3, LINE-END 
+
+return'; jump if it is. 
+
+
+CP 
+
++3A 
+
+Go around the loop again if 
+
+
+JR 
+
+Z.1B28, STMT-LOOP 
+
+it is a 
+
+
+A statement has been identified so, first, its initial command is considered. 
+
+
+LD 
+
+HL.+1B76 
+
+Pre-load the machine stack 
+
+PUSH 
+
+HL 
+
+with the return address 
+- STMT-RET. 
+
+LD 
+
+C,A 
+
+Save the command temporarily 
+
+RST 
+
+0020, NEXT-CHAR 
+
+in the C register whilst 
+
+LD 
+
+A,C 
+
+CH-ADD is advanced again. 
+
+SUB 
+
++CE 
+
+Reduce the command's code by 
++CE; giving the range +00 to 
++31 for the fifty commands. 
+
+JP 
+
+C,1 C8A,REPORT-C 
+
+Give the appropriate error if 
+not a command code. 
+
+LD 
+
+C,A 
+
+Move the command code to the 
+BC register pair (B holds +00). 
+
+LD 
+
+HL.+1A48 
+
+The base address of the syntax 
+offset table. 
+
+ADD 
+
+HL,BC 
+
+The required offset is passed to 
+
+LD 
+
+C,(HL) 
+
+the C register and used to 
+
+ADD 
+
+HL,BC 
+
+compute the base address for 
+the command's entries in the 
+parameter table. 
+
+JR 
+
+1B55,GET-PARAM 
+
+Jump forward into the scanning 
+loop with this address. 
+
+
+Each of the command class routines applicable to the present command are executed in turn. Any required separators are also 
+considered. 
+
+
+SCAN-LOOP 
+
+LD 
+
+HL,(T-ADDR) 
+
+The temporary pointer to the 
+entries in the parameter table. 
+
+GET-PARAM 
+
+LD 
+
+A,(HL) 
+
+Fetch each entry in turn. 
+
+
+INC 
+
+HL 
+
+Update the pointer to the 
+
+
+LD 
+
+(T-ADDR),HL 
+
+entries for the next pass. 
+
+
+LD 
+
+BC.+1B52 
+
+Pre-load the machine stack 
+
+
+PUSH 
+
+BC 
+
+with the return address - 
+SCAN-LOOP. 
+
+
+LD 
+
+C,A 
+
+Copy the entry to the C register 
+for later. 
+
+
+CP 
+
++20 
+
+Jump forward if the entry is 
+
+
+JR 
+
+NC,1B6F, SEPARATOR 
+
+a 'separator'. 
+
+
+LD 
+
+HL.+1C01 
+
+The base address of the 
+’command class' table. 
+
+
+LD 
+
+B,+00 
+
+Clear the B register and 
+
+
+ADD 
+
+HL,BC 
+
+index into the table. 
+
+
+LD 
+
+C,(HL) 
+
+Fetch the offset and compute 
+
+
+ADD 
+
+HL,BC 
+
+the starting address of the 
+required command class routine 
+
+
+PUSH 
+
+HL 
+
+Push the address on to the 
+machine stack. 
+
+
+87 
+
+
+
+RST 
+
+DEC 
+
+RET 
+
+
+001 8, GET-CHAR 
+B 
+
+
+Before making an indirect 
+jump to the command class 
+routine pass the command code 
+to the A register and set the B 
+register to +FF. 
+
+
+THE 'SEPARATOR' SUBROUTINE 
+
+The report - 'Nonsense in BASIC is given if the required separator is 
+report does not appear on the screen - only the 'error marker'. 
+
+
+1 B6F 
+
+SEPARATOR RST 
+
+CP 
+
+001 8, GET-CHAR 
+
+C 
+
+
+JP 
+
+NZ,1C8A,REPORT-C 
+
+
+RST 
+
+RET 
+
+0020, NEXT-CHAR 
+
+THE 'STMT-RET' SUBROUTINE 
+
+After the correct interpretation of a statement a return is made to this 
+
+1 B76 
+
+STMT-RET CALL 
+
+1F54, BREAK-KEY 
+
+
+JR 
+
+C.1B7D, STMT-R-1 
+
+Report L 
+
+- 'BREAK into program' 
+
+
+1 B7B 
+
+REPORT-L RST 
+
+DEFB 
+
+0008, ERROR-1 
++14 
+
+Continue 
+
+here as the BREAK key was not pressed. 
+
+1 B7D 
+
+STMT-R-1 BIT 
+
+JR 
+
+LD 
+
+BIT 
+
+JR 
+
+7,(NSPPC) 
+
+NZ.1BF4, STMT-NEXT 
+HL,(NEWPPC) 
+
+7,H 
+
+Z.1B9E, LINE-NEW 
+
+
+not present. But note that when syntax is being checked the actual 
+
+
+The current character is 
+fetched and compared to the 
+entry in the parameter table. 
+Give the error report if there 
+is not a match. 
+
+Step past a correct character 
+and return. 
+
+
+entry point. 
+
+The BREAK key is tested after 
+every statement. 
+
+Jump forward unless it has 
+been pressed. 
+
+
+Call the error handling 
+routine. 
+
+
+Jump forward if there is not 
+a 'jump' to be made. 
+
+Fetch the 'new line' number 
+and jump forward unless dealing 
+with a further statement in the 
+editing area. 
+
+
+THE 'LINE-RUN' ENTRY POINT 
+
+This entry point is used wherever a line in the editing area is to be 'run'. In such a case the syntax/run flag (bit 7 of FLAGS) will be set. 
+
+The entry point is also used in the syntax checking of a line in the editing area that has more than one statement (bit 7 of FLAGS will be 
+reset). 
+
+
+1 B8A LINE-RUN LD 
+
+HL.+FFFE 
+
+A line in the editing area 
+
+LD 
+
+(PPC),HL 
+
+is considered as line '-' 21 . 
+
+LD 
+
+HL,(WORKSP) 
+
+Make HL point to the end 
+
+DEC 
+
+HL 
+
+marker of the editing area 
+
+LD 
+
+DE, (E-LINE) 
+
+and DE to the location before 
+
+DEC 
+
+DE 
+
+the start of that area. 
+
+LD 
+
+A.(NSPPC) 
+
+Fetch the number of the next 
+statement to be handled 
+
+JR 
+
+1BD1, NEXT-LINE 
+
+before jumping forward. 
+
+THE 'LINE-NEW' SUBROUTINE 
+
+
+There has been a jump in the program and the starting address of the new line has to be found. 
+
+1 B9E LINE-NEW CALL 
+
+196E.LINE-ADDR 
+
+The starting address of the line, 
+or the 'first line after' is found. 
+
+LD 
+
+A.(NSPPC) 
+
+Collect the statement number. 
+
+JR 
+
+Z,1BBF, LINE-USE 
+
+Jump forward if the required 
+
+AND 
+
+A 
+
+line was found; otherwise 
+
+
+88 
+
+
+
+JR 
+
+NZ,1 BEC.REPORT-N 
+
+check the validity of the state- 
+ment number - must be zero. 
+
+LD 
+
+B,A 
+
+Also check that the 'first 
+
+LD 
+
+A,(HL) 
+
+line after' is not after the 
+
+AND 
+
++C0 
+
+actual 'end of program’. 
+
+LD 
+
+A,B 
+
+
+JR 
+
+Z.1BBF, LINE-USE 
+
+Jump forward with valid 
+addresses: otherwise signal the 
+error 'OK'. 
+
+Report 0 - 'OK' 
+
+1 BBO REPORT-O RST 
+
+0008, ERROR-1 
+
+Use the error handling 
+
+DEFB 
+
++FF 
+
+routine. 
+
+Note: Obviously not an error in the normal sense — but rather a jump past the program. 
+
+THE 'REM' COMMAND ROUTINE 
+
+
+The return address to STMT-RET is dropped which has the effect of forcing the rest of the line to be ignored. 
+
+1 BB2 REM POP 
+
+BC 
+
+Drop the address - STMT-RET. 
+
+THE 'LINE-END' ROUTINE 
+
+If checking syntax a simple return is made but when 'running' the address held by NXTLIN has to be checked before it can be 
+
+1 BB3 LINE-END CALL 
+
+2530.SYNTAX-Z 
+
+Return if syntax is being 
+
+RET 
+
+Z 
+
+checked; otherwise fetch 
+
+LD 
+
+HL, (NXTLIN) 
+
+the address in NXTLIN. 
+
+LD 
+
+A,+C0 
+
+Return also if the address is 
+
+AND 
+
+(HL) 
+
+after the end of the program 
+
+RET 
+
+NZ 
+
+- the 'run' is finished. 
+
+XOR 
+
+A 
+
+Signal 'statement zero' before 
+proceeding. 
+
+THE 'LINE-USE' ROUTINE 
+
+This short routine has three functions: 
+
+i. Change statement zero to statement '1'; ii. Find the number of the new line and enter 
+
+PPC; & iii. Form the address of the start of the line after. 
+
+
+1 BBF LINE-USE CP 
+
++01 
+
+Statement zero becomes 
+
+ADC 
+
+A, +00 
+
+statement '1' 
+
+LD 
+
+D,(HL) 
+
+The line number of the line 
+
+INC 
+
+HL 
+
+to be used is collected and 
+
+LD 
+
+E,(HL) 
+
+passed to PPC. 
+
+LD 
+
+(PPC),DE 
+
+
+INC 
+
+HL 
+
+Now find the 'length' 
+
+LD 
+
+E,(HL) 
+
+of the line. 
+
+INC 
+
+HL 
+
+
+LD 
+
+D,(HL) 
+
+
+EX 
+
+DE,HL 
+
+Switch over the values. 
+
+ADD 
+
+HL,DE 
+
+Form the address of the start 
+
+INC 
+
+HL 
+
+of the line after in HL and the 
+location before the 'next' line's 
+first character in DE. 
+
+
+THE 'NEXT-LINE' ROUTINE 
+
+On entry the HL register pair points to the location after the end of the 'next' line to be handled and the DE register pair to the location 
+before the first character of the line. This applies to lines in the program area and also to a line in the editing area - where the next line 
+will be the same line again whilst there are still statements to be interpreted. 
+
+
+1 BD1 
+
+NEXT-LINE LD 
+
+(NXTLIN), HL 
+
+Set NXTLIN for use once the 
+current line has been completed. 
+
+
+EX 
+
+DE,HL 
+
+As usual CH-ADD points to the 
+
+
+89 
+
+
+
+LD 
+
+(CH-ADD),HL 
+
+location before the first 
+character to be considered. 
+
+LD 
+
+D,A 
+
+The statement number is 
+fetched. 
+
+LD 
+
+E,+00 
+
+The E register is cleared in case 
+EACH-STMT is used. 
+
+LD 
+
+(NSPPC),+FF 
+
+Signal 'no jump'. 
+
+DEC 
+
+D 
+
+The statement number minus 
+
+LD 
+
+(SUBPPC),D 
+
+one goes into SUBPPC. 
+
+JP 
+
+Z.1B28, STMT-LOOP 
+
+A first statement can now be 
+considered. 
+
+INC 
+
+D 
+
+However for later statements 
+
+CALL 
+
+198B, EACH-STMT 
+
+the 'starting address' has to be 
+found. 
+
+JR 
+
+Z.1BF4, STMT-NEXT 
+
+Jump forward unless the state- 
+ment does not exist. 
+
+Report N - 'Statement lost' 
+
+1 BEC REPORT-N RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++16 
+
+routine. 
+
+
+THE 'CHECK-END' SUBROUTINE 
+
+This is an important routine and is called from many places in the monitor program when the syntax of the edit-line is being checked. 
+The purpose of the routine is to give an error report if the end of a statement has not been reached and to move on to the next 
+statement if the syntax is correct. 
+
+
+1BEE 
+
+CHECK-END CALL 
+
+2530,SYNTAX-Z 
+
+Do not proceed unless 
+
+
+RET 
+
+NZ 
+
+checking syntax. 
+
+
+POP 
+
+BC 
+
+Drop the addresses of 
+
+
+POP 
+
+BC 
+
+SCAN-LOOP & STMT-RET 
+
+
+before continuing into 
+STMT-NEXT. 
+
+
+THE 'STMT-NEXT' ROUTINE 
+
+if the present character is a 'carriage return' then the ’next statement’ is on the 'next line’; if ' : ' it is on the same line; but if any other 
+character is found then there is an error in syntax. 
+
+
+1 BF4 
+
+
+STMT-NEXT RST 
+
+001 8, GET-CHAR 
+
+Fetch the present character. 
+
+CP 
+
++0D 
+
+Consider the 'next line' if 
+
+JR 
+
+Z.1BB3, LINE-END 
+
+it is a 'carriage return'. 
+
+CP 
+
++3A 
+
+Consider the 'next statement' 
+
+JP 
+
+Z.1B28, STMT-LOOP 
+
+if it is a ' : '. 
+
+JP 
+
+1C8A.REPORT-C 
+
+Otherwise there has been a 
+syntax error. 
+
+
+THE 'COMMAND CLASS' TABLE 
+
+
+address 
+
+offset 
+
+class number 
+
+address 
+
+offset 
+
+class number 
+
+1C01 
+
+OF 
+
+CLASS-00-1 CIO 
+
+1C07 
+
+7B 
+
+CLASS-06,1 C82 
+
+1C02 
+
+ID 
+
+CLASS-01,1 Cl F 
+
+1C08 
+
+8E 
+
+CLASS-07,1 C96 
+
+1C03 
+
+4B 
+
+CLASS-02,1 C4E 
+
+1C09 
+
+71 
+
+CLASS-08,1 C7A 
+
+1C04 
+
+09 
+
+CLASS-03,1 COD 
+
+1C0A 
+
+B4 
+
+CLASS-09,1 CBE 
+
+1C05 
+
+67 
+
+CLASS-04,1 C6C 
+
+1C0B 
+
+81 
+
+CLASS-0A.1C8C 
+
+1C06 
+
+0B 
+
+CLASS-05,1 Cl 1 
+
+1C0C 
+
+CF 
+
+CLASS-0B.1CDB 
+
+
+THE 'COMMAND CLASSES - 00, 03 & 05' 
+
+The commands of class-03 may, or may not, be followed by a number, e.g. RUN & RUN 200. 
+
+
+1C0D CLASS-03 CALL 
+
+
+1CDE,FETCH-NUM 
+
+
+A number is fetched but zero 
+is used in cases of default. 
+
+
+90 
+
+
+
+The commands of class-00 must not have any operands, e.g. COPY & CONTINUE. 
+
+1 Cl 0 CLASS-00 CP A Set the zero flag for later. 
+
+The commands of class-05 may be followed by a set of items, e.g. PRINT & PRINT "222". 
+
+1 Cl 1 CLASS-05 POP BC In all cases drop the address 
+
+- SCAN-LOOP. 
+
+CALL Z,1 BEE, CHECK-END If handling commands of classes 
+
+00 & 03 AND syntax is being 
+checked move on now to 
+consider the next statement. 
+
+EX DE,HL Save the line pointer in the DE 
+
+register pair. 
+
+THE 'JUMP-C-R' ROUTINE 
+
+After the command class entries and the separator entries in the parameter table have been considered the jump to the appropriate 
+
+command routine is made. 
+
+
+1 Cl 6 
+
+
+JUMP-C-R LD 
+
+HL,(T-ADDR) 
+
+Fetch the pointer to the 
+
+LD 
+
+C,(HL) 
+
+entries in the parameter table 
+
+INC 
+
+HL 
+
+and fetch the address of the 
+
+LD 
+
+B,(HL) 
+
+required command routine. 
+
+EX 
+
+DE,HL 
+
+Exchange the pointers back 
+
+PUSH 
+
+BC 
+
+and make an indirect jump 
+
+RET 
+
+
+to the command routine. 
+
+
+THE 'COMMAND CLASSES - 01, 02 & 04' 
+
+These three command classes are used by the variable handling commands - LET, FOR & NEXT and indirectly by READ & INPUT. 
+Command class 01 is concerned with the identification of the variable in a LET, READ or INPUT statement. 
+
+
+1C1F CLASS-01 CALL 28B2,LOOK-VARS 
+
+
+Look in the variables area to 
+
+determine whether or not 
+
+the variable has been used already. 
+
+
+THE 'VARIABLE IN ASSIGNMENT' SUBROUTINE 
+
+
+This subroutine develops the appropriate values for the system 
+
+variables DEST & STRLEN. 
+
+1C22 VAR-A-1 LD 
+
+(FLAGX),+00 
+
+Initialise FLAGX to +00. 
+
+JR 
+
+NC,1C30, VAR-A-2 
+
+Jump forward if the variable 
+has been used before. 
+
+SET 
+
+1 ,(FLAGX) 
+
+Signal 'a new variable'. 
+
+JR 
+
+NZ,1C46,VAR-A-3 
+
+Give an error if trying to use 
+an 'undimensioned array'. 
+
+Report 2 - Variable not found 
+
+1C2E REPORT-2 RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++01 
+
+routine. 
+
+Continue with the handling of existing variables. 
+
+
+1C30 VAR-A-2 CALL 
+
+Z,2996,STK-VARS 
+
+The parameters of simple string 
+variables and all array variables 
+are passed to the calculator 
+stack. (STK-VARS will 'slice' a 
+string if required.) 
+
+BIT 
+
+6, (FLAGS) 
+
+Jump forward if handling a 
+
+JR 
+
+NZ,1C46,VAR-A-3 
+
+numeric variable. 
+
+XOR 
+
+A 
+
+Clear the A register. 
+
+CALL 
+
+2530,SYNTAX-Z 
+
+The parameters of the string of 
+
+CALL 
+
+NZ,2BF1 .STK-FETCH 
+
+string array variable are fetched 
+unless syntax is being checked. 
+
+LD 
+
+HL.+5C71 
+
+This is FLAGX. 
+
+
+91 
+
+
+
+OR 
+
+(HL) 
+
+Bit 0 is set only when handling 
+
+LD 
+
+(HL),A 
+
+complete simple strings' thereby 
+
+
+
+signalling 'old copy to be 
+
+
+
+deleted'. 
+
+EX 
+
+DE.HL 
+
+FHL now points to the string or 
+
+
+the element of the array. 
+
+The pathways now come together to set STRLEN & DEST as required. For all numeric variables and 'new' string & string array 
+variables STRLEN-lo holds the 'letter' of the variable's name. But for 'old' string & string array variables whether ’sliced' or complete it 
+holds the 'length' in 'assignment'. 
+
+1C46 VAR-A-3 LD (STRLEN), BC Set STRLEN as required. 
+
+DEST holds the address for the 'destination of an 'old' variable but in effect the ’source’ for a 'new' variable. 
+
+LD (DEST),HL Set DEST as required and 
+
+RET return. 
+
+Command class 02 is concerned with the actual calculation of the value to be assigned in a LET statement. 
+
+
+1C4E 
+
+CLASS-02 POP 
+
+BC 
+
+The address - SCAN-LOOP is 
+dropped. 
+
+
+CALL 
+
+1C56, VAL-FET-1 
+
+The assignment is made. 
+
+
+CALL 
+
+1BEE, CHECK-END 
+
+Move on to the next statement 
+either via CHECK-END if 
+
+
+RET 
+
+
+checking syntax, or STMT-RET 
+if in 'run-time'. 
+
+
+THE 'FETCH A VALUE' SUBROUTINE 
+
+This subroutine is used by LET, READ & INPUT statements to first evaluate and then assign values to the previously designated 
+variable. 
+
+The entry point VAL-FET-1 is used by LET & READ and considers FLAGS whereas the entry point VAL-FET-2 is used by 
+INPUT and considers FLAGX. 
+
+
+1C56 
+
+1C59 
+
+
+LD 
+
+A, (FLAGS) 
+
+Use FLAGS. 
+
+PUSH 
+
+AF 
+
+Save FLAGS or FLAGX. 
+
+CALL 
+
+24FB, SCANNING 
+
+Evaluate the next expression. 
+
+POP 
+
+AF 
+
+Fetch the old FLAGS or FLAGX. 
+
+LD 
+
+D, (FLAGS) 
+
+Fetch the new FLAGS. 
+
+XOR 
+
+D 
+
+The nature - numeric or string 
+
+AND 
+
++40 
+
+of the variable and the 
+expression must match. 
+
+JR 
+
+NZ,1C8A,REPORT-C 
+
+Give report C if they do not. 
+
+BIT 
+
+7,D 
+
+Jump forward to make the 
+
+JP 
+
+NZ,2AFF,LET 
+
+actual assignment unless 
+checking syntax when simply 
+
+RET 
+
+
+return. 
+
+
+THE 'COMMAND CLASS 04' ROUTINE 
+
+The command class 04 entry point is used by FOR & NEXT statements. 
+
+
+1C6C CLASS-04 
+
+
+CALL 
+
+28B2.LOOK-VARS 
+
+PUSH 
+
+AF 
+
+LD 
+
+A,C 
+
+OR 
+
++9F 
+
+INC 
+
+A 
+
+JR 
+
+NZ,1C8A,REPORT-C 
+
+POP 
+
+AF 
+
+JR 
+
+1C22,VAR-A-1 
+
+
+Look in the variables area for 
+the variable being used. 
+
+Save the AF register pair whilst 
+the discriminator byte is tested 
+to ensure that the variable 
+is a FOR-NEXT control 
+variable. 
+
+Restore the flags register and 
+jump back to make the variable 
+that has been found the 
+'variable in assignment'. 
+
+
+92 
+
+
+
+THE 'EXPECT NUMERIC/STRING EXPRESSIONS' SUBROUTINE 
+
+There is a series of short subroutines that are used to fetch the result of evaluating the next expression. The result from a single 
+expression is returned as a 'last value' on the calculator stack. 
+
+The entry point NEXT-2NUM is used when CH-ADD needs updating to point to the start of the first expression. 
+
+1C79 NEXT-2NUM RST 0020, NEXT-CHAR Advance CH-ADD. 
+
+
+The entry point EXPT-2NUM (EQU. CLASS-08) allows for two numeric expressions, separated by a comma, to be evaluated. 
+
+
+1C7A 
+
+EXPT-2NUM 
+
+CALL 
+
+1C82.EXPT-1NUM 
+
+Evaluate each expression in 
+
+
+(CLASS-08) 
+
+CP 
+
++2C 
+
+turn - so evaluate the first. 
+
+Give an error report if the 
+
+
+
+JR 
+
+NZ.1C8A 
+
+separator is not a comma. 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD. 
+
+The entry point EXPT-1NUM (EQU. CLASS-06) allows for a single numeric expression to be evaluated. 
+
+1C82 
+
+EXPT-1NUM 
+
+CALL 
+
+24FB, SCANNING 
+
+Evaluate the next expression. 
+
+
+(CLASS-06) 
+
+BIT 
+
+6, (FLAGS) 
+
+Return as long as the result was 
+
+
+
+RET 
+
+NZ 
+
+numeric; otherwise it is an error. 
+
+Report C 
+
+- Nonsense in BASIC 
+
+
+
+1C8A 
+
+REPORT-C 
+
+RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+
+
+DEFB 
+
++0B 
+
+routine. 
+
+The entry point EXPT-EXP (EQU. 
+
+CLASS-OA) allows for a single string expression to be evaluated. 
+
+1C8C 
+
+EXPT-EXP 
+
+CALL 
+
+24FB, SCANNING 
+
+Evaluate the next expression. 
+
+
+(CLASS-OA) 
+
+BIT 
+
+6, (FLAGS) 
+
+This time return if the result 
+
+
+
+RET 
+
+Z 
+
+indicates a string; otherwise 
+
+
+
+JR 
+
+1C8A, REPORT-C 
+
+give an error report. 
+
+THE 'SET PERMANENT COLOURS' SUBROUTINE (EQU. CLASS-07) 
+
+This subroutine allows for the current temporary colours to be made permanent. As command class 07 it is in effect the command 
+
+routine for the six colour item commands. 
+
+
+1C96 
+
+PERMS 
+
+(CLASS-07) 
+
+BIT 
+
+7, (FLAGS) 
+
+The syntax/run flag is read. 
+
+
+
+RES 
+
+0, (TV-FLAG) 
+
+Signal 'main screen'. 
+
+
+
+CALL 
+
+NZ.0D4D, TEMPS 
+
+Only during a 'run' call TEMPS 
+to ensure the temporary colours 
+are the main screen colours. 
+
+
+
+POP 
+
+AF 
+
+Drop the return address - 
+SCAN-LOOP. 
+
+
+
+LD 
+
+A,(T-ADDR) 
+
+Fetch the low byte of T-ADDR 
+and subtract +13 to give the 
+
+
+
+SUB 
+
++13 
+
+range +D9 to +DE which are the 
+token codes for INK to OVER. 
+
+
+
+CALL 
+
+21 FC, CO-TEMP-4 
+
+Jump forward to change the 
+temporary colours as directed 
+by the BASIC statement. 
+
+
+
+CALL 
+
+1BEE, CHECK-END 
+
+Move on to the next statement 
+if checking syntax. 
+
+
+
+LD 
+
+HL,(ATTR-T) 
+
+Now the temporary colour 
+
+
+
+LD 
+
+(ATTR-P),HL 
+
+values are made permanent 
+(both ATTR-P & MASK-P). 
+
+
+
+LD 
+
+HL.+5C91 
+
+This is P-FLAG; and that too 
+
+
+
+LD 
+
+A,(HL) 
+
+has to be considered. 
+
+
+93 
+
+
+
+The following instructions cleverly copy the even bits of the supplied byte to the odd bits. In effect making the permanent bits the same 
+as the temporary ones. 
+
+
+RLCA 
+
+
+Move the mask leftwards. 
+
+XOR 
+
+(HL) 
+
+Impress onto the mask 
+
+AND 
+
++AA 
+
+only the even bits of the 
+
+XOR 
+
+(HL) 
+
+other byte. 
+
+LD 
+
+RET 
+
+(HL),A 
+
+Restore the result. 
+
+
+THE 'COMMAND CLASS 09' ROUTINE 
+
+This routine is used by PLOT, DRAW & CIRCLE statements in order to specify the default conditions of 'FLASH 8; BRIGHT 8; PAPER 
+8;' that are set up before any embedded colour items are considered. 
+
+
+CLASS-09 
+
+CALL 
+
+2530,SYNTAX-Z 
+
+Jump forward if 
+
+
+JR 
+
+Z.1CD6, CL-09-1 
+
+checking syntax. 
+
+
+RES 
+
+0, (TV-FLAG) 
+
+Signal 'main screen'. 
+
+
+CALL 
+
+0D4D, TEMPS 
+
+Set the temporary colours for 
+the main screen. 
+
+
+LD 
+
+HL.+5C90 
+
+This is MASK-T. 
+
+
+LD 
+
+A,(HL) 
+
+Fetch its present value but 
+
+
+OR 
+
++F8 
+
+keep only its INK part 
+'unmasked'. 
+
+
+LD 
+
+(HL),A 
+
+Restore the value which now 
+indicates 'FLASH 8; BRIGHT 8; 
+PAPER 8;'. 
+
+
+RES 
+
+6,(P-FLAG) 
+
+Also ensure NOT 'PAPER 9'. 
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Fetch the present character 
+before continuing to deal with 
+embedded colour items. 
+
+CL-09-1 
+
+CALL 
+
+21 E2, CO-TEMP 
+
+Deal with the locally dominant 
+colour items. 
+
+
+JR 
+
+1C7A.EXPT-2NUM 
+
+Now get the first two operands 
+for PLOT, DRAW or CIRCLE. 
+
+
+THE 'COMMAND CLASS OB' ROUTINE 
+
+This routine is used by SAVE, LOAD, VERIFY & MERGE statements. 
+
+1CDB CLASS-OB JP 0605,SAVE-ETC Jump to the cassette 
+
+handling routine. 
+
+THE 'FETCH A NUMBER' SUBROUTINE 
+
+This subroutine leads to a following numeric expression being evaluated but zero being used instead if there is no expression. 
+
+
+1CDE 
+
+FETCH-NUM 
+
+CP 
+
++0D 
+
+Jump forward if at the end 
+
+
+
+JR 
+
+Z.1CE6, USE-ZERO 
+
+of a line. 
+
+
+
+CP 
+
++3A 
+
+But jump to EXPT-1NUM unless 
+
+
+
+JR 
+
+NZ,1C82,EXPT-1NUM 
+
+at the end of a statement. 
+
+The calculator is now used to add the value zero to the calculator stack. 
+
+1CE6 
+
+USE-ZERO 
+
+CALL 
+
+2530.SYNTAX-Z 
+
+Do not perform the operation 
+
+
+
+RET 
+
+Z 
+
+if syntax is being checked. 
+
+
+
+RST 
+
+0028,FP-CALC 
+
+Use the calculator. 
+
+
+
+DEFB 
+
++A0,stk-zero 
+
+The 'last value' is now zero. 
+
+
+
+DEFB 
+
+RET 
+
++38, end-calc 
+
+Return with zero added to the 
+
+
+stack. 
+
+
+THE COMMAND ROUTINES 
+
+The section of the 1 6K monitor program from 1 CEE to 23FA contains most of the command routines of the BASIC interpreter. 
+
+
+94 
+
+
+
+THE 'STOP' COMMAND ROUTINE 
+
+The command routine for STOP contains only a call to the error handling routine. 
+
+1CEE STOP RST 0008, ERROR-1 Call the error handling 
+
+(REPORT-9) DEFB +08 routine. 
+
+THE 'IF' COMMAND ROUTINE 
+
+On entry the value of the expression between the IF and the THEN is the 'last value' on the calculator stack. If this is logically true then 
+the next statement is considered; otherwise the line is considered to have been finished. 
+
+
+1CF0 
+
+IF 
+
+POP 
+
+BC 
+
+Drop the return address 
+
+
+
+
+
+- STMT-RET. 
+
+
+
+CALL 
+
+2530,SYNTAX-Z 
+
+Jump forward if checking 
+
+
+
+JR 
+
+Z,1 D00JF-1 
+
+syntax. 
+
+
+Now use the calculator to 'delete' the last value on the calculator stack but leave the DE register pair addressing the first byte of the 
+value. 
+
+
+RST 
+
+0028,FP-CALC 
+
+Use the calculator. 
+
+DEFB 
+
++02, delete 
+
+The present 'last value' is 
+
+DEFB 
+
++38, end-calc 
+
+deleted. 
+
+EX 
+
+DE,HL 
+
+Make HL point to the first 
+
+CALL 
+
+34E9, TEST-ZERO 
+
+byte and call TEST-ZERO. 
+
+JP 
+
+C.1BB3, LINE-END 
+
+If the value was 'FALSE' jump 
+to the next line. 
+
+JP 
+
+1 B29,STMT-L-1 
+
+But if 'TRUE' jump to the next 
+statement (after the THEN). 
+
+
+THE 'FOR' COMMAND ROUTINE 
+
+This command routine is entered with the VALUE and the LIMIT of the FOR statement already on the top of the calculator stack. 
+
+
+1 D03 
+
+FOR CP 
+
++CD 
+
+Jump forward unless a 'STEP' 
+
+
+JR 
+
+NZ.1D10, F-USE-1 
+
+is given. 
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD and fetch the 
+
+
+CALL 
+
+1C82,EXPT-1NUM 
+
+value of the STEP. 
+
+
+CALL 
+
+1BEE, CHECK-END 
+
+Move on to the next statement 
+
+
+JR 
+
+1D16, F-REORDER 
+
+if checking syntax; otherwise 
+jump forward. 
+
+There has not been a STEP supplied so the value '1 ' is to be used. 
+
+
+1 D10 
+
+F-USE-1 CALL 
+
+1BEE, CHECK-END 
+
+Move on to the next statement 
+if checking syntax; otherwise 
+
+
+RST 
+
+0028,FP-CALC 
+
+use the calculator to place a '1 ' 
+
+
+DEFB 
+
++A1,stk-one 
+
+on the calculator stack. 
+
+
+DEFB 
+
++38, end-calc 
+
+
+
+The three values on the calculator stack are the VALUE (v), the LIMIT (I) and the STEP (s). These values now have to be manipulated. 
+
+
+1 D 1 6 
+
+
+F-REORDER RST 
+DEFB 
+DEFB 
+DEFB 
+DEFB 
+DEFB 
+DEFB 
+
+
+0028,FP-CALC 
++C0,st-mem-0 
++02, delete 
++01, exchange 
++E0, get-mem-0 
++01, exchange 
++38, end-calc 
+
+
+v, I, s 
+
+v, I, s (mem-0 = s) 
+v, I 
+I, v 
+I, v, s 
+I, s, V 
+
+
+A FOR control variable is now established and treated as a temporary calculator memory area. 
+
+
+CALL 2AFF,LET 
+
+LD (MEM),HL 
+
+
+The variable is found, or created 
+if needed (v is used). 
+
+Make it a 'memory area'. 
+
+
+The variable that has been found may be a simple numeric variable using only six locations in which case it will need extending. 
+
+
+95 
+
+
+
+DEC 
+
+HL 
+
+Fetch the variable's single 
+
+LD 
+
+A,(HL) 
+
+character name. 
+
+SET 
+
+7,(HL) 
+
+Ensure bit 7 of the name is set. 
+
+LD 
+
+BC.+0006 
+
+It will have six locations at least. 
+
+ADD 
+
+HL,BC 
+
+Make HL point after them. 
+
+RLCA 
+
+
+Rotate the name and jump if 
+
+JR 
+
+C,1 D34.F-L&S 
+
+it was already a FOR variable. 
+
+LD 
+
+C,+0D 
+
+Otherwise create thirteen 
+
+CALL 
+
+1655, MAKE-ROOM 
+
+more locations. 
+
+INC 
+
+HL 
+
+Again make HL point to the 
+LIMIT position. 
+
+
+The initial values for the LIMIT and the STEP are now added. 
+
+
+PUSH 
+
+HL 
+
+The pointer is saved. 
+
+RST 
+
+0028,FP-CALC 
+
+1, s 
+
+DEFB 
+
++02, delete 
+
+1 
+
+DEFB 
+
++02, delete 
+
+- 
+
+DEFB 
+
++38, end-calc 
+
+DE still points to T. 
+
+POP 
+
+HL 
+
+The pointer is restored and 
+
+EX 
+
+DE,HL 
+
+both pointers exchanged. 
+
+LD 
+
+C,+0A 
+
+The ten bytes of the LIMIT 
+
+LDIR 
+
+
+and the STEP are moved. 
+
+
+The looping line number and statement number are now entered. 
+
+
+LD 
+
+HL,(PPC) 
+
+EX 
+
+DE,HL 
+
+LD 
+
+(HL),E 
+
+INC 
+
+HL 
+
+LD 
+
+(HL),D 
+
+LD 
+
+D,(SUBPPC) 
+
+INC 
+
+D 
+
+INC 
+
+HL 
+
+LD 
+
+(HL),D 
+
+
+The current line number. 
+Exchange the registers before 
+adding the line number to the 
+FOR control variable. 
+
+The looping statement is 
+always the next statement - 
+whether it exists or not. 
+
+
+The NEXT-LOOP subroutine is called to test the possibility of a 'pass' and a return is made if one is possible; otherwise the statement 
+after for FOR - NEXT loop has to be identified. 
+
+
+CALL 
+
+1DDA, NEXT-LOOP 
+
+RET 
+
+NC 
+
+LD 
+
+B.(STRLEN-lo) 
+
+LD 
+
+HL,(PPC) 
+
+LD 
+
+(NEWPPC), HL 
+
+LD 
+
+A,(SUBPPC) 
+
+NEG 
+
+
+LD 
+
+D,A 
+
+LD 
+
+HL, (CH-ADD) 
+
+LD 
+
+E,+F3 
+
+
+Is a 'pass' possible? 
+
+Return now if it is. 
+
+Fetch the variable's name. 
+
+Copy the present line number 
+to NEWPPC. 
+
+Fetch the current statement 
+number and two's complement it. 
+Transfer the result to the D 
+register. 
+
+Fetch the current value of 
+CH-ADD. 
+
+The search will be for 'NEXT'. 
+
+
+Now a search is made in the program area, from the present point onwards, for the first occurrence of NEXT followed by the correct 
+variable. 
+
+
+F-LOOP 
+
+PUSH 
+
+BC 
+
+Save the variable's name. 
+
+
+LD 
+
+BC,(NXTLIN) 
+
+Fetch the current value of 
+NXTLIN. 
+
+
+CALL 
+
+1D86, LOOK-PROG 
+
+The program area is now 
+searched and BC will change 
+with each new line examined. 
+
+
+LD 
+
+(NXTLIN),BC 
+
+Upon return save the pointer. 
+
+
+POP 
+
+BC 
+
+Restore the variable's name. 
+
+
+JR 
+
+C,1D84, REPORT-1 
+
+If there are no further NEXTs 
+then give an error. 
+
+
+96 
+
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance past the NEXT that 
+was found. 
+
+OR 
+
++20 
+
+Allow for upper and lower 
+
+CP 
+
+B 
+
+case letters before the new 
+variable name is tested. 
+
+JR 
+
+Z.1D7C, F-FOUND 
+
+Jump forward if it matches. 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Advance CH-ADD again and 
+
+JR 
+
+1 D64,F-LOOP 
+
+jump back if not the correct 
+variable. 
+
+
+NEWPPC holds the line number of the line in which the correct NEXT was found. Now the statement number has to be found and 
+stored in NSPPC. 
+
+
+1D7C F-FOUND RST 
+LD 
+SUB 
+
+
+0020, NEXT-CHAR 
+A, +01 
+D 
+
+
+LD 
+
+RET 
+
+REPORT I - FOR without NEXT 
+
+
+1 D84 
+
+
+REPORT-1 
+
+
+RST 
+
+DEFB 
+
+
+(NSPPC), A 
+
+
+0008, ERROR-1 
++11 
+
+
+Advance CH-ADD. 
+
+The statement counter in the 
+D register counted statements 
+back from zero so it has to 
+be subtracted from T. 
+
+The result is stored. 
+
+Now return - to STMT-RET. 
+
+
+Call the error handling 
+routine. 
+
+
+THE 'LOOK-PROG' SUBROUTINE 
+
+This subroutine is used to find occurrences of either DATA, DEF FN or NEXT. On entry the appropriate token code is in the E register 
+and the HL register pair points to the start of the search area. 
+
+
+1D86 LOOK-PROG LD 
+CP 
+JR 
+
+
+A,(HL) 
+
++3A 
+
+Z,1 DA3.LOOK-P-2 
+
+
+Fetch the present character. 
+Jump forward if it is a ' : ' 
+which will indicate there are 
+more statements in the present 
+line. 
+
+
+Now a loop is entered to examine each further line in the program. 
+
+
+LOOK-P-1 
+
+INC 
+
+HL 
+
+Fetch the high byte of the 
+
+
+LD 
+
+A,(HL) 
+
+line number and return with 
+
+
+AND 
+
++CO 
+
+carry set if there are no 
+
+
+SCF 
+
+
+further lines in the program. 
+
+
+RET 
+
+NZ 
+
+
+
+LD 
+
+B,(HL) 
+
+The line number is fetched 
+
+
+INC 
+
+HL 
+
+and passed to NEWPPC. 
+
+
+LD 
+
+C,(HL) 
+
+
+
+LD 
+
+(NEWPPC), BC 
+
+
+
+INC 
+
+HL 
+
+Then the length is collected. 
+
+
+LD 
+
+C,(HL) 
+
+
+
+INC 
+
+HL 
+
+
+
+LD 
+
+B,(HL) 
+
+
+
+PUSH 
+
+HL 
+
+The pointer is saved whilst 
+
+
+ADD 
+
+HL,BC 
+
+the address of the end of the 
+
+
+LD 
+
+B,H 
+
+line is formed in the BC 
+
+
+LD 
+
+C,L 
+
+register pair. 
+
+
+POP 
+
+HL 
+
+The pointer is restored. 
+
+
+LD 
+
+D,+00 
+
+Set the statement counter to 
+
+
+
+
+zero. 
+
+LOOK-P-2 
+
+PUSH 
+
+BC 
+
+The end-of-line pointer is 
+
+
+CALL 
+
+198B, EACH-STMT 
+
+saved whilst the statements 
+
+
+POP 
+
+BC 
+
+of the line are examined. 
+
+
+RET 
+
+NC 
+
+Make a return if there was 
+
+
+JR 
+
+1D8B, LOOK-P-1 
+
+an 'occurrence'; otherwise 
+
+
+
+
+consider the next line. 
+
+
+97 
+
+
+
+THE 'NEXT' COMMAND ROUTINE 
+
+The 'variable in assignment' has already been determined (see CLASS-04, 1C6C); and it remains to change the VALUE as required. 
+
+
+1DAB NEXT BIT 
+
+1 ,(FLAGX) 
+
+Jump to give the error report 
+
+JP 
+
+NZ.1C2E, REPORT-2 
+
+if the variable was not found. 
+
+LD 
+
+HL,(DEST) 
+
+The address of the variable 
+
+BIT 
+
+7,(HL) 
+
+is fetched and the name 
+
+JR 
+
+Z.1DD8, REPORT-1 
+
+tested further. 
+
+Next the variable's VALUE and STEP are manipulated by the calculator. 
+
+INC 
+
+HL 
+
+Step past the name. 
+
+LD 
+
+(MEM),HL 
+
+Make the variable a 
+temporary 'memory area'. 
+
+RST 
+
+0028.FP-CALC 
+
+- 
+
+DEFB 
+
++E0, get-mem-0 
+
+V 
+
+DEFB 
+
++E2, get-mem-2 
+
+v, s 
+
+DEFB 
+
++0F, addition 
+
+v+s 
+
+DEFB 
+
++C0,st-mem-0 
+
+v+s 
+
+DEFB 
+
++02, delete 
+
+- 
+
+DEFB 
+
++38, end-calc 
+
+- 
+
+The result of adding the VALUE and the STEP is now tested against the LIMIT by calling NEXT-LOOP. 
+
+CALL 
+
+1DDA, NEXT-LOOP 
+
+Test the new VALUE against 
+the LIMIT 
+
+RET 
+
+C 
+
+Return now if the FOR-NEXT 
+loop has been completed. 
+
+Otherwise collect the 'looping' line number and statement. 
+
+
+LD 
+
+HL,(MEM) 
+
+Find the address of the 
+
+LD 
+
+DE.+000F 
+
+low byte of the looping 
+
+ADD 
+
+HL,DE 
+
+line number. 
+
+LD 
+
+E,(HL) 
+
+Now fetch this line number. 
+
+INC 
+
+HL 
+
+
+LD 
+
+D,(HL) 
+
+
+INC 
+
+HL 
+
+
+LD 
+
+H,(HL) 
+
+Followed by the statement 
+number. 
+
+EX 
+
+DE.HL 
+
+Exchange the numbers before 
+
+JP 
+
+1 E73.GO-TO-2 
+
+jumping forward to treat them 
+as the destination line of a 
+
+GO TO command. 
+
+
+Report 1 - NEXT without FOR 
+
+1 DD8 REPORT-1 RST 0008, ERROR-1 Call the error handling 
+
+DEFB +00 routine. 
+
+
+THE 'NEXT-LOOP SUBROUTINE 
+
+This subroutine is used to determine whether the LIMIT has been exceeded by the present VALUE. Note has to be taken of the sign of 
+the STEP. 
+
+The subroutine returns the carry flag set if the LIMIT is exceeded. 
+
+
+1DDA NEXT-LOOP RST 0028,FP-CALC 
+
+DEFB +E1 , get-mem-1 I 
+
+DEFB +E0, get-mem-0 I, v 
+
+DEFB +E2, get-mem-2 I, v, s 
+
+DEFB +36,less-0 I, v,(1/0) 
+
+DEFB +00, jump-true I, v,(1/0) 
+
+DEFB +02, to NEXT-1 I, v,(1/0) 
+
+DEFB +01 .exchange v, I 
+
+1 DE2 NEXT-1 DEFB +03, subtract v-l or l-v 
+
+DEFB +37,greater-0 (1/0) 
+
+DEFB +00, jump-true (1/0) 
+
+
+98 
+
+
+
+DEFB 
+
++04, to NEXT-2 
+
+- 
+
+DEFB 
+
++38, end-calc 
+
+- 
+
+AND 
+
+A 
+
+Clear the carry flag and 
+
+RET 
+
+
+return - loop is possible. 
+
+Flowever if the loop is impossible the carry flag has to be set. 
+
+
+1 DE9 NEXT-2 DEFB 
+
++38, end-calc 
+
+- 
+
+SCF 
+
+
+Set the carry flag and 
+
+RET 
+
+
+return. 
+
+
+THE 'READ' COMMAND ROUTINE 
+
+The READ command allows for the reading of a DATA list and has an effect similar to a series of LET statements. 
+
+Each assignment within a single READ statement is dealt with in turn. The system variable X-PTR is used as a storage 
+location for the pointer to the READ statement whilst CH-ADD is used to step along the DATA list. 
+
+
+1DEC READ-3 
+
+RST 
+
+0020, NEXT-CHAR 
+
+Come here on each pass, after 
+the first, to move along the 
+READ statement. 
+
+1DED READ 
+
+CALL 
+
+1 Cl F, CLASS-01 
+
+Consider whether the variable 
+has been used before; find 
+the existing entry if it has. 
+
+
+CALL 
+
+2530,SYNTAX-Z 
+
+Jump forward if checking 
+
+
+JR 
+
+Z.1E1E, READ-2 
+
+syntax. 
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Save the current pointer 
+
+
+LD 
+
+(X-PTR), HL 
+
+CH-ADD in X-PTR. 
+
+
+LD 
+
+HL,(DATADD) 
+
+Fetch the current DATA list 
+
+
+LD 
+
+A,(HL) 
+
+pointer and jump forward 
+
+
+CP 
+
++2C 
+
+unless a new DATA statement 
+
+
+JR 
+
+Z,1 EOA, READ-1 
+
+has to be found. 
+
+
+LD 
+
+E,+E4 
+
+The search is for 'DATA'. 
+
+
+CALL 
+
+1D86, LOOK-PROG 
+
+Jump forward if the search is 
+
+
+JR 
+
+NC,1 EOA, READ-1 
+
+successful. 
+
+Report E - Out of DATA 
+
+1 E08 REPORT-E 
+
+RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+
+DEFB 
+
++0D 
+
+routine. 
+
+Continue - picking up a value from the DATA list. 
+
+
+1 EOA READ-1 
+
+CALL 
+
+0077,TEMP-PTR1 
+
+Advance the pointer along the 
+DATA list and set CH-ADD. 
+
+
+CALL 
+
+1C56,VAL-FET-1 
+
+Fetch the value and assign it 
+to the variable. 
+
+
+RST 
+
+001 8, GET-CHAR 
+
+Fetch the current value of 
+
+
+LD 
+
+(DATADD),HL 
+
+CH-ADD and store it in 
+
+DATADD. 
+
+
+LD 
+
+HL, (X-PTR) 
+
+Fetch the pointer to the 
+
+
+LD 
+
+(X-PTR-hi),+00 
+
+READ statement and clear 
+X-PTR. 
+
+
+CALL 
+
+0078,TEMP-PTR2 
+
+Make CH-ADD once again point 
+to the READ statement. 
+
+1 El E READ-2 
+
+RST 
+
+001 8, GET-CHAR 
+
+GET the present character and 
+
+
+CP 
+
++2C 
+
+see if it is a 
+
+
+JR 
+
+Z,1 DEC, READ-3 
+
+If it is then jump back as 
+there are further items; 
+
+
+CALL 
+
+RET 
+
+1BEE, CHECK-END 
+
+otherwise return either via 
+CHECK-END (if checking 
+syntax) or the RET instruction 
+(to STMT- RET). 
+
+
+99 
+
+
+
+THE 'DATA' COMMAND ROUTINE 
+
+During syntax checking a DATA statement is checked to ensure that it contains a series of valid expressions, separated by commas. 
+But in 'run-time' the statement is passed by. 
+
+1E27 DATA CALL 2530,SYNTAX-Z Jump forward unless checking 
+
+JR NZ,1 E37.DATA-2 syntax. 
+
+A loop is now entered to deal with each expression in the DATA statement. 
+
+
+1E2C 
+
+DATA-1 CALL 
+
+24FB, SCANNING 
+
+Scan the next expression. 
+
+
+CP 
+
++2C 
+
+Check for the correct 
+separator - a 
+
+
+CALL 
+
+NZ.1BEE, CHECK-END 
+
+but move on to the next 
+statement if not matched. 
+
+
+RST 
+
+0020, NEXT-CHAR 
+
+Whilst there are still 
+
+
+JR 
+
+1E2C, DATA-1 
+
+expressions to be checked go 
+around the loop. 
+
+The DATA statement has to be passed-by in 'run-time'. 
+
+
+1 E37 
+
+DATA-2 LD 
+
+A,+E4 
+
+It is a 'DATA' statement that 
+is to be passed-by. 
+
+
+THE 'PASS-BY' SUBROUTINE 
+
+On entry the A register will hold either the token 'DATA' or the token 'DEF FN' depending on the type of statement that is being 'passed- 
+b/. 
+
+
+1 E39 
+
+PASS-BY 
+
+LD 
+
+B,A 
+
+Make the BC register pair hold 
+a very high number. 
+
+
+
+CPDR 
+
+
+Look back along the statement 
+for the token. 
+
+
+
+LD 
+
+DE,+0200 
+
+Now look along the line 
+
+
+
+JP 
+
+198B, EACH-STMT 
+
+for the statement after. (The 
+'D-1 'th statement from the 
+current position. 
+
+
+THE 'RESTORE' COMMAND ROUTINE 
+
+The operand for a RESTORE command is taken as a line number, zero being used if no operand is given. 
+The REST-RUN entry point is used by the RUN command routine. 
+
+
+1 E42 
+
+RESTORE 
+
+CALL 
+
+1 E99,FIND-INT2 
+
+Compress the operand into the 
+BC register pair. 
+
+1 E45 
+
+REST-RUN 
+
+LD 
+
+H,B 
+
+Transfer the result to the 
+
+
+
+LD 
+
+L,C 
+
+HL register pair. 
+
+
+
+CALL 
+
+196E,LINE-ADDR 
+
+Now find the address of that 
+line or the 'first line after'. 
+
+
+
+DEC 
+
+HL 
+
+Make DATADD point to the 
+
+
+
+LD 
+
+(DATADD),HL 
+
+location before. 
+
+
+RET Return once it is done. 
+
+THE 'RANDOMIZE' COMMAND ROUTINE 
+
+Once again the operand is compressed into the BC register pair and transferred to the required system variable. However if the 
+operand is zero the value in FRAMES1 and FRAMES2 is used instead. 
+
+
+1 E4F RANDOMIZE CALL 
+
+1 E99,FIND-INT2 
+
+Fetch the operand. 
+
+LD 
+
+A,B 
+
+Jump forward unless the 
+
+OR 
+
+C 
+
+value of the operand is 
+
+JR 
+
+NZ,1 E5A, RAND-1 
+
+zero. 
+
+LD 
+
+BC.(FRAMESI) 
+
+Fetch the two low order bytes 
+of FRAMES instead. 
+
+1 E5A RAND-1 LD 
+
+RET 
+
+(SEED),BC 
+
+Now enter the result into the 
+system variable SEED before 
+returning. 
+
+
+100 
+
+
+
+THE 'CONTINUE' COMMAND ROUTINE 
+
+The required line number and statement number within that line are made the object of a jump. 
+
+
+1 E5F 
+
+CONTINUE LD 
+
+HL,(OLDPPC) 
+
+The line number. 
+
+
+LD 
+
+D,(OSPPC) 
+
+The statement number. 
+
+
+JR 
+
+1 E73, GO-TO-2 
+
+Jump forward. 
+
+
+THE 'GO TO' COMMAND ROUTINE 
+
+The operand of a GO TO ought to be a line number in the range ' 
+
+
+1 E67 
+
+GO-TO CALL 
+
+1 E99.FIND-INT2 
+
+
+LD 
+
+H,B 
+
+
+LD 
+
+L,C 
+
+
+LD 
+
+D,+00 
+
+
+LD 
+
+A, FI 
+
+
+CP 
+
++F0 
+
+
+JR 
+
+NC.1E9F.REPORT-B 
+
+The entry point GO-TO-2 is used 
+
+to determine the line number of 
+
+1 E73 
+
+GO-TO-2 LD 
+
+(NEWPPC),HL 
+
+
+LD 
+
+(NSPPC),D 
+
+
+RET 
+
+Return; - to STMT-RET. 
+
+
+1' to '9999' but the actual test is against an upper value of '61439'. 
+Fetch the operand and transfer 
+it to the HL register pair. 
+
+Set the statement number to 
+zero. 
+
+Give the error message 
+- Integer out of range - 
+with lines over '61 41 39' 
+
+the next line to be handled in several instances. 
+
+Enter the line number and 
+then the statement number. 
+
+
+THE 'OUT' COMMAND ROUTINE 
+
+The two parameters for the OUT instruction are fetched from the calculator stack and used as directed. 
+1 E7A OUT CALL 1 E85,TWO-PARAM The operands are fetched. 
+
+OUT (C),A The actual OUT instruction. 
+
+RET Return; - to STMT-RET. 
+
+
+THE 'POKE' COMMAND ROUTINE 
+
+In a similar manner the POKE operation is performed. 
+
+1 E80 POKE CALL 1 E85, TWO-PARAM The operands are fetched. 
+
+LD (BC),A The actual POKE operation. 
+
+RET Return; - to STMT-RET. 
+
+
+THE 'TWO-PARAM' SUBROUTINE 
+
+
+The topmost parameter on the calculator stack must be compressible into a single register. It is two’s complemented if it is negative. 
+The second parameter must be compressible into a register pair. 
+
+
+1 E85 TWO-PARAM CALL 
+
+2DD5,FP-TO-A 
+
+The parameter is fetched. 
+
+JR 
+
+C,1 E9F.REPORT-B 
+
+Give an error if it is too high 
+
+
+
+a number. 
+
+JR 
+
+Z,1E8E, TWO-P-1 
+
+Jump forward with positive 
+
+NEG 
+
+
+numbers but two's complement 
+
+
+
+negative numbers. 
+
+1 E8E TWO-P-1 PUSH 
+
+AF 
+
+Save the first parameter 
+
+CALL 
+
+1 E99.FIND-INT2 
+
+whilst the second is fetched. 
+
+POP 
+
+AF 
+
+The first parameter is 
+
+RET 
+
+
+restored before returning. 
+
+
+THE 'FIND INTEGERS' SUBROUTINE 
+
+The last value' on the calculator stack is fetched and compressed into a single register or a register pair by entering at FIND-INT 1 AND 
+FIND-INT2 respectively. 
+
+
+1 E94 
+
+FIND-INTI 
+
+CALL 
+
+2DD5.FP-TO-A 
+
+Fetch the 'last value'. 
+
+
+
+JR 
+
+1E9C, FIND-l-1 
+
+Jump forward. 
+
+1 E99 
+
+FIND-INT2 
+
+CALL 
+
+2DA2.FP-TO-BC 
+
+Fetch the 'last value'. 
+
+1 E9C 
+
+FIND-l-1 
+
+JR 
+
+C,1 E9F.REPORT-B 
+
+In both cases overflow is 
+
+
+101 
+
+
+
+indicated by a set carry flag. 
+
+RET Z Return with all positive 
+
+numbers that are in range. 
+
+Report B - Integer out of range 
+
+1 E9F REPORT-B RST 0008, ERROR-1 Call the error handling 
+
+DEFB +0A routine. 
+
+THE 'RUN' COMMAND ROUTINE 
+
+The parameter of the RUN command is passed to NEWPPC by calling the GO TO command routine. The operations of 'RESTORE O’ 
+and 'CLEAR O' are then performed before a return is made. 
+
+
+1 EA1 
+
+RUN 
+
+CALL 
+
+1 E67.GO-TO 
+
+Set NEWPPC as required. 
+
+
+
+LD 
+
+BC.+0000 
+
+Now perform a 'RESTORE O'. 
+
+
+
+CALL 
+
+1E45, REST-RUN 
+
+
+
+
+JR 
+
+1 EAF,CLEAR-1 
+
+Exit via the CLEAR command routine. 
+
+
+THE 'CLEAR' COMMAND ROUTINE 
+
+This routine allows for the variables area to be cleared, the display area cleared and RAMTOP moved. In consequence of the last 
+operation the machine stack is rebuilt thereby having the effect of also clearing the GO SUB stack. 
+
+
+1 EAC 
+
+CLEAR 
+
+CALL 
+
+1 E99.FIND-INT2 
+
+Fetch the operand - using 
+zero by default. 
+
+1 EAF 
+
+CLEAR-RUN 
+
+LD 
+
+A,B 
+
+Jump forward if the operand is 
+
+
+
+OR 
+
+C 
+
+other than zero. When called 
+
+
+
+JR 
+
+NZ.1EB7, CLEAR-1 
+
+from RUN there is no jump. 
+
+
+
+LD 
+
+BC, (RAMTOP) 
+
+If zero use the existing value in 
+RAMTOP. 
+
+1 EB7 
+
+CLEAR-1 
+
+PUSH 
+
+BC 
+
+Save the value. 
+
+
+
+LD 
+
+DE,(VARS) 
+
+Next reclaim all the bytes 
+
+
+
+LD 
+
+HL, (E-LINE) 
+
+of the present variables 
+
+
+
+DEC 
+
+HL 
+
+area. 
+
+
+
+CALL 
+
+19E5, RECLAIM-1 
+
+
+
+
+CALL 
+
+0D6B.CLS 
+
+Clear the display area. 
+
+
+The value in the BC register pair which will be used as RAMTOP is tested to ensure it is neither too low nor too high. 
+
+
+LD 
+
+HL,(STKEND) 
+
+The current value of STKEND. 
+
+LD 
+
+DE,+0032 
+
+is increased by '50' before 
+
+ADD 
+
+HL,DE 
+
+being tested. This forms the 
+
+POP 
+
+DE 
+
+lower limit. 
+
+SBC 
+
+HL,DE 
+
+
+JR 
+
+NC,1 EDA, REPORT-M 
+
+RAMTOP will be too low. 
+
+LD 
+
+HL,(P-RAMT) 
+
+For the upper test the value 
+
+AND 
+
+A 
+
+for RAMTOP is tested against 
+
+SBC 
+
+HL,DE 
+
+P-RAMT. 
+
+JR 
+
+NC,1EDC, CLEAR-2 
+
+Jump forward if acceptable. 
+
+Report M - RAMTOP no good 
+
+
+
+1EDA REPORT-M RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+DEFB 
+
++15 
+
+routine. 
+
+Continue with the CLEAR operation. 
+1EDC CLEAR-2 EX 
+
+DE,HL 
+
+Now the value can actually be 
+
+LD 
+
+(RAMTOP), HL 
+
+passed to RAMTOP. 
+
+POP 
+
+DE 
+
+Fetch the address - STMT-RET. 
+
+POP 
+
+BC 
+
+Fetch the 'error address'. 
+
+LD 
+
+(HL),+3E 
+
+Enter a GO SUB stack end 
+marker. 
+
+DEC 
+
+HL 
+
+Leave one location. 
+
+LD 
+
+SP,HL 
+
+Make the stack pointer point 
+
+
+102 
+
+
+
+PUSH 
+
+BC 
+
+to an empty GO SUB stack. 
+Next pass the 'error address' 
+
+LD 
+
+(ERR-SP),SP 
+
+to the stack and save its 
+
+EX 
+
+DE.HL 
+
+address in ERR-SP. 
+
+An indirect return is now 
+
+JP 
+
+(HL) 
+
+made to STMT-RET. 
+
+
+Note: When the routine is called from RUN the values of NEWPPC & NSPPC will have been affected and no statements coming after 
+RUN can ever be found before the jump is taken. 
+
+
+THE 'GO SUB' COMMAND ROUTINE 
+
+The present value of PPC and the incremented value of SUBPPC are stored on the GO SUB stack. 
+
+
+1EED GO-SUB POP 
+
+DE 
+
+Save the address - STMT-RET. 
+
+LD 
+
+H, (SUBPPC) 
+
+Fetch the statement number 
+
+INC 
+
+H 
+
+and increment it. 
+
+EX 
+
+(SP),HL 
+
+Exchange the 'error address' 
+
+INC 
+
+SP 
+
+with the statement number. 
+
+Reclaim the use of a location. 
+
+LD 
+
+BC,(PPC) 
+
+Next save the present line 
+
+PUSH 
+
+BC 
+
+number. 
+
+PUSH 
+
+HL 
+
+Return the 'error address' 
+
+LD 
+
+(ERR-SP), SP 
+
+to the machine stack and 
+
+PUSH 
+
+DE 
+
+reset ERR-SP to point to it. 
+
+Return the address - 
+
+CALL 
+
+1 E67,GO-TO-1 
+
+STMT-RET. 
+
+Now set NEWPPC & NSPPC to 
+
+LD 
+
+BC.+0014 
+
+the required values. 
+
+But before making the jump 
+
+make a test for room. 
+
+THE 'TEST-ROOM' SUBROUTINE 
+
+A series of tests is performed to ensure that there is sufficient free memory available for the task being undertaken. 
+
+1 F05 TEST-ROOM LD 
+
+HL,(STKEND) 
+
+Increase the value taken from 
+
+ADD 
+
+HL,BC 
+
+STKEND by the value carried 
+
+JR 
+
+C,1 FI 5, REPORT-4 
+
+into the routine by the BC 
+register pair. 
+
+Jump forward if the result is 
+
+EX 
+
+DE,HL 
+
+over +FFFF. 
+
+Try it again allowing for a 
+
+LD 
+
+HL.+0050 
+
+further eighty bytes. 
+
+ADD 
+
+JR 
+
+SBC 
+
+HL.DE 
+
+C,1 FI 5, REPORT-4 
+HL,SP 
+
+Finally test the value against the 
+
+RET 
+
+C 
+
+address of the machine stack. 
+
+Return if satisfactory. 
+
+Report 4 - Out of memory 
+
+1 FI 5 REPORT-4 LD 
+
+L,+03 
+
+This is a 'run-time' error and the 
+
+JP 
+
+0055, ERROR-3 
+
+error marker is not to be used. 
+
+THE 'FREE MEMORY' SUBROUTINE 
+
+There is no BASIC command 'FRE' in the SPECTRUM but there is a subroutine for performing such a task. 
+
+An estimate of the amount of free space can be found at any time by using: 
+
+'PRINT 65536-USR 7962' 
+
+1F1A FREE-MEM LD 
+
+BC.+0000 
+
+Do not allow any overhead. 
+
+CALL 
+
+1 F05, TEST-ROOM 
+
+Make the test and pass the 
+
+
+103 
+
+
+
+LD 
+
+B,H 
+
+result to the BC register 
+
+LD 
+
+C,L 
+
+before returning. 
+
+RET 
+
+
+
+THE 'RETURN' COMMAND ROUTINE 
+
+
+The line number and the statement number that are to be made the object of a 'return' are fetched from the GO SUB stack. 
+
+1 F23 RETURN POP 
+
+BC 
+
+Fetch the address - STMT-RET. 
+
+POP 
+
+HL 
+
+Fetch the 'error address'. 
+
+POP 
+
+DE 
+
+Fetch the last entry on the 
+
+GO SUB stack. 
+
+LD 
+
+A,D 
+
+The entry is tested to see if 
+
+CP 
+
++3E 
+
+it is the GO SUB stack end 
+
+JR 
+
+Z.1F36, REPORT-7 
+
+marker; jump if it is. 
+
+DEC 
+
+SP 
+
+The full entry uses three 
+locations only. 
+
+EX 
+
+(SP),HL 
+
+Exchange the statement number 
+with the 'error address'. 
+
+EX 
+
+DE,HL 
+
+Move the statement number. 
+
+LD 
+
+(ERR-SP).SP 
+
+Reset the error pointer. 
+
+PUSH 
+
+BC 
+
+Replace the address - 
+STMT-RET. 
+
+JP 
+
+1 E73.GO-TO-2 
+
+Jump back to change NEWPPC 
+& NSPPC. 
+
+Report 7 - RETURN without GOSUB 
+
+1 F36 REPORT-7 PUSH 
+
+DE 
+
+Replace the end marker and 
+
+PUSH 

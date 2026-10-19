@@ -1,0 +1,29 @@
+======================================================================
+CYBERNOID KEYBOARD MATRIX USAGE
+======================================================================
+
+Spectrum keyboard is read via IN A, ($FE) with different rows.
+The high byte of the port determines which row is selected.
+
+  Row $FE: CAPS_SHIFT, Z, X, C, V
+  Row $FD: A, S, D, F, G
+  Row $FB: Q, W, E, R, T
+  Row $F7: 1, 2, 3, 4, 5
+  Row $EF: 0, 9, 8, 7, 6
+  Row $DF: P, O, I, U, Y
+  Row $BF: ENTER, L, K, J, H
+  Row $7F: SPACE, SYM_SHIFT, M, N, B
+
+
+Found 4 LD A,nn + IN A,($FE) sequences:
+  $65EB: LD A,0xfe ; IN A,(0x00fe)  (row $FE = CAPS_SHIFT, Z, X, C, V)
+  $65F2: LD A,0x7f ; IN A,(0x00fe)  (row $7F = SPACE, SYM_SHIFT, M, N, B)
+  $660B: LD A,0xf7 ; IN A,(0x00fe)  (row $F7 = 1, 2, 3, 4, 5)
+  $7B4A: LD A,0xf7 ; IN A,(0x00fe)  (row $F7 = 1, 2, 3, 4, 5)
+
+
+======================================================================
+DETAIL: KEYBOARD ROUTINES (around entry/main loop)
+======================================================================
+
+--- $65E0-67A0 (input handling) ---

@@ -1,0 +1,54 @@
+=== BLOCK 9 ($6104-$FBFF original / $6504-$FFFF after LDDR) ===
+
+=== Entry point $6504 (offset 0 in block 9) ===
+$6104: DI                                ; f3
+$6105: LD SP,0                           ; 310000
+$6108: CALL 0x70b4                       ; cdb470
+$610B: LD HL,0x5b00                      ; 21005b
+$610E: LD DE,0x5b01                      ; 11015b
+$6111: LD (HL),0                         ; 3600
+$6113: LD BC,0xa03                       ; 01030a
+$6116: LDIR                              ; edb0
+$6118: XOR A                             ; af
+$6119: LD (0x81a5),A                     ; 32a581
+$611C: LD (0x7bfa),A                     ; 32fa7b
+$611F: OUT (0x00fe),A                    ; d3fe
+$6121: LD A,(0x386e)                     ; 3a6e38
+$6124: SUB 0xff                          ; d6ff
+$6126: JR z,0x612a                       ; 2802
+$6128: LD A,1                            ; 3e01
+$612A: LD (0x8599),A                     ; 329985
+$612D: OR A                              ; b7
+$612E: JP nz,0x653f                      ; c23f65
+$6131: LD A,0xc9                         ; 3ec9
+$6133: LD (0xef38),A                     ; 3238ef
+$6136: LD (0xef3b),A                     ; 323bef
+$6139: LD (0xef42),A                     ; 3242ef
+$613C: CALL 0x8738                       ; cd3887
+$613F: CALL 0xef3b                       ; cd3bef
+$6142: LD E,1                            ; 1e01
+$6144: CALL 0xef42                       ; cd42ef
+$6147: EI                                ; fb
+$6148: CALL 0x7bfc                       ; cdfc7b
+$614B: CALL 0x671e                       ; cd1e67
+$614E: CALL 0x81a6                       ; cda681
+$6151: CALL 0x66e7                       ; cde766
+$6154: LD A,4                            ; 3e04
+$6156: LD (0x78d3),A                     ; 32d378
+$6159: LD HL,0x78f9                      ; 21f978
+$615C: LD DE,0x78fa                      ; 11fa78
+$615F: LD BC,5                           ; 010500
+$6162: LD (HL),0x30                      ; 3630
+$6164: LDIR                              ; edb0
+$6166: XOR A                             ; af
+$6167: CALL 0x7465                       ; cd6574
+$616A: LD A,(0x711a)                     ; 3a1a71
+$616D: CP 2                              ; fe02
+$616F: JR nc,0x6174                      ; 3003
+$6171: JP 0x656a                         ; c36a65
+$6174: XOR A                             ; af
+$6175: LD (0x711a),A                     ; 321a71
+$6178: LD HL,0x65ea                      ; 21ea65
+$617B: INC (HL)                          ; 34
+$617C: LD HL,0x8e44                      ; 21448e
+$617F: LD (HL),0xff                      ; 36ff

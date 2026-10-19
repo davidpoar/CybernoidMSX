@@ -1,0 +1,1372 @@
+# Spectrum ROM Disassembly - The Arithmetic Routines
+Part 2/2
+
+---
+
+
+there, picking up 1 from the 
+
+
+RL 
+
+C 
+
+carry whenever it is set, and 
+
+
+RL 
+
+B 
+
+rotating left each byte with 
+
+
+EXX 
+
+
+carry to achieve the 32 bit 
+shift. 
+
+31 DB 
+
+DIV-34TH ADD 
+
+HL,HL 
+
+Move what remains of the 
+
+
+EXX 
+
+
+dividend left in H’L'HL before 
+
+
+ADC 
+
+HL,HL 
+
+the next trial subtraction; if a 
+
+
+EXX 
+
+
+bit drops into the carry, force 
+no restore and a bit for the 
+
+
+
+
+quotient, thus retrieving the lost 
+
+
+JR 
+
+C, 31 F2, SUBN-ONLY 
+
+bit and allowing a full 32-bit 
+divisor. 
+
+31 E2 
+
+DIV-START SBC 
+
+HL,DE 
+
+Trial subtract divisor in D'E'DE 
+
+
+EXX 
+
+
+from rest of dividend in H'L'HL; 
+
+
+SBC 
+
+HL,DE 
+
+there is no initial carry (see 
+
+
+EXX 
+
+
+previous step). 
+
+
+JR 
+
+NC, 31 F9, NO-RSTORE 
+
+Jump forward if there is no 
+carry. 
+
+
+ADD 
+
+HL,DE 
+
+Otherwise restore, i.e. add back 
+
+
+EXX 
+
+
+the divisor. Then clear the carry 
+
+
+ADC 
+
+HL,DE 
+
+so that there will be no bit for 
+
+
+EXX 
+
+
+the quotient (the divisor 'did 
+
+
+AND 
+
+A 
+
+not go’). 
+
+
+JR 
+
+31 FA, COUNT-ONE 
+
+Jump forward to the counter. 
+
+31 F2 
+
+SUBN-ONLY AND 
+
+A 
+
+Just subtract with no restore 
+
+
+SBC 
+
+HL,DE 
+
+and go on to set the carry flag 
+
+
+EXX 
+
+
+because the lost bit of the divi- 
+
+
+SBC 
+
+HL,DE 
+
+dend is to be retrieved and used 
+
+
+EXX 
+
+
+for the quotient. 
+
+31 F9 
+
+NO-RSTORE SCF 
+
+One for the quotient in B'C'CA. 
+
+31 FA 
+
+COUNT-ONE INC 
+
+B 
+
+Step the loop count up by one. 
+
+
+JP 
+
+M, 31 D2, DIV-LOOP 
+
+Loop 32 times for ail bits. 
+
+
+PUSH 
+
+AF 
+
+Save any 33rd bit for extra 
+precision (the present carry). 
+
+
+JR 
+
+Z, 31 E2, DIV-START 
+
+Trial subtract yet again for any 
+
+
+34th bit; the PUSH AF above 
+saves this bit too. 
+
+
+Note: This jump is made to the wrong place. No 34th bit will ever be obtained without first shifting the dividend. Hence important results 
+like 1/10 and 1/1000 are not rounded up as they should be. Rounding up never occurs when it depends on the 34th bit. The jump 
+should have been to 31 DB DIV-34TH above: i.e. byte 3200 hex in the ROM should read DA hex (128 decimal) instead of El hex (225 
+decimal). 
+
+
+LD 
+
+E,A 
+
+Now move the four bytes that 
+
+LD 
+
+D,C 
+
+form the mantissa bytes of the 
+
+EXX 
+
+
+result from B'C'CA to D’E'DE. 
+
+LD 
+
+E,C 
+
+
+LD 
+
+D,B 
+
+
+POP 
+
+AF 
+
+Then put the 34th and 33rd bits 
+
+
+185 
+
+
+
+RR 
+
+B 
+
+into 'B' to be picked up on 
+
+POP 
+
+AF 
+
+normalisation. 
+
+RR 
+
+B 
+
+
+EXX 
+
+
+
+POP 
+
+BC 
+
+Restore the exponent bytes, Ml 
+& N1 . 
+
+POP 
+
+HL 
+
+Restore the pointer to the result. 
+
+LD 
+
+A,B 
+
+Get the difference between the 
+
+SUB 
+
+C 
+
+two exponent bytes into A and 
+set the carry flag if required. 
+
+JP 
+
+313D,DIVN-EXPT 
+
+Exit via DIVN-EXPT. 
+
+THE 'INTEGER TRUNCATION TOWARDS ZERO' SUBROUTINE 
+
+(Offset 3A - see CALCULATE below: 'truncate') 
+
+This subroutine (say l(x)) returns the result of integer truncation of x, 
+
+the 'last value', towards zero. Thus 1(2.4) is 2 and l(-2.4) is -2. The 
+
+subroutine returns at once if x is in the form of a 'short integer'. It returns zero if the exponent byte of x if less than 81 hex (ABS x is less 
+than 1). If l(x) is a 'short integer' the subroutine returns it in that form. It returns x if the exponent byte is AO hex or greater (x has no 
+significant non-integral part). Otherwise the correct number of bytes of x are set to zero and, if needed, one more byte is split with a 
+
+mask. 
+
+
+
+3214 truncate LD 
+
+A,(HL) 
+
+Get the exponent byte of X into 
+
+A. 
+
+If A is zero, return since x is 
+
+AND 
+
+A 
+
+RET 
+
+z 
+
+already a small integer. 
+
+CP 
+
++81 
+
+Compare e, the exponent, to 
+
+81 hex. 
+
+JR 
+
+NC, 3221, T-GR-ZERO 
+
+Jump if e is greater than 80 hex. 
+
+LD 
+
+(HL),+00 
+
+Else, set the exponent to zero; 
+
+LD 
+
+A, +20 
+
+enter 32 decimal, 20 hex, into A 
+
+JR 
+
+3272, NIL-BYTES 
+
+and jump forward to NIL- 
+BYTES to make all the bits of 
+x be zero. 
+
+3221 T-GR-ZERO CP 
+
++91 
+
+Compare e to 91 hex, 145 
+decimal. 
+
+3223 JR 
+
+NZ,323F,T-SMALL 
+
+Jump if e not 91 hex. 
+
+The next 26 bytes seem designed to test whether x is in fact -65536 decimal, i.e. 91 80 00 00 00, and if it is, to set it to 00 FF 00 00 00. 
+This is a mistake. As already stated at byte 303B above, the Spectrum system cannot handle this number. The result here is simply to 
+
+make INT (-65536) return the value -1 . 
+
+This is a pity, since the number would have been perfectly all right if left alone. The remedy 
+
+would seem to be simply to omit the 28 bytes from 3223 above to 323E inclusive from the program. 
+
+3225 INC 
+
+HL 
+
+HL is pointed at the fourth byte 
+
+INC 
+
+HL 
+
+of x, where the 17 bits of the 
+
+INC 
+
+HL 
+
+integer part of x end after the 
+first bit. 
+
+LD 
+
+A, +80 
+
+The first bit is obtained in A. 
+
+AND 
+
+(HL) 
+
+using 80 hex as a mask. 
+
+DEC 
+
+HL 
+
+That bit and the previous 8 bits 
+
+OR 
+
+(HL) 
+
+are tested together for zero. 
+
+DEC 
+
+HL 
+
+HL is pointed at the second 
+byte of x. 
+
+JR 
+
+NZ, 3233, T-FIRST 
+
+If already non-zero, the test can 
+end. 
+
+LD 
+
+A, +80 
+
+Otherwise, the test for -65536 is 
+
+XOR 
+
+(HL) 
+
+now completed: 91 80 00 00 00 
+will leave the zero flag set now. 
+
+3233 T-FIRST DEC 
+
+HL 
+
+HL is pointed at the first byte of 
+
+JR 
+
+NZ,326C,T-EXPNENT 
+
+X. 
+
+If zero reset, the jump is made. 
+
+LD 
+
+(HL),A 
+
+The first byte is set to zero. 
+
+INC 
+
+HL 
+
+HL points to the second byte. 
+
+
+186 
+
+
+
+LD 
+
+(HL),+FF 
+
+The second byte is set to FF. 
+
+DEC 
+
+HL 
+
+FHL again points to the first 
+
+
+
+byte. 
+
+LD 
+
+A, +18 
+
+The last 24 bits are to be zero. 
+
+JR 
+
+3272, NIL-BYTES 
+
+The jump to NIL-BYTES 
+
+
+completes the number 00 FF 
+00 00 00 . 
+
+
+If the exponent byte of x is between 81 and 90 hex (1 29 and 1 44 decimal) inclusive, l(x) is a 'small integer', and will be compressed into 
+one or two bytes. But first a test is made to see whether x is, after all, large. 
+
+
+323 F 
+
+T-SMALL 
+
+JR 
+
+NC,326D, X-LARGE 
+
+Jump with exponent byte 92 
+or more (it would be better to 
+jump with 91 too). 
+
+
+
+PUSH 
+
+DE 
+
+Save STKEND in DE. 
+
+
+
+CPL 
+
+
+Range 129 <= A <= 144 becomes 
+126 >= A >=111. 
+
+
+
+ADD 
+
+A, +91 
+
+Range is now 1 5 dec >= A >= 0. 
+
+
+
+INC 
+
+HL 
+
+Point HL at second byte. 
+
+
+
+LD 
+
+D,(HL) 
+
+Second byte to D. 
+
+
+
+INC 
+
+HL 
+
+Point HL at third byte. 
+
+
+
+LD 
+
+E,(HL) 
+
+Third byte to E. 
+
+
+
+DEC 
+
+HL 
+
+Point HL at first byte again. 
+
+
+
+DEC 
+
+HL 
+
+
+
+
+LD 
+
+C,+00 
+
+Assume a positive number. 
+
+
+
+BIT 
+
+7,D 
+
+Now test for negative (bit 7 
+set). 
+
+
+
+JR 
+
+Z, 3252, T-NUMERIC 
+
+Jump if positive after all. 
+
+
+
+DEC 
+
+C 
+
+Change the sign. 
+
+3252 
+
+T-NUMERIC 
+
+SET 
+
+7,D 
+
+Insert true numeric bit, 1 , in D. 
+
+
+
+LD 
+
+B,+08 
+
+Now test whether A >= 8 (one 
+
+
+
+SUB 
+
+B 
+
+byte only) or two bytes needed. 
+
+
+
+ADD 
+
+A,B 
+
+Leave A unchanged. 
+
+
+
+JR 
+
+C,325E, T-TEST 
+
+Jump if two bytes needed. 
+
+
+
+LD 
+
+E,D 
+
+Put the one byte into E. 
+
+
+
+LD 
+
+D,+00 
+
+And set D to zero. 
+
+
+
+SUB 
+
+B 
+
+Now 1 <= A <= 7 to count the 
+shifts needed. 
+
+325E 
+
+T-TEST 
+
+JR 
+
+Z, 3267, T-STORE 
+
+Jump if no shift needed. 
+
+
+
+LD 
+
+B,A 
+
+B will count the shifts. 
+
+3261 
+
+T-SHIFT 
+
+SRL 
+
+D 
+
+Shift D and E right B times to 
+
+
+
+RR 
+
+E 
+
+produce the correct number. 
+
+
+
+DJNZ 
+
+3261, T-SHIFT 
+
+Loop until B is zero. 
+
+3267 
+
+T-STORE 
+
+CALL 
+
+2D8E.INT-STORE 
+
+Store the result on the stack. 
+
+
+
+POP 
+
+DE 
+
+Restore STKEND to DE. 
+
+
+
+RET 
+
+
+Finished. 
+
+Large values of x remains to be considered. 
+
+
+326C 
+
+T-EXPNENT 
+
+LD 
+
+A,(HL) 
+
+Get the exponent byte of x into 
+
+A. 
+
+Subtract 160 decimal, A0 hex, 
+
+326D 
+
+X-LARGE 
+
+SUB 
+
++A0 
+
+from e. 
+
+
+
+RET 
+
+P 
+
+Return on plus - x has no 
+
+
+significant non-integral part. (If 
+the true exponent were reduced 
+to zero, the 'binary point' 
+would come at or after the end 
+of the four bytes of the man- 
+tissa). 
+
+NEG Else, negate the remainder; this 
+
+gives the number of bits to 
+become zero (the number of 
+bits after the ’binary point'). 
+
+
+187 
+
+
+
+Now the bits of the mantissa can be cleared. 
+
+
+3272 
+
+NIL-BYTES 
+
+PUSH 
+
+DE 
+
+Save the current value of DE 
+(STKEND). 
+
+
+
+EX 
+
+DE.HL 
+
+Make HL point one past the fifth 
+byte. 
+
+
+
+DEC 
+
+HL 
+
+HL now points to the fifth byte 
+
+of X. 
+
+
+
+LD 
+
+B,A 
+
+Get the number of bits to be set 
+
+
+
+SRL 
+
+B 
+
+to zero in B and divide it by B 
+
+
+
+SRL 
+
+B 
+
+to give the number of whole 
+
+
+
+SRL 
+
+B 
+
+bytes implied. 
+
+
+
+JR 
+
+Z, 3283, BITS-ZERO 
+
+Jump forward if the result is 
+
+
+
+
+
+zero. 
+
+327E 
+
+BYTE-ZERO 
+
+LD 
+
+(HL),+00 
+
+Else, set the bytes to zero; 
+
+
+
+DEC 
+
+HL 
+
+B counts them. 
+
+
+
+DJNZ 
+
+327E, BYTE-ZERO 
+
+
+3283 
+
+BITS-ZERO 
+
+AND 
+
++07 
+
+Get A (mod 8); this is the num- 
+ber of bits still to be set to zero. 
+
+
+
+JR 
+
+Z, 3290, IX-END 
+
+Jump to the end if nothing 
+more to do. 
+
+
+
+LD 
+
+B,A 
+
+B will count the bits now. 
+
+
+
+LD 
+
+A,+FF 
+
+Prepare the mask. 
+
+328A 
+
+LESS-MASK 
+
+SLA 
+
+A 
+
+With each loop a zero enters the 
+
+
+
+DJNZ 
+
+328A, LESS-MASK 
+
+mask from the right and thereby 
+a mask of the correct length is 
+produced. 
+
+
+
+AND 
+
+(HL) 
+
+The unwanted bits of (HL) are 
+
+
+
+LD 
+
+(HL),A 
+
+lost as the masking is performed. 
+
+3290 
+
+IX-END 
+
+EX 
+
+DE,HL 
+
+Return the pointer to HL. 
+
+
+
+POP 
+
+DE 
+
+Return STKEND to DE. 
+
+
+
+RET 
+
+
+Finished. 
+
+
+THE 'RE-STACK TWO' SUBROUTINE 
+
+This subroutine is called to re-stack two ‘small integers’ in full five byte floating-point form for the binary operations of addition, 
+multiplication and division. It does so by calling the following subroutine twice. 
+
+
+3293 
+
+RE-ST-TWO 
+
+CALL 
+
+3269, RESTK-SUB 
+
+Call the subroutine, and then 
+continue into it for the second 
+call. 
+
+3296 
+
+RESTK-SUB 
+
+EX 
+
+DE,HL 
+
+Exchange the pointers at each 
+call. 
+
+
+THE 'RE-STACK TWO' SUBROUTINE 
+
+(Offset 3D - see CALCULATE below: 're-stack') 
+
+This subroutine is called to re-stack one number (which could be a 'small integer') in full five byte floating-point form. It is used for a 
+single number by ARCTAN and also, through the calculator offset, by EXP, LN and 'get-argt'. 
+
+
+RE-STACK LD 
+
+A,(HL) 
+
+If the first byte is not zero, 
+
+AND 
+
+A 
+
+return - the number cannot be 
+
+RET 
+
+NZ 
+
+a 'small integer'. 
+
+PUSH 
+
+DE 
+
+Save the ’other' pointer in DE. 
+
+CALL 
+
+2D7FJNT-FETCH 
+
+Fetch the sign in C and the 
+number in DE. 
+
+XOR 
+
+A 
+
+Clear the A register. 
+
+INC 
+
+HL 
+
+Point to the fifth location. 
+
+LD 
+
+(HL),A 
+
+Set the fifth byte to zero. 
+
+DEC 
+
+HL 
+
+Point to the fourth location. 
+
+LD 
+
+(HL),A 
+
+Set the fourth byte to zero: 
+bytes 2 and 3 will hold the mar 
+tissa. 
+
+
+188 
+
+
+
+32B1 
+
+32B2 
+
+
+32BD 
+
+
+
+LD 
+
+B,+91 
+
+Set B to 145 dec for the 
+exponent i.e. for up to 1 6 bits 
+in the integer. 
+
+
+LD 
+
+A,D 
+
+Test whether D is zero so that 
+
+
+AND 
+
+A 
+
+at most 8 bits would be needed. 
+
+
+JR 
+
+NZ.32B1, RS-NRMLSE 
+
+Jump if more than 8 bits needed. 
+
+
+OR 
+
+E 
+
+Now test E too. 
+
+
+LD 
+
+B,D 
+
+Save the zero in B (it will give 
+zero exponent if E too is zero). 
+
+
+JR 
+
+Z,32BD, RS-STORE 
+
+Jump if E is indeed zero. 
+
+
+LD 
+
+D,E 
+
+Move E to D (D was zero, E 
+not). 
+
+
+LD 
+
+E,B 
+
+Set E to zero now. 
+
+
+LD 
+
+B,+89 
+
+Set B to 137 dec for the 
+exponent - no more than 8 bits 
+
+
+
+
+now. 
+
+RS-NRMLSE 
+
+EX 
+
+DE,HL 
+
+Pointer to DE, number to HL. 
+
+RSTK-LOOP 
+
+DEC 
+
+B 
+
+Decrement the exponent on 
+each shift. 
+
+
+ADD 
+
+HL,HL 
+
+Shift the number right one 
+position. 
+
+
+JR 
+
+NC,32B2, RSTK-LOOP 
+
+Until the carry is set. 
+
+
+RRC 
+
+C 
+
+Sign bit to carry flag now. 
+
+
+RR 
+
+H 
+
+Insert it in place as the number 
+
+
+RR 
+
+L 
+
+is shifted back one place - 
+normal now. 
+
+
+EX 
+
+DE,HL 
+
+Pointer to byte 4 back to HL. 
+
+RS-STORE 
+
+DEC 
+
+HL 
+
+Point to the third location. 
+
+
+LD 
+
+(HL),E 
+
+Store the third byte. 
+
+
+DEC 
+
+HL 
+
+Point to the second location. 
+
+
+LD 
+
+(HL),D 
+
+Store the second byte. 
+
+
+DEC 
+
+HL 
+
+Point to the first location. 
+
+
+LD 
+
+(HL),B 
+
+Store the exponent byte. 
+
+
+POP 
+
+DE 
+
+Restore the 'other' pointer to 
+
+DE. 
+
+
+RET 
+
+
+Finished. 
+
+
+189 
+
+

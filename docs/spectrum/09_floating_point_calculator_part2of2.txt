@@ -1,0 +1,2103 @@
+# Spectrum ROM Disassembly - The Floating-Point Calculator
+Part 2/2
+
+---
+
+
+IV. If X' is greater than 0.8 then the quantity X'-1 is stacked: otherwise 2*X’-1 is stacked. 
+
+V. Now the argument Z is formed, being if X' is greater than 0.8, Z = 2.5*X'-3; otherwise Z = 5*X'-3. In each case, -1 <=Z <=1 , as 
+required for the series to converge. 
+
+VI. The SERIES GENERATOR is used to produce the required function. 
+
+VII. Finally a simply multiplication and addition leads to LN X being returned as the 'last value'. 
+
+
+3713 In 
+
+RST 
+
+0028,FP-CALC 
+
+X 
+
+Perform step i. 
+
+
+DEFB 
+
++3D, re-stack 
+
+X (in full floating-point form) 
+
+
+DEFB 
+
++31, duplicate 
+
+X, X 
+
+
+DEFB 
+
++37,greater-0 
+
+x, (1/0) 
+
+
+DEFB 
+
++00, jump-true 
+
+X 
+
+
+DEFB 
+
++04, to 371 C, VALID 
+
+X 
+
+DEFB 
+
+Report A - Invalid argument 
+
++38, end-calc 
+
+X 
+
+371 A REPORT-A 
+
+RST 
+
+0008, ERROR-1 
+
+Call the error handling 
+
+
+DEFB 
+
++09 
+
+routine. 
+
+Perform step ii. 
+
+371 C VALID 
+
+DEFB 
+
++A0,stk-zero 
+
+X,0 The deleted 1 is 
+
+
+DEFB 
+
++02, delete 
+
+X overwritten with zero. 
+
+
+DEFB 
+
++38, end-calc 
+
+X 
+
+
+LD 
+
+A,(HL) 
+
+The exponent, e, goes into A. 
+
+
+LD 
+
+(HL),+80 
+
+X is reduced to X’. 
+
+
+CALL 
+
+2D28.STACK-A 
+
+The stack holds: X’, e. 
+
+
+RST 
+
+0028,FP-CALC 
+
+X', e 
+
+
+DEFB 
+
+DEFB 
+
++34,stk-data 
+
++38,exponent+88 
+
+X', e, 128 (decimal) 
+
+
+213 
+
+
+
+
+DEFB 
+
++00, (+00, +00, +00) 
+
+
+
+DEFB 
+
++03, subtract 
+
+X', e' 
+
+Perform step iii. 
+
+DEFB 
+
++01 .exchange 
+
+e', X' 
+
+
+DEFB 
+
++31, duplicate 
+
+e', X', X' 
+
+
+DEFB 
+
++34,stk-data 
+
+e', X', X',0.8 (decimal) 
+
+
+DEFB 
+
++F0,exponent+80 
+
+
+
+DEFB 
+
++4C,+CC,+CC,+CD 
+
+
+
+DEFB 
+
++03, subtract 
+
+e', X', X'-0.8 
+
+
+DEFB 
+
++37,greater-0 
+
+e', X', (1/0) 
+
+
+DEFB 
+
++00, jump-true 
+
+e', X' 
+
+
+DEFB 
+
++08, to 373D, GRE.8 
+
+e', X' 
+
+
+DEFB 
+
++01 .exchange 
+
+X', e' 
+
+
+DEFB 
+
++A1,stk-one 
+
+X', e', 1 
+
+
+DEFB 
+
++03, subtract 
+
+X', e'-l 
+
+
+DEFB 
+
++01 .exchange 
+
+e'-l, X' 
+
+
+DEFB 
+
++38, end-calc 
+
+e'-l, X' 
+
+
+INC 
+
+(HL) 
+
+Double X' to give 2*X'. 
+
+
+RST 
+
+0028,FP-CALC 
+
+e'-l ,2*X' 
+
+373D GRE.8 
+
+DEFB 
+
++01 .exchange 
+
+X',e' - X' large. 
+
+2*X',e'-1 - X' small. 
+
+
+DEFB 
+
++34,stk-data 
+
+X',e',LN 2 
+
+
+DEFB 
+
++F0,exponent+80 
+
+2*X',e'-1 , LN 2 
+
+
+DEFB 
+
++31 ,+72,+1 7,+F8 
+
+
+
+DEFB 
+
++04, multiply 
+
+X',e'*LN 2 = Y1 
+
+2*X', (e'-l )*LN 2 = Y2 
+
+Perform step iv. 
+
+DEFB 
+
++01 .exchange 
+
+Y1 , X' - X' large. 
+
+Y2, 2*X' - X' small. 
+
+
+DEFB 
+
++A2,stk-half 
+
+Y1 , X', .5 (decimal) 
+
+Y2, 2*X’, .5 
+
+
+DEFB 
+
++03, subtract 
+
+Y1 , X'-.5 
+
+Y2, 2*X'-.5 
+
+
+DEFB 
+
++A2,stk-half 
+
+Y1 , X'-.5, .5 
+
+Y2, 2*X'-.5, .5 
+
+
+DEFB 
+
++03, subtract 
+
+Y1 , X'-l 
+
+Y2, 2*X'-1 
+
+Perform step v. 
+
+DEFB 
+
++31 .duplicate 
+
+Y, X'-l, X'-l 
+
+Y2, 2*X'-1 , 2*X'-1 
+
+
+DEFB 
+
++34,stk-data 
+
+Y1, X'-l, X'-l, 2.5 (decimal) 
+Y2, 2*X'-1 , 2*X'-1 , 2.5 
+
+
+DEFB 
+
++32,exponent+82 
+
+
+
+DEFB 
+
++20, (+00, +00, +00) 
+
+
+
+DEFB 
+
++04, multiply 
+
+Y1 , X'-l ,2.5*X'-3 = Z 
+
+Y2, 2*X'-1 , 5*X'-3 = Z 
+
+
+Perform step vi, passing to the SERIES GENERATOR the parameter '12' decimal, and the twelve constant required. 
+
+
+
+DEFB 
+
++8C,series-0C 
+
+1 . 
+
+DEFB 
+
++11,exponent+61 
+
+
+DEFB 
+
++AC,(+00,+00,+00) 
+
+2. 
+
+DEFB 
+
++14,exponent+64 
+
+
+DEFB 
+
++09, (+00, +00, +00) 
+
+3. 
+
+DEFB 
+
++56,exponent+66 
+
+
+DEFB 
+
++DA,+A5,(+00,+00) 
+
+
+214 
+
+
+
+4. 
+
+DEFB 
+
++59,exponent+69 
+
+
+DEFB 
+
++30,+C5,(+00,+00) 
+
+5. 
+
+DEFB 
+
++5C,exponent+6C 
+
+
+DEFB 
+
++90,+AA,(+00,+00) 
+
+6. 
+
+DEFB 
+
++9E,exponent+6E 
+
+
+DEFB 
+
++70,+6F,+61,(+00) 
+
+7. 
+
+DEFB 
+
++A1 ,exponent+71 
+
+
+DEFB 
+
++CB,+DA,+96,(+00) 
+
+8. 
+
+DEFB 
+
++A4,exponent+74 
+
+
+DEFB 
+
++31 ,+9F,+B4,(+00) 
+
+9. 
+
+DEFB 
+
++E7,exponent+77 
+
+
+DEFB 
+
++A0,+FE,+5C,+FC 
+
+10. 
+
+DEFB 
+
++EA,exponent+7A 
+
+
+DEFB 
+
++1 B,+43,+CA,+36 
+
+11. 
+
+DEFB 
+
++ED,exponent+7D 
+
+
+DEFB 
+
++A7,+9C,+7E,+5E 
+
+12. 
+
+DEFB 
+
++F0,exponent+80 
+
+
+DEFB 
+
++6E,+23,+80,+93 
+
+At the end of the last loop the 'last value 
+
+' is: 
+
+either 
+
+LN X'/(X’-1 ) for the larger values of X' 
+
+or 
+
+LN (2*X')/(2*X'-1) for the smaller values of X' 
+
+Perform step vii. 
+
+DEFB 
+
++04, multiply 
+
+Y1=LN (2**e'), LN X' 
+
+Y2=LN (2**(e'-1)), LN (2*X‘) 
+
+DEFB 
+
++0F, addition 
+
+LN (2**e')*X') 
+
+LN (2**(e'-1)*2*X') 
+
+DEFB 
+
++38, end-calc 
+
+LN X 
+
+RET 
+
+
+Finished: 'last value' is LN X. 
+
+
+THE 'REDUCE ARGUMENT' SUBROUTINE 
+
+(Offset 39: 'get-argt') 
+
+This subroutine transforms the argument X of SIN X or COS X into a value V. 
+The subroutine first finds a value Y such that: 
+
+
+Y = X/(2*PI) - INT (X/2*PI) + 0.5), where Y is greater than, or equal to, -.5 but less than +.5. 
+The subroutine returns with: 
+
+V = 4*Y if -1 <=4*Y <=1- case i. 
+
+or, V = 2-4*Y if 1 <4*Y <2 - case ii. 
+
+or, V = -4*Y-2 if -2 <=4*Y < -1 . - case iii. 
+
+
+In each case, -1 < =V <=1 and SIN (PI*V/2) = SIN X 
+
+
+3783 get-argt 
+
+
+RST 
+
+0028,FP-CALC 
+
+DEFB 
+
++3D, re-stack 
+
+DEFB 
+
++34,stk-data 
+
+DEFB 
+
++EE,exponent+7E 
+
+DEFB 
+
++22,+F9,+83,+6E 
+
+DEFB 
+
++04, multiply 
+
+DEFB 
+
++31 .duplicate 
+
+DEFB 
+
++A2,stk-half 
+
+DEFB 
+
++0F, addition 
+
+DEFB 
+
++27,int, 1 C46 
+
+DEFB 
+
++03,subtract,174C 
+
+
+X 
+
+X (in full floatinq-point form) 
+X, 1/(2*PI) 
+
+
+X/(2*PI) 
+
+X/(2*PI), X/(2*PI) 
+
+X/(2*PI), X/(2*PI), 0.5 
+X/(2*PI), X/(2*PI)+0.5 
+X/(2*PI), INT (X/(2*PI)+0.5) 
+X/(2*PI)-INT (X/(2*PI)+0.5)=Y 
+
+
+215 
+
+
+
+Note: Adding 0.5 and taking INT rounds the result to the nearest integer. 
+
+
+DEFB 
+
++31 .duplicate 
+
+DEFB 
+
++0F, addition 
+
+DEFB 
+
++31 .duplicate 
+
+DEFB 
+
++0F, addition 
+
+DEFB 
+
++31 .duplicate 
+
+DEFB 
+
++2A,abs 
+
+DEFB 
+
++A1,stk-one 
+
+DEFB 
+
++03, subtract 
+
+DEFB 
+
++31 .duplicate 
+
+DEFB 
+
++37,greater-0 
+
+DEFB 
+
++C0,st-mem-0 
+
+DEFB 
+
++00, jump-true 
+
+DEFB 
+
++04, to 37A1.ZPLUS 
+
+DEFB 
+
++02, delete 
+
+DEFB 
+
++38, end-calc 
+
+RET 
+
+
+
+Y, Y 
+2*Y 
+
+2*Y, 2*Y 
+4*Y 
+
+4*Y, 4*Y 
+4*Y, ABS (4*Y) 
+
+4*Y, ABS (4*Y), 1 
+4*Y, ABS (4*Y)-1 = Z 
+4*Y, Z, Z 
+4*Y, Z, (1/0) 
+
+Mem-0 holds the result of the 
+test. 
+
+4*Y, Z 
+4*Y, Z 
+4*Y 
+
+4*Y = V - case i. 
+
+Finished. 
+
+
+If the jump was made then continue. 
+
+
+37A1 
+
+ZPLUS 
+
+DEFB 
+
++A1,stk-one 
+
+4*Y, Z, 1 
+
+
+
+DEFB 
+
++03, subtract 
+
+4*Y, Z-1 
+
+
+
+DEFB 
+
++01 .exchange 
+
+Z-1 ,4*Y 
+
+
+
+DEFB 
+
++36,less-0 
+
+Z-1, (1/0) 
+
+
+
+DEFB 
+
++00, jump-true 
+
+Z-1 
+
+
+
+DEFB 
+
++02, to 37A8.YNEG 
+
+Z-1 
+
+
+
+DEFB 
+
++1 B, negate 
+
+1-Z 
+
+37A8 
+
+YNEG 
+
+DEFB 
+
++38, end-calc 
+
+1-Z = V - case ii. 
+Z-1 = V - case iii. 
+
+
+
+RET 
+
+
+Finished. 
+
+
+THE 'COSINE' FUNCTION 
+
+(Offset 20: ’cos') 
+
+
+This subroutine handles the function COS X and returns a 'last value' 'that is an approximation to COS X. 
+
+The subroutine uses the expression: 
+
+COS X = SIN (PI*W/2), where -1 <=W <=1 . 
+
+In deriving W for X the subroutine uses the test result obtained in the previous subroutine and stored for this purpose in mem-0. It then 
+jumps to the SINE, subroutine, entering at C-ENT, to produce a 'last value’ of COS X. 
+
+
+37AA cos 
+
+
+RST 
+
+0028.FP-CALC. 
+
+X 
+
+DEFB 
+
++39,get-argt 
+
+V 
+
+DEFB 
+
++2A,abs 
+
+ABS V 
+
+DEFB 
+
++A1 ,stk-one 
+
+ABS V, 1 
+
+DEFB 
+
++03, subtract 
+
+ABS V-1 
+
+DEFB 
+
++E0, get-mem-0 
+
+ABS V-1, (1/0) 
+
+DEFB 
+
++00, jump-true 
+
+ABS V-1 
+
+DEFB 
+
++06, to 37B7, C-ENT 
+
+ABS V-1 = W 
+
+then continue. 
+
+DEFB 
+
++1 B, negate 
+
+1-ABS V 
+
+DEFB 
+
++33, jump 
+
+1-ABS V 
+
+DEFB 
+
++03, to 37B7, C-ENT 
+
+1-ABS V = W 
+
+
+THE 'SINE' FUNCTION 
+
+(Offset 1 F: 'sin') 
+
+
+This subroutine handles the function SIN X and is the third of the four routines that use SERIES GENERATOR to produce Chebyshev 
+polynomials. 
+
+The approximation to SIN X is found as follows: 
+
+
+i. The argument X is reduced and in this case W = V directly. 
+
+
+216 
+
+
+
+Note that -1 <=W <=1 , as required for the series to converge. 
+
+ii. The argument Z is formed, such that Z=2*W*W-1 . 
+
+iii. The SERIES GENERATOR is used to return (SIN (PI*W/2))/W 
+
+iv. Finally a simple multiplication gives SIN X. 
+
+
+37B5 sin 
+
+RST 
+
+0028 FP-CALC 
+
+X 
+
+Perform step i. 
+
+DEFB 
+
++39,get-argt 
+
+w 
+
+Perform step ii. The subroutine from now on is common to both the SINE and COSINE functions. 
+
+37B7 C-ENT 
+
+DEFB 
+
++31, duplicate 
+
+w, w 
+
+
+DEFB 
+
++31, duplicate 
+
+w, w, w 
+
+
+DEFB 
+
++04, multiply 
+
+w, w*w 
+
+
+DEFB 
+
++31, duplicate 
+
+w, w*w, w*w 
+
+
+DEFB 
+
++0F, addition 
+
+W, 2*W*W 
+
+
+DEFB 
+
++A1,stk-one 
+
+W, 2*W*W, 1 
+
+
+DEFB 
+
++03, subtract 
+
+W, 2*W*W-1 = Z 
+
+Perform step iii, passing to the SERIES GENERATOR the parameter '6' and the six constants required. 
+
+
+DEFB 
+
++86, series-06 
+
+W, Z 
+
+1 . 
+
+DEFB 
+
++14,exponent+64 
+
+
+
+DEFB 
+
++E6,(+00,+00,+00) 
+
+
+2. 
+
+DEFB 
+
++5C,exponent+6C 
+
+
+
+DEFB 
+
++1 F,+0B,(+00,+00) 
+
+
+3. 
+
+DEFB 
+
++A3,exponent+73 
+
+
+
+DEFB 
+
++8F,+38,+EE,(+00) 
+
+
+4. 
+
+DEFB 
+
++E9,exponent+79 
+
+
+
+DEFB 
+
++15,+63,+BB,+23 
+
+
+5. 
+
+DEFB 
+
++EE,exponent+7E 
+
+
+
+DEFB 
+
++92,+0D,+CD,+ED 
+
+
+6. 
+
+DEFB 
+
++F1 ,exponent+81 
+
+
+
+DEFB 
+
++23,+5D,+1 B,+EA 
+
+
+
+At the end of the last loop the last value' is (SIN (PI*W/2))/W. 
+Perform step v. 
+
+
+DEFB 
+
++04, multiply 
+
+SIN (PI*W/2) = SIN X (or = 
+COS X) 
+
+DEFB 
+
++38, end-calc 
+
+
+RET 
+
+
+Finished: last value' = SIN X. 
+or ('last value' = COS X) 
+
+
+THE TAN’ FUNCTION 
+
+(Offset 21 : ’tan') 
+
+This subroutine handles the function TAN X. The subroutine simply returns SIN X/COS X, with arithmetic overflow if COS X = 0. 
+
+
+37DA 
+
+tan 
+
+RST 
+
+0028, FP-CALC 
+
+X 
+
+
+
+DEFB 
+
++31, duplicate 
+
+X, X 
+
+
+
+DEFB 
+
++1 F,sin 
+
+X, SIN X 
+
+
+
+DEFB 
+
++01, exchange 
+
+SIN X, X 
+
+
+
+DEFB 
+
++20, cos 
+
+SIN X,COS X 
+
+
+
+DEFB 
+
++05, division 
+
+SIN X/COS X = TAN X 
+
+Report arithmetic overflow if 
+needed. 
+
+
+
+DEFB 
+
++38, end-calc 
+
+TAN X 
+
+
+
+RET 
+
+
+Finished: last value' = TAN X. 
+
+
+217 
+
+
+
+THE 'ARCTAN' FUNCTION 
+
+(Offset 24: 'atn') 
+
+
+This subroutine handles the function ATN X and is the last of the four routines that use SERIES GENERATOR to produce Chebyshev 
+polynomials. It returns a real number between -PI/2 and PI/2, which is equal to the value in radians of the angle whose tan is X. 
+
+The approximation to ATN X is found as follows: 
+
+i. The values W and Y are found for three cases of X, such that: 
+
+if -1 < X < 1 then W = 0 & Y = X - case i. 
+
+if -1 < =X then W = PI/2 & Y = -1/X - case ii. 
+
+if X < =-1 then W = -PI/2 &Y = -1/X - case iii. 
+
+In each case, -1 < =Y < =1 , as required for the series to converge. 
+
+ii. The argument Z is formed, such that: 
+
+if -1 < X < 1 then Z = 2*Y*Y-1 = 2*X*X-1 - case i. 
+
+if 1 < X then Z = 2*Y*Y-1 = 2/(X*X)-1 - case ii. 
+
+if X < =-1 then Z = 2*Y*Y-1 = 2/(X*X)-1 - case iii. 
+
+iii. The SERIES GENERATOR is used to produce the required function. 
+
+iv. Finally a simple multiplication and addition give ATN X. 
+
+Perform stage i. 
+
+
+37E2 atn 
+
+CALL 
+
+3297, RE-STACK 
+
+Use the full floating-point form 
+of X. 
+
+
+LD 
+
+A,(HL) 
+
+Fetch the exponent of X. 
+
+
+CP 
+
++81 
+
+
+
+JR 
+
+C,37F8, SMALL 
+
+Jump forward for case i: Y = X. 
+
+
+RST 
+
+0028,FP-CALC 
+
+X 
+
+
+DEFB 
+
++A1,stk-one 
+
+X, 1 
+
+
+DEFB 
+
++1 B, negate 
+
+X,-1 
+
+
+DEFB 
+
++01 .exchange 
+
+-1, X 
+
+
+DEFB 
+
++05, division 
+
+-1/X 
+
+
+DEFB 
+
++31 .duplicate 
+
+-1/X, -1/X 
+
+
+DEFB 
+
++36,less-0 
+
+-1/X, (1/0) 
+
+
+DEFB 
+
++A3,stk-pi/2 
+
+-1/X, (1/0), PI/2 
+
+
+DEFB 
+
++01 .exchange 
+
+-1/X, PI/2, (1/0) 
+
+
+DEFB 
+
++00, jump-true 
+
+-1/X, PI/2 
+
+
+DEFB 
+
++06, to 37FA, CASES 
+
+Jump forward for case ii: 
+
+Y = -1/X W = PI/2 
+
+
+DEFB 
+
++1 B, negate 
+
+-1/X, -PI/2 
+
+
+DEFB 
+
++33, jump 
+
+-1/X, -PI/2 
+
+
+DEFB 
+
++03, to 37FA, CASES 
+
+Jump forward for case iii: 
+
+Y = -1/X W = -PI/2 
+
+37F8 SMALL 
+
+RST 
+
+0028,FP-CALC 
+
+Y 
+
+
+DEFB 
+
++A0,stk-zero 
+
+Y, 0 
+
+Continue for case i: W = 0 
+
+Perform step ii. 
+
+
+
+
+37FA CASES 
+
+DEFB 
+
++01 .exchange 
+
+W, Y 
+
+
+DEFB 
+
++31 .duplicate 
+
+W, Y, Y 
+
+
+DEFB 
+
++31 .duplicate 
+
+W, Y, Y, Y 
+
+
+DEFB 
+
++04, multiply 
+
+W, Y, Y*Y 
+
+
+DEFB 
+
++31 .duplicate 
+
+W, Y, Y*Y, Y*Y 
+
+
+DEFB 
+
++0F, addition 
+
+W, Y, 2*Y*Y 
+
+
+DEFB 
+
++A1,stk-one 
+
+W, Y, 2*Y*Y, 1 
+
+
+DEFB 
+
++03, subtract 
+
+W, Y, 2*Y*Y-1 = Z 
+
+
+Perform step iii, passing to the SERIES GENERATOR the parameter '12' decimal, and the twelve constants required. 
+
+
+DEFB +8C,series-0C W, Y, Z 
+
+DEFB +10,exponent+60 
+
+DEFB +B2,(+00,+00,+00) 
+
+
+218 
+
+
+
+2. 
+
+DEFB 
+
++13,exponent+63 
+
+
+
+DEFB 
+
++0E,(+00,+00,+00) 
+
+
+3. 
+
+DEFB 
+
++55,exponent+65 
+
+
+
+DEFB 
+
++E4,+8D,(+00,+00) 
+
+
+4. 
+
+DEFB 
+
++58,exponent+68 
+
+
+
+DEFB 
+
++39,+BC,(+00,+00) 
+
+
+5. 
+
+DEFB 
+
++5B,exponent+6B 
+
+
+
+DEFB 
+
++98,+FD,(+00,+00) 
+
+
+6. 
+
+DEFB 
+
++9E,exponent+6E 
+
+
+
+DEFB 
+
++00, +36, +75, (+00) 
+
+
+7. 
+
+DEFB 
+
++A0,exponent+70 
+
+
+
+DEFB 
+
++DB,+E8,+B4,(+00) 
+
+
+8. 
+
+DEFB 
+
++63,exponent+73 
+
+
+
+DEFB 
+
++42,+C4,(+00,+00) 
+
+
+9. 
+
+DEFB 
+
++E6,exponent+76 
+
+
+
+DEFB 
+
++B5,+09,+36,+BE 
+
+
+10. 
+
+DEFB 
+
++E9,exponent+79 
+
+
+
+DEFB 
+
++36,+73,+1 B,+5D 
+
+
+11. 
+
+DEFB 
+
++EC,exponent+7C 
+
+
+
+DEFB 
+
++D8,+DE,+63,+BE 
+
+
+12 . 
+
+DEFB 
+
++F0,exponent+80 
+
+
+
+DEFB 
+
++61 ,+A1 ,+B3,+0C 
+
+
+At the end of the last loop the 'last value 
+
+' is: 
+
+
+ATN X/X 
+
+- case i. 
+
+
+
+ATN (-1/X)/(-1/X) 
+
+- case ii. 
+
+
+ATN (-1/X)/(-1/X) 
+
+- case iii. 
+
+
+Perform step iv. 
+
+DEFB 
+
++04, multiply 
+
+W, ATN X- case i. 
+
+W, ATN(-1/X) -caseii. 
+
+W, ATN(-1/X) -case iii. 
+
+
+DEFB 
+
++0F, addition 
+
+ATN X - all cases now. 
+
+
+DEFB 
+
+RET 
+
++38, end-calc 
+
+Finished: 'last value' = ATN X. 
+
+
+THE 'ARCSIN' FUNCTION 
+
+(Offset 22: 'asn') 
+
+This subroutine handles the function ASN X and return a real real number from -PI/2 to PI/2 inclusive which is equal to the value in 
+radians of the angle whose sine is X. Thereby if Y = ASN X then X = SIN Y. 
+
+This subroutine uses the trigonometric identity: 
+
+TAN (Y/2) = SIN Y/1(1+COS Y) 
+
+to obtain TAN (Y/2) and hence (using ATN) Y/2 and finally Y. 
+
+
+RST 
+
+0028,FP-CALC 
+
+X 
+
+DEFB 
+
++31 .duplicate 
+
+X, X 
+
+DEFB 
+
++31, duplicate 
+
+X, X, X 
+
+DEFB 
+
++04, multiply 
+
+X, x*x 
+
+DEFB 
+
++A1,stk-one 
+
+X, X*X, 1 
+
+DEFB 
+
++03, subtract 
+
+X, X*X-1 
+
+DEFB 
+
++1 B, negate 
+
+X,1-X*X 
+
+DEFB 
+
++28,sqr 
+
+X.SQR (1-X*X) 
+
+DEFB 
+
++A1,stk-one 
+
+X.SQR (1-X*X), 1 
+
+DEFB 
+
++0F, addition 
+
+X, 1+SQR (1-X*X) 
+
+DEFB 
+
++05, division 
+
+X/(1+SQR (1-X*X)) = TAN 
+(Y/2) 
+
+DEFB 
+
++24,atn 
+
+Y/2 
+
+DEFB 
+
++31 .duplicate 
+
+Y/2, Y/2 
+
+DEFB 
+
++0F, addition 
+
+Y = ASN X 
+
+DEFB 
+
++38, end-calc 
+
+
+RET 
+
+
+Finished: 'last value' = ASN X. 
+
+
+219 
+
+
+
+THE 'ARCCOS' FUNCTION 
+
+(Offset 23: 'acs') 
+
+This subroutine handles the function ACS X and returns a real number from zero to PI inclusive which is equal to the value in radians of 
+the angle whose cosine is X. 
+
+This subroutine uses the relation: 
+
+ACS X = PI/2 - ASN X 
+
+
+RST 
+
+0028.FP-CALC 
+
+DEFB 
+
++22,asn 
+
+DEFB 
+
++A3,stk-pi/2 
+
+DEFN 
+
++03, subtract 
+
+DEFB 
+
++1 B, negate 
+
+DEFB 
+
++38, end-calc 
+
+RET 
+
+
+
+X 
+
+ASN X 
+ASN X.PI/2 
+ASN X-PI/2 
+PI/2-ASN X = ACS X 
+
+
+Finished: 'last value' = ACS X. 
+
+
+THE 'SQUARE ROOT' FUNCTION 
+
+(Offset 28: 'sqr') 
+
+This subroutine handles the function SQR X and returns the positive square root of the real number X if X is positive, and zero if X is 
+zero. A negative value of X gives rise to report A - invalid argument (via In in the EXPONENTIATION subroutine). 
+
+This subroutine treats the square root operation as being X**.5 and therefore stacks the value .5 and proceeds directly into the 
+EXPONENTIATION subroutine. 
+
+
+384A sqr RST 0028.FP-CALC X 
+
+DEFB +31 .duplicate X.X 
+
+DEFB +30, not X,(1/0) 
+
+DEFB +00, jump-true X 
+
+DEFB +1 E.to 386C.LAST X 
+
+The jump is made if X = 0, otherwise continue with: 
+
+DEFB +A2,stk-half X,.5 
+
+DEFB +38, end-calc 
+
+
+and then find the result of X**.5. 
+
+
+THE 'EXPONENTIATION' OPERATION 
+
+(Offset 06: 'to-power') 
+
+
+This subroutine performs the binary operation of raising the first number, X, to the power of the second number, Y. 
+
+The subroutine treats the result X**Y as being equivalent to EXP (Y*LN X). It returns this value unless X is zero, in which case it 
+returns 1 if Y is also zero (0**0=1), returns zero if Y is positive and reports arithmetic overflow if Y is negative. 
+
+
+3851 to-power 
+
+
+RST 
+
+0028,FP-CALC 
+
+X,Y 
+
+DEFB 
+
++01, exchange 
+
+Y,X 
+
+DEFB 
+
++31, duplicate 
+
+Y,X,X 
+
+DEFB 
+
++30, not 
+
+Y,X,(1/0) 
+
+DEFB 
+
++00, jump-true 
+
+Y,X 
+
+DEFB 
+
++07, to 385D.XIS0 
+
+Y,X 
+
+
+The jump is made if X = 0, otherwise EXP (Y*LN X) is formed. 
+
+DEFB +25, In Y,LN X 
+
+Giving report A if X is negative. 
+
+
+DEFB +04, multiply 
+
+DEFB +38, end-calc 
+
+JP 36C4.EXP 
+
+
+Y*LN X 
+
+Exit via EXP to form EXP 
+(Y*LN X). 
+
+
+The value of X is zero so consider the three possible cases involved. 
+
+
+385D 
+
+XIS0 
+
+DEFB 
+
++02, delete 
+
+Y 
+
+
+
+DEFB 
+
++31 .duplicate 
+
+Y,Y 
+
+
+
+DEFB 
+
++30, not 
+
+Y,(1/0) 
+
+
+
+DEFB 
+
++00, jump-true 
+
+Y 
+
+
+220 
+
+
+
+DEFB 
+
++09, to 386A,ONE 
+
+Y 
+
+0 and Y 
+
+= 0, otherwise proceed. 
+
+
+DEFB 
+
++A0,stk-zero 
+
+Y,0 
+
+DEFB 
+
++01 .exchange 
+
+0,Y 
+
+DEFB 
+
++37,greater-0 
+
+0,(1/0) 
+
+DEFB 
+
++00, jump-true 
+
+0 
+
+DEFB 
+
++06, to 386C.LAST 
+
+0 
+
+0 and Y 
+
+is positive, otherwise proceed. 
+
+
+DEFB 
+
++A1 ,stk-one 
+
+0,1 
+
+DEFB 
+
++01 .exchange 
+
+1,0 
+
+DEFB 
+
++05, division 
+
+Exit via 
+
+
+The result is to be 1 for the operation 
+386A ONE 
+
+
+DEFB +02, delete 
+DEFB +A1 ,stk-one 
+
+
+Now return with the 'last value' on the stack being 0**Y. 
+
+
+DEFB +38, end-calc 
+RET 
+
+
+386C LAST 
+386E - 3CFF These locations are 'spare'. They all hold +FF. 
+
+
+zero gives 'arithmetic overflow'. 
+
+
+( 1 / 0 ) 
+
+Finished: 'last value' is 0 or 1 . 
+
+
+3D00 - 3FFF These locations hold the 'character set'. There are 8 byte representations for all the characters with codes +20 (space) to 
++7F (©). 
+
+e.g. the letter 'A' has the representation 00 3C 42 42 7E 42 42 00 and thereby the form: 
+
+
+00000000 
+
+00111100 
+
+01000010 
+
+01000010 
+
+01111110 
+
+01000010 
+
+01000010 
+
+00000000 
+
+
+221 
+
+
