@@ -4,6 +4,9 @@ msx/build/tmp/
 msx/test/bin/
 msx/test/obj/
 
+# Emulator logs
+msx/build/*.log
+
 # Python
 __pycache__/
 *.pyc
