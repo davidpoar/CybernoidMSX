@@ -12,7 +12,8 @@ Sections:
 5. [The interrupts](#5-the-interrupts)
 6. [The cartridge and the slots](#6-the-cartridge-and-the-slots)
 7. [Two porting strategies](#7-two-porting-strategies)
-8. [Pitfalls](#8-pitfalls)
+8. [Getting the original graphics](#8-getting-the-original-graphics)
+9. [Pitfalls](#9-pitfalls)
 
 ---
 
@@ -274,10 +275,14 @@ R6 = $07   sprite patterns at $3800
 R7 = $F1   border colour 1
 ```
 
-**The pattern table and the colour table line up one to one**: the
-colour table entry `i` gives the colours of pixel line `i` of the
-pattern in slot `i`. The 768 slots are split in three 2 KB blocks
-because the character code is only 8 bits:
+**The pattern table and the colour table line up one to one.** The MSX
+Red Book is explicit about it: "There is an exact byte-to-byte mapping
+from the Character Pattern Table to the Colour Table". The entry at
+the same offset gives the colours of that pixel line: the low nibble
+for the 0 pixels, the high nibble for the 1 pixels.
+
+The 6 KB of the pattern table are split in three 2 KB blocks, one per
+third of the screen, because the character code is only 8 bits:
 
 ```
 name table rows  0-7  use pattern block 0  ($0000-$07FF)
@@ -285,8 +290,21 @@ name table rows  8-15 use pattern block 1  ($0800-$0FFF)
 name table rows 16-23 use pattern block 2  ($1000-$17FF)
 ```
 
-and within a block the character code is just the column number. So
-the name table is 24 rows of `0, 1, 2, ... 31`.
+The name table is initialised with the character code sequence 0 to
+255 repeated three times, so the code of the cell at (column, row) is
+`(row % 8) * 32 + column`, and the addresses of its pattern and its
+colours are:
+
+```
+pattern = (row/8)*$800 + (row%8)*$100 + column*8
+colour  = $2000 + (row/8)*$800 + (row%8)*$100 + column*8
+```
+
+**Use that layout and not "0 to 31 in every row".** With it every
+cell has its own eight colour bytes, so a Spectrum screen with a
+different ink and paper in every cell converts exactly. With the
+shorter layout, all the rows of a third would share the colours of
+their column, which is visible as big vertical bands of colour.
 
 ### Converting the Spectrum screen to mode 2
 
@@ -299,20 +317,30 @@ What does need converting:
 * the **attribute**: Spectrum ink/paper in one byte, MSX wants a colour
   table entry per pattern line
 
-The colour table is the awkward part. MSX mode 2 gives each *group of
-eight character codes* one set of 8 line colours, so all the cells
-that share a colour group must have the same 8 line colours. If the
-Spectrum game uses a different colour per cell (it usually does for
-sprites), a plain mode 2 conversion cannot represent it.
+So for each cell of the Spectrum screen, copy its 8 bytes to the
+pattern table and write the converted attribute 8 times to the
+matching place of the colour table. The colour numbers also change:
+
+| Spectrum | MSX | | Spectrum | MSX |
+|----------|-----|---|----------|-----|
+| 0 black | 1 black | | 4 green | 2 medium green |
+| 1 blue | 8 medium blue | | 5 cyan | 5 light blue |
+| 2 red | 9 light red | | 6 yellow | 14 yellow |
+| 3 magenta | 13 magenta | | 7 white | 15 white |
+
+The Spectrum's "bright" attribute (bit 7) picks the lighter variant
+of the MSX colour when there is one (medium blue becomes light blue,
+medium green becomes light green). The "flash" attribute (bit 6) has
+no equivalent in the MSX: either ignore it or use it to pick a
+different colour.
 
 **Two ways out:**
 
-1. **Convert the bitmap, accepting the limitation.** Fill the pattern
-   table from the Spectrum screen, and build the colour table with one
-   entry per group of eight character codes. This is what the Cybernoid
-   binary port does: it gives every cell its own pattern slot and uses
-   the 32 colour groups for the background, with the moving objects
-   drawn as sprites.
+1. **Convert the bitmap.** Fill the pattern table from the Spectrum
+   screen and build the colour table alongside it, as above. Every
+   cell keeps its own colours, so the conversion is exact. The
+   moving objects then have to be sprites, because a static bitmap
+   cannot move.
 
 2. **Use sprites for the moving objects.** The Spectrum's 8x8 sprite
    with an ink/paper attribute maps almost exactly onto a TMS9918
@@ -325,16 +353,29 @@ The VDP is slow to access. A byte needs a minimum of 12 T states
 between accesses, and on an MSX1 you cannot write to the VDP faster
 than about every 24 T states without corrupting it.
 
-For a full 6 KB pattern table transfer that is a lot of cycles, so:
+Worse: **on real hardware the VDP only accepts VRAM writes during the
+vertical blanking.** A 13 KB screen transfer cannot be done in one go
+even in theory, and outside the blanking the writes are simply
+ignored. So:
 
 * transfer during **VBLANK** only, using the VDP frame interrupt
+* spread the transfer over several frames, a slice per frame
 * use `OUTI`/`OTIR` when the data is contiguous in memory, which is
   much faster than a byte at a time loop
 * or, if the display is not time critical, spread the transfer over
   several frames and eat the tearing
 
+A slice of 256 bytes costs about 2.4 ms at 3.58 MHz, which fits in
+the blanking period. A whole 13 KB screen takes 51 frames, about a
+second.
+
 Reading the VDP status register (`$99`) tells you when the frame
-starts: bit 7 is set during VBLANK.
+starts: bit 7 is the interrupt flag, and it is set at the start of
+the blanking.
+
+**Do not clear the whole VRAM in one loop.** The classic
+`LD BC,$4000 / OUT ($98),A / DEC BC` loop works in an emulator that
+does not model the restriction, and fails on real hardware.
 
 ---
 
@@ -364,6 +405,90 @@ instead.
 page 3, which on the MSX is RAM, so it is writable. But if the
 vector byte is not `$FF` the vector lands somewhere else, and that
 "somewhere else" has to be RAM too.
+
+### The vblank hook of the MSX1 BIOS: `$FD9A` and `$FD9F`
+
+This is the trick that makes a native cartridge possible, and it is
+not in most books.
+
+The MSX1 BIOS's own interrupt handler lives in the ROM at `$0C3C` and
+starts like this:
+
+```
+$0C3C: PUSH HL / PUSH DE / PUSH BC / PUSH AF
+$0C40: EXX / EX AF,AF' / PUSH ... / PUSH IY / PUSH IX
+$0C4A: CALL $FD9A        ; called on EVERY interrupt
+$0C4D: IN A,($99)        ; read the VDP status (this clears the F flag)
+$0C4F: AND A
+$0C50: JP P,$0D02        ; no interrupt pending: leave
+$0C53: CALL $FD9F        ; called when the VDP raised the interrupt
+```
+
+`$FD9A` and `$FD9F` are in page 3, which is **RAM** on an MSX1, and
+the BIOS leaves a `RET` in them. So a cartridge can put its own `JP`
+there and get control at the start of every frame:
+
+```
+        ld   hl, $FD9F
+        ld   (hl), $C3          ; JP nn
+        inc  hl
+        ld   de, MI_HANDLER
+        ld   (hl), e
+        inc  hl
+        ld   (hl), d
+```
+
+Rules for the handler:
+
+* the BIOS has already saved **every** register, so you can use the
+  main register set freely, but **not** the alternate one: the BIOS
+  did `EXX` and `EX AF,AF'` before saving, and it restores them
+  afterwards
+* the BIOS uses `A` right after the call (`LD ($F3E7),A`), so `A` and
+  the flags have to be preserved
+* the handler is called with the interrupts already disabled, so it
+  can be as long as it wants (within one frame)
+* the VDP status register has already been read, so its interrupt
+  flag is clear: **you cannot use it to detect the blanking from
+  inside the handler**, and the BIOS's read also means that a
+  program polling the flag from the main loop will never see it
+
+The alternative to the hook is to poll the status register for the
+interrupt flag from the main loop. That only works if the VDP
+interrupt is **disabled** (register 1 bit 5 clear), because otherwise
+the BIOS's handler reads the status register first and clears the
+flag. With the interrupt disabled the flag is still set at the start
+of the blanking, and reading it from the main loop works.
+
+### The main loop
+
+`HALT` is the natural way to wait for the frame, but it has two
+traps:
+
+* with the interrupts disabled, a `HALT` is **not** woken up by an
+  interrupt request on a real Z80, so the cartridge freezes
+* the interrupt has to be enabled *before* the `HALT`, and an
+  interrupt that arrives in that window is serviced before the
+  `HALT`, so the program then waits a whole extra frame
+
+The robust pattern is to wait for a counter that the interrupt
+handler increments:
+
+```
+MAINLOOP:
+        ei
+        ld   a, (frame_count)
+        ld   b, a
+main_wait:
+        ld   a, (frame_count)
+        cp   b
+        jr   z, main_wait
+        ; ... the game logic, once per frame ...
+        jr   MAINLOOP
+```
+
+It costs a busy loop, but it works everywhere, including with
+debuggers and emulators that stop the CPU as soon as it halts.
 
 ---
 
@@ -553,7 +678,45 @@ Cybernoid's native skeleton is `msx/build/cybernoid.rom`.
 
 ---
 
-## 8. Pitfalls
+## 8. Getting the original graphics
+
+To convert the graphics you first have to see them, and the fastest
+way is to run the original game and photograph the screen.
+
+**A minimal Spectrum is enough.** The 48K Spectrum has:
+
+* 16 KB of RAM at `$4000-$FFFF` (the screen, the tables and the game)
+* the screen is just RAM, so no ULA emulation is needed to read it
+* the keyboard is `IN A,($FE)`, where **A holds the high byte of the
+  port address and the bit that is 0 in it selects the half row**
+* the border and the speaker are `OUT ($FE),A`: bit 4 is the speaker
+  and bits 0-2 the border colour
+* the frame interrupt is the only thing the game needs from the
+  outside
+
+So a Spectrum in fifty lines of C# runs a Spectrum game: give it the
+memory image, generate the interrupt at 50 Hz and read the screen out
+of RAM. The MSX Red Book is not needed, and neither is the Spectrum
+ROM, because the game uses `IM 2` with the vector in RAM.
+
+Two things that catch you out:
+
+* `IN A,($FE)` puts **A** in the high byte of the address, not the
+  port number. The half row is the one whose bit is 0, and the
+  position of that bit (0 to 7) is the row index.
+* the game may not want "any key". Cybernoid's menu waits for a digit
+  from 1 to 6, which is row 3 bit 0. Pressing SPACE does nothing.
+
+The tool is `msx/test/SpectrumTest.cs`; it writes the PNGs itself
+without any image library.
+
+**Then convert.** `msx/scripts/convert_spectrum.py` takes the raw
+screen (6144 bytes of pixels plus 768 of attributes) and produces the
+three tables of mode 2, ready to be put in the cartridge bank.
+
+---
+
+## 9. Pitfalls
 
 Things that cost time while porting Cybernoid.
 
@@ -628,8 +791,61 @@ the sprite patterns want to be. Pick the layout first and then derive
 
 A character code only reaches 255, so the 768 pattern slots are
 divided between the three blocks. A conversion that writes the name
-table as `0, 1, 2, ... 767` is wrong; it has to be the column number
-repeated for every row.
+table as `0, 1, 2, ... 767` is wrong: it has to be the sequence 0 to
+255 repeated three times, so that the code of a cell is
+`(row % 8) * 32 + column`.
+
+### Writing a register number as the data
+
+Selecting a PSG register and writing its value are two different
+`OUT`s:
+
+```
+        ld   a, $09                 ; select register 9
+        out  (PSG_REG), a          ; OUT ($A0),A
+        xor  a                     ; <-- the value to write
+        out  (PSG_DAT), a          ; OUT ($A1),A
+```
+
+Without the `XOR A` the register number ends up in the data port, and
+the channel is left with volume 9 instead of 0. The PSG then makes a
+noise that sounds like a machine gun, and it is easy to miss because
+the screen looks fine.
+
+### The EXPTBL byte is masked, not merged
+
+To build the slot id for `ENASLT`:
+
+```
+        and  $80                   ; the "expanded" bit of EXPTBL
+        or   c                     ; the primary slot
+```
+
+`OR` with the whole EXPTBL byte works by accident (the low bits of
+the byte get masked off later by `AND $0C`) and breaks the moment the
+table holds something else. `AND $80` is what the reference
+implementations do.
+
+### A wrong slot id breaks the whole machine
+
+`ENASLT` with a slot id of 0 maps page 2 to the BIOS, and the
+cartridge's assets disappear with it. The BIOS's interrupt handler
+keeps running, so the machine looks alive while nothing works. When
+the assets are not visible, check the slot id before anything else.
+
+### Clearing the VRAM outside the blanking does nothing
+
+The loop that writes 16 KB to the VRAM in one go works in an emulator
+that does not model the VRAM access restriction, and on real hardware
+almost every write is discarded. Spread it over the frames and do it
+from the vblank handler.
+
+### HALT with the interrupts disabled never wakes up
+
+The obvious way to wait for the frame is `EI` / `HALT`. With the
+interrupts disabled the Z80 does not leave the halt state when an
+interrupt is requested, so a cartridge that does `DI` at the start
+and forgets to `EI` freezes.
 
 ### The Spectrum colour numbers are not the MSX ones
 

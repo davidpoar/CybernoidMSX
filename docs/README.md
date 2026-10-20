@@ -66,9 +66,10 @@ Cybernoid was done both ways:
   video conversion rewritten. Needs MSX-DOS 2 in all-RAM mode.
 * **Native port** - `msx/build/cybernoid.rom`. A 64 KB ASCII16
   cartridge with the engine in bank 0 and the converted assets in banks
-  1-3. The engine skeleton (boot, VDP setup, bank switching) is
-  working and tested; the game logic and the asset conversion are not
-  written yet.
+  1-3. The engine works and is tested: it boots, the BIOS maps the
+  cartridge to pages 1 and 2, the screen is loaded into the VRAM
+  during the vblank and the converted graphics are shown. The game
+  logic is not written yet.
 
 ## Reference documentation
 
