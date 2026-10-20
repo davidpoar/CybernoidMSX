@@ -58,8 +58,13 @@ ENASLT  equ $0024              ; A = slot id, HL = address
 ;----------------------------------------------------------
 ; MSX I/O ports
 ;----------------------------------------------------------
-PPI_C   equ $AA                ; keyboard row select
-PPI_B   equ $A9                ; keyboard columns
+; The MSX1 PPI.  The keyboard is read with the PPI: the row is
+; selected by writing to port C ($AA) and the columns are read
+; from port B ($A9).  Port A ($A8) is NOT the PPI on the MSX1:
+; it is the slot register (WRSLREG), and writing to it unmaps the
+; cartridge.
+PPI_C   equ $AA                ; PPI port C: the keyboard row select
+PPI_B   equ $A9                ; PPI port B: the keyboard columns
 VDP_CMD equ $99
 VDP_DAT equ $98
 PSG_REG equ $A0
@@ -149,12 +154,14 @@ SPRPAT_PAGES equ $0800         ; 8 pages: 2048 bytes
 
 ; The addresses of each part inside the asset bank, as they are seen
 ; through the $8000 window.  Offset 0 of the bank is the ID byte, so
-; the data starts at $8001.
-DATA_NAME     equ $8001
-DATA_PATTERN  equ $8301        ; $8001 + 3 pages
-DATA_COLOUR   equ $9B01        ; $8301 + 24 pages
-DATA_SPRATTR  equ $B301        ; $9B01 + 24 pages
-DATA_SPRPAT   equ $B401        ; $B301 + 1 page
+; the data starts at $8001.  Every asset bank has the same layout:
+; the title screen, the game background and the sprites are all
+; built the same way.
+ASSET_NAME    equ $8001
+ASSET_PATTERN equ $8301        ; $8001 + 3 pages
+ASSET_COLOUR  equ $9B01        ; $8301 + 24 pages
+ASSET_SPRATTR equ $B301        ; $9B01 + 24 pages
+ASSET_SPRPAT  equ $B401        ; $B301 + 1 page
 
 ;==========================================================
 ; INIT - called by the MSX BIOS at boot
@@ -286,9 +293,10 @@ ISR:
         push bc
         push de
         push hl
+        call SOUND_UPDATE
+        call GAME_FRAME
+        call SPRITES_TO_VRAM
         call JOB_NEXT
-        ld   hl, frame_count
-        inc  (hl)                  ; the main loop waits for this
         pop   hl
         pop   de
         pop   bc
@@ -378,7 +386,7 @@ JOB_START:
         ld   (job_phase), a
         ld   hl, NAME_BASE
         ld   (job_dst), hl
-        ld   hl, DATA_NAME
+        ld   hl, ASSET_NAME
         ld   (job_src), hl
         ld   hl, NAME_PAGES
         ld   (job_pages), hl
@@ -458,7 +466,7 @@ job_copy:
         ; the sprite patterns
         ld   hl, SPRPAT_BASE
         ld   (job_dst), hl
-        ld   hl, DATA_SPRPAT
+        ld   hl, ASSET_SPRPAT
         ld   (job_src), hl
         ld   hl, SPRPAT_PAGES
         ld   (job_pages), hl
@@ -466,7 +474,7 @@ job_copy:
 job_pattern:
         ld   hl, PATTERN_BASE
         ld   (job_dst), hl
-        ld   hl, DATA_PATTERN
+        ld   hl, ASSET_PATTERN
         ld   (job_src), hl
         ld   hl, PAT_PAGES
         ld   (job_pages), hl
@@ -474,7 +482,7 @@ job_pattern:
 job_colour:
         ld   hl, COLOUR_BASE
         ld   (job_dst), hl
-        ld   hl, DATA_COLOUR
+        ld   hl, ASSET_COLOUR
         ld   (job_src), hl
         ld   hl, COL_PAGES
         ld   (job_pages), hl
@@ -482,7 +490,7 @@ job_colour:
 job_sprattr:
         ld   hl, SPRATTR_BASE
         ld   (job_dst), hl
-        ld   hl, DATA_SPRATTR
+        ld   hl, ASSET_SPRATTR
         ld   (job_src), hl
         ld   hl, SPR_PAGES
         ld   (job_pages), hl
@@ -579,5 +587,14 @@ PSG_INIT:
         pop   bc
         pop   af
         ret
+
+;==========================================================
+; The game itself
+;==========================================================
+; It goes at the end because pasmo resolves the forward
+; references better that way: the engine calls the game and
+; the game calls the engine.
+;==========================================================
+        include "game.asm"
 
         end

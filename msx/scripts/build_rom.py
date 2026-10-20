@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Build the 64K Cybernoid MSX ROM (ASCII16 mapper).
 
 ROM layout (64 KB = 4 banks of 16 KB):
@@ -31,6 +31,7 @@ TMP_DIR = BUILD_DIR / 'tmp'
 
 sys.path.insert(0, str(SCRIPT_DIR))
 from assets import load_converted  # noqa: E402
+from game_assets import build_game_bank  # noqa: E402
 
 INIT_ASM = SRC_DIR / 'rom.asm'
 INIT_BIN = BUILD_DIR / 'rom_engine.bin'
@@ -47,7 +48,7 @@ ROM_SIZE = BANK_SIZE * ROM_BANKS
 #   3: la musica y los datos diversos (mas adelante)
 BANK_CONTENTS = {
     1: 'screen',
-    2: None,
+    2: 'game',
     3: None,
 }
 
@@ -66,7 +67,9 @@ def run_pasmo(source, bin_out, sym_out=None):
     else:
         cmd += ['--bin', str(source), str(bin_out)]
     print(f'  pasmo {source.name}')
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    # se ejecuta desde el directorio de las fuentes para que los
+    # "include" se encuentren
+    result = subprocess.run(cmd, capture_output=True, text=True, cwd=SRC_DIR)
     if result.returncode != 0:
         print('STDERR:', result.stderr)
         print('STDOUT:', result.stdout)
@@ -111,6 +114,9 @@ def build_rom():
         if isinstance(source, str) and source in ('screen',):
             data = load_converted()
             name = 'cybernoid_screen.bin (convertido)'
+        elif isinstance(source, str) and source in ('game',):
+            data = build_game_bank()
+            name = 'el fondo del juego y los sprites (generados)'
         else:
             path = Path(source)
             if not path.is_absolute():
@@ -143,3 +149,5 @@ def build_rom():
 
 if __name__ == '__main__':
     build_rom()
+
+

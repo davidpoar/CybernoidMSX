@@ -210,6 +210,7 @@ static class SpectrumTest
         Directory.CreateDirectory(OutDir);
         string stamp = DateTime.Now.ToString("HHmmss");
         Save(m, Path.Combine(OutDir, $"spec_{stamp}_1_titulo.png"), 1);
+        m.DumpScreen(Path.Combine(OutDir, $"spec_{stamp}_1_titulo.raw"));
 
         // Pulsar una tecla para empezar la partida.  El menu pide un
         // digito del 1 al 6, que esta en la fila 3, bit 0.
@@ -227,16 +228,48 @@ static class SpectrumTest
         DumpAttributes(m);
         m.DumpScreen(Path.Combine(OutDir, $"spec_{stamp}_juego.raw"));
         m.DumpRam(Path.Combine(OutDir, $"spec_{stamp}_sprites.bin"), 0x5F00, 0x400);
+        m.DumpRam(Path.Combine(OutDir, $"spec_{stamp}_spr2.bin"), 0x5E00, 0x200);
+        m.DumpRam(Path.Combine(OutDir, $"spec_{stamp}_tablas.bin"), 0x6300, 0x200);
+        m.DumpRam(Path.Combine(OutDir, $"spec_{stamp}_tablas2.bin"), 0x5F00, 0x200);
         Save(m, Path.Combine(OutDir, $"spec_{stamp}_2_juego.png"), 1);
 
-        // Mas frames: la pantalla puede tardar en asentarse
-        foreach (int extra in new[] { 60, 120, 240, 480 })
+        // Una partida: capturas cada pocos segundos y con las teclas de
+        // movimiento pulsadas para ver como se mueve la nave.
+        Console.WriteLine("\n  partida:");
+        var pasos = new (int frames, int row, int bit, string nombre)[]
         {
-            m.RunFrames(extra);
+            (60,  -1, 0, "a_60"),
+            (60,  -1, 0, "b_120"),
+            (60,  -1, 0, "c_180"),
+            (60,  -1, 0, "d_240"),
+            (30,   4, 1, "e_derecha"),      // la 9 = derecha
+            (30,   4, 1, "f_derecha2"),
+            (30,  -1, 0, "g_suelto"),
+            (30,   4, 4, "h_izquierda"),   // la 6 = izquierda
+            (30,  -1, 0, "i_suelto"),
+            (30,   4, 3, "j_arriba"),      // la 7 = arriba
+            (30,  -1, 0, "k_suelto"),
+            (60,  -1, 0, "l_final"),
+        };
+        foreach (var (cuantos, row, bit, nombre) in pasos)
+        {
+            if (row >= 0) m.Keys[row] &= (byte)~(1 << bit);
+            m.RunFrames(cuantos);
+            if (row >= 0) m.Keys[row] |= (byte)(1 << bit);
             Report(m);
-            m.DumpScreen(Path.Combine(OutDir, $"spec_{stamp}_juego_{extra}.raw"));
-            Save(m, Path.Combine(OutDir, $"spec_{stamp}_3_juego_{extra}.png"), 1);
+            m.DumpScreen(Path.Combine(OutDir, $"spec_{stamp}_part_{nombre}.raw"));
+            Save(m, Path.Combine(OutDir, $"spec_{stamp}_part_{nombre}.png"), 1);
         }
+
+        // Frames seguidos: sirve para ver que se mueve (la nave, las
+        // balas, los enemigos) comparando dos capturas consecutivas.
+        Console.WriteLine("\n  frames seguidos:");
+        for (int i = 0; i < 6; i++)
+        {
+            m.RunFrames(1);
+            m.DumpScreen(Path.Combine(OutDir, $"spec_{stamp}_seq_{i}.raw"));
+        }
+        Console.WriteLine($"  guardadas en spec_{stamp}_seq_*.raw");
 
         Console.WriteLine($"\n  capturas en {OutDir}");
         return 0;
@@ -410,6 +443,7 @@ static class Png
         return c ^ 0xFFFFFFFF;
     }
 }
+
 
 
 
