@@ -143,6 +143,13 @@ class SpectrumMachine
         f.Write(ScreenPixels());
         f.Write(ScreenAttributes());
     }
+
+    /// Vuelca una zona de la RAM (por ejemplo los sprites)
+    public void DumpRam(string path, int start, int length)
+    {
+        using var f = new FileStream(path, FileMode.Create);
+        f.Write(Bus.Ram, start, length);
+    }
 }
 
 static class SpectrumTest
@@ -219,6 +226,7 @@ static class SpectrumTest
         foreach (var k in m.KeyLog.Take(12)) Console.WriteLine("    " + k);
         DumpAttributes(m);
         m.DumpScreen(Path.Combine(OutDir, $"spec_{stamp}_juego.raw"));
+        m.DumpRam(Path.Combine(OutDir, $"spec_{stamp}_sprites.bin"), 0x5F00, 0x400);
         Save(m, Path.Combine(OutDir, $"spec_{stamp}_2_juego.png"), 1);
 
         // Mas frames: la pantalla puede tardar en asentarse
