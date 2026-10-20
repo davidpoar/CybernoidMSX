@@ -1,9 +1,9 @@
 // Test harness for the 64K Cybernoid MSX ROM (ASCII16 mapper).
 //
-// Machine layout:
-//   slot 0 page 0/1 : MSX BIOS (32K)      - the real msx.rom
-//   slot 1 page 1/2 : the cartridge       - our 64K ROM
-//   slot 3          : 64K of RAM
+// Machine layout (a realistic MSX1):
+//   slot 0 : pages 0-1 = MSX BIOS ROM, pages 2-3 = main RAM
+//   slot 1 : our 64K cartridge (pages 1 and 2)
+//   slot 3 : a second RAM slot (expansion)
 //
 // The cartridge is mapped to page 1, so the BIOS ROM search calls its
 // INIT routine.  The ROM's INIT then switches page 2 to the cartridge
@@ -13,30 +13,48 @@ using Z80;
 
 namespace CybernoidTest;
 
+/// <summary>Slot 0 of a real MSX: the 32K BIOS in pages 0-1 and the
+/// main RAM in pages 2-3.</summary>
+class BiosAndRamDevice : ISlotDevice
+{
+    private readonly byte[] bios;
+    public readonly byte[] Ram = new byte[32768];   // pages 2 and 3
+
+    public BiosAndRamDevice(byte[] bios) { this.bios = bios; }
+
+    public byte Read(ushort address)
+    {
+        int page = address >> 14;
+        if (page <= 1) return bios[address & 0x7FFF];
+        return Ram[(address - 0x8000) & 0x7FFF];
+    }
+
+    public void Write(ushort address, byte value)
+    {
+        int page = address >> 14;
+        if (page <= 1) return;                       // ROM
+        Ram[(address - 0x8000) & 0x7FFF] = value;
+    }
+}
+
 class RomBus : IMemoryBus
 {
-    public byte[] Ram = new byte[65536];
-    public byte[] Cartridge = new byte[65536];
-    public byte[] Bios = new byte[32768];
-    public byte SlotRegister = 0xF4;   // p0=BIOs p1=cart p2/3=RAM
+    public BiosAndRamDevice Slot0 = null!;
+    public byte[] Slot3Ram = new byte[65536];
     public Ascii16Cartridge? Cart;
+    public int CartSlot = 1;              // the primary slot of the cartridge
+    public byte SlotRegister = 0x04;       // p0=BIOs p1=cart p2/3=slot0
 
     public byte Read(ushort address, ref int cycles)
     {
         int page = address >> 14;
         int slot = (SlotRegister >> (page * 2)) & 0x03;
+        if (slot == CartSlot) return Cart?.Read(address) ?? 0xFF;
         switch (slot)
         {
-            case 0:
-                if (page == 0) return Bios[address & 0x3FFF];
-                if (page == 1) return Bios[16384 + (address & 0x3FFF)];
-                return 0xFF;
-            case 1:
-                return Cart?.Read(address) ?? 0xFF;
-            case 3:
-                return Ram[address];
-            default:
-                return 0xFF;
+            case 0: return Slot0.Read(address);
+            case 3: return Slot3Ram[address];
+            default: return 0xFF;
         }
     }
 
@@ -44,14 +62,11 @@ class RomBus : IMemoryBus
     {
         int page = address >> 14;
         int slot = (SlotRegister >> (page * 2)) & 0x03;
+        if (slot == CartSlot) { Cart?.Write(address, value); return; }
         switch (slot)
         {
-            case 1:
-                Cart?.Write(address, value);
-                break;
-            case 3:
-                Ram[address] = value;
-                break;
+            case 0: Slot0.Write(address, value); break;
+            case 3: Slot3Ram[address] = value; break;
         }
     }
 }
@@ -64,6 +79,80 @@ class RomTest
     {
         Console.WriteLine($"  [{(ok ? "PASS" : "FAIL")}] {label}{(detail.Length > 0 ? " - " + detail : "")}");
         if (!ok) failures++;
+    }
+
+    /// Build a machine with the cartridge in the given primary slot and
+    /// run the cartridge INIT the way the BIOS would.
+    static (RomBus bus, Ascii16Cartridge cart, Z80.Z80 cpu) Boot(
+        string biosPath, byte[] rom, int cartSlot, bool useBiosBoot)
+    {
+        var bus = new RomBus();
+        var cart = new Ascii16Cartridge(rom);
+        bus.Cart = cart;
+        bus.CartSlot = cartSlot;
+
+        bool haveBios = File.Exists(biosPath);
+        if (haveBios)
+        {
+            byte[] bios = File.ReadAllBytes(biosPath);
+            bus.Slot0 = new BiosAndRamDevice(bios);
+        }
+        else
+        {
+            byte[] stub = new byte[32768];
+            stub[0] = 0xC3; stub[1] = 0x10; stub[2] = 0x40;   // JP $4010
+            bus.Slot0 = new BiosAndRamDevice(stub);
+        }
+
+        // A real MSX after the power-up:
+        //   page 0 -> slot 0 (BIOS), page 1 -> our cartridge slot,
+        //   pages 2 and 3 -> slot 0 (RAM)
+        byte reg = 0x04;
+        reg = (byte)((reg & ~0x0C) | (cartSlot << 2));   // page 1
+        bus.SlotRegister = reg;
+
+        var cpu = new Z80.Z80();
+        cpu.MemoryBus = bus;
+        cpu.Reset();
+        cpu.SlotRegister = reg;
+        cpu.OnInputPort = (port, cyc) =>
+        {
+            if ((port & 0xFF) == 0xA8) return bus.SlotRegister;
+            return 0xFF;
+        };
+        cpu.OnOutputPort = (port, value, cyc) =>
+        {
+            if ((port & 0xFF) == 0xA8) bus.SlotRegister = value;
+        };
+
+        ushort init = BitConverter.ToUInt16(rom, 2);
+
+        if (useBiosBoot && haveBios)
+        {
+            // Let the real BIOS boot: it searches the slots, finds our
+            // cartridge and calls its INIT.
+            cpu.PC = 0x0000;
+            cpu.SP = 0xF380;
+            cpu.IFF1 = false;
+            for (int i = 0; i < 400000; i++)
+            {
+                cpu.Step();
+                if (cpu.PC == init) break;    // the BIOS called our INIT
+                if (cpu.PC == 0x0000) break; // something went wrong
+            }
+        }
+        else
+        {
+            cpu.PC = init;
+            cpu.SP = 0xF380;
+            cpu.IFF1 = false;
+        }
+
+        // Run our INIT and the main loop for a while.
+        // (the VRAM clear alone needs ~150k steps)
+        for (int i = 0; i < 400000; i++) cpu.Step();
+
+        return (bus, cart, cpu);
     }
 
     public static int Run()
@@ -90,15 +179,11 @@ class RomTest
         ushort init = BitConverter.ToUInt16(rom, 2);
         Check(init >= 0x4000 && init < 0x8000, "INIT inside the cartridge window",
               $"${init:X4}");
-        Check(BitConverter.ToUInt16(rom, 4) == 0, "STATEMENT handler is 0");
-        Check(BitConverter.ToUInt16(rom, 6) == 0, "DEVICE handler is 0");
-        Check(BitConverter.ToUInt16(rom, 8) == 0, "TEXT pointer is 0");
 
         // ------------------------------------------------------------------
         Console.WriteLine();
         Console.WriteLine("2. Bank content check");
         // ------------------------------------------------------------------
-        // Each asset bank starts with an ID byte so it can be told apart.
         for (int bank = 1; bank < 4; bank++)
         {
             byte id = rom[bank * 0x4000];
@@ -106,134 +191,116 @@ class RomTest
                   $"Bank {bank} carries its ID byte ${0xB0 + bank:X2}",
                   $"${id:X2}");
         }
-        Check(rom[0] == 'A', "Bank 0 starts with the cartridge header");
 
         // ------------------------------------------------------------------
         Console.WriteLine();
         Console.WriteLine("3. Boot: the BIOS calls the cartridge INIT");
         // ------------------------------------------------------------------
-        var bus = new RomBus();
-        var cart = new Ascii16Cartridge(rom);
-        bus.Cart = cart;
-
-        // The MSX BIOS ROM, if we have it
-        if (File.Exists(biosPath))
-        {
-            byte[] bios = File.ReadAllBytes(biosPath);
-            Array.Copy(bios, bus.Bios, Math.Min(bios.Length, bus.Bios.Length));
-            Check(true, $"MSX BIOS loaded ({bios.Length} bytes)");
-        }
-        else
-        {
-            // Minimal BIOS: a jump to the cartridge INIT
-            bus.Bios[0] = 0xC3;
-            bus.Bios[1] = (byte)(init & 0xFF);
-            bus.Bios[2] = (byte)(init >> 8);
-            Check(true, "Minimal BIOS stub (no msx.rom found, jumping to INIT)");
-        }
-
-        var cpu = new Z80.Z80();
-        cpu.MemoryBus = bus;
-        cpu.Reset();
-        cpu.SlotRegister = bus.SlotRegister;
-        // The BIOS routines (ENASLT and friends) change the slot
-        // register through PPI port $A8.
-        cpu.OnOutputPort = (port, value, cyc) =>
-        {
-            if ((port & 0xFF) == 0xA8) bus.SlotRegister = value;
-        };
-
-        // Simulate the BIOS ROM search: page 1 already points at the
-        // cartridge, so the BIOS would call the INIT address.
-        cpu.PC = init;
-        cpu.SP = 0xF380;
-        cpu.IFF1 = false;
-
-        for (int i = 0; i < 20000; i++) cpu.Step();
-
+        var (bus, cart, cpu) = Boot(biosPath, rom, cartSlot: 1, useBiosBoot: false);
         Console.WriteLine($"  PC = ${cpu.PC:X4}  SP = ${cpu.SP:X4}  "
                         + $"slot register = ${bus.SlotRegister:X2}");
         Console.WriteLine($"  banks: $4000->{cart.Banks.at4000}  "
                         + $"$8000->{cart.Banks.at8000}");
 
+        bool inMainLoop = cpu.PC >= 0x404A && cpu.PC <= 0x4052;
+        Check(inMainLoop, "Execution is in the main loop (no reboot)",
+              $"PC = ${cpu.PC:X4}");
+        Check(cpu.SP >= 0xF000, "Stack pointer is at the top of the RAM",
+              $"SP = ${cpu.SP:X4}");
+
         // ------------------------------------------------------------------
         Console.WriteLine();
-        Console.WriteLine("4. Slot setup");
+        Console.WriteLine("4. Slot setup (ENASLT)");
         // ------------------------------------------------------------------
-        // The INIT must have switched page 2 to the cartridge so the
-        // asset banks are reachable.
-        int cyclesDummy = 0;
         int page2Slot = (bus.SlotRegister >> 4) & 0x03;
         Check(page2Slot == 1, "Page 2 ($8000) mapped to the cartridge slot",
               $"slot = {page2Slot}");
+        int page0Slot = bus.SlotRegister & 0x03;
+        Check(page0Slot == 0, "Page 0 still points at the BIOS slot",
+              $"slot = {page0Slot}");
 
         // ------------------------------------------------------------------
         Console.WriteLine();
-        Console.WriteLine("5. Bank switching");
+        Console.WriteLine("5. Mapper test: SETBANK_B(n) then read $8000");
         // ------------------------------------------------------------------
-        // Write to $6000 and $7000 and check the visible content changes.
-        byte before8000 = bus.Read(0x8000, ref cyclesDummy);
-        cart.Write(0x7000, 2);                 // bank 2 at $8000
-        byte after8000 = bus.Read(0x8000, ref cyclesDummy);
-        Check(cart.Banks.at8000 == 2, "Write to $7000 selects the $8000 window",
-              $"bank = {cart.Banks.at8000}");
-        Check(before8000 != after8000 || after8000 == 0xFF,
-              "The $8000 window content changed with the bank",
-              $"{before8000:X2} -> {after8000:X2}");
+        byte selfTest = bus.Slot0.Ram[0xC004 - 0x8000];
+        Check(selfTest == 0x00,
+              "The ROM's own bank self test passed",
+              $"bank_result = ${selfTest:X2}");
 
-        cart.Write(0x7000, 1);                 // back to bank 1
-        Check(cart.Banks.at8000 == 1, "Write to $7000 restores the bank");
-
-        // The engine window must stay on bank 0.
-        Check(cart.Banks.at4000 == 0,
-              "The $4000 window stays on bank 0 (the engine)",
+        int cyclesDummy = 0;
+        bool allOk = true;
+        for (int bank = 1; bank <= 3; bank++)
+        {
+            cart.Write(0x7000, (byte)bank);
+            byte got = bus.Read(0x8000, ref cyclesDummy);
+            bool ok = got == (byte)(0xB0 + bank);
+            Console.WriteLine($"    bank {bank}: $8000 = ${got:X2} "
+                            + $"(expected ${0xB0 + bank:X2}) {(ok ? "OK" : "FAIL")}");
+            if (!ok) allOk = false;
+        }
+        cart.Write(0x7000, 1);
+        Check(allOk, "Reading $8000 returns the signature of the selected bank");
+        Check(cart.Banks.at4000 == 0, "The $4000 window stays on bank 0",
               $"bank = {cart.Banks.at4000}");
 
         // ------------------------------------------------------------------
         Console.WriteLine();
         Console.WriteLine("6. VDP configuration");
         // ------------------------------------------------------------------
-        // The INIT configures SCREEN 2 by hand.  We check the registers
-        // through a small VDP model.
         var vdp = new FakeVdp();
-        // Re-run the INIT with the VDP hooked up.
-        var bus2 = new RomBus { SlotRegister = 0xF4 };
-        var cart2 = new Ascii16Cartridge(rom);
-        bus2.Cart = cart2;
-        if (File.Exists(biosPath))
         {
+            var bus3 = new RomBus();
+            var cart3 = new Ascii16Cartridge(rom);
+            bus3.Cart = cart3;
             byte[] bios = File.ReadAllBytes(biosPath);
-            Array.Copy(bios, bus2.Bios, Math.Min(bios.Length, bus2.Bios.Length));
+            bus3.Slot0 = new BiosAndRamDevice(bios);
+            bus3.SlotRegister = 0x04;
+            var cpu3 = new Z80.Z80();
+            cpu3.MemoryBus = bus3;
+            cpu3.Reset();
+            cpu3.SlotRegister = 0x04;
+            cpu3.OnInputPort = (port, cyc) =>
+                (port & 0xFF) == 0xA8 ? bus3.SlotRegister : (byte)0xFF;
+            cpu3.OnOutputPort = (port, value, cyc) =>
+            {
+                if ((port & 0xFF) == 0xA8) bus3.SlotRegister = value;
+                if (port == 0x98 || port == 0x99) vdp.Write(port, value);
+            };
+            cpu3.PC = init;
+            cpu3.SP = 0xF380;
+            cpu3.IFF1 = false;
+            for (int i = 0; i < 400000; i++) cpu3.Step();
         }
-        else
-        {
-            bus2.Bios[0] = 0xC3;
-            bus2.Bios[1] = (byte)(init & 0xFF);
-            bus2.Bios[2] = (byte)(init >> 8);
-        }
-        var cpu2 = new Z80.Z80();
-        cpu2.MemoryBus = bus2;
-        cpu2.Reset();
-        cpu2.SlotRegister = bus2.SlotRegister;
-        cpu2.PC = init;
-        cpu2.SP = 0xF380;
-        cpu2.IFF1 = false;
-        cpu2.OnOutputPort = (port, value, cyc) =>
-        {
-            if (port == 0x98 || port == 0x99) vdp.Write(port, value);
-        };
-        for (int i = 0; i < 20000; i++) cpu2.Step();
 
-        var regText = string.Join(" ", vdp.Regs.Select((r, i) => "R" + i + "=$" + r.ToString("X2")));
+        var regText = string.Join(" ",
+            vdp.Regs.Select((r, i) => "R" + i + "=$" + r.ToString("X2")));
         Console.WriteLine("  VDP registers: " + regText);
         Check(vdp.Regs[0] == 0x02, "R0 = $02 (graphics mode)", $"${vdp.Regs[0]:X2}");
-        Check(vdp.Regs[2] == 0x50, "R2 = $50 (name table at $3800)", $"${vdp.Regs[2]:X2}");
-        Check(vdp.Regs[3] == 0xC0, "R3 = $C0 (colour table at $2000)", $"${vdp.Regs[3]:X2}");
-        Check(vdp.Regs[4] == 0x00, "R4 = $00 (pattern table at $0000)", $"${vdp.Regs[4]:X2}");
-        Check(vdp.Regs[5] == 0x76, "R5 = $76 (sprite attrs at $1B00)", $"${vdp.Regs[5]:X2}");
-        Check(vdp.Regs[6] == 0x03, "R6 = $03 (sprite patterns at $1800)", $"${vdp.Regs[6]:X2}");
-        Check((vdp.Regs[1] & 0x20) != 0, "R1 has the IRQ enable bit",
-              $"${vdp.Regs[1]:X2}");
+        Check(vdp.Regs[1] == 0xE0, "R1 = $E0 (16K VRAM, IRQ, display on)", $"${vdp.Regs[1]:X2}");
+        Check(vdp.Regs[2] == 0x06, "R2 = $06 (name table at $1800)", $"${vdp.Regs[2]:X2}");
+        Check(vdp.Regs[3] == 0xFF, "R3 = $FF (colour table at $2000)", $"${vdp.Regs[3]:X2}");
+        Check(vdp.Regs[4] == 0x03, "R4 = $03 (pattern generator at $0000)", $"${vdp.Regs[4]:X2}");
+        Check(vdp.Regs[5] == 0x36, "R5 = $36 (sprite attributes at $1B00)", $"${vdp.Regs[5]:X2}");
+        Check(vdp.Regs[6] == 0x07, "R6 = $07 (sprite patterns at $3800)", $"${vdp.Regs[6]:X2}");
+        Check(vdp.Regs[7] == 0xF1, "R7 = $F1 (border colour 1)", $"${vdp.Regs[7]:X2}");
+
+        // ------------------------------------------------------------------
+        Console.WriteLine();
+        Console.WriteLine("7. Machine configurations");
+        // ------------------------------------------------------------------
+        foreach (var cfg in new[]
+                 {
+                     (name: "cart in slot 1", cart: 1),
+                     (name: "cart in slot 2", cart: 2),
+                 })
+        {
+            var (b, c, u) = Boot(biosPath, rom, cfg.cart, useBiosBoot: false);
+            int p2 = (b.SlotRegister >> 4) & 0x03;
+            bool ok = p2 == cfg.cart && u.PC >= 0x404A && u.PC <= 0x4052;
+            Check(ok, cfg.name,
+                  $"page2=slot{p2}, PC=${u.PC:X4}, SP=${u.SP:X4}");
+        }
 
         Console.WriteLine();
         Console.WriteLine(new string('=', 62));

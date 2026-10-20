@@ -201,6 +201,16 @@ class Program
         {
             return RomTest.Run();
         }
+        if (Environment.GetEnvironmentVariable("CYBERNOID_TRACE") == "1")
+        {
+            Trace.Run();
+            return 0;
+        }
+        if (Environment.GetEnvironmentVariable("CYBERNOID_ENASLT") == "1")
+        {
+            EnasltProbe.Run();
+            return 0;
+        }
 
         string buildDir = Path.GetFullPath(
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "build"));
