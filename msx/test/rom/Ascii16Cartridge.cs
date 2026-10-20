@@ -1,38 +1,28 @@
-// ASCII16 mapper cartridge, mirroring the format the Cybernoid ROM expects.
+// ASCII16 mapper cartridge, following the hardware exactly.
 //
-//   write to $6000-$6FFF : selects the 16K bank visible at $4000-$7FFF
-//   write to $7000-$7FFF : selects the 16K bank visible at $8000-$BFFF
+// From the reference (docs/reference/msx/ascii16_mapper_reference.md,
+// which quotes openMSX's RomAscii16kB):
 //
-// ROM layout (64K = 4 banks of 16K):
-//   file $0000-$3FFF  bank 0 -> MSX $4000-$7FFF   (engine, "AB" header)
-//   file $4000-$7FFF  bank 1 -> MSX $8000-$BFFF   (assets)
-//   file $8000-$BFFF  bank 2 -> MSX $8000-$BFFF   (assets)
-//   file $C000-$FFFF  bank 3 -> MSX $8000-$BFFF   (assets)
+//   window A: $4000-$7FFF, register at $6000-$67FF
+//   window B: $8000-$BFFF, register at $7000-$77FF
+//
+//   The register decode is
+//       (0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)
+//   so $6800-$6FFF and $7800-$7FFF are NOT registers.
+//
+//   The registers are write only: reading them returns the ROM
+//   content of the visible bank.
+//
+//   Reset leaves bank A = 0 and bank B = 0.
+//
+//   The bank number is masked: block < nrBlocks ? block : block & (n-1).
+//
+//   Pages 0 and 3 are not connected to the cartridge.
 
 using Z80;
 
 namespace CybernoidTest;
 
-/// <summary>Same shape as emu.ISlotDevice, declared here so the test
-/// project does not need a reference to msx.core.</summary>
-interface ISlotDevice
-{
-    byte Read(ushort address);
-    void Write(ushort address, byte value);
-}
-
-/// <summary>
-/// ASCII16 mapper cartridge, mirroring the format the Cybernoid ROM expects.
-//
-//   write to $6000-$6FFF : selects the 16K bank visible at $4000-$7FFF
-//   write to $7000-$7FFF : selects the 16K bank visible at $8000-$BFFF
-//
-// ROM layout (64K = 4 banks of 16K):
-//   file $0000-$3FFF  bank 0 -> MSX $4000-$7FFF   (engine, "AB" header)
-//   file $4000-$7FFF  bank 1 -> MSX $8000-$BFFF   (assets)
-//   file $8000-$BFFF  bank 2 -> MSX $8000-$BFFF   (assets)
-//   file $C000-$FFFF  bank 3 -> MSX $8000-$BFFF   (assets)
-// </summary>
 class Ascii16Cartridge : ISlotDevice
 {
     private readonly byte[] romData;
@@ -45,19 +35,26 @@ class Ascii16Cartridge : ISlotDevice
         this.romData = romData;
         bankCount = Math.Max(1, romData.Length / 0x4000);
         bankAt4000 = 0;
-        bankAt8000 = bankCount > 1 ? 1 : 0;
+        bankAt8000 = 0;          // the hardware reset state
+    }
+
+    /// <summary>Mask a bank number the way RomBlocks::setRom does.</summary>
+    private int Mask(int block)
+    {
+        if (block < bankCount) return block;
+        return block & (bankCount - 1);
     }
 
     public byte Read(ushort address)
     {
         if (address >= 0x4000 && address < 0x8000)
         {
-            int off = bankAt4000 * 0x4000 + (address - 0x4000);
+            int off = Mask(bankAt4000) * 0x4000 + (address - 0x4000);
             return off < romData.Length ? romData[off] : (byte)0xFF;
         }
         if (address >= 0x8000 && address < 0xC000)
         {
-            int off = bankAt8000 * 0x4000 + (address - 0x8000);
+            int off = Mask(bankAt8000) * 0x4000 + (address - 0x8000);
             return off < romData.Length ? romData[off] : (byte)0xFF;
         }
         return 0xFF;
@@ -65,15 +62,13 @@ class Ascii16Cartridge : ISlotDevice
 
     public void Write(ushort address, byte value)
     {
-        if (address >= 0x6000 && address < 0x7000)
+        // (0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)
+        if (address >= 0x6000 && address < 0x7800 && (address & 0x0800) == 0)
         {
-            bankAt4000 = value % bankCount;
+            int region = ((address >> 12) & 1) + 1;
+            if (region == 1) bankAt4000 = Mask(value);
+            else bankAt8000 = Mask(value);
         }
-        else if (address >= 0x7000 && address < 0x8000)
-        {
-            bankAt8000 = value % bankCount;
-        }
-        // $8000-$BFFF holds no registers: writes are ignored.
     }
 
     public (int at4000, int at8000) Banks => (bankAt4000, bankAt8000);

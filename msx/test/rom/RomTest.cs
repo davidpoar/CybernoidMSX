@@ -74,11 +74,26 @@ class RomBus : IMemoryBus
 class RomTest
 {
     static int failures = 0;
+    static ushort mainLoopAddr = 0x404E;
 
     static void Check(bool ok, string label, string detail = "")
     {
         Console.WriteLine($"  [{(ok ? "PASS" : "FAIL")}] {label}{(detail.Length > 0 ? " - " + detail : "")}");
         if (!ok) failures++;
+    }
+
+    /// <summary>Read the address of a label from the build's symbol file.</summary>
+    static ushort Sym(string buildDir, string name, ushort fallback)
+    {
+        string path = Path.Combine(buildDir, "rom_engine.sym");
+        if (!File.Exists(path)) return fallback;
+        foreach (var line in File.ReadAllLines(path))
+        {
+            var parts = line.Trim().Split();
+            if (parts.Length >= 3 && parts[0] == name)
+                return (ushort)Convert.ToInt32(parts[2].TrimEnd('H'), 16);
+        }
+        return fallback;
     }
 
     /// Build a machine with the cartridge in the given primary slot and
@@ -169,7 +184,9 @@ class RomTest
         }
 
         byte[] rom = File.ReadAllBytes(romPath);
-        Console.WriteLine($"Cybernoid 64K ROM test harness ({rom.Length} bytes)\n");
+        mainLoopAddr = Sym(buildDir, "MAINLOOP", 0x404E);
+        Console.WriteLine($"Cybernoid 64K ROM test harness ({rom.Length} bytes)");
+        Console.WriteLine($"  MAINLOOP at ${mainLoopAddr:X4}\n");
 
         // ------------------------------------------------------------------
         Console.WriteLine("1. Header");
@@ -202,7 +219,7 @@ class RomTest
         Console.WriteLine($"  banks: $4000->{cart.Banks.at4000}  "
                         + $"$8000->{cart.Banks.at8000}");
 
-        bool inMainLoop = cpu.PC >= 0x404A && cpu.PC <= 0x4052;
+        bool inMainLoop = cpu.PC >= mainLoopAddr && cpu.PC <= mainLoopAddr + 8;
         Check(inMainLoop, "Execution is in the main loop (no reboot)",
               $"PC = ${cpu.PC:X4}");
         Check(cpu.SP >= 0xF000, "Stack pointer is at the top of the RAM",
@@ -297,7 +314,7 @@ class RomTest
         {
             var (b, c, u) = Boot(biosPath, rom, cfg.cart, useBiosBoot: false);
             int p2 = (b.SlotRegister >> 4) & 0x03;
-            bool ok = p2 == cfg.cart && u.PC >= 0x404A && u.PC <= 0x4052;
+            bool ok = p2 == cfg.cart && u.PC >= mainLoopAddr && u.PC <= mainLoopAddr + 8;
             Check(ok, cfg.name,
                   $"page2=slot{p2}, PC=${u.PC:X4}, SP=${u.SP:X4}");
         }

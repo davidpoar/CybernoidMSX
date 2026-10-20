@@ -32,7 +32,6 @@ TMP_DIR = BUILD_DIR / 'tmp'
 INIT_ASM = SRC_DIR / 'rom.asm'
 INIT_BIN = BUILD_DIR / 'rom_engine.bin'
 INIT_SYM = BUILD_DIR / 'rom_engine.sym'
-
 ROM_OUT = BUILD_DIR / 'cybernoid.rom'
 BANK_SIZE = 0x4000
 ROM_BANKS = 4

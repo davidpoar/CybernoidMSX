@@ -1,4 +1,4 @@
-# Spectrum ROM Disassembly - Preface And Introduction
+# Spectrum ROM Disassembly - Preface and Introduction
 
 ---
 

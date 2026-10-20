@@ -1,4 +1,4 @@
-# Spectrum ROM Disassembly - The Restart Routines And Tables
+# Spectrum ROM Disassembly - The Restart Routines And The Tables
 
 ---
 

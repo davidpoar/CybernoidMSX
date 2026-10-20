@@ -131,10 +131,21 @@ INIT:
         rrca
         rrca
         and  $03                   ; slot of page 1
-        ld   c, a
-        ld   b, $00
+        ld   (our_slot), a
+
+        ; --- make sure page 2 ($8000-$BFFF) shows our cartridge ---
+        ; The MSX1 BIOS already maps pages 1 AND 2 of the cartridge
+        ; slot when it detects a two window mapper, but we do not
+        ; rely on it: if page 2 points somewhere else we switch it
+        ; with ENASLT.
+        ;
+        ; Slot id = FxxxSSPP: bit 7 = the slot is expanded, bits 3-2
+        ; = the secondary slot, bits 1-0 = the primary slot.
+        ld   a, (our_slot)
+        ld   e, a
+        ld   d, 0
         ld   hl, $FCC1              ; EXPTBL
-        add  hl, bc
+        add  hl, de
         or   (hl)                  ; bit 7 set when the slot is expanded
         ld   c, a
         inc  hl
@@ -144,19 +155,27 @@ INIT:
         ld   a, (hl)
         and  $0C
         or   c                     ; A = F000SSPP
-        ld   h, $80
         ld   (slot_id), a
 
-        ; --- switch page 2 ($8000-$BFFF) to our cartridge ------
-        ; This also disables the MSX BASIC ROM that normally
-        ; occupies page 2.
+        call RSLREG                ; A = primary slot register
+        and  $30                   ; the page 2 slot bits
+        rrca
+        rrca
+        cp   (our_slot)             ; is page 2 already ours?
+        jr   z, page2_ok
+        ; no: switch page 2 to our cartridge
         ld   a, (slot_id)
         ld   hl, $8000
         call ENASLT
+page2_ok:
 
         ; --- bank registers -------------------------------------
-        ; Bank 0 must stay in the $4000 window, so we never write
-        ; to $6000.  The $8000 window starts on bank 1.
+        ; The bank registers are plain memory in the ASCII16 mapper:
+        ;   $6000-$67FF selects the bank shown at $4000-$7FFF
+        ;   $7000-$77FF selects the bank shown at $8000-$BFFF
+        ; Bank 0 must stay in the $4000 window (it holds the engine),
+        ; so we never write to $6000.  The $8000 window starts on the
+        ; first asset bank.
         ld   a, 1
         call SETBANK_B
 
