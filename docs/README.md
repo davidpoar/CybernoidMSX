@@ -7,6 +7,7 @@ notes are written so they can be reused for other Spectrum to MSX ports.
 docs/
 ├── README.md              (this file - index)
 ├── PORTING_GUIDE.md       MSX hardware facts + conversion recipes
+├── STATUS.md              what is done, what is missing, how to go on
 ├── cybernoid/             Analysis of this particular game
 │   ├── README.md          Index of the game analysis
 │   ├── MEMORY_MAP.md      Post-LDDR memory layout, what is where
