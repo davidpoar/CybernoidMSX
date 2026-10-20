@@ -197,6 +197,10 @@ class Program
         {
             return ComTest.Run();
         }
+        if (Environment.GetEnvironmentVariable("CYBERNOID_ROM") == "1")
+        {
+            return RomTest.Run();
+        }
 
         string buildDir = Path.GetFullPath(
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "build"));
