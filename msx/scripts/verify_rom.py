@@ -157,19 +157,37 @@ check(not rets, 'No RET reachable from INIT without a CALL in between',
       f'{len(reached)} states walked')
 
 # The INIT must end in a jump to the main loop
-init_jp = None
-for a, s, n, r in insns:
-    if a >= init and s.upper().startswith('JP'):
-        init_jp = (a, s)
-        break
-check(init_jp is not None and init_jp[0] < 0x4060,
-      'INIT ends in a JP to the main loop',
-      f'${init_jp[0]:04X} {init_jp[1]}' if init_jp else 'not found')
+SYM = Path(r'C:\Dev\cybernoidMSX\msx\build\rom_engine.sym')
+symbols = {}
+if SYM.exists():
+    for line in SYM.read_text().splitlines():
+        parts = line.split()
+        if len(parts) >= 3 and not parts[0].startswith('.'):
+            try:
+                symbols[parts[0]] = int(parts[2].rstrip('H'), 16)
+            except ValueError:
+                pass
 
-# The main loop must contain HALT and loop back on itself
-halt_found = any(s.upper() == 'HALT' for a, s, n, r in insns
-                  if 0x404A <= a <= 0x4060)
-check(halt_found, 'Main loop waits with HALT')
+mainloop = symbols.get('MAINLOOP')
+init_jp = None
+if mainloop:
+    for a, s, n, r in insns:
+        if a >= init and s.upper().startswith('JP') and operand_value(s) == mainloop:
+            init_jp = (a, s)
+            break
+check(init_jp is not None, 'INIT ends in a JP to the main loop',
+      f'${init_jp[0]:04X} {init_jp[1]}' if init_jp else
+      (f'MAINLOOP = ${mainloop:04X}' if mainloop else 'no symbol file'))
+
+# The main loop must wait for the frame counter instead of running free
+frame_wait = False
+if 'frame_count' in symbols:
+    addr = symbols['frame_count']
+    ld_a = [a for a, s, n, r in insns
+            if a < 0x4100 and '0XC006' in s.upper()]
+    frame_wait = len(ld_a) >= 2
+check(frame_wait, 'Main loop waits for the frame counter',
+      f'frame_count = ${symbols.get("frame_count", 0):04X}')
 
 # ------------------------------------------------------------------
 print('\n5. Bank registers')
@@ -251,8 +269,49 @@ for i, (a, s, n, r) in enumerate(insns):
                 vol_ok += 1
 check(vol_ok == 3, 'Volume registers 8, 9 and 10 selected', f'{vol_ok}/3')
 
+# ... and the value written to them must be 0, not the register number.
+# (Writing the register number to the data port leaves channels B and C
+# with volume 9 and 10, which sounds like a machine gun.)
+vol_data_zero = 0
+for i, (a, s, n, r) in enumerate(insns):
+    if not s.upper().startswith('OUT ('):
+        continue
+    if operand_value(s) != 0xA1:
+        continue
+    # look back for the value that was loaded into A
+    for j in range(i - 1, max(i - 4, -1), -1):
+        u = insns[j][1].upper()
+        if u.startswith('XOR A'):
+            vol_data_zero += 1
+            break
+        if u.startswith('LD A,'):
+            if operand_value(insns[j][1]) == 0:
+                vol_data_zero += 1
+            break
+check(vol_data_zero >= 3,
+      'PSG volume registers always get a zero value',
+      f'{vol_data_zero} writes with 0')
+
 # ------------------------------------------------------------------
-print('\n8. Full listing of the engine')
+print('\n8. The vblank handler')
+# ------------------------------------------------------------------
+# The BIOS calls the address in $FD9F when the VDP interrupts.  The
+# ROM must put a JP there, otherwise the VRAM can never be written
+# during the vblank.
+hook_addr_used = any('0XFD9F' in s.upper() for a, s, n, r in insns)
+hook_jp = any(b'\xc3' in r and 'LD (HL)' in s.upper()
+              for a, s, n, r in insns)
+check(hook_addr_used and hook_jp,
+      'A JP is installed in the VDP interrupt hook at $FD9F',
+      f'hook address used: {hook_addr_used}, JP written: {hook_jp}')
+
+isr = symbols.get('ISR')
+if isr:
+    check(any(a == isr for a, s, n, r in insns),
+          'The ISR is in the symbol file', f'${isr:04X}')
+
+# ------------------------------------------------------------------
+print('\n9. Full listing of the engine')
 # ------------------------------------------------------------------
 print()
 for a, s, n, r in insns:

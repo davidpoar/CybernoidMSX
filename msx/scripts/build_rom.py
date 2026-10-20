@@ -29,6 +29,9 @@ BUILD_DIR = MSX_DIR / 'build'
 SRC_DIR = MSX_DIR / 'src'
 TMP_DIR = BUILD_DIR / 'tmp'
 
+sys.path.insert(0, str(SCRIPT_DIR))
+from assets import build_bank1  # noqa: E402
+
 INIT_ASM = SRC_DIR / 'rom.asm'
 INIT_BIN = BUILD_DIR / 'rom_engine.bin'
 INIT_SYM = BUILD_DIR / 'rom_engine.sym'
@@ -37,13 +40,23 @@ BANK_SIZE = 0x4000
 ROM_BANKS = 4
 ROM_SIZE = BANK_SIZE * ROM_BANKS
 
-# Assets to place in the switchable banks.  Each entry is
-#   (bank number, source file or None)
+# El contenido de los bancos conmutables.
+#   1: la pantalla (tabla de nombres, de patrones y de colores)
+#      mas las tablas de sprites
+#   2: los mapas de tiles comprimidos (mas adelante)
+#   3: la musica y los datos diversos (mas adelante)
 BANK_CONTENTS = {
-    1: None,      # filled in later: screen maps and tiles
-    2: None,      # filled in later: compressed tile maps
-    3: None,      # filled in later: sprite and misc data
+    1: 'screen',
+    2: None,
+    3: None,
 }
+
+
+def bank_payload(kind):
+    """Los datos de un banco, generados por assets.py."""
+    if kind == 'screen':
+        return build_bank1()
+    return None
 
 
 def run_pasmo(source, bin_out, sym_out=None):
@@ -94,17 +107,24 @@ def build_rom():
 
         if source is None:
             continue
-        path = Path(source)
-        if not path.is_absolute():
-            path = MSX_DIR / path
-        with open(path, 'rb') as f:
-            data = f.read()
+
+        if isinstance(source, str) and source in ('screen',):
+            data = bank_payload(source)
+            name = f'{source} (generated)'
+        else:
+            path = Path(source)
+            if not path.is_absolute():
+                path = MSX_DIR / path
+            with open(path, 'rb') as f:
+                data = f.read()
+            name = path.name
+
         if len(data) > BANK_SIZE - 1:
-            print(f'ERROR: {path.name} does not fit in bank {bank} '
+            print(f'ERROR: {name} does not fit in bank {bank} '
                   f'({len(data)} > {BANK_SIZE - 1})')
             sys.exit(1)
         rom[off + 1:off + 1 + len(data)] = data
-        print(f'  bank {bank}: {path.name} ({len(data)} bytes)')
+        print(f'  bank {bank}: {name} ({len(data)} bytes)')
 
     print('\n[3/3] Writing the ROM...')
     with open(ROM_OUT, 'wb') as f:

@@ -49,14 +49,13 @@ R7 = $F1   border colour
 
 ### The pattern table and the colour table are paired
 
-The TMS9918 gives each **group of eight character codes** one set of
-eight line colours. The colour table entry `i` holds the colours of
-pixel line `i` of the pattern in slot `i`: the low nibble is the
-colour of the 0 pixels and the high nibble the colour of the 1
+The colour table has an **exact byte to byte mapping with the pattern
+table**: the entry at the same offset gives the colours of that pixel
+line, the low nibble for the 0 pixels and the high nibble for the 1
 pixels.
 
-Because the character code is only 8 bits, the 768 slots of the
-pattern table are split into three 2 KB blocks:
+Because the character code is only 8 bits, the 6 KB of the pattern
+table are split into three 2 KB blocks, one per third of the screen:
 
 ```
 name table rows  0-7  use pattern block 0  ($0000-$07FF)
@@ -64,13 +63,18 @@ name table rows  8-15 use pattern block 1  ($0800-$0FFF)
 name table rows 16-23 use pattern block 2  ($1000-$17FF)
 ```
 
-and inside a block the character code is just the column number. So
-the name table is 24 rows of `0, 1, 2, ... 31`, and the pattern
-slot of cell (col, row) is:
+The name table is initialised with the character code sequence 0 to 255
+repeated three times, so the code of a cell is `(row % 8) * 32 + col`
+and the address of its pattern and its colours is:
 
 ```
-slot = (row/8)*$800 + (row%8)*$100 + col*8
+pattern = (row/8)*$800 + (row%8)*$100 + col*8
+colour  = $2000 + (row/8)*$800 + (row%8)*$100 + col*8
 ```
+
+With that layout every cell has its **own** eight colour bytes, so the
+Spectrum ink and paper can be reproduced exactly, cell by cell. That
+is what the native port does.
 
 ## The conversion
 
@@ -123,38 +127,34 @@ The MSX palette for reference:
 
 There is no cyan on the MSX, so Spectrum cyan becomes light blue.
 
-## The limitation of mode 2
-
-A mode 2 colour table entry covers a **group of eight character
-codes**, and all of them share the same eight line colours. The
-Spectrum has a separate ink and paper for **every cell**.
-
-So a faithful conversion is only possible if the cells that share a
-character code also share their colours. For a game where the
-background is one colour and the moving objects are another, that
-works. For a game where every cell is a different colour, it does
-not.
-
-This is what forces the choice between:
-
-* **converting the bitmap** and accepting that the colour table can
-  only hold 32 distinct colour groups, with the moving objects drawn
-  as sprites on top
-* **rewriting the drawing** with native TMS9918 sprites, which give
-  a colour per sprite
-
 ## The timing
 
-Copying 6 KB of pattern data and 768 bytes of colour data to the
-VDP is slow. The MSX1 VDP needs a minimum of 12 T states between
-accesses, and 24 in practice.
+Copying 6 KB of pattern data and 6 KB of colour data to the VDP is
+slow. The MSX1 VDP needs a minimum of 12 T states between accesses,
+and 24 in practice.
 
 The way to do it is to copy during **VBLANK**, using the VDP frame
-interrupt, and to use `OUTI`/`OTIR` when the data is contiguous,
-because they are much faster than a byte at a time loop.
+interrupt. On a real MSX the VDP only allows the VRAM to be written
+while the vertical blanking is active, so a full 13 KB of screen data
+cannot be copied in one go: it has to be spread over several frames.
 
 The VDP status register (`$99`) has the frame flag in bit 7, which
 is set during VBLANK.
+
+## The vblank handler of the native port
+
+The MSX1 BIOS calls the address in `$FD9F` (which is RAM on page 3)
+every time the VDP raises the interrupt, and `$FD9A` on every
+interrupt. Putting a `JP` in `$FD9F` is the standard way for a
+cartridge to get control at the start of the vertical blanking.
+
+The BIOS has already saved every register when it calls the hook, but
+it uses `A` right after the call, so the handler has to preserve it.
+
+The native port copies **one page of 256 bytes per frame** from the
+cartridge bank to the VRAM, which takes about 2.4 ms and fits
+comfortably inside the blanking period. The whole screen takes 51
+frames, about one second.
 
 ## What the Cybernoid port does
 
@@ -171,7 +171,7 @@ The conversion is incremental: `MSX_VIDEO_SYNC_ROWS` takes a number
 of rows and a rotating cursor, so the work can be spread over
 several frames. The name table is static and is written once.
 
-The native port (`msx/build/cybernoid.rom`) will use the same
-pattern and colour table layout, but the data comes from the
+The native port (`msx/build/cybernoid.rom`) uses the same pattern and
+colour table layout, but the data comes from the
 converted assets in the cartridge banks instead of from a live
 Spectrum screen buffer.

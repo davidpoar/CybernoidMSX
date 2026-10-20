@@ -5,9 +5,9 @@
 ;
 ;   file $0000-$3FFF (bank 0) -> MSX $4000-$7FFF
 ;        "AB" header, engine: INIT, VDP routines, bank switching,
-;        music, input
+;        the vblank handler and the VRAM loader
 ;   file $4000-$7FFF (bank 1) -> MSX $8000-$BFFF (window)
-;        assets: screen maps, tiles, sprites
+;        the screen: name table, pattern table, colour table
 ;   file $8000-$BFFF (bank 2) -> MSX $8000-$BFFF (window)
 ;        assets: compressed data
 ;   file $C000-$FFFF (bank 3) -> MSX $8000-$BFFF (window)
@@ -66,6 +66,18 @@ PSG_REG equ $A0
 PSG_DAT equ $A1
 
 ;----------------------------------------------------------
+; The interrupt hook of the BIOS
+;
+; The MSX1 BIOS calls the address in $FD9A on every interrupt and the
+; address in $FD9F when the VDP raises the interrupt.  Both live in
+; the RAM of page 3, so we can put a JP there and get control at the
+; start of every vblank.  That is where the VRAM has to be written:
+; on real hardware the VDP only allows VRAM access during the
+; vertical blanking period.
+;----------------------------------------------------------
+INT_HOOK_VDP equ $FD9F
+
+;----------------------------------------------------------
 ; RAM layout (page 3, $C000-$F37F)
 ;----------------------------------------------------------
 cur_bank    equ $C000          ; bank currently in the $8000 window
@@ -73,12 +85,12 @@ our_slot    equ $C001          ; primary slot of this cartridge
 slot_id     equ $C002          ; slot id (with the expander flag)
 saved_reg   equ $C003          ; primary slot register at boot
 bank_result equ $C004          ; result of the bank self test
-kbd_state   equ $C010          ; 11 bytes of MSX keyboard state
-spr_x       equ $C020          ; sprite X positions
-spr_y       equ $C030
-spr_pat     equ $C040
-spr_col     equ $C050
-spr_n       equ $C060          ; number of active sprites
+page2_test equ $C005          ; what was read at $8000 in the check
+frame_count equ $C006         ; incremented by the vblank handler
+job_phase   equ $C010          ; phase of the VRAM loader
+job_dst     equ $C011          ; 2 bytes: the VRAM address to write
+job_src     equ $C013          ; 2 bytes: the source in the bank
+job_pages   equ $C015          ; 2 bytes: 256 byte pages left
 
 ;----------------------------------------------------------
 ; Bank registers of the ASCII16 mapper (ordinary memory)
@@ -89,10 +101,14 @@ BANK_B  equ $7000              ; selects the bank at $8000-$BFFF
 ;----------------------------------------------------------
 ; SCREEN 2 (Graphic II) VRAM layout
 ;   $0000-$17FF  pattern generator (3 thirds of 2 KB)
-;   $1800-$1FFF  name table      (768 bytes)
+;   $1800-$1AFF  name table      (768 bytes)
 ;   $2000-$37FF  colour table     (3 thirds of 2 KB)
 ;   $3800-$3FFF  sprite patterns
 ;   $1B00-$1FFF  sprite attributes
+;
+; The colour table has an exact byte to byte mapping with the pattern
+; table: the entry at the same offset gives the colour of the 0 and
+; the 1 pixels of that pixel line.
 ;----------------------------------------------------------
 PATTERN_BASE  equ $0000
 NAME_BASE     equ $1800
@@ -112,6 +128,34 @@ VDP_R5  equ $36                ; sprite attributes at $1B00
 VDP_R6  equ $07                ; sprite patterns at $3800
 VDP_R7  equ $F1                ; border colour 1
 
+;----------------------------------------------------------
+; The VRAM loader
+;
+; The screen data lives in the first asset bank, so the engine only
+; has to copy it to the VRAM.  On real hardware that copy can only
+; happen during the vblank, so it is spread over several frames:
+; one page (256 bytes) per frame.
+;
+; job_pages counts the pages that are left.  It is stored with the
+; count in the high byte, because every part starts at an address
+; that is a multiple of 256.
+;----------------------------------------------------------
+SLICE        equ 256           ; bytes copied per frame
+NAME_PAGES   equ $0300         ; 3 pages: 768 bytes
+PAT_PAGES    equ $1800         ; 24 pages: 6144 bytes
+COL_PAGES    equ $1800         ; 24 pages: 6144 bytes
+SPR_PAGES    equ $0100         ; 1 page: 256 bytes
+SPRPAT_PAGES equ $0800         ; 8 pages: 2048 bytes
+
+; The addresses of each part inside the asset bank, as they are seen
+; through the $8000 window.  Offset 0 of the bank is the ID byte, so
+; the data starts at $8001.
+DATA_NAME     equ $8001
+DATA_PATTERN  equ $8301        ; $8001 + 3 pages
+DATA_COLOUR   equ $9B01        ; $8301 + 24 pages
+DATA_SPRATTR  equ $B301        ; $9B01 + 24 pages
+DATA_SPRPAT   equ $B401        ; $B301 + 1 page
+
 ;==========================================================
 ; INIT - called by the MSX BIOS at boot
 ;==========================================================
@@ -130,44 +174,58 @@ INIT:
         ld   (saved_reg), a
         rrca
         rrca
-        and  $03                   ; slot of page 1
+        and  $03                   ; the subslot of page 1
         ld   (our_slot), a
 
-        ; --- make sure page 2 ($8000-$BFFF) shows our cartridge ---
-        ; The MSX1 BIOS already maps pages 1 AND 2 of the cartridge
-        ; slot when it detects a two window mapper, but we do not
-        ; rely on it: if page 2 points somewhere else we switch it
-        ; with ENASLT.
-        ;
-        ; Slot id = FxxxSSPP: bit 7 = the slot is expanded, bits 3-2
-        ; = the secondary slot, bits 1-0 = the primary slot.
+        ; --- slot id for ENASLT ------------------------------------
+        ; The format is FxxxSSPP: bit 7 says the slot is expanded,
+        ; bits 2-3 are the secondary slot and bits 0-1 the primary
+        ; slot.  The MSX1 BIOS only looks at bits 0-1, but the MSX2
+        ; BIOS needs the secondary slot as well.
         ld   a, (our_slot)
         ld   e, a
         ld   d, 0
         ld   hl, $FCC1              ; EXPTBL
         add  hl, de
-        or   (hl)                  ; bit 7 set when the slot is expanded
+        ld   a, (hl)
+        and  $80                   ; only the "expanded" flag
         ld   c, a
-        inc  hl
-        inc  hl
-        inc  hl
-        inc  hl                    ; SLTTBL
+        ld   hl, $FCC5              ; SLTTBL
+        add  hl, de
         ld   a, (hl)
         and  $0C
-        or   c                     ; A = F000SSPP
+        or   e                      ; the primary slot
+        or   c                      ; A = FxxxSSPP
         ld   (slot_id), a
 
-        call RSLREG                ; A = primary slot register
-        and  $30                   ; the page 2 slot bits
-        rrca
-        rrca
-        cp   (our_slot)             ; is page 2 already ours?
+        ; --- make sure page 2 shows our cartridge -----------------
+        ; The MSX1 BIOS already maps pages 1 AND 2 of the cartridge
+        ; slot when it detects a two window mapper, so normally
+        ; there is nothing to do.  We check it with the ID byte of
+        ; the first asset bank: if page 2 were not the cartridge the
+        ; read would come from the RAM and the value would not be $B1.
+        ld   a, 1
+        call SETBANK_B
+        ld   a, ($8000)
+        ld   (page2_test), a
+        cp   $B1
         jr   z, page2_ok
-        ; no: switch page 2 to our cartridge
         ld   a, (slot_id)
         ld   hl, $8000
         call ENASLT
+        ld   a, 1
+        call SETBANK_B
 page2_ok:
+
+        ; --- our vblank handler -----------------------------------
+        ; Put a JP in the hook the BIOS calls on a VDP interrupt.
+        ld   hl, INT_HOOK_VDP
+        ld   (hl), $C3              ; JP nn
+        inc  hl
+        ld   de, ISR
+        ld   (hl), e                ; the low byte
+        inc  hl
+        ld   (hl), d                ; the high byte
 
         ; --- bank registers -------------------------------------
         ; The bank registers are plain memory in the ASCII16 mapper:
@@ -175,7 +233,7 @@ page2_ok:
         ;   $7000-$77FF selects the bank shown at $8000-$BFFF
         ; Bank 0 must stay in the $4000 window (it holds the engine),
         ; so we never write to $6000.  The $8000 window starts on the
-        ; first asset bank.
+        ; first asset bank, which holds the screen.
         ld   a, 1
         call SETBANK_B
 
@@ -186,6 +244,9 @@ page2_ok:
         ; --- self test of the mapper ----------------------------
         call BANK_SELFTEST
 
+        ; --- load the screen into the VRAM ----------------------
+        call JOB_START
+
         ; --- the game ------------------------------------------
         ; Never returns: MAINLOOP does not come back here.
         jp   MAINLOOP
@@ -193,14 +254,46 @@ page2_ok:
 ;==========================================================
 ; MAINLOOP - the main loop
 ;==========================================================
-; The VDP frame interrupt wakes us up once per frame, so the loop
-; stays in sync with the screen.
+; The vblank handler increments frame_count, so the loop runs once
+; per frame, in sync with the screen.
+;
+; We do not use HALT here on purpose: the loop waits for the frame
+; counter with a software spin.  That keeps the cartridge usable by
+; debuggers that stop the CPU as soon as it halts, and it costs
+; nothing on a real MSX, where the same thing happens with the
+; "wait for the vblank flag" technique.
 ;==========================================================
 MAINLOOP:
         ei
-        halt
+        ld   a, (frame_count)
+        ld   b, a
+main_wait:
+        ld   a, (frame_count)
+        cp   b
+        jr   z, main_wait
         ; --- game logic goes here ---
         jr   MAINLOOP
+
+;==========================================================
+; ISR - our VDP interrupt handler
+;----------------------------------------------------------
+; The BIOS calls the address in $FD9F at the start of the vblank,
+; with every register already saved.  It uses A after the call, so A
+; has to be preserved.
+;==========================================================
+ISR:
+        push af
+        push bc
+        push de
+        push hl
+        call JOB_NEXT
+        ld   hl, frame_count
+        inc  (hl)                  ; the main loop waits for this
+        pop   hl
+        pop   de
+        pop   bc
+        pop   af
+        ret
 
 ;==========================================================
 ; SETBANK_B - select the bank shown at $8000-$BFFF
@@ -257,10 +350,10 @@ st_bank_loop:
         ; restore bank 1
         ld   a, 1
         call SETBANK_B
-        pop  hl
-        pop  de
-        pop  bc
-        pop  af
+        pop   hl
+        pop   de
+        pop   bc
+        pop   af
         ret
 
 st_fail:
@@ -268,10 +361,137 @@ st_fail:
         ld   (bank_result), a
         ld   a, 1
         call SETBANK_B
-        pop  hl
-        pop  de
-        pop  bc
-        pop  af
+        pop   hl
+        pop   de
+        pop   bc
+        pop   af
+        ret
+
+;==========================================================
+; JOB_START - prepare the VRAM loader
+;----------------------------------------------------------
+; The screen data is in the first asset bank.  It is copied to the
+; VRAM one page per frame, during the vblank.
+;==========================================================
+JOB_START:
+        xor  a
+        ld   (job_phase), a
+        ld   hl, NAME_BASE
+        ld   (job_dst), hl
+        ld   hl, DATA_NAME
+        ld   (job_src), hl
+        ld   hl, NAME_PAGES
+        ld   (job_pages), hl
+        ret
+
+;==========================================================
+; JOB_NEXT - copy the next page of the screen to the VRAM
+;----------------------------------------------------------
+; Called from the vblank handler.  Copies 256 bytes and advances to
+; the next part of the screen when this one is finished.
+;==========================================================
+JOB_NEXT:
+        ld   a, (job_phase)
+        cp   5
+        jp   nc, job_idle
+
+        ; --- point the VDP at the destination ---
+        ld   a, (job_dst)
+        out  (VDP_CMD), a
+        ld   a, (job_dst+1)
+        or   $40
+        out  (VDP_CMD), a
+
+        ; --- the source inside the asset bank ---
+        ; job_src is the full address in the $8000 window, so the
+        ; data is read straight out of the cartridge.
+        ld   a, (job_src)
+        ld   l, a
+        ld   a, (job_src+1)
+        ld   h, a
+        ld   d, a                  ; D keeps the high byte: the copy
+                                  ; loop below moves HL
+
+        ; --- copy one page ---
+        ld   bc, SLICE
+job_copy:
+        ld   a, (hl)
+        out  (VDP_DAT), a
+        inc  hl
+        dec  bc
+        ld   a, b
+        or   c
+        jr   nz, job_copy
+
+        ; --- advance the source by one page ($100) ---
+        ; Every part starts at an address that is a multiple of 256,
+        ; so only the high byte changes.
+        inc  d
+        ld   a, d
+        ld   (job_src+1), a
+
+        ; --- advance the destination by one page ($100) ---
+        ld   a, (job_dst+1)
+        inc  a
+        ld   (job_dst+1), a
+
+        ; --- one page less ---
+        ld   a, (job_pages+1)
+        dec  a
+        ld   (job_pages+1), a
+        ld   a, (job_pages+1)
+        or   a
+        jr   nz, job_done        ; there are still pages left
+
+        ; --- this part is finished: on to the next one ---
+        ld   a, (job_phase)
+        inc  a
+        ld   (job_phase), a
+        cp   5
+        ret  z
+        cp   1
+        jp   z, job_pattern
+        cp   2
+        jp   z, job_colour
+        cp   3
+        jp   z, job_sprattr
+        ; the sprite patterns
+        ld   hl, SPRPAT_BASE
+        ld   (job_dst), hl
+        ld   hl, DATA_SPRPAT
+        ld   (job_src), hl
+        ld   hl, SPRPAT_PAGES
+        ld   (job_pages), hl
+        ret
+job_pattern:
+        ld   hl, PATTERN_BASE
+        ld   (job_dst), hl
+        ld   hl, DATA_PATTERN
+        ld   (job_src), hl
+        ld   hl, PAT_PAGES
+        ld   (job_pages), hl
+        ret
+job_colour:
+        ld   hl, COLOUR_BASE
+        ld   (job_dst), hl
+        ld   hl, DATA_COLOUR
+        ld   (job_src), hl
+        ld   hl, COL_PAGES
+        ld   (job_pages), hl
+        ret
+job_sprattr:
+        ld   hl, SPRATTR_BASE
+        ld   (job_dst), hl
+        ld   hl, DATA_SPRATTR
+        ld   (job_src), hl
+        ld   hl, SPR_PAGES
+        ld   (job_pages), hl
+        ret
+
+job_done:
+        ret
+
+job_idle:
         ret
 
 ;==========================================================
@@ -308,9 +528,6 @@ VDP_INIT:
         ld   c, 7
         call VDP_SETREG
 
-        ; clear the whole VRAM
-        call VDP_CLEAR
-
         pop   hl
         pop   de
         pop   bc
@@ -330,53 +547,12 @@ VDP_SETREG:
         out  (VDP_CMD), a
         ret
 
-;----------------------------------------------------------
-; VDP_SETADDR - set the VRAM write address
-;----------------------------------------------------------
-; Input: H = high byte, L = low byte
-;----------------------------------------------------------
-VDP_SETADDR:
-        ld   a, l
-        out  (VDP_CMD), a
-        ld   a, h
-        or   $40
-        out  (VDP_CMD), a
-        ret
-
-;----------------------------------------------------------
-; VDP_CLEAR - clear the 16K of VRAM
-;----------------------------------------------------------
-VDP_CLEAR:
-        push af
-        push bc
-        push de
-        push hl
-
-        ld   h, 0
-        ld   l, 0
-        call VDP_SETADDR
-
-        ld   bc, $4000
-        xor  a
-vdp_clear_loop:
-        out  (VDP_DAT), a
-        dec  bc
-        ld   a, b
-        or   c
-        ld   a, 0
-        jr   nz, vdp_clear_loop
-
-        pop   hl
-        pop   de
-        pop   bc
-        pop   af
-        ret
-
 ;==========================================================
 ; PSG_INIT - silence every channel
 ;==========================================================
 ; The PSG has two ports: $A0 selects the register and $A1 takes
-; the data.
+; the data.  Every channel needs its volume at zero, otherwise it
+; would make noise at boot.
 ;==========================================================
 PSG_INIT:
         push af
@@ -393,9 +569,11 @@ PSG_INIT:
         out  (PSG_DAT), a
         ld   a, $09                 ; channel B volume
         out  (PSG_REG), a
+        xor  a
         out  (PSG_DAT), a
         ld   a, $0A                 ; channel C volume
         out  (PSG_REG), a
+        xor  a
         out  (PSG_DAT), a
 
         pop   bc
