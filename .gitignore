@@ -24,3 +24,11 @@ Desktop.ini
 # spectrum/cybernoid_after_lddr.bin
 # spectrum/cybernoid_before_lddr.bin
 # docs/ula/00_spectrum_ula_full.txt
+
+# Capturas del emulador: son pruebas, se regeneran con
+#   msx/test con CYBERNOID_SPECTRUM=1
+spectrum/captures/*.png
+spectrum/captures/*.raw
+spectrum/captures/*.bin
+spectrum/captures/*.attrs
+!spectrum/captures/README.md
