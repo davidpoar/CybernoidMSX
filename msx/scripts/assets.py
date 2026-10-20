@@ -24,6 +24,8 @@ from pathlib import Path
 # Spectrum: 0 negro, 1 azul, 2 rojo, 3 magenta, 4 verde, 5 cian, 6 amarillo, 7 blanco
 # MSX:      1 negro, 8 azul medio, 9 rojo claro, 13 magenta,
 #           2 verde medio, 5 azul claro, 14 amarillo, 15 blanco
+from pathlib import Path
+
 SPECTRUM_TO_MSX = [1, 8, 9, 13, 2, 5, 14, 15]
 
 NAME_TABLE_SIZE = 768
@@ -85,6 +87,23 @@ def build_bank1():
     """El contenido del banco 1: la pantalla y las tablas de sprites."""
     data = build_test_screen() + build_blank_sprites()
     return data
+
+
+def load_converted(name='cybernoid_screen.bin'):
+    """Los datos ya convertidos de la pantalla original del Spectrum.
+
+    Se generan con convert_spectrum.py a partir de una captura de la
+    pantalla del juego (msx/test con CYBERNOID_SPECTRUM=1).  Si el
+    fichero no existe se cae en la pantalla de prueba.
+    """
+    path = Path(__file__).parent.parent / 'assets' / name
+    if path.exists():
+        data = path.read_bytes()
+        if len(data) == SCREEN_DATA_SIZE:
+            return data + build_blank_sprites()
+        print(f'  AVISO: {path.name} tiene {len(data)} bytes, '
+              f'se esperaban {SCREEN_DATA_SIZE}')
+    return build_bank1()
 
 
 if __name__ == '__main__':

@@ -30,7 +30,7 @@ SRC_DIR = MSX_DIR / 'src'
 TMP_DIR = BUILD_DIR / 'tmp'
 
 sys.path.insert(0, str(SCRIPT_DIR))
-from assets import build_bank1  # noqa: E402
+from assets import load_converted  # noqa: E402
 
 INIT_ASM = SRC_DIR / 'rom.asm'
 INIT_BIN = BUILD_DIR / 'rom_engine.bin'
@@ -109,8 +109,8 @@ def build_rom():
             continue
 
         if isinstance(source, str) and source in ('screen',):
-            data = bank_payload(source)
-            name = f'{source} (generated)'
+            data = load_converted()
+            name = 'cybernoid_screen.bin (convertido)'
         else:
             path = Path(source)
             if not path.is_absolute():

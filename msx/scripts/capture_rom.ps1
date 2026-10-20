@@ -7,8 +7,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 $emu = "C:\Dev\z80emu\msx\bin\Debug\net10.0\msx.exe"
-$rom = "C:\Users\rubbe\AppData\Local\Temp\opencode\msx-roms\cybernoid\cybernoid.rom"
+$romSrc = "$PSScriptRoot\..\build\cybernoid.rom"
 $work = "C:\Users\rubbe\AppData\Local\Temp\opencode\msx-roms"
+$rom = "$work\cybernoid\cybernoid.rom"
 
 Add-Type -AssemblyName System.Drawing
 Add-Type @"
@@ -22,9 +23,10 @@ public class Win {
 }
 "@
 
-if (-not (Test-Path $rom)) { throw "no esta la ROM en $rom" }
+if (-not (Test-Path $romSrc)) { throw "no esta la ROM en $romSrc" }
+New-Item -ItemType Directory -Force -Path (Split-Path $rom) | Out-Null
+Copy-Item $romSrc $rom -Force
 
-Get-Process msx -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 Start-Sleep -Milliseconds 500
 
 $proc = Start-Process -FilePath $emu -ArgumentList "-r", $rom, "--mapper", "ascii16" `
@@ -43,6 +45,7 @@ $hwnd = $proc.MainWindowHandle
 if ($hwnd -eq 0) { throw "no se encontro la ventana" }
 [void][Win]::SetForegroundWindow($hwnd)
 Start-Sleep -Milliseconds 700
+Write-Host "titulo: $($proc.MainWindowTitle)"
 
 $r = New-Object Win+RECT
 [void][Win]::GetWindowRect($hwnd, [ref]$r)

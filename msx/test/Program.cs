@@ -211,6 +211,10 @@ class Program
             EnasltProbe.Run();
             return 0;
         }
+        if (Environment.GetEnvironmentVariable("CYBERNOID_SPECTRUM") == "1")
+        {
+            return SpectrumTest.Run();
+        }
 
         string buildDir = Path.GetFullPath(
             Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "build"));
